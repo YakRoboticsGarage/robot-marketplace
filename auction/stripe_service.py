@@ -11,6 +11,7 @@ All methods return plain dicts. Stripe errors are caught and returned as
 from __future__ import annotations
 
 import logging
+import uuid
 
 import stripe
 
@@ -48,10 +49,12 @@ class StripeService:
         amount_cents: int,
         currency: str = "usd",
         metadata: dict | None = None,
+        idempotency_key: str | None = None,
     ) -> dict:
         """Create a PaymentIntent for wallet top-up.
 
         Returns the PaymentIntent as a dict, or a stub dict in stub mode.
+        Pass *idempotency_key* to make the operation safe for retries.
         """
         if self.stub_mode:
             result = {
@@ -70,6 +73,7 @@ class StripeService:
                 currency=currency,
                 metadata=metadata or {},
                 automatic_payment_methods={"enabled": True},
+                idempotency_key=idempotency_key or f"topup_{uuid.uuid4().hex}",
             )
             return _to_dict(pi)
         except stripe.error.StripeError as exc:
@@ -133,8 +137,12 @@ class StripeService:
         destination_account_id: str,
         transfer_group: str,
         metadata: dict | None = None,
+        idempotency_key: str | None = None,
     ) -> dict:
-        """Transfer funds to a connected account (operator payout)."""
+        """Transfer funds to a connected account (operator payout).
+
+        Pass *idempotency_key* to make the operation safe for retries.
+        """
         if self.stub_mode:
             result = {
                 "stub": True,
@@ -154,6 +162,7 @@ class StripeService:
                 destination=destination_account_id,
                 transfer_group=transfer_group,
                 metadata=metadata or {},
+                idempotency_key=idempotency_key or f"xfer_{uuid.uuid4().hex}",
             )
             return _to_dict(transfer)
         except stripe.error.StripeError as exc:

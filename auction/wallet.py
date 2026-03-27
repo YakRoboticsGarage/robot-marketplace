@@ -10,6 +10,7 @@ with StripeService (external Stripe API) for real/stub payment flows.
 
 from __future__ import annotations
 
+import threading
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -105,6 +106,7 @@ class WalletLedger:
     def __init__(self) -> None:
         self._balances: dict[str, Decimal] = {}
         self._entries: list[dict] = []
+        self._lock = threading.Lock()
 
     # -- helpers ----------------------------------------------------------
 
@@ -126,22 +128,23 @@ class WalletLedger:
         self, wallet_id: str, amount: Decimal, note: str = ""
     ) -> dict:
         """Add funds to an existing wallet and record a ledger entry."""
-        self._require_wallet(wallet_id)
-        amount = Decimal(str(amount))
-        if amount <= 0:
-            raise ValueError("Fund amount must be positive")
+        with self._lock:
+            self._require_wallet(wallet_id)
+            amount = Decimal(str(amount))
+            if amount <= 0:
+                raise ValueError("Fund amount must be positive")
 
-        self._balances[wallet_id] += amount
-        entry = _make_entry(
-            wallet_id=wallet_id,
-            entry_type="fund",
-            amount=amount,
-            balance_after=self._balances[wallet_id],
-            request_id=None,
-            note=note or "Wallet funded",
-        )
-        self._entries.append(entry)
-        return entry
+            self._balances[wallet_id] += amount
+            entry = _make_entry(
+                wallet_id=wallet_id,
+                entry_type="fund",
+                amount=amount,
+                balance_after=self._balances[wallet_id],
+                request_id=None,
+                note=note or "Wallet funded",
+            )
+            self._entries.append(entry)
+            return entry
 
     def check_balance(self, wallet_id: str, required: Decimal) -> bool:
         """Return ``True`` if the wallet has at least *required* funds."""
@@ -161,26 +164,29 @@ class WalletLedger:
         Raises :class:`InsufficientBalance` if the wallet cannot cover
         the debit.  The *amount* is stored as a **negative** value in the
         ledger entry (outflow).
+
+        Thread-safe: balance check and debit are atomic under a lock.
         """
-        self._require_wallet(wallet_id)
-        amount = Decimal(str(amount))
-        if amount <= 0:
-            raise ValueError("Debit amount must be positive")
+        with self._lock:
+            self._require_wallet(wallet_id)
+            amount = Decimal(str(amount))
+            if amount <= 0:
+                raise ValueError("Debit amount must be positive")
 
-        if self._balances[wallet_id] < amount:
-            raise InsufficientBalance(wallet_id, amount, self._balances[wallet_id])
+            if self._balances[wallet_id] < amount:
+                raise InsufficientBalance(wallet_id, amount, self._balances[wallet_id])
 
-        self._balances[wallet_id] -= amount
-        entry = _make_entry(
-            wallet_id=wallet_id,
-            entry_type=entry_type,
-            amount=-amount,
-            balance_after=self._balances[wallet_id],
-            request_id=request_id,
-            note=note,
-        )
-        self._entries.append(entry)
-        return entry
+            self._balances[wallet_id] -= amount
+            entry = _make_entry(
+                wallet_id=wallet_id,
+                entry_type=entry_type,
+                amount=-amount,
+                balance_after=self._balances[wallet_id],
+                request_id=request_id,
+                note=note,
+            )
+            self._entries.append(entry)
+            return entry
 
     def credit(
         self,
@@ -195,22 +201,23 @@ class WalletLedger:
         The *amount* is stored as a **positive** value in the ledger entry
         (inflow).
         """
-        self._require_wallet(wallet_id)
-        amount = Decimal(str(amount))
-        if amount <= 0:
-            raise ValueError("Credit amount must be positive")
+        with self._lock:
+            self._require_wallet(wallet_id)
+            amount = Decimal(str(amount))
+            if amount <= 0:
+                raise ValueError("Credit amount must be positive")
 
-        self._balances[wallet_id] += amount
-        entry = _make_entry(
-            wallet_id=wallet_id,
-            entry_type=entry_type,
-            amount=amount,
-            balance_after=self._balances[wallet_id],
-            request_id=request_id,
-            note=note,
-        )
-        self._entries.append(entry)
-        return entry
+            self._balances[wallet_id] += amount
+            entry = _make_entry(
+                wallet_id=wallet_id,
+                entry_type=entry_type,
+                amount=amount,
+                balance_after=self._balances[wallet_id],
+                request_id=request_id,
+                note=note,
+            )
+            self._entries.append(entry)
+            return entry
 
     def get_balance(self, wallet_id: str) -> Decimal:
         """Return the current balance of *wallet_id*."""

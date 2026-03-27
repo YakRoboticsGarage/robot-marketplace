@@ -66,6 +66,15 @@ except ImportError:  # pragma: no cover
 
 
 # ---------------------------------------------------------------------------
+# Rate limits and input size limits (v1.0.1 — Security M-1, M-4)
+# ---------------------------------------------------------------------------
+
+MAX_ACTIVE_TASKS_PER_WALLET = 20       # Prevent task-flooding
+MAX_REPOOL_ROUNDS = 3                  # Prevent infinite re-pool loops
+MAX_DESCRIPTION_LENGTH = 2000          # Prevent oversized task descriptions
+MAX_CAPABILITY_REQUIREMENTS_SIZE = 50  # Max keys in capability_requirements dict (nested)
+
+# ---------------------------------------------------------------------------
 # Valid state transitions (DM-6, Section 4 of PRODUCT_SPEC_V05)
 # ---------------------------------------------------------------------------
 
@@ -77,9 +86,9 @@ VALID_TRANSITIONS: dict[TaskState | None, list[TaskState]] = {
     TaskState.IN_PROGRESS:        [TaskState.DELIVERED, TaskState.ABANDONED, TaskState.WITHDRAWN],
     TaskState.DELIVERED:          [TaskState.VERIFIED, TaskState.REJECTED, TaskState.WITHDRAWN],
     TaskState.VERIFIED:           [TaskState.SETTLED],
-    TaskState.REJECTED:           [TaskState.RE_POOLED],           # NEW in v0.5
-    TaskState.ABANDONED:          [TaskState.RE_POOLED],           # NEW in v0.5
-    TaskState.PROVIDER_CANCELLED: [TaskState.RE_POOLED],           # NEW in v0.5
+    TaskState.REJECTED:           [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from rejected
+    TaskState.ABANDONED:          [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from abandoned
+    TaskState.PROVIDER_CANCELLED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from cancelled
     TaskState.RE_POOLED:          [TaskState.BIDDING, TaskState.WITHDRAWN],
     # Terminal states
     TaskState.SETTLED:            [],
@@ -346,6 +355,24 @@ class AuctionEngine:
         winner, and transitions RE_POOLED -> BIDDING (or WITHDRAWN if no
         eligible robots remain).
         """
+        # v1.0.1: Enforce max re-pool rounds (Security M-1)
+        if record.bid_round >= MAX_REPOOL_ROUNDS:
+            self._transition(record, TaskState.WITHDRAWN,
+                             f"max re-pool rounds ({MAX_REPOOL_ROUNDS}) exceeded")
+            # Refund any reservation
+            if self.wallet is not None:
+                try:
+                    reservation = (record.task.budget_ceiling * Decimal("0.25")).quantize(Decimal("0.01"))
+                    self.wallet.credit("buyer", reservation, record.request_id, "refund",
+                                       note=f"Refund: max re-pool rounds exceeded")
+                except Exception:
+                    pass  # Wallet may not have been debited
+            return {
+                "request_id": record.request_id,
+                "state": record.state.value,
+                "reason": f"Task withdrawn: exceeded max re-pool rounds ({MAX_REPOOL_ROUNDS})",
+            }
+
         # Record the previous winner for exclusion
         if record.winning_bid is not None:
             record.previous_winners.append(record.winning_bid.robot_id)
@@ -451,6 +478,29 @@ class AuctionEngine:
 
         State transitions: (none) -> POSTED -> BIDDING  (or WITHDRAWN if 0 eligible).
         """
+        # v1.0.1: Input size limits (Security M-4)
+        desc = task_spec.get("description", "")
+        if len(desc) > MAX_DESCRIPTION_LENGTH:
+            raise ValueError(
+                f"Description exceeds maximum length ({len(desc)} > {MAX_DESCRIPTION_LENGTH})"
+            )
+        cap_req = task_spec.get("capability_requirements", {})
+        if isinstance(cap_req, dict) and sum(len(v) if isinstance(v, dict) else 1 for v in cap_req.values()) > MAX_CAPABILITY_REQUIREMENTS_SIZE:
+            raise ValueError(
+                f"capability_requirements exceeds maximum size ({MAX_CAPABILITY_REQUIREMENTS_SIZE} keys)"
+            )
+
+        # v1.0.1: Rate limit — max active tasks per wallet (Security M-1)
+        active_count = sum(
+            1 for r in self._tasks.values()
+            if r.state not in (TaskState.SETTLED, TaskState.WITHDRAWN)
+        )
+        if active_count >= MAX_ACTIVE_TASKS_PER_WALLET:
+            raise ValueError(
+                f"Too many active tasks ({active_count} >= {MAX_ACTIVE_TASKS_PER_WALLET}). "
+                "Complete or cancel existing tasks first."
+            )
+
         # Validate full task spec upfront — return ALL errors at once (REC-3, REC-7)
         validation_errors = validate_task_spec(task_spec)
         if validation_errors:
@@ -668,8 +718,8 @@ class AuctionEngine:
         # v0.5: Wallet balance check and 25% reservation
         reservation = (bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
         if self.wallet is not None:
-            if not self.wallet.check_balance("buyer", bid.price):
-                raise InsufficientBalance("buyer", bid.price, self.wallet.get_balance("buyer"))
+            if not self.wallet.check_balance("buyer", reservation):
+                raise InsufficientBalance("buyer", reservation, self.wallet.get_balance("buyer"))
             self.wallet.debit("buyer", reservation, request_id, "reservation_25",
                               note=f"25% reservation for {robot_id}")
             log("PAYMENT", f"${reservation} debited (25% reservation) from buyer wallet")
@@ -841,8 +891,14 @@ class AuctionEngine:
             )
 
         # Plausibility checks (AHT20 sensor spec)
+        # v1.0.1: explicit None check — None from a sensor is invalid data, not absent data
         temp = delivery.data.get("temperature_celsius")
         humidity = delivery.data.get("humidity_percent")
+        required_fields = payload_spec.get("fields", [])
+        if "temperature_celsius" in required_fields and temp is None:
+            raise ValueError("temperature_celsius is required but was None")
+        if "humidity_percent" in required_fields and humidity is None:
+            raise ValueError("humidity_percent is required but was None")
         if temp is not None and not (-40 <= temp <= 85):
             raise ValueError(f"Temperature {temp}C outside plausible range [-40, 85]")
         if humidity is not None and not (0 <= humidity <= 100):

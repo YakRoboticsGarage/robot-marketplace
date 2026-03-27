@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 import stripe
@@ -120,6 +120,7 @@ class TestLiveMode:
             currency="usd",
             metadata={"wallet_id": "buyer_1"},
             automatic_payment_methods={"enabled": True},
+            idempotency_key=ANY,
         )
         assert result["id"] == "pi_test_123"
 
@@ -146,6 +147,7 @@ class TestLiveMode:
             destination="acct_op_789",
             transfer_group="req_abc",
             metadata={"request_id": "req_abc"},
+            idempotency_key=ANY,
         )
         assert result["id"] == "tr_test_456"
 
