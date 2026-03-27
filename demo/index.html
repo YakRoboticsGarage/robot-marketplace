@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YAK ROBOTICS — Hire Robots On Demand</title>
+<title>YAK ROBOTICS — Construction Survey Marketplace</title>
 <meta name="description" content="Hire robots for construction site surveys, inspections, and monitoring. Real robots, real results, real-time auctions.">
 <link rel="icon" href="yak-icon.png" type="image/png">
 <link rel="alternate" type="application/json" href="/.well-known/mcp.json">
@@ -11,7 +11,7 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":"YAK ROBOTICS Marketplace","description":"Robot task auction marketplace","url":"https://yakrobotics.com","applicationCategory":"Robotics, Marketplace","offers":{"@type":"AggregateOffer","lowPrice":"0.25","highPrice":"5.00","priceCurrency":"USD","offerCount":"3"},"provider":{"@type":"Organization","name":"YAK Robotics Garage"}}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -30,17 +30,17 @@
 }
 html{font-size:16px}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.hero h1,.bid-name,.robot-name{font-family:'IBM Plex Sans','Inter',system-ui,sans-serif}
+h1,h2,h3{font-weight:700;letter-spacing:-0.02em}
 .mono{font-family:'JetBrains Mono',monospace}
 .container{max-width:880px;margin:0 auto;padding:0 20px}
 
 /* Header */
-header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:none;margin:0 -20px}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.875rem;color:#ffffff;text-decoration:none}
+header{padding:16px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.875rem;color:var(--text);text-decoration:none}
 .logo img{width:28px;height:28px;border-radius:4px}
 .header-links{display:flex;gap:16px;align-items:center}
-.header-links a{font-size:0.8rem;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;transition:color 0.15s}
-.header-links a:hover{color:#ffffff}
+.header-links a{font-size:0.8rem;color:var(--text-2);text-decoration:none;font-weight:500;transition:color 0.15s}
+.header-links a:hover{color:var(--text)}
 
 /* Steps indicator */
 .steps{display:flex;justify-content:center;gap:0;padding:16px 0;font-size:0.72rem;color:var(--text-3);align-items:center}
@@ -60,16 +60,16 @@ header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;
 .hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:0.68rem;font-weight:500;color:var(--green);background:var(--green-bg);padding:5px 12px;border-radius:4px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
 .hero-badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px}
+.hero h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px;color:var(--text)}
 .hero .subtitle{font-size:1rem;color:var(--text-2);max-width:500px;margin:0 auto 8px;line-height:1.5}
 .hero .agent-line{font-size:0.8rem;color:var(--text-3);margin:0 auto 28px}
 
 /* Search */
 .search-wrap{position:relative;max-width:560px;margin:0 auto 16px}
-.search-input{width:100%;padding:14px 72px 14px 18px;font-family:inherit;font-size:0.95rem;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.search-input{width:100%;padding:14px 56px 14px 16px;font-family:inherit;font-size:0.95rem;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s}
 .search-input::placeholder{color:var(--text-3)}
 .search-input:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(45,95,138,0.12)}
-.search-go{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:56px;height:40px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;font-family:inherit;font-size:0.8rem;font-weight:600}
+.search-go{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:42px;height:38px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
 .search-go:hover{background:var(--accent-hover)}
 .search-go svg{width:18px;height:18px}
 
@@ -86,7 +86,7 @@ header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;
 .how-section{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:40px 0;padding:24px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 @media(max-width:600px){.how-section{grid-template-columns:1fr}}
 .how-step{text-align:center;padding:16px}
-.how-num{width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent-hover);font-weight:700;font-size:0.8rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
+.how-num{width:28px;height:28px;border-radius:6px;background:var(--accent);color:#fff;font-weight:700;font-size:0.8rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
 .how-step h3{font-size:0.875rem;font-weight:600;margin-bottom:4px}
 .how-step p{font-size:0.8rem;color:var(--text-2);line-height:1.5}
 
@@ -220,7 +220,7 @@ header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;
 .bid-name{font-weight:600;font-size:0.95rem;margin-bottom:2px}
 .bid-loc{font-size:0.72rem;color:var(--text-3);margin-bottom:14px}
 .bid-price-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
-.bid-price{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--navy)}
+.bid-price{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--text)}
 .bid-conf{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--green)}
 .score-row{margin-bottom:6px}
 .score-header{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-3);margin-bottom:2px}
@@ -241,7 +241,7 @@ header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;
 .result-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0}
 @media(max-width:500px){.result-meta{grid-template-columns:1fr}}
 .meta-box{background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
-.meta-val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--navy)}
+.meta-val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:600}
 .meta-lbl{font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
 .result-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0}
 
@@ -274,7 +274,7 @@ header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;
 @media(max-width:600px){.op-cta-grid{grid-template-columns:1fr}}
 
 /* Trust strip */
-.trust-strip{padding:20px 0;text-align:center;font-size:0.8rem;color:rgba(255,255,255,0.8);background:var(--navy);border-top:none;border-bottom:none;margin:0}
+.trust-strip{padding:16px 0;text-align:center;font-size:0.75rem;color:var(--text-3);background:var(--bg-subtle);border-top:1px solid var(--border);margin:0}
 .trust-strip span{display:inline-block;margin:0 10px;white-space:nowrap}
 .trust-strip span::before{content:"";display:inline-block;width:4px;height:4px;background:var(--green);border-radius:50%;margin-right:8px;vertical-align:middle}
 
@@ -371,7 +371,7 @@ footer a:hover{text-decoration:underline}
     <div class="agent-line">Or <a href="#" id="agentLinkCta" style="color:var(--accent);font-weight:500;text-decoration:none">click here to link your Agent</a></div>
     <div class="search-wrap">
       <input type="text" class="search-input" id="searchInput" placeholder="Upload RFP spec or describe your survey..." autocomplete="off" aria-label="Describe your task">
-      <button class="search-go" id="searchGo" aria-label="Submit">Search</button>
+      <button class="search-go" id="searchGo" aria-label="Get quotes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
     </div>
     <div class="cycling-example" id="cyclingEx" aria-live="polite">
       <span></span><span></span>
