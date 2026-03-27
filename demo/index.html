@@ -76,6 +76,9 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 .cycling-example span{position:absolute;left:0;right:0;transition:opacity 0.5s ease-in-out,transform 0.5s ease-in-out;opacity:0;transform:translateY(-8px)}
 .cycling-example span.visible{opacity:1;transform:translateY(0)}
 .cycling-example span.exit{opacity:0;transform:translateY(8px)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+.search-input.shake{animation:shake 0.4s ease-out;border-color:var(--red)}
+.robot-card.offline{opacity:0.5}
 
 /* How it works */
 .how-section{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:40px 0;padding:24px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
@@ -285,7 +288,7 @@ footer a:hover{text-decoration:underline}
 <!-- SCREEN 1: LANDING -->
 <div id="s-landing" class="screen active">
   <div class="hero">
-    <div class="hero-badge"><div class="dot"></div>3 robots online now</div>
+    <div class="hero-badge"><div class="dot"></div>312 robots online &middot; 1,047 registered worldwide</div>
     <h1>Hire a robot in seconds</h1>
     <div class="subtitle">Post a task, real robots compete, the best one delivers. Sensor readings, inspections, and surveys from $0.25.</div>
     <div class="agent-line">Works with Claude, GPT, and any MCP-compatible AI agent.</div>
@@ -298,6 +301,11 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
 
+  <div class="feed-section">
+    <div class="section-label"><div class="live"></div>Live Activity &mdash; <span style="font-weight:400;text-transform:none;letter-spacing:0">14,283 tasks completed this week</span></div>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+
   <div class="how-section" id="howSection">
     <div class="how-step"><div class="how-num">1</div><h3>Describe your task</h3><p>Type what you need in plain language. No technical setup required.</p></div>
     <div class="how-step"><div class="how-num">2</div><h3>Robots compete</h3><p>Available robots bid automatically. The best one wins on price, speed, and reliability.</p></div>
@@ -305,43 +313,14 @@ footer a:hover{text-decoration:underline}
   </div>
 
   <div class="robots-section">
-    <div class="section-label">Available Robots</div>
-    <div class="robot-grid" id="robotGrid">
-      <div class="robot-card" role="button" tabindex="0" data-robot="grey-subtlety">
-        <div class="robot-header"><div class="robot-avatar">GS</div><div><div class="robot-name">Grey Subtlety</div><div class="robot-loc">Bay 3 &middot; Helsinki</div></div></div>
-        <div class="robot-caps"><span class="cap">temperature</span><span class="cap">humidity</span><span class="cap mcp">MCP</span></div>
-        <div class="robot-specs">42s avg &middot; 99.2% uptime &middot; JSON &middot; IP67</div>
-        <div class="robot-meta"><div class="robot-price">$0.25</div><div class="robot-stars">&#9733;&#9733;&#9733;&#9733;&#9733;<em>(142)</em></div></div>
-        <div class="robot-online"><div class="odot"></div>Online</div>
-      </div>
-
-      <div class="robot-card" role="button" tabindex="0" data-robot="quiet-immensity">
-        <div class="robot-header"><div class="robot-avatar">QI</div><div><div class="robot-name">Quiet Immensity</div><div class="robot-loc">Bay 5 &middot; Helsinki</div></div></div>
-        <div class="robot-caps"><span class="cap">temperature</span><span class="cap">humidity</span><span class="cap mcp">MCP</span></div>
-        <div class="robot-specs">38s avg &middot; 98.7% uptime &middot; JSON &middot; IP65</div>
-        <div class="robot-meta"><div class="robot-price">$0.30</div><div class="robot-stars">&#9733;&#9733;&#9733;&#9733;&#9734;<em>(89)</em></div></div>
-        <div class="robot-online"><div class="odot"></div>Online</div>
-      </div>
-
-      <div class="robot-card" role="button" tabindex="0" data-robot="so-much-for-subtlety">
-        <div class="robot-header"><div class="robot-avatar">SB</div><div><div class="robot-name">So Much For Subtlety</div><div class="robot-loc">Building 2 &middot; Espoo</div></div></div>
-        <div class="robot-caps"><span class="cap">rgb camera</span><span class="cap">lidar</span><span class="cap mcp">MCP</span></div>
-        <div class="robot-specs">67s avg &middot; 97.1% uptime &middot; JSON/CSV &middot; IP54</div>
-        <div class="robot-meta"><div class="robot-price">$0.80</div><div class="robot-stars">&#9733;&#9733;&#9733;&#9734;&#9734;<em>(23)</em></div></div>
-        <div class="robot-online"><div class="odot"></div>Online</div>
-      </div>
-
-      <div class="register-cta" id="registerRobotCta">
-        <div class="plus">+</div>
-        <p>List your robot &mdash; start earning</p>
-        <span>Operators earn $120/month avg &middot; ERC-8004 compatible</span>
-      </div>
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Available Robots &mdash; <span id="robotCount">1,047</span> registered</span>
+      <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--green)"><span id="onlineCount">312</span> online now</span>
     </div>
-  </div>
-
-  <div class="feed-section">
-    <div class="section-label"><div class="live"></div>Live Activity</div>
-    <div class="feed-list" id="feedList"></div>
+    <div class="robot-grid" id="robotGrid"></div>
+    <div style="text-align:center;padding:16px 0" id="showMoreWrap">
+      <button class="btn btn-outline" id="showMoreBtn" style="font-size:0.8rem">Show more robots (1,047 total)</button>
+    </div>
   </div>
 </div>
 
@@ -393,7 +372,7 @@ footer a:hover{text-decoration:underline}
       <div class="parsed-row"><span class="plabel">Location</span><span class="pval green">Warehouse Bay 3</span></div>
       <div class="parsed-row"><span class="plabel">Est. Cost</span><span class="pval amber mono">$0.25 - $0.80</span></div>
       <div class="parsed-row"><span class="plabel">Est. Time</span><span class="pval">30s - 3 min</span></div>
-      <div class="parsed-row"><span class="plabel">Robots nearby</span><span class="pval green">3 online</span></div>
+      <div class="parsed-row"><span class="plabel">Robots nearby</span><span class="pval green" id="nearbyCount">8 online in Helsinki</span></div>
     </div>
     <div id="preConnect" class="cta-block">
       <p>Connect your AI assistant to get an exact quote and manage the auction on your behalf.</p>
@@ -481,6 +460,56 @@ footer a:hover{text-decoration:underline}
     <button class="btn btn-outline" id="downloadBtn">Download Data</button>
     <button class="btn btn-link" id="receiptBtn">View Receipt</button>
   </div>
+</div>
+
+<!-- SCREEN: BUY A ROBOT -->
+<div id="s-buyrobot" class="screen">
+  <div style="text-align:center;padding:40px 0 20px">
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:8px">Get Started with a Robot</h2>
+    <p style="color:var(--text-2);font-size:0.875rem;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto">Don't have a robot yet? Start earning on the marketplace with a starter kit. Plug in, register on-chain, and begin accepting tasks.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:24px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">&#129302;</div>
+      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">YakRover Starter Kit</h3>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);margin:8px 0">$299</div>
+      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
+        <li>&#10003; Temperature + humidity sensors</li>
+        <li>&#10003; WiFi + MCP server built-in</li>
+        <li>&#10003; ERC-8004 identity pre-registered</li>
+        <li>&#10003; Earns back cost in ~2.5 months</li>
+      </ul>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="alert('Pre-order coming Q2 2026.\n\nJoin waitlist: hello@yakrobotics.com')">Pre-order</button>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">&#128640;</div>
+      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">YakRover Pro</h3>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);margin:8px 0">$799</div>
+      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
+        <li>&#10003; All Starter sensors + camera + lidar</li>
+        <li>&#10003; Outdoor-rated (IP67)</li>
+        <li>&#10003; 8-hour battery, autonomous charging</li>
+        <li>&#10003; Earns back cost in ~6 months</li>
+      </ul>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="alert('Pre-order coming Q2 2026.\n\nJoin waitlist: hello@yakrobotics.com')">Pre-order</button>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">&#127968;</div>
+      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">Bring Your Own</h3>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text-2);margin:8px 0">Free</div>
+      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
+        <li>&#10003; Any robot with HTTP/MCP support</li>
+        <li>&#10003; ESP32, Raspberry Pi, ROS compatible</li>
+        <li>&#10003; Open-source registration script</li>
+        <li>&#10003; Community support on GitHub</li>
+      </ul>
+      <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank" class="btn btn-outline" style="margin-top:12px;width:100%;text-decoration:none;justify-content:center">View on GitHub</a>
+    </div>
+  </div>
+  <div class="cta-block" style="background:var(--accent-light)">
+    <p style="color:var(--accent-hover)"><strong>Estimated operator earnings:</strong> $120/month per robot for a typical industrial facility with 15+ daily tasks.</p>
+  </div>
+  <div style="text-align:center;padding:20px 0"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Back to marketplace</button></div>
 </div>
 
 <!-- SCREEN: OPERATOR -->
@@ -594,7 +623,7 @@ var robotData = {
 };
 
 // Cycling examples with proper crossfade (2 spans in DOM, toggle visible class)
-var examples=['Temperature reading in warehouse Bay 3','Photo of the loading dock entrance','Air quality survey for compliance report','Humidity check in cold storage unit','Structural vibration reading, Corridor 7','Inventory count aisle 12, night shift'];
+var examples=['Temperature reading in warehouse Bay 3','Photo of the loading dock entrance','Air quality survey for compliance report','Humidity check in cold storage unit','Structural vibration reading, Corridor 7','Inventory count aisle 12, night shift','Underwater pipe inspection (try me!)'];
 var exIdx=0;
 var cycSpans;
 function initCycling(){
@@ -621,17 +650,89 @@ function cycleExample(){
 initCycling();
 setInterval(cycleExample,3500);
 
-// Feed
+// Culture-style name generator
+var cultureAdj=['Grey','Quiet','Subtle','Honest','Precise','Steady','Bright','Keen','Swift','Bold','Calm','Clear','Deep','Fair','Fine','Grand','Noble','Pure','Sharp','True','Warm','Vast','Wise','Lucky','Prime','Dense','Flat','Raw','Dry','Odd','Mild','Rare','Soft','Dim','Lean','Neat','Pale','Rich','Slim','Tall','Full','Just','Last','Long','Dark','Open','Wide','Free','High','Low'];
+var cultureNoun=['Subtlety','Immensity','Clarity','Silence','Distance','Patience','Harmony','Gravity','Velocity','Fortune','Virtue','Resolve','Presence','Absence','Surplus','Insight','Outlook','Gesture','Whisper','Thunder','Echo','Tide','Drift','Margin','Surplus','Balance','Cadence','Lattice','Nexus','Zenith','Detail','Nuance','Notion','Impulse','Axiom','Vector','Vertex','Cipher','Prism','Epoch'];
+var cultureShips=['So Much For Subtlety','Just Read The Instructions','Falling Outside The Normal Moral Constraints','Experiencing A Significant Gravitas Shortfall','A Series Of Unlikely Explanations','Not Invented Here','Funny It Worked Last Time','Zero Gravitas','Mistake Not...','Xenophobe','Sense Amid Madness','Ethics Gradient','Limivorous','Attitude Adjuster','Kiss My Ass','No More Mr Nice Guy','Of Course I Still Love You','Sleeper Service','Bora Horza Gobuchul','Use Of Weapons'];
+function genName(i){if(i<3)return['Grey Subtlety','Quiet Immensity','So Much For Subtlety'][i];if(i<23)return cultureShips[i-3];return cultureAdj[i%cultureAdj.length]+' '+cultureNoun[Math.floor(i/cultureAdj.length)%cultureNoun.length]}
+var locations=['Helsinki','Espoo','Tampere','Turku','Oulu','Stockholm','Oslo','Berlin','Munich','Amsterdam','London','Paris','Tokyo','Seoul','Singapore','Dubai','New York','San Francisco','Sao Paulo','Sydney','Toronto','Zurich','Copenhagen','Vienna','Warsaw','Prague','Dublin','Bangalore','Shanghai','Cape Town'];
+var bays=['Bay 1','Bay 2','Bay 3','Bay 4','Bay 5','Bay 6','Bay 7','Bay 8','Bay 9','Bay 10','Building 1','Building 2','Building 3','Hangar A','Hangar B','Dock 1','Dock 2','Zone A','Zone B','Zone C'];
+var capSets=[['temperature','humidity'],['temperature','humidity','air quality'],['rgb camera','lidar'],['thermal camera'],['rgb camera'],['temperature','humidity','pressure'],['vibration','acoustic'],['gas detector','temperature'],['lidar','gps'],['rgb camera','thermal camera']];
+var ipRatings=['IP67','IP65','IP54','IP44','IP68','IP55','IP66'];
+
+function genRobotCard(i){
+  var name=genName(i);
+  var initials=name.split(' ').map(function(w){return w[0]}).join('').substring(0,2).toUpperCase();
+  var loc=bays[i%bays.length]+' \u00b7 '+locations[i%locations.length];
+  var caps=capSets[i%capSets.length];
+  var avgTime=(25+Math.floor(Math.random()*60))+'s';
+  var uptime=(95+Math.random()*4.9).toFixed(1)+'%';
+  var ip=ipRatings[i%ipRatings.length];
+  var price='$'+(0.15+Math.random()*1.2).toFixed(2);
+  var starCount=3+Math.floor(Math.random()*3);
+  var stars='';for(var s=0;s<5;s++)stars+=s<starCount?'\u2605':'\u2606';
+  var reviews=Math.floor(5+Math.random()*300);
+  var online=Math.random()>0.7;
+  var dataRobot=i<3?['grey-subtlety','quiet-immensity','so-much-for-subtlety'][i]:'';
+  var capsHtml=caps.map(function(c){return '<span class="cap">'+c+'</span>'}).join('')+'<span class="cap mcp">MCP</span>';
+  return '<div class="robot-card'+(online?'':' offline')+'" '+(dataRobot?'role="button" tabindex="0" data-robot="'+dataRobot+'"':'')+' title="'+name+'">'+
+    '<div class="robot-header"><div class="robot-avatar">'+initials+'</div><div><div class="robot-name">'+name+'</div><div class="robot-loc">'+loc+'</div></div></div>'+
+    '<div class="robot-caps">'+capsHtml+'</div>'+
+    '<div class="robot-specs">'+avgTime+' avg \u00b7 '+uptime+' uptime \u00b7 JSON \u00b7 '+ip+'</div>'+
+    '<div class="robot-meta"><div class="robot-price">'+price+'</div><div class="robot-stars">'+stars+'<em>('+reviews+')</em></div></div>'+
+    '<div class="robot-online"><div class="odot" style="background:'+(online?'var(--green)':'var(--text-3)')+'"></div>'+(online?'Online':'Offline')+'</div>'+
+    '</div>';
+}
+
+// Generate robot grid (show first 12 + register CTA)
+var robotGridEl=document.getElementById('robotGrid');
+var allRobotCards=[];
+for(var ri=0;ri<1047;ri++){allRobotCards.push(genRobotCard(ri))}
+var showingRobots=12;
+function renderRobotGrid(count){
+  robotGridEl.innerHTML=allRobotCards.slice(0,count).join('')+
+    '<div class="register-cta" id="registerRobotCta"><div class="plus">+</div><p>List your robot \u2014 start earning</p><span>Operators earn $120/month avg \u00b7 ERC-8004 compatible</span></div>';
+  // Re-attach detail click handlers for the first 3
+  document.querySelectorAll('.robot-card[data-robot]').forEach(function(card){
+    card.onclick=function(){var id=this.dataset.robot;if(!id)return;if(openDetailId===id){closeRobotDetail()}else{openRobotDetail(id)}};
+    card.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click()}};
+  });
+  document.getElementById('registerRobotCta').onclick=function(){showScreen('s-operator',0)};
+}
+renderRobotGrid(showingRobots);
+document.getElementById('showMoreBtn').onclick=function(){
+  showingRobots=Math.min(showingRobots+24,1047);
+  renderRobotGrid(showingRobots);
+  this.textContent='Show more robots ('+((1047-showingRobots)>0?(1047-showingRobots)+' more':'showing all')+')';
+  if(showingRobots>=1047)document.getElementById('showMoreWrap').style.display='none';
+};
+
+// Feed with more diverse robot names
 var feed=[
   {t:'done',txt:'Grey Subtlety completed humidity reading \u00b7 Helsinki',p:'$0.35',tm:'42s ago'},
-  {t:'online',txt:'Quiet Immensity came online \u00b7 Bay 5',p:'',tm:'2m ago'},
-  {t:'done',txt:'So Much For Subtlety completed aerial photo \u00b7 Espoo',p:'$1.20',tm:'5m ago'},
-  {t:'bid',txt:'Grey Subtlety won auction \u00b7 sensor reading',p:'$0.35',tm:'6m ago'},
-  {t:'done',txt:'Quiet Immensity completed temp reading \u00b7 Bay 5',p:'$0.40',tm:'11m ago'},
+  {t:'online',txt:'Ethics Gradient came online \u00b7 Stockholm',p:'',tm:'1m ago'},
+  {t:'done',txt:'Just Read The Instructions completed temp survey \u00b7 Berlin',p:'$0.28',tm:'2m ago'},
+  {t:'bid',txt:'Attitude Adjuster won auction \u00b7 air quality \u00b7 Tokyo',p:'$0.45',tm:'3m ago'},
+  {t:'done',txt:'Of Course I Still Love You completed vibration reading \u00b7 Oslo',p:'$0.62',tm:'4m ago'},
+  {t:'online',txt:'Sense Amid Madness came online \u00b7 Singapore',p:'',tm:'5m ago'},
+  {t:'done',txt:'Quiet Immensity completed temp reading \u00b7 Helsinki',p:'$0.40',tm:'6m ago'},
+  {t:'bid',txt:'Sleeper Service won auction \u00b7 thermal scan \u00b7 London',p:'$1.10',tm:'7m ago'},
 ];
 function renderFeed(){var l=document.getElementById('feedList');l.innerHTML='';feed.forEach(function(e,i){var d=document.createElement('div');d.className='feed-item';d.style.animationDelay=i*0.06+'s';d.innerHTML='<div class="fdot '+e.t+'"></div><span>'+e.txt+'</span>'+(e.p?'<span class="fprice">'+e.p+'</span>':'')+'<span class="ftime">'+e.tm+'</span>';l.appendChild(d)})}
 renderFeed();
-setInterval(function(){var names=['Grey Subtlety','Quiet Immensity','So Much For Subtlety'];var acts=[{t:'done',txt:names[Math.floor(Math.random()*2)]+' completed reading \u00b7 Helsinki',p:'$'+(0.25+Math.random()*0.5).toFixed(2)},{t:'bid',txt:'New auction \u00b7 '+['Bay 1','Bay 3','Bay 5'][Math.floor(Math.random()*3)],p:''}];var a=acts[Math.floor(Math.random()*acts.length)];feed.unshift({t:a.t,txt:a.txt,p:a.p,tm:'just now'});if(feed.length>8)feed.pop();renderFeed()},6000);
+setInterval(function(){
+  var feedNames=[genName(Math.floor(Math.random()*100))];
+  var feedLocs=locations[Math.floor(Math.random()*locations.length)];
+  var acts=[
+    {t:'done',txt:feedNames[0]+' completed reading \u00b7 '+feedLocs,p:'$'+(0.20+Math.random()*0.8).toFixed(2)},
+    {t:'bid',txt:'New auction \u00b7 '+bays[Math.floor(Math.random()*bays.length)]+' \u00b7 '+feedLocs,p:''},
+    {t:'online',txt:genName(Math.floor(Math.random()*200))+' came online \u00b7 '+feedLocs,p:''}
+  ];
+  var a=acts[Math.floor(Math.random()*acts.length)];
+  feed.unshift({t:a.t,txt:a.txt,p:a.p||'',tm:'just now'});
+  if(feed.length>10)feed.pop();
+  renderFeed();
+},4000);
 
 // Navigation
 function showScreen(id,step){
@@ -652,8 +753,37 @@ function showScreen(id,step){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// No-availability keywords
+var noAvailKeywords=['underwater','welding','nuclear','mining','space','submarine','x-ray','mri','surgical','demolition'];
+function isNoAvailRequest(q){var ql=q.toLowerCase();return noAvailKeywords.some(function(k){return ql.indexOf(k)!==-1})}
+
 // Search
-function submitSearch(){var q=document.getElementById('searchInput').value.trim();if(!q)return;document.getElementById('queryDisplay').textContent='"'+q+'"';showScreen('s-review',2)}
+function submitSearch(){
+  var q=document.getElementById('searchInput').value.trim();
+  if(!q){document.getElementById('searchInput').classList.add('shake');setTimeout(function(){document.getElementById('searchInput').classList.remove('shake')},500);return}
+  document.getElementById('queryDisplay').textContent='"'+q+'"';
+  if(isNoAvailRequest(q)){
+    document.getElementById('nearbyCount').textContent='0 available';
+    document.getElementById('nearbyCount').style.color='var(--red)';
+    // Show no-availability state
+    document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
+      if(i===0)r.querySelector('.pval').textContent='Specialized Task';
+      if(i===3)r.querySelector('.pval').textContent='No estimates available';
+    });
+    document.getElementById('preConnect').innerHTML='<div style="text-align:center;padding:8px 0"><div style="font-size:1.5rem;margin-bottom:8px">&#128270;</div><h3 style="font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--text)">No robots available for this task</h3><p style="color:var(--text-2);font-size:0.875rem;margin-bottom:16px;line-height:1.6">We don\'t currently have robots with the capabilities needed for this request. Here\'s what you can do:</p><div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;text-align:left"><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Set an alert</strong> \u2014 We\'ll notify you when a matching robot joins the network</div><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Browse available robots</strong> \u2014 See what 1,047 registered robots can do</div><div style="padding:12px;background:var(--accent-light);border-radius:var(--radius);font-size:0.8rem"><strong>Don\'t have a robot?</strong> \u2014 <a href="#" style="color:var(--accent);font-weight:600" onclick="showScreen(\'s-buyrobot\',0);return false">Buy a starter kit</a> and join the marketplace as an operator</div></div><div style="margin-top:16px"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Try a different request</button></div></div>';
+  } else {
+    // Reset to normal state
+    document.getElementById('nearbyCount').textContent='8 online in Helsinki';
+    document.getElementById('nearbyCount').style.color='var(--green)';
+    document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
+      if(i===0)r.querySelector('.pval').textContent='Sensor Reading';
+      if(i===3)r.querySelector('.pval').textContent='$0.25 - $0.80';
+    });
+    document.getElementById('preConnect').innerHTML='<p>Connect your AI assistant to get an exact quote and manage the auction on your behalf.</p><button class="btn btn-primary" id="connectBtn">Connect your AI assistant \u2192</button>';
+    document.getElementById('connectBtn').onclick=function(){this.textContent='Connecting...';this.style.opacity='0.5';setTimeout(function(){document.getElementById('preConnect').style.display='none';document.getElementById('postConnect').style.display='block'},1000)};
+  }
+  showScreen('s-review',2);
+}
 document.getElementById('searchGo').onclick=submitSearch;
 document.getElementById('searchInput').onkeydown=function(e){if(e.key==='Enter')submitSearch()};
 
