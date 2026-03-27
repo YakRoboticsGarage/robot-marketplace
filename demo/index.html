@@ -1385,8 +1385,11 @@ function renderAgentStep(){
       html+='<h3>Step 3: Run this in your terminal</h3>';
       html+='<p>One command — Claude Code handles the rest. No config files to edit.</p>';
       html+='<div class="config-snippet" id="agentConfigSnippet">'+addCmd+'</div>';
+      html+='<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">';
       html+='<button class="btn btn-outline" style="font-size:0.8rem" onclick="navigator.clipboard.writeText(document.getElementById(\'agentConfigSnippet\').textContent);this.textContent=\'Copied!\';var b=this;setTimeout(function(){b.textContent=\'Copy Command\'},1500)">Copy Command</button>';
-      html+='<div style="margin-top:10px;font-size:0.72rem;color:var(--text-3)">This adds the marketplace to your current project. Use <code>--scope user</code> to make it available everywhere.</div>';
+      if(s.step===3){ html+='<button class="btn btn-primary" style="font-size:0.8rem" onclick="agentLinkState.step=4;renderAgentStep()">Test Connection &rarr;</button>'; }
+      html+='</div>';
+      html+='<div style="margin-top:8px;font-size:0.72rem;color:var(--text-3)">This adds the marketplace to your current project. Use <code>--scope user</code> to make it available everywhere.</div>';
 
     } else if(s.agent==='claude-desktop'){
       // Claude Desktop: Custom Connectors or config file
@@ -1417,8 +1420,8 @@ function renderAgentStep(){
       html+='<button class="btn btn-outline" style="font-size:0.8rem" onclick="navigator.clipboard.writeText(document.getElementById(\'agentConfigSnippet\').textContent);this.textContent=\'Copied!\';var b=this;setTimeout(function(){b.textContent=\'Copy Config\'},1500)">Copy Config</button>';
     }
 
-    if(s.step===3){
-      html+=' <button class="btn btn-primary" style="font-size:0.8rem;margin-left:8px" onclick="agentLinkState.step=4;renderAgentStep()">Test Connection &rarr;</button>';
+    if(s.step===3 && s.agent!=='claude-code'){
+      html+='<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:0.8rem" onclick="agentLinkState.step=4;renderAgentStep()">Test Connection &rarr;</button></div>';
     }
     html+='</div>';
   }
