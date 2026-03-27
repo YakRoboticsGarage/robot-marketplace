@@ -123,6 +123,10 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 .robot-online{display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--green);font-weight:500;margin-top:8px}
 .robot-online .odot{width:5px;height:5px;background:var(--green);border-radius:50%}
 
+/* Fleet card styling */
+.robot-card.fleet-card{border-color:var(--accent);border-width:1.5px;background:linear-gradient(135deg,var(--bg-card) 0%,var(--accent-light) 100%)}
+.fleet-tag{display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;padding:2px 8px;background:var(--accent);color:#fff;border-radius:10px;font-weight:600}
+
 /* Robot Detail Panel */
 .robot-detail{display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-top:-8px;margin-bottom:14px;animation:fadeIn 0.25s ease-out both;grid-column:1/-1}
 .robot-detail.open{display:block}
@@ -158,6 +162,10 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 .register-cta .plus{font-size:1.5rem;color:var(--text-3);margin-bottom:4px}
 .register-cta p{font-size:0.8rem;font-weight:500;color:var(--text-2)}
 .register-cta span{font-size:0.72rem;color:var(--text-3)}
+
+/* Landing robot grid - 5 cards + CTA */
+.robot-grid-landing{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.robot-grid-landing{grid-template-columns:1fr}}
 
 /* Cards / Blocks */
 .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px}
@@ -272,6 +280,63 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 footer{padding:20px 0;text-align:center;font-size:0.72rem;color:var(--text-3);line-height:2}
 footer a{color:var(--link);text-decoration:none}
 footer a:hover{text-decoration:underline}
+
+/* Explorer screen */
+.explorer-header{display:flex;align-items:center;gap:12px;padding:24px 0 16px}
+.explorer-header h2{font-size:1.3rem;font-weight:700;flex:1}
+.explorer-count{font-size:0.8rem;color:var(--text-3)}
+.explorer-search{width:100%;padding:12px 18px;font-family:inherit;font-size:0.9rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-lg);color:var(--text);outline:none;transition:border-color 0.2s;margin-bottom:16px}
+.explorer-search:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(230,126,34,0.12)}
+.type-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.type-filter{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.8rem;font-weight:500;background:var(--bg);color:var(--text-2);cursor:pointer;transition:all 0.15s;font-family:inherit}
+.type-filter:hover{border-color:var(--accent);color:var(--accent)}
+.type-filter.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.explorer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+@media(max-width:600px){.explorer-grid{grid-template-columns:1fr}}
+
+/* Feed screen */
+.feed-full-list{display:flex;flex-direction:column;gap:2px}
+.feed-full-item{padding:12px 16px;border-radius:var(--radius);font-size:0.85rem;color:var(--text-2);cursor:pointer;transition:background 0.15s;border:1px solid transparent}
+.feed-full-item:hover{background:var(--bg-subtle);border-color:var(--border)}
+.feed-full-item .feed-main{display:flex;align-items:center;gap:10px}
+.feed-full-item .feed-detail{display:none;margin-top:10px;padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem;line-height:1.8}
+.feed-full-item.expanded .feed-detail{display:block}
+.feed-tabs{display:flex;gap:6px;margin-bottom:16px}
+.feed-tab{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.8rem;font-weight:500;background:var(--bg);color:var(--text-2);cursor:pointer;transition:all 0.15s;font-family:inherit}
+.feed-tab:hover{border-color:var(--accent);color:var(--accent)}
+.feed-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Profile screen */
+.profile-header{display:flex;align-items:center;gap:16px;padding:32px 0 20px}
+.profile-avatar{width:56px;height:56px;background:rgba(230,126,34,0.1);border:2px solid var(--border);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--accent-hover)}
+.profile-info h2{font-size:1.2rem;font-weight:700}
+.profile-info .profile-loc{font-size:0.8rem;color:var(--text-3)}
+.profile-info .profile-type{font-size:0.72rem;color:var(--accent);font-weight:600;margin-top:2px}
+
+/* Agent Link screen */
+.agent-steps{max-width:500px;margin:0 auto}
+.agent-step{padding:24px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;animation:fadeIn 0.3s ease-out both}
+.agent-step h3{font-size:0.95rem;font-weight:600;margin-bottom:12px}
+.agent-step p{font-size:0.85rem;color:var(--text-2);line-height:1.6;margin-bottom:12px}
+.agent-pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.agent-pick-grid{grid-template-columns:1fr}}
+.agent-pick{padding:16px;border:1.5px solid var(--border);border-radius:var(--radius);text-align:center;cursor:pointer;transition:all 0.15s;background:var(--bg)}
+.agent-pick:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.agent-pick.selected{border-color:var(--accent);background:var(--accent-light)}
+.agent-pick .ap-icon{font-size:1.3rem;margin-bottom:6px}
+.agent-pick .ap-name{font-weight:600;font-size:0.85rem}
+.api-key-display{font-family:'JetBrains Mono',monospace;font-size:0.85rem;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);word-break:break-all;margin:8px 0}
+.config-snippet{font-family:'JetBrains Mono',monospace;font-size:0.72rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;line-height:1.7;overflow-x:auto;white-space:pre-wrap;margin:8px 0}
+.tool-list{list-style:none;padding:0}
+.tool-list li{padding:8px 12px;border-bottom:1px solid var(--bg-subtle);font-size:0.8rem;display:flex;align-items:center;gap:8px}
+.tool-list li:last-child{border-bottom:none}
+.tool-list .tool-name{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent)}
+.tool-list .tool-desc{color:var(--text-2)}
+.success-check{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--green);border-radius:50%;color:#fff;font-size:1rem;margin-right:8px}
+
+/* Back button */
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:inherit;font-size:0.85rem;color:var(--text-2);cursor:pointer;padding:4px 0;font-weight:500;transition:color 0.15s}
+.back-btn:hover{color:var(--text)}
 </style>
 </head>
 <body>
@@ -299,8 +364,8 @@ footer a:hover{text-decoration:underline}
   <div class="hero">
     <div class="hero-badge"><div class="dot"></div>312 robots online &middot; 1,047 registered worldwide</div>
     <h1>Hire a robot in seconds</h1>
-    <div class="subtitle">Post a task, real robots compete, the best one delivers. Sensor readings, inspections, and surveys from $0.25.</div>
-    <div class="agent-line">Works with Claude, GPT, and any MCP-compatible AI agent.</div>
+    <div class="subtitle">Post a task, real robots compete, the best one delivers.</div>
+    <div class="agent-line">Or <a href="#" id="agentLinkCta" style="color:var(--accent);font-weight:500;text-decoration:none">click here to link your Agent</a></div>
     <div class="search-wrap">
       <input type="text" class="search-input" id="searchInput" placeholder="What do you need?" autocomplete="off" aria-label="Describe your task">
       <button class="search-go" id="searchGo" aria-label="Submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
@@ -311,14 +376,14 @@ footer a:hover{text-decoration:underline}
   </div>
 
   <div class="feed-section">
-    <div class="section-label"><div class="live"></div>Live Activity &mdash; <span style="font-weight:400;text-transform:none;letter-spacing:0">14,283 tasks completed this week</span></div>
+    <div class="section-label" style="cursor:pointer" id="feedSectionLabel" onclick="showScreen('s-feed',0)"><div class="live"></div>Live Activity &mdash; <span style="font-weight:400;text-transform:none;letter-spacing:0">14,283 tasks completed this week</span></div>
     <div class="feed-list" id="feedList"></div>
   </div>
 
   <div class="operator-cta-strip">
     <div class="ocs-content">
       <div class="ocs-main">
-        <strong>Own a robot?</strong> List it on the marketplace and start earning per task.
+        <strong>Own a robot?</strong> List it on the marketplace and start earning.
         <button class="btn btn-primary" style="padding:7px 18px;font-size:0.8rem;margin-left:12px" onclick="showScreen('s-operator',0)">List Your Robot</button>
       </div>
       <div class="ocs-fleet">
@@ -338,9 +403,9 @@ footer a:hover{text-decoration:underline}
       <span>Available Robots &mdash; <span id="robotCount">1,047</span> registered</span>
       <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--green)"><span id="onlineCount">312</span> online now</span>
     </div>
-    <div class="robot-grid" id="robotGrid"></div>
+    <div class="robot-grid-landing" id="robotGrid"></div>
     <div style="text-align:center;padding:16px 0" id="showMoreWrap">
-      <button class="btn btn-outline" id="showMoreBtn" style="font-size:0.8rem">Show more robots (1,047 total)</button>
+      <button class="btn btn-outline" id="showMoreBtn" style="font-size:0.8rem">Explore Robots &rarr;</button>
     </div>
   </div>
 </div>
@@ -481,6 +546,10 @@ footer a:hover{text-decoration:underline}
     <button class="btn btn-outline" id="downloadBtn">Download Data</button>
     <button class="btn btn-link" id="receiptBtn">View Receipt</button>
   </div>
+  <div class="cta-block" style="margin-top:24px;background:var(--accent-light)">
+    <p style="color:var(--accent-hover);margin-bottom:12px"><strong>Automate with your AI agent</strong><br>Connect your agent to post tasks, manage auctions, and get results programmatically.</p>
+    <button class="btn btn-primary" onclick="showScreen('s-agentlink',0)">Link Your Agent &rarr;</button>
+  </div>
 </div>
 
 <!-- SCREEN: BUY A ROBOT -->
@@ -558,6 +627,60 @@ footer a:hover{text-decoration:underline}
   </div>
   <div style="text-align:center;padding:20px 0"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Back to marketplace</button></div>
 </div>
+
+<!-- SCREEN: EXPLORER (PART C) -->
+<div id="s-explorer" class="screen">
+  <div class="explorer-header">
+    <button class="back-btn" onclick="resetDemo()">&larr; Back</button>
+    <h2>Explore Robots</h2>
+    <div class="explorer-count">1,047 registered</div>
+  </div>
+  <input type="text" class="explorer-search" id="explorerSearch" placeholder="Search by name or location..." autocomplete="off">
+  <div class="type-filters" id="typeFilters">
+    <button class="type-filter active" data-type="all">All</button>
+    <button class="type-filter" data-type="rover">&#x1f6de; Rovers</button>
+    <button class="type-filter" data-type="drone">&#x1f681; Drones</button>
+    <button class="type-filter" data-type="sensor">&#x1f4e1; Sensors</button>
+    <button class="type-filter" data-type="builder">&#x1f3d7; Builders</button>
+    <button class="type-filter" data-type="arm">&#x1f9be; Arms</button>
+    <button class="type-filter" data-type="humanoid">&#x1f916; Humanoids</button>
+    <button class="type-filter" data-type="fleet">&#x1f3e2; Fleets</button>
+  </div>
+  <div class="explorer-grid" id="explorerGrid"></div>
+  <div style="text-align:center;padding:20px 0" id="explorerLoadMore">
+    <button class="btn btn-outline" id="explorerLoadBtn" style="font-size:0.8rem">Load more</button>
+  </div>
+</div>
+
+<!-- SCREEN: PROFILE (PART D) -->
+<div id="s-profile" class="screen">
+  <div id="profileContent"></div>
+</div>
+
+<!-- SCREEN: FULL FEED (PART E) -->
+<div id="s-feed" class="screen">
+  <div class="explorer-header">
+    <button class="back-btn" onclick="resetDemo()">&larr; Back</button>
+    <h2>Live Activity</h2>
+    <div class="explorer-count">14,283 tasks this week</div>
+  </div>
+  <div class="feed-tabs" id="feedTabs">
+    <button class="feed-tab active" data-filter="all">All</button>
+    <button class="feed-tab" data-filter="done">Completed</button>
+    <button class="feed-tab" data-filter="bid">In Progress</button>
+  </div>
+  <div class="feed-full-list" id="feedFullList"></div>
+</div>
+
+<!-- SCREEN: AGENT LINK (PART F) -->
+<div id="s-agentlink" class="screen">
+  <div class="explorer-header">
+    <button class="back-btn" onclick="resetDemo()">&larr; Back</button>
+    <h2>Link Your Agent</h2>
+  </div>
+  <div class="agent-steps" id="agentSteps"></div>
+</div>
+
 </div>
 
 <!-- MODALS -->
@@ -587,12 +710,23 @@ footer a:hover{text-decoration:underline}
 </footer>
 
 <script>
+// ===== ROBOT TYPE SYSTEM (PART A) =====
+var robotTypes = ['rover','rover','drone','sensor','builder','arm','humanoid'];
+var robotTypeIcons = {rover:'\u{1F6DE}',drone:'\u{1F681}',sensor:'\u{1F4E1}',builder:'\u{1F3D7}',humanoid:'\u{1F916}',arm:'\u{1F9BE}',fleet:'\u{1F3E2}'};
+function getRobotType(i){
+  if(i%10===0 && i>0) return 'fleet';
+  return robotTypes[i%7];
+}
+function getRobotIcon(i){return robotTypeIcons[getRobotType(i)];}
+function getFleetSize(i){return 5+Math.floor((i*7+3)%16);}
+
 // Robot detail data
 var robotData = {
   'grey-subtlety': {
     name: 'Grey Subtlety',
     loc: 'Bay 3, Helsinki',
     ethAddr: '0x7a3B...f42E',
+    type: 'rover',
     specs: [
       {label:'Temperature sensor',value:'\u00b10.5\u00b0C accuracy, -40\u2013125\u00b0C range'},
       {label:'Humidity sensor',value:'\u00b12% RH, 0\u2013100% range'},
@@ -613,6 +747,7 @@ var robotData = {
     name: 'Quiet Immensity',
     loc: 'Bay 5, Helsinki',
     ethAddr: '0x3cF1...a89D',
+    type: 'rover',
     specs: [
       {label:'Temperature sensor',value:'\u00b10.5\u00b0C accuracy, -40\u2013125\u00b0C range'},
       {label:'Humidity sensor',value:'\u00b12% RH, 0\u2013100% range'},
@@ -633,6 +768,7 @@ var robotData = {
     name: 'So Much For Subtlety',
     loc: 'Building 2, Espoo',
     ethAddr: '0x9eA4...c17B',
+    type: 'drone',
     specs: [
       {label:'RGB camera',value:'12MP, f/2.0, autofocus, HDR'},
       {label:'LiDAR sensor',value:'360\u00b0, 30m range, \u00b12cm accuracy'},
@@ -688,8 +824,13 @@ var bays=['Bay 1','Bay 2','Bay 3','Bay 4','Bay 5','Bay 6','Bay 7','Bay 8','Bay 9
 var capSets=[['temperature','humidity'],['temperature','humidity','air quality'],['rgb camera','lidar'],['thermal camera'],['rgb camera'],['temperature','humidity','pressure'],['vibration','acoustic'],['gas detector','temperature'],['lidar','gps'],['rgb camera','thermal camera']];
 var ipRatings=['IP67','IP65','IP54','IP44','IP68','IP55','IP66'];
 
-function genRobotCard(i){
+function genRobotCard(i, opts){
+  opts = opts || {};
   var name=genName(i);
+  var icon=getRobotIcon(i);
+  var type=getRobotType(i);
+  var isFleet=type==='fleet';
+  var fleetSize=isFleet?getFleetSize(i):0;
   var initials=name.split(' ').map(function(w){return w[0]}).join('').substring(0,2).toUpperCase();
   var loc=bays[i%bays.length]+' \u00b7 '+locations[i%locations.length];
   var caps=capSets[i%capSets.length];
@@ -703,58 +844,82 @@ function genRobotCard(i){
   var online=Math.random()>0.7;
   var dataRobot=i<3?['grey-subtlety','quiet-immensity','so-much-for-subtlety'][i]:'';
   var capsHtml=caps.map(function(c){return '<span class="cap">'+c+'</span>'}).join('')+'<span class="cap mcp">MCP</span>';
-  return '<div class="robot-card'+(online?'':' offline')+'" '+(dataRobot?'role="button" tabindex="0" data-robot="'+dataRobot+'"':'')+' title="'+name+'">'+
-    '<div class="robot-header"><div class="robot-avatar">'+initials+'</div><div><div class="robot-name">'+name+'</div><div class="robot-loc">'+loc+'</div></div></div>'+
+
+  var onlineHtml;
+  if(isFleet){
+    onlineHtml='<div class="robot-online"><span class="fleet-tag">\u{1F3E2} Fleet \u00b7 '+fleetSize+' robots</span></div>';
+  } else {
+    onlineHtml='<div class="robot-online"><div class="odot" style="background:'+(online?'var(--green)':'var(--text-3)')+'"></div>'+(online?'Online':'Offline')+'</div>';
+  }
+
+  var clickable = dataRobot || opts.clickable;
+  var cardClass = 'robot-card'+(online||isFleet?'':' offline')+(isFleet?' fleet-card':'');
+
+  return '<div class="'+cardClass+'" '+(clickable?'role="button" tabindex="0"':'')+' '+(dataRobot?'data-robot="'+dataRobot+'"':'data-idx="'+i+'"')+' title="'+name+'">'+
+    '<div class="robot-header"><div class="robot-avatar">'+initials+'</div><div><div class="robot-name">'+icon+' '+name+'</div><div class="robot-loc">'+loc+'</div></div></div>'+
     '<div class="robot-caps">'+capsHtml+'</div>'+
     '<div class="robot-specs">'+avgTime+' avg \u00b7 '+uptime+' uptime \u00b7 JSON \u00b7 '+ip+'</div>'+
     '<div class="robot-meta"><div class="robot-price">'+price+'</div><div class="robot-stars">'+stars+'<em>('+reviews+')</em></div></div>'+
-    '<div class="robot-online"><div class="odot" style="background:'+(online?'var(--green)':'var(--text-3)')+'"></div>'+(online?'Online':'Offline')+'</div>'+
+    onlineHtml+
     '</div>';
 }
 
-// Generate robot grid (show first 12 + register CTA)
+// ===== LANDING PAGE: 5 cards + CTA (PART B) =====
 var robotGridEl=document.getElementById('robotGrid');
-var allRobotCards=[];
-for(var ri=0;ri<1047;ri++){allRobotCards.push(genRobotCard(ri))}
-var showingRobots=12;
-function renderRobotGrid(count){
-  robotGridEl.innerHTML=allRobotCards.slice(0,count).join('')+
-    '<div class="register-cta" id="registerRobotCta"><div class="plus">+</div><p>List your robot \u2014 start earning</p><span>Operators earn $120/month avg \u00b7 ERC-8004 compatible</span></div>';
-  // Re-attach detail click handlers for the first 3
-  document.querySelectorAll('.robot-card[data-robot]').forEach(function(card){
+
+function renderLandingGrid(){
+  // Row 1: 3 named robots (indices 0,1,2)
+  var html = '';
+  for(var ri=0;ri<3;ri++){html+=genRobotCard(ri);}
+  // Row 2: 2 generated + CTA
+  html+=genRobotCard(3,{clickable:true});
+  html+=genRobotCard(4,{clickable:true});
+  html+='<div class="register-cta" id="registerRobotCta"><div class="plus">+</div><p>List your robot \u2014 start earning</p><span>Operators earn $120/month avg \u00b7 ERC-8004 compatible</span></div>';
+  robotGridEl.innerHTML=html;
+
+  // Attach detail click handlers for named robots
+  document.querySelectorAll('#robotGrid .robot-card[data-robot]').forEach(function(card){
     card.onclick=function(){var id=this.dataset.robot;if(!id)return;if(openDetailId===id){closeRobotDetail()}else{openRobotDetail(id)}};
     card.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click()}};
   });
-  document.getElementById('registerRobotCta').onclick=function(){showScreen('s-operator',0)};
+  // Attach profile click for generated cards on landing
+  document.querySelectorAll('#robotGrid .robot-card[data-idx]').forEach(function(card){
+    card.onclick=function(){showRobotProfile(parseInt(this.dataset.idx))};
+    card.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();this.click()}};
+  });
+  var cta=document.getElementById('registerRobotCta');
+  if(cta) cta.onclick=function(){showScreen('s-operator',0)};
 }
-renderRobotGrid(showingRobots);
-document.getElementById('showMoreBtn').onclick=function(){
-  showingRobots=Math.min(showingRobots+24,1047);
-  renderRobotGrid(showingRobots);
-  this.textContent='Show more robots ('+((1047-showingRobots)>0?(1047-showingRobots)+' more':'showing all')+')';
-  if(showingRobots>=1047)document.getElementById('showMoreWrap').style.display='none';
-};
+renderLandingGrid();
 
-// Feed with more diverse robot names
+// "Explore Robots" button goes to explorer screen
+document.getElementById('showMoreBtn').onclick=function(){showScreen('s-explorer',0)};
+
+// ===== FEED with type icons and bold names (PART A) =====
+function feedRobotName(name,i){
+  var icon = (typeof i==='number') ? getRobotIcon(i) : '\u{1F916}';
+  return icon+' <strong style="color:var(--text)">'+name+'</strong>';
+}
 var feed=[
-  {t:'done',txt:'Grey Subtlety completed humidity reading \u00b7 Helsinki',p:'$0.35',tm:'42s ago'},
-  {t:'online',txt:'Ethics Gradient came online \u00b7 Stockholm',p:'',tm:'1m ago'},
-  {t:'done',txt:'Just Read The Instructions completed temp survey \u00b7 Berlin',p:'$0.28',tm:'2m ago'},
-  {t:'bid',txt:'Attitude Adjuster won auction \u00b7 air quality \u00b7 Tokyo',p:'$0.45',tm:'3m ago'},
-  {t:'done',txt:'Of Course I Still Love You completed vibration reading \u00b7 Oslo',p:'$0.62',tm:'4m ago'},
-  {t:'online',txt:'Sense Amid Madness came online \u00b7 Singapore',p:'',tm:'5m ago'},
-  {t:'done',txt:'Quiet Immensity completed temp reading \u00b7 Helsinki',p:'$0.40',tm:'6m ago'},
-  {t:'bid',txt:'Sleeper Service won auction \u00b7 thermal scan \u00b7 London',p:'$1.10',tm:'7m ago'},
+  {t:'done',txt:feedRobotName('Grey Subtlety',0)+' completed humidity reading \u00b7 Helsinki',p:'$0.35',tm:'42s ago',rtype:'done'},
+  {t:'online',txt:feedRobotName('Ethics Gradient',11)+' came online \u00b7 Stockholm',p:'',tm:'1m ago',rtype:'online'},
+  {t:'done',txt:feedRobotName('Just Read The Instructions',3)+' completed temp survey \u00b7 Berlin',p:'$0.28',tm:'2m ago',rtype:'done'},
+  {t:'bid',txt:feedRobotName('Attitude Adjuster',13)+' won auction \u00b7 air quality \u00b7 Tokyo',p:'$0.45',tm:'3m ago',rtype:'bid'},
+  {t:'done',txt:feedRobotName('Of Course I Still Love You',16)+' completed vibration reading \u00b7 Oslo',p:'$0.62',tm:'4m ago',rtype:'done'},
+  {t:'online',txt:feedRobotName('Sense Amid Madness',10)+' came online \u00b7 Singapore',p:'',tm:'5m ago',rtype:'online'},
+  {t:'done',txt:feedRobotName('Quiet Immensity',1)+' completed temp reading \u00b7 Helsinki',p:'$0.40',tm:'6m ago',rtype:'done'},
+  {t:'bid',txt:feedRobotName('Sleeper Service',17)+' won auction \u00b7 thermal scan \u00b7 London',p:'$1.10',tm:'7m ago',rtype:'bid'},
 ];
 function renderFeed(){var l=document.getElementById('feedList');l.innerHTML='';feed.forEach(function(e,i){var d=document.createElement('div');d.className='feed-item';d.style.animationDelay=i*0.06+'s';d.innerHTML='<div class="fdot '+e.t+'"></div><span>'+e.txt+'</span>'+(e.p?'<span class="fprice">'+e.p+'</span>':'')+'<span class="ftime">'+e.tm+'</span>';l.appendChild(d)})}
 renderFeed();
 setInterval(function(){
-  var feedNames=[genName(Math.floor(Math.random()*100))];
+  var ri=Math.floor(Math.random()*100);
+  var feedNames=[genName(ri)];
   var feedLocs=locations[Math.floor(Math.random()*locations.length)];
   var acts=[
-    {t:'done',txt:feedNames[0]+' completed reading \u00b7 '+feedLocs,p:'$'+(0.20+Math.random()*0.8).toFixed(2)},
+    {t:'done',txt:feedRobotName(feedNames[0],ri)+' completed reading \u00b7 '+feedLocs,p:'$'+(0.20+Math.random()*0.8).toFixed(2)},
     {t:'bid',txt:'New auction \u00b7 '+bays[Math.floor(Math.random()*bays.length)]+' \u00b7 '+feedLocs,p:''},
-    {t:'online',txt:genName(Math.floor(Math.random()*200))+' came online \u00b7 '+feedLocs,p:''}
+    {t:'online',txt:feedRobotName(genName(Math.floor(Math.random()*200)),ri)+' came online \u00b7 '+feedLocs,p:''}
   ];
   var a=acts[Math.floor(Math.random()*acts.length)];
   feed.unshift({t:a.t,txt:a.txt,p:a.p||'',tm:'just now'});
@@ -762,12 +927,13 @@ setInterval(function(){
   renderFeed();
 },4000);
 
-// Navigation
+// ===== NAVIGATION =====
+var hideStepScreens=['s-operator','s-buyrobot','s-explorer','s-feed','s-profile','s-agentlink'];
 function showScreen(id,step){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
   document.getElementById(id).classList.add('active');
   var indicator=document.getElementById('stepIndicator');
-  if(id==='s-operator'){
+  if(hideStepScreens.indexOf(id)!==-1){
     indicator.classList.add('hidden');
   } else {
     indicator.classList.remove('hidden');
@@ -779,6 +945,10 @@ function showScreen(id,step){
     });
   }
   window.scrollTo({top:0,behavior:'smooth'});
+
+  // Initialize screens on show
+  if(id==='s-explorer') initExplorer();
+  if(id==='s-feed') initFullFeed();
 }
 
 // No-availability keywords
@@ -793,14 +963,12 @@ function submitSearch(){
   if(isNoAvailRequest(q)){
     document.getElementById('nearbyCount').textContent='0 available';
     document.getElementById('nearbyCount').style.color='var(--red)';
-    // Show no-availability state
     document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
       if(i===0)r.querySelector('.pval').textContent='Specialized Task';
       if(i===3)r.querySelector('.pval').textContent='No estimates available';
     });
     document.getElementById('preConnect').innerHTML='<div style="text-align:center;padding:8px 0"><div style="font-size:1.5rem;margin-bottom:8px">&#128270;</div><h3 style="font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--text)">No robots available for this task</h3><p style="color:var(--text-2);font-size:0.875rem;margin-bottom:16px;line-height:1.6">We don\'t currently have robots with the capabilities needed for this request. Here\'s what you can do:</p><div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;text-align:left"><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Set an alert</strong> \u2014 We\'ll notify you when a matching robot joins the network</div><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Browse available robots</strong> \u2014 See what 1,047 registered robots can do</div><div style="padding:12px;background:var(--accent-light);border-radius:var(--radius);font-size:0.8rem"><strong>Don\'t have a robot?</strong> \u2014 <a href="#" style="color:var(--accent);font-weight:600" onclick="showScreen(\'s-buyrobot\',0);return false">Buy a starter kit</a> and join the marketplace as an operator</div></div><div style="margin-top:16px"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Try a different request</button></div></div>';
   } else {
-    // Reset to normal state
     document.getElementById('nearbyCount').textContent='8 online in Helsinki';
     document.getElementById('nearbyCount').style.color='var(--green)';
     document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
@@ -847,27 +1015,23 @@ function openRobotDetail(robotId){
   panel.querySelector('.detail-robot-name').textContent=data.name;
   panel.querySelector('.detail-robot-loc').textContent=data.loc;
 
-  // Specs
   var specsHtml='';
   data.specs.forEach(function(s){
     specsHtml+='<div class="detail-item"><div class="di-label">'+s.label+'</div><div class="di-value">'+s.value+'</div></div>';
   });
   panel.querySelector('.detail-specs').innerHTML=specsHtml;
 
-  // Certs
   var certsHtml='';
   data.certs.forEach(function(c){
     certsHtml+='<div class="cert-badge">'+c+'</div>';
   });
   panel.querySelector('.detail-certs').innerHTML=certsHtml;
 
-  // Task stats
   panel.querySelector('.detail-task-stats').innerHTML=
     '<div class="task-stat"><div class="ts-val">'+data.taskStats.completed+'</div><div class="ts-lbl">Tasks completed</div></div>'+
     '<div class="task-stat"><div class="ts-val" style="color:var(--green)">'+data.taskStats.rate+'</div><div class="ts-lbl">Completion rate</div></div>'+
     '<div class="task-stat"><div class="ts-val">'+data.taskStats.avgTime+'</div><div class="ts-lbl">Avg response time</div></div>';
 
-  // Reviews
   var reviewsHtml='';
   data.reviews.forEach(function(r){
     var stars='';
@@ -876,25 +1040,18 @@ function openRobotDetail(robotId){
   });
   panel.querySelector('.detail-reviews').innerHTML=reviewsHtml;
 
-  // On-chain link
   panel.querySelector('.detail-chain-link').href='https://basescan.org/address/'+data.ethAddr;
-
-  // Close button
   panel.querySelector('.close-detail').onclick=function(){closeRobotDetail()};
-
-  // Hire button
   panel.querySelector('.detail-hire-btn').onclick=function(){
     closeRobotDetail();
     document.getElementById('searchInput').value=data.searchPrefill;
     document.getElementById('searchInput').focus();
   };
 
-  // Insert after the clicked card in the grid
   var card=document.querySelector('[data-robot="'+robotId+'"]');
   card.after(clone);
   openDetailId=robotId;
 
-  // Scroll into view
   setTimeout(function(){
     document.getElementById('robotDetailPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
   },50);
@@ -906,29 +1063,12 @@ function closeRobotDetail(){
   openDetailId=null;
 }
 
-// Attach click handlers to robot cards
-document.querySelectorAll('.robot-card').forEach(function(card){
-  card.addEventListener('click',function(){
-    var id=this.dataset.robot;
-    if(!id) return;
-    if(openDetailId===id){
-      closeRobotDetail();
-    } else {
-      openRobotDetail(id);
-    }
-  });
-  card.addEventListener('keydown',function(e){
-    if(e.key==='Enter'||e.key===' '){
-      e.preventDefault();
-      this.click();
-    }
-  });
-});
-
 // Operator
 document.getElementById('operatorLink').onclick=function(e){e.preventDefault();showScreen('s-operator',0)};
-document.getElementById('registerRobotCta').onclick=function(){showScreen('s-operator',0)};
 document.getElementById('howLink').onclick=function(e){e.preventDefault();resetDemo();setTimeout(function(){document.getElementById('howSection').scrollIntoView({behavior:'smooth'})},100)};
+
+// Agent Link CTA
+document.getElementById('agentLinkCta').onclick=function(e){e.preventDefault();showScreen('s-agentlink',0);initAgentLink()};
 
 // Modals
 function openModal(title,content){document.getElementById('modalTitle').textContent=title;document.getElementById('modalContent').textContent=content;document.getElementById('modalOverlay').classList.add('open')}
@@ -939,6 +1079,363 @@ document.getElementById('modalOverlay').onclick=function(e){if(e.target===docume
 document.getElementById('addClaudeBtn').onclick=function(){openModal('Add to Claude','{\n  "mcpServers": {\n    "robot-marketplace": {\n      "type": "http",\n      "url": "https://marketplace.yakrobotics.com/fleet/mcp",\n      "headers": {\n        "Authorization": "Bearer YOUR_TOKEN"\n      }\n    }\n  }\n}\n\nPaste into .mcp.json or Claude Desktop settings.')};
 document.getElementById('downloadBtn').onclick=function(){openModal('Task Data','{\n  "temperature_celsius": 22.8,\n  "humidity_percent": 47.3,\n  "timestamp": "2026-03-27T09:14:42Z",\n  "robot_id": "grey-subtlety",\n  "request_id": "req_a1b2c3d4e5f6",\n  "location": "Warehouse Bay 3",\n  "accuracy": {\n    "temperature": "\u00b10.5\u00b0C",\n    "humidity": "\u00b12% RH"\n  }\n}')};
 document.getElementById('receiptBtn').onclick=function(){openModal('Receipt','YAK ROBOTICS MARKETPLACE\n\nTask: Sensor Reading \u2014 Bay 3\nRobot: Grey Subtlety\nAmount: $0.35\nPayment: Credit balance (Stripe)\nRef: req_a1b2c3d4e5f6\nDate: 2026-03-27 09:14:42 UTC\n\nBalance after: $24.65')};
+
+// ===== PART C: ROBOT EXPLORER =====
+var explorerShowing=0;
+var explorerFilter='all';
+var explorerQuery='';
+var explorerCache=[];
+
+function getFilteredRobots(){
+  var result=[];
+  for(var i=0;i<1047;i++){
+    var name=genName(i);
+    var loc=bays[i%bays.length]+' '+locations[i%locations.length];
+    var type=getRobotType(i);
+    if(explorerFilter!=='all' && type!==explorerFilter) continue;
+    if(explorerQuery){
+      var q=explorerQuery.toLowerCase();
+      if(name.toLowerCase().indexOf(q)===-1 && loc.toLowerCase().indexOf(q)===-1) continue;
+    }
+    result.push(i);
+  }
+  return result;
+}
+
+function initExplorer(){
+  explorerShowing=24;
+  explorerFilter='all';
+  explorerQuery='';
+  document.getElementById('explorerSearch').value='';
+  document.querySelectorAll('.type-filter').forEach(function(b){b.classList.remove('active')});
+  document.querySelector('.type-filter[data-type="all"]').classList.add('active');
+  renderExplorer();
+}
+
+function renderExplorer(){
+  explorerCache=getFilteredRobots();
+  var grid=document.getElementById('explorerGrid');
+  var toShow=explorerCache.slice(0,explorerShowing);
+  var html='';
+  toShow.forEach(function(idx){
+    html+=genRobotCard(idx,{clickable:true});
+  });
+  grid.innerHTML=html;
+
+  // Attach click handlers
+  grid.querySelectorAll('.robot-card[data-robot]').forEach(function(card){
+    card.onclick=function(){showRobotProfile(null,this.dataset.robot)};
+  });
+  grid.querySelectorAll('.robot-card[data-idx]').forEach(function(card){
+    card.onclick=function(){showRobotProfile(parseInt(this.dataset.idx))};
+  });
+
+  var loadMore=document.getElementById('explorerLoadMore');
+  if(explorerShowing>=explorerCache.length){
+    loadMore.style.display='none';
+  } else {
+    loadMore.style.display='block';
+    document.getElementById('explorerLoadBtn').textContent='Load more ('+Math.min(24,explorerCache.length-explorerShowing)+' of '+(explorerCache.length-explorerShowing)+' remaining)';
+  }
+}
+
+document.getElementById('explorerLoadBtn').onclick=function(){
+  explorerShowing=Math.min(explorerShowing+24,explorerCache.length);
+  renderExplorer();
+};
+
+document.getElementById('explorerSearch').oninput=function(){
+  explorerQuery=this.value.trim();
+  explorerShowing=24;
+  renderExplorer();
+};
+
+document.getElementById('typeFilters').onclick=function(e){
+  var btn=e.target.closest('.type-filter');
+  if(!btn) return;
+  document.querySelectorAll('.type-filter').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  explorerFilter=btn.dataset.type;
+  explorerShowing=24;
+  renderExplorer();
+};
+
+// ===== PART D: ROBOT PROFILE =====
+function showRobotProfile(idx, namedId){
+  var container=document.getElementById('profileContent');
+  var html='';
+
+  if(namedId && robotData[namedId]){
+    // Named robot with full data
+    var d=robotData[namedId];
+    var icon=robotTypeIcons[d.type]||'\u{1F916}';
+    html+='<button class="back-btn" onclick="showScreen(\'s-explorer\',0)">&larr; Back to Explorer</button>';
+    html+='<div class="profile-header"><div class="profile-avatar" style="font-size:1.5rem">'+icon+'</div><div class="profile-info"><h2>'+d.name+'</h2><div class="profile-loc">'+d.loc+'</div><div class="profile-type">'+icon+' '+d.type.charAt(0).toUpperCase()+d.type.slice(1)+'</div></div></div>';
+
+    html+='<div class="detail-section"><h4>Sensor Specifications</h4><div class="detail-grid">';
+    d.specs.forEach(function(s){html+='<div class="detail-item"><div class="di-label">'+s.label+'</div><div class="di-value">'+s.value+'</div></div>';});
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Certifications</h4><div class="cert-badges">';
+    d.certs.forEach(function(c){html+='<div class="cert-badge">'+c+'</div>';});
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Task History</h4><div class="task-stats">';
+    html+='<div class="task-stat"><div class="ts-val">'+d.taskStats.completed+'</div><div class="ts-lbl">Tasks completed</div></div>';
+    html+='<div class="task-stat"><div class="ts-val" style="color:var(--green)">'+d.taskStats.rate+'</div><div class="ts-lbl">Completion rate</div></div>';
+    html+='<div class="task-stat"><div class="ts-val">'+d.taskStats.avgTime+'</div><div class="ts-lbl">Avg response time</div></div>';
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Recent Reviews</h4>';
+    d.reviews.forEach(function(r){
+      var stars='';for(var i=0;i<5;i++)stars+=i<r.stars?'\u2605':'\u2606';
+      html+='<div class="review-item"><div class="review-header"><div class="review-stars">'+stars+'</div><div class="review-time">'+r.time+'</div></div><div class="review-text">'+r.text+'</div></div>';
+    });
+    html+='</div>';
+
+    html+='<div class="detail-actions"><button class="btn btn-primary" onclick="document.getElementById(\'searchInput\').value=\''+d.searchPrefill.replace(/'/g,"\\'")+'\';resetDemo();document.getElementById(\'searchInput\').focus()">Hire this robot</button>';
+    html+='<a href="https://basescan.org/address/'+d.ethAddr+'" target="_blank" class="btn btn-outline" style="font-size:0.8rem;text-decoration:none">View on-chain registration &rarr;</a></div>';
+  } else if(typeof idx==='number'){
+    // Generated robot with placeholder data
+    var name=genName(idx);
+    var type=getRobotType(idx);
+    var icon=robotTypeIcons[type];
+    var isFleet=type==='fleet';
+    var fleetSize=isFleet?getFleetSize(idx):0;
+    var loc=bays[idx%bays.length]+', '+locations[idx%locations.length];
+    var caps=capSets[idx%capSets.length];
+    var ip=ipRatings[idx%ipRatings.length];
+    var tasksCompleted=Math.floor(50+Math.random()*800);
+    var completionRate=(95+Math.random()*4.9).toFixed(1);
+    var avgTime=(25+Math.floor(Math.random()*60));
+
+    html+='<button class="back-btn" onclick="showScreen(\'s-explorer\',0)">&larr; Back to Explorer</button>';
+    html+='<div class="profile-header"><div class="profile-avatar" style="font-size:1.5rem">'+icon+'</div><div class="profile-info"><h2>'+name+'</h2><div class="profile-loc">'+loc+'</div><div class="profile-type">'+icon+' '+type.charAt(0).toUpperCase()+type.slice(1)+(isFleet?' \u00b7 '+fleetSize+' robots':'')+'</div></div></div>';
+
+    html+='<div class="detail-section"><h4>Capabilities</h4><div class="detail-grid">';
+    caps.forEach(function(c){
+      html+='<div class="detail-item"><div class="di-label">'+c.charAt(0).toUpperCase()+c.slice(1)+'</div><div class="di-value">Standard accuracy</div></div>';
+    });
+    html+='<div class="detail-item"><div class="di-label">IP Rating</div><div class="di-value">'+ip+'</div></div>';
+    html+='<div class="detail-item"><div class="di-label">Protocol</div><div class="di-value">MCP over HTTP</div></div>';
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Certifications</h4><div class="cert-badges">';
+    [ip,'CE','MCP'].forEach(function(c){html+='<div class="cert-badge">'+c+'</div>';});
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Task History</h4><div class="task-stats">';
+    html+='<div class="task-stat"><div class="ts-val">'+tasksCompleted+'</div><div class="ts-lbl">Tasks completed</div></div>';
+    html+='<div class="task-stat"><div class="ts-val" style="color:var(--green)">'+completionRate+'%</div><div class="ts-lbl">Completion rate</div></div>';
+    html+='<div class="task-stat"><div class="ts-val">'+avgTime+'s</div><div class="ts-lbl">Avg response time</div></div>';
+    html+='</div></div>';
+
+    html+='<div class="detail-section"><h4>Recent Reviews</h4>';
+    var reviewTexts=['Reliable and consistent. Good results every time.','Quick response, accurate readings within spec.','Works well for automated workflows via MCP.','Solid performance. Would hire again.'];
+    for(var r=0;r<3;r++){
+      var rStars=4+Math.floor(Math.random()*2);
+      var starsStr='';for(var si=0;si<5;si++)starsStr+=si<rStars?'\u2605':'\u2606';
+      var times=['2 days ago','5 days ago','1 week ago','2 weeks ago'];
+      html+='<div class="review-item"><div class="review-header"><div class="review-stars">'+starsStr+'</div><div class="review-time">'+times[r]+'</div></div><div class="review-text">'+reviewTexts[r]+'</div></div>';
+    }
+    html+='</div>';
+
+    var searchText=caps[0]+' reading in '+bays[idx%bays.length];
+    html+='<div class="detail-actions"><button class="btn btn-primary" onclick="document.getElementById(\'searchInput\').value=\''+searchText.replace(/'/g,"\\'")+'\';resetDemo();document.getElementById(\'searchInput\').focus()">Hire this robot</button></div>';
+  }
+
+  container.innerHTML=html;
+  showScreen('s-profile',0);
+}
+
+// ===== PART E: FULL FEED =====
+var fullFeedItems=[];
+var fullFeedFilter='all';
+
+function generateFeedItems(){
+  fullFeedItems=[];
+  var actions=['completed humidity reading','completed temperature survey','completed air quality scan','won auction \u00b7 thermal scan','completed vibration analysis','came online','completed photo inspection','won auction \u00b7 sensor reading','completed gas detection','came online'];
+  var statuses=['done','done','done','bid','done','online','done','bid','done','online'];
+  for(var i=0;i<40;i++){
+    var ri=Math.floor(Math.random()*200);
+    var name=genName(ri);
+    var loc=locations[Math.floor(Math.random()*locations.length)];
+    var ai=i%actions.length;
+    var price=(statuses[ai]==='done')?'$'+(0.20+Math.random()*1.2).toFixed(2):(statuses[ai]==='bid'?'$'+(0.30+Math.random()*0.8).toFixed(2):'');
+    var mins=i*2+Math.floor(Math.random()*5);
+    var tm=mins<60?mins+'m ago':Math.floor(mins/60)+'h ago';
+    var duration=(20+Math.floor(Math.random()*120))+'s';
+    var taskTypes=['Sensor Reading','Temperature Survey','Air Quality Scan','Thermal Scan','Vibration Analysis','Photo Inspection','Gas Detection','Environmental Report'];
+    fullFeedItems.push({
+      t:statuses[ai],
+      name:name,
+      icon:getRobotIcon(ri),
+      action:actions[ai],
+      loc:loc,
+      p:price,
+      tm:tm,
+      duration:duration,
+      taskType:taskTypes[ai%taskTypes.length],
+      costBreakdown:price?'Robot fee: '+price+' \u00b7 Platform: $0.02 \u00b7 Total: $'+(parseFloat(price.replace('$',''))+0.02).toFixed(2):''
+    });
+  }
+}
+
+function initFullFeed(){
+  generateFeedItems();
+  fullFeedFilter='all';
+  document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('.feed-tab[data-filter="all"]').classList.add('active');
+  renderFullFeed();
+}
+
+function renderFullFeed(){
+  var list=document.getElementById('feedFullList');
+  var filtered=fullFeedItems.filter(function(item){
+    if(fullFeedFilter==='all') return true;
+    return item.t===fullFeedFilter;
+  });
+  var html='';
+  filtered.forEach(function(item,i){
+    html+='<div class="feed-full-item" data-feed-idx="'+i+'">'+
+      '<div class="feed-main">'+
+        '<div class="fdot '+item.t+'"></div>'+
+        '<span>'+item.icon+' <strong style="color:var(--text)">'+item.name+'</strong> '+item.action+' \u00b7 '+item.loc+'</span>'+
+        (item.p?'<span class="fprice" style="margin-left:auto">'+item.p+'</span>':'')+
+        '<span class="ftime">'+item.tm+'</span>'+
+      '</div>'+
+      '<div class="feed-detail">'+
+        '<strong>Task type:</strong> '+item.taskType+'<br>'+
+        '<strong>Duration:</strong> '+item.duration+'<br>'+
+        (item.costBreakdown?'<strong>Cost:</strong> '+item.costBreakdown:'')+
+      '</div>'+
+    '</div>';
+  });
+  list.innerHTML=html;
+
+  // Attach expand/collapse
+  list.querySelectorAll('.feed-full-item').forEach(function(el){
+    el.onclick=function(){this.classList.toggle('expanded')};
+  });
+}
+
+document.getElementById('feedTabs').onclick=function(e){
+  var btn=e.target.closest('.feed-tab');
+  if(!btn) return;
+  document.querySelectorAll('.feed-tab').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  fullFeedFilter=btn.dataset.filter;
+  renderFullFeed();
+};
+
+// ===== PART F: AGENT LINK FLOW =====
+var agentLinkState={step:1,agent:'',apiKey:''};
+
+function genHex(len){var h='0123456789abcdef';var r='';for(var i=0;i<len;i++)r+=h[Math.floor(Math.random()*16)];return r}
+
+function initAgentLink(){
+  agentLinkState={step:1,agent:'',apiKey:'ym_live_'+genHex(32)};
+  renderAgentStep();
+}
+
+function renderAgentStep(){
+  var container=document.getElementById('agentSteps');
+  var s=agentLinkState;
+  var html='';
+
+  // Step 1: Pick agent
+  html+='<div class="agent-step">';
+  html+='<h3>Step 1: Choose your agent</h3>';
+  html+='<p>Select the AI agent you want to connect to the robot marketplace.</p>';
+  html+='<div class="agent-pick-grid">';
+  var agents=[
+    {id:'claude-code',name:'Claude Code',icon:'\u{1F4BB}'},
+    {id:'claude-desktop',name:'Claude Desktop',icon:'\u{1F5A5}'},
+    {id:'chatgpt',name:'ChatGPT',icon:'\u{1F4AC}'},
+    {id:'custom',name:'Custom Agent',icon:'\u{2699}'}
+  ];
+  agents.forEach(function(a){
+    html+='<div class="agent-pick'+(s.agent===a.id?' selected':'')+'" data-agent="'+a.id+'">';
+    html+='<div class="ap-icon">'+a.icon+'</div>';
+    html+='<div class="ap-name">'+a.name+'</div>';
+    html+='</div>';
+  });
+  html+='</div></div>';
+
+  if(s.step>=2){
+    // Step 2: API Key
+    html+='<div class="agent-step">';
+    html+='<h3>Step 2: Your API Key</h3>';
+    html+='<p>This key gives your agent access to the robot marketplace. Keep it secret.</p>';
+    html+='<div class="api-key-display">'+s.apiKey+'</div>';
+    html+='<button class="btn btn-outline" style="font-size:0.8rem" onclick="navigator.clipboard.writeText(\''+s.apiKey+'\');this.textContent=\'Copied!\';var b=this;setTimeout(function(){b.textContent=\'Copy Key\'},1500)">Copy Key</button>';
+    html+='</div>';
+  }
+
+  if(s.step>=3){
+    // Step 3: Config snippet
+    var agentLabel=s.agent==='claude-code'?'Claude Code':s.agent==='claude-desktop'?'Claude Desktop':s.agent==='chatgpt'?'ChatGPT':'Custom Agent';
+    var configJson='{\n  "mcpServers": {\n    "yak-robotics": {\n      "type": "http",\n      "url": "https://marketplace.yakrobotics.com/fleet/mcp",\n      "headers": {\n        "Authorization": "Bearer '+s.apiKey+'"\n      }\n    }\n  }\n}';
+    html+='<div class="agent-step">';
+    html+='<h3>Step 3: Add to '+agentLabel+'</h3>';
+    html+='<p>Add this to your <code>.mcp.json</code> configuration file:</p>';
+    html+='<div class="config-snippet" id="agentConfigSnippet">'+configJson+'</div>';
+    html+='<button class="btn btn-outline" style="font-size:0.8rem" onclick="navigator.clipboard.writeText(document.getElementById(\'agentConfigSnippet\').textContent);this.textContent=\'Copied!\';var b=this;setTimeout(function(){b.textContent=\'Copy Config\'},1500)">Copy Config</button>';
+    if(s.step===3){
+      html+=' <button class="btn btn-primary" style="font-size:0.8rem;margin-left:8px" onclick="agentLinkState.step=4;renderAgentStep()">Test Connection &rarr;</button>';
+    }
+    html+='</div>';
+  }
+
+  if(s.step>=4 && s.step<5){
+    // Step 4: Testing
+    html+='<div class="agent-step" style="text-align:center">';
+    html+='<h3>Step 4: Testing Connection</h3>';
+    html+='<div style="padding:20px 0"><span class="spinner" style="width:20px;height:20px"></span> Connecting to marketplace...</div>';
+    html+='</div>';
+    setTimeout(function(){agentLinkState.step=5;renderAgentStep()},2000);
+  }
+
+  if(s.step>=5){
+    // Step 4 done + Step 5: Tools
+    html+='<div class="agent-step">';
+    html+='<h3><span class="success-check">\u2713</span> Connection Successful</h3>';
+    html+='<p>Your agent is now connected to the YAK ROBOTICS marketplace. Here are the available tools:</p>';
+    html+='<ul class="tool-list">';
+    var tools=[
+      {name:'auction_post_task',desc:'Post a new task for robots to bid on'},
+      {name:'auction_quick_hire',desc:'Instantly hire the best available robot'},
+      {name:'auction_get_status',desc:'Check the status of an ongoing auction'},
+      {name:'auction_list_robots',desc:'Browse available robots and their capabilities'},
+      {name:'robot_get_reading',desc:'Get the latest sensor reading from a robot'},
+      {name:'payment_get_balance',desc:'Check your credit balance'},
+      {name:'payment_add_credits',desc:'Add credits to your account'}
+    ];
+    tools.forEach(function(t){
+      html+='<li><span class="tool-name">'+t.name+'</span> <span class="tool-desc">\u2014 '+t.desc+'</span></li>';
+    });
+    html+='</ul></div>';
+
+    html+='<div style="text-align:center;padding:16px 0"><button class="btn btn-primary" onclick="resetDemo()">Go to Marketplace &rarr;</button></div>';
+  }
+
+  container.innerHTML=html;
+
+  // Attach agent picker clicks
+  container.querySelectorAll('.agent-pick').forEach(function(el){
+    el.onclick=function(){
+      agentLinkState.agent=this.dataset.agent;
+      if(agentLinkState.step<2) agentLinkState.step=2;
+      // Small delay to show selection before advancing
+      container.querySelectorAll('.agent-pick').forEach(function(p){p.classList.remove('selected')});
+      this.classList.add('selected');
+      setTimeout(function(){
+        if(agentLinkState.step<3) agentLinkState.step=3;
+        renderAgentStep();
+      },300);
+    };
+  });
+}
 
 // Reset
 function resetDemo(){
