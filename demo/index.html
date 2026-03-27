@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAK ROBOTICS — Robot Task Marketplace</title>
+<meta name="description" content="Hire robots for sensor readings, inspections, and surveys. Real robots, real results, real-time auctions.">
+<link rel="alternate" type="application/json" href="/.well-known/mcp.json">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "YAK ROBOTICS Marketplace",
+  "description": "Robot task auction marketplace — post tasks, hire robots, pay on delivery",
+  "url": "https://yakrobotics.com",
+  "applicationCategory": "Robotics, Marketplace",
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "0.25",
+    "highPrice": "5.00",
+    "priceCurrency": "USD",
+    "offerCount": "3"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "YAK Robotics Garage",
+    "url": "https://github.com/YakRoboticsGarage"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep: #08090c;
+  --bg-surface: #0f1117;
+  --bg-raised: #161923;
+  --bg-card: #1a1e2b;
+  --border: #252a3a;
+  --border-bright: #3a4160;
+  --text-primary: #e8eaf0;
+  --text-secondary: #8a90a8;
+  --text-muted: #5a6080;
+  --accent: #22d3ee;
+  --accent-dim: #0e7490;
+  --accent-glow: rgba(34, 211, 238, 0.15);
+  --amber: #f59e0b;
+  --amber-dim: #92400e;
+  --amber-glow: rgba(245, 158, 11, 0.12);
+  --green: #34d399;
+  --green-dim: #065f46;
+  --red: #f87171;
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-display);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- GRAIN OVERLAY --- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- AMBIENT GRADIENT --- */
+.ambient {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  filter: blur(180px);
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+.ambient-1 { background: var(--accent); top: -200px; left: -100px; }
+.ambient-2 { background: var(--amber); bottom: -200px; right: -100px; }
+
+/* --- LAYOUT --- */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* --- HEADER --- */
+header {
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.op-login {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  transition: color 0.2s;
+}
+.op-login:hover { color: var(--text-secondary); }
+
+/* --- SCREENS --- */
+.screen {
+  display: none;
+  animation: fadeUp 0.5s ease-out both;
+}
+.screen.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- SCREEN 1: LANDING --- */
+.hero {
+  text-align: center;
+  padding: 80px 0 40px;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+}
+.hero h1 span { color: var(--text-muted); }
+
+.search-wrap {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+.search-input {
+  width: 100%;
+  padding: 18px 70px 18px 24px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 400;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 60px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.3);
+}
+.search-go {
+  position: absolute;
+  right: 6px; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--bg-deep);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, box-shadow 0.3s;
+}
+.search-go:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 0 20px rgba(34,211,238,0.4);
+}
+.search-go svg { width: 20px; height: 20px; }
+
+.examples {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+.examples em {
+  font-style: normal;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.examples em:hover { color: var(--accent); }
+
+/* --- LIVE FEED --- */
+.feed-section {
+  margin-top: 48px;
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+}
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label .live-pip {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 210px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+.feed-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  animation: feedSlideIn 0.4s ease-out both;
+  background: transparent;
+  transition: background 0.2s;
+}
+.feed-item:hover { background: var(--bg-raised); }
+@keyframes feedSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.feed-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.feed-dot.completed { background: var(--green); }
+.feed-dot.online { background: var(--amber); }
+.feed-dot.auction { background: var(--accent); }
+.feed-time {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.feed-price {
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-size: 0.78rem;
+}
+
+/* --- ROBOT CARDS --- */
+.robots-section {
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  padding-bottom: 60px;
+}
+.robot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.robot-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: transform 0.25s, border-color 0.3s, box-shadow 0.3s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.robot-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.robot-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-bright);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.robot-card:hover::before { opacity: 1; }
+
+.robot-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.robot-icon {
+  width: 40px; height: 40px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.robot-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.robot-location {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.robot-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.cap-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.robot-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.robot-price {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+.robot-price span { color: var(--text-muted); font-size: 0.7rem; }
+.robot-stars {
+  font-size: 0.7rem;
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+.robot-stars span { color: var(--text-muted); font-size: 0.65rem; margin-left: 4px; }
+.robot-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--green);
+  letter-spacing: 0.06em;
+  margin-top: 10px;
+}
+.robot-status .status-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--green);
+}
+
+/* --- FOOTER --- */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  line-height: 2;
+}
+footer a { color: var(--text-secondary); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+
+/* --- SCREEN 2: INTENT --- */
+.intent-block {
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+.user-query {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  padding: 20px 24px;
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 28px;
+}
+.parsed-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.parsed-card h3 {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.parsed-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.parsed-row:last-child { border-bottom: none; }
+.parsed-label { color: var(--text-muted); font-weight: 400; }
+.parsed-value { color: var(--text-primary); font-weight: 500; }
+.parsed-value.highlight { color: var(--green); }
+.parsed-value.cost { font-family: var(--font-mono); color: var(--amber); }
+
+.connect-card {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-raised));
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  text-align: center;
+}
+.connect-card p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 60px;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.3s;
+}
+.btn:hover { transform: scale(1.03); }
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-deep);
+  box-shadow: 0 4px 20px rgba(34,211,238,0.25);
+}
+.btn-primary:hover { box-shadow: 0 6px 30px rgba(34,211,238,0.4); }
+.btn-secondary {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border-bright);
+}
+.btn-secondary:hover { border-color: var(--accent-dim); }
+.btn-amber {
+  background: var(--amber);
+  color: var(--bg-deep);
+  box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+}
+.connect-features {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* --- SCREEN 3: CLAUDE SPEC --- */
+.spec-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin: 30px 0;
+  position: relative;
+}
+.spec-card::before {
+  content: 'Structured by Claude';
+  position: absolute;
+  top: -10px; left: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: var(--bg-card);
+  padding: 2px 10px;
+  text-transform: uppercase;
+}
+.spec-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 2;
+}
+.spec-code .key { color: var(--text-muted); }
+.spec-code .val { color: var(--text-primary); }
+.spec-code .val-accent { color: var(--accent); }
+.spec-code .val-amber { color: var(--amber); }
+
+/* --- SCREEN 4: PAYMENT --- */
+.payment-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 30px 0;
+}
+@media (max-width: 600px) { .payment-options { grid-template-columns: 1fr; } }
+.pay-option {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+.pay-option:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.pay-icon { font-size: 2rem; margin-bottom: 12px; }
+.pay-label { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+.pay-sub { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+.mock-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 20px 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 2;
+  animation: fadeUp 0.3s ease-out;
+}
+.mock-card .card-number { color: var(--text-primary); font-size: 1.05rem; letter-spacing: 0.15em; }
+
+/* --- SCREEN 5: AUCTION --- */
+.auction-status {
+  text-align: center;
+  padding: 40px 0 20px;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+.auction-status .spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.bid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
+}
+@media (max-width: 600px) { .bid-grid { grid-template-columns: 1fr; } }
+.bid-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease-out;
+}
+.bid-card.visible { opacity: 1; transform: translateY(0); }
+.bid-card.winner {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+.bid-card.loser { opacity: 0.45; }
+.bid-robot { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+.bid-location { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 16px; }
+.bid-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.bid-price {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.bid-confidence { font-family: var(--font-mono); font-size: 0.85rem; color: var(--green); }
+
+.score-bar {
+  height: 6px;
+  background: var(--bg-raised);
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.score-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease-out;
+  width: 0;
+}
+.score-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+  margin-bottom: 8px;
+}
+
+.winner-badge {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.bid-card.winner .winner-badge { display: flex; }
+
+.progress-bar {
+  margin: 24px 0;
+  background: var(--bg-raised);
+  border-radius: 8px;
+  height: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 8px;
+  width: 0;
+  transition: width 2s ease-in-out;
+}
+
+/* --- SCREEN 6: RESULT --- */
+.result-hero {
+  text-align: center;
+  padding: 50px 0 30px;
+}
+.result-hero .checkmark {
+  width: 56px; height: 56px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 1.5rem;
+  color: var(--bg-deep);
+  box-shadow: 0 0 40px rgba(52,211,153,0.3);
+}
+.result-reading {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.result-reading .temp { color: var(--accent); }
+.result-reading .humid { color: var(--amber); }
+.result-sub {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.result-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 30px 0;
+}
+@media (max-width: 500px) { .result-meta { grid-template-columns: 1fr; } }
+.meta-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+}
+.meta-box .meta-val {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.meta-box .meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 30px 0 20px;
+}
+
+.mcp-tooltip {
+  display: none;
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  animation: fadeUp 0.3s ease-out;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.mcp-tooltip.visible { display: block; }
+
+/* mini feed at bottom of non-landing screens */
+.mini-feed {
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.mini-feed-inner {
+  display: inline-block;
+  animation: ticker 25s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<div class="container">
+  <header>
+    <div class="logo"><div class="logo-dot"></div>YAK ROBOTICS</div>
+    <a href="#" class="op-login">Operator Login</a>
+  </header>
+
+  <!-- ========== SCREEN 1: LANDING ========== -->
+  <div id="screen-landing" class="screen active">
+    <div class="hero">
+      <h1>What do you need<span>?</span></h1>
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="searchInput" placeholder="Temperature reading in my warehouse..." autocomplete="off">
+        <button class="search-go" id="searchGo" aria-label="Go">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div class="examples">
+        <em onclick="fillSearch('Humidity check Bay 3')">Humidity check Bay 3</em> &middot;
+        <em onclick="fillSearch('Photo of loading dock')">Photo of loading dock</em> &middot;
+        <em onclick="fillSearch('Air quality survey')">Air quality survey</em> &middot;
+        <em onclick="fillSearch('Temperature and humidity in warehouse Bay 3')">Temp &amp; humidity Bay 3</em>
+      </div>
+    </div>
+
+    <div class="feed-section">
+      <div class="section-label"><div class="live-pip"></div>Live Robot Feed</div>
+      <div class="feed-list" id="feedList"></div>
+    </div>
+
+    <div class="robots-section">
+      <div class="section-label">Available Robots &middot; 3 Online</div>
+      <div class="robot-grid">
+        <div class="robot-card">
+          <div class="robot-header">
+            <div class="robot-icon">R1</div>
+            <div><div class="robot-name">Rover-A</div><div class="robot-location">Bay 3 &middot; Helsinki</div></div>
+          </div>
+          <div class="robot-caps"><span class="cap-tag">temperature</span><span class="cap-tag">humidity</span></div>
+          <div class="robot-meta">
+            <div class="robot-price">$0.25 <span>from</span></div>
+            <div class="robot-stars">&#9733;&#9733;&#9733;&#9733;&#9733; <span>(142)</span></div>
+          </div>
+          <div class="robot-status"><div class="status-dot"></div>ONLINE</div>
+        </div>
+        <div class="robot-card">
+          <div class="robot-header">
+            <div class="robot-icon">R2</div>
+            <div><div class="robot-name">Rover-B</div><div class="robot-location">Bay 5 &middot; Helsinki</div></div>
+          </div>
+          <div class="robot-caps"><span class="cap-tag">temperature</span><span class="cap-tag">humidity</span></div>
+          <div class="robot-meta">
+            <div class="robot-price">$0.30 <span>from</span></div>
+            <div class="robot-stars">&#9733;&#9733;&#9733;&#9733;&#9734; <span>(89)</span></div>
+          </div>
+          <div class="robot-status"><div class="status-dot"></div>ONLINE</div>
+        </div>
+        <div class="robot-card">
+          <div class="robot-header">
+            <div class="robot-icon">D1</div>
+            <div><div class="robot-name">Drone-C</div><div class="robot-location">Building 2 &middot; Espoo</div></div>
+          </div>
+          <div class="robot-caps"><span class="cap-tag">rgb camera</span><span class="cap-tag">lidar</span></div>
+          <div class="robot-meta">
+            <div class="robot-price">$0.80 <span>from</span></div>
+            <div class="robot-stars">&#9733;&#9733;&#9733;&#9734;&#9734; <span>(23)</span></div>
+          </div>
+          <div class="robot-status"><div class="status-dot"></div>ONLINE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: INTENT ========== -->
+  <div id="screen-intent" class="screen">
+    <div class="intent-block">
+      <div class="user-query" id="userQueryDisplay"></div>
+      <div class="parsed-card">
+        <h3>We Understood</h3>
+        <div class="parsed-row"><span class="parsed-label">Task Type</span><span class="parsed-value">Sensor Reading</span></div>
+        <div class="parsed-row"><span class="parsed-label">Sensors</span><span class="parsed-value">Temperature, Humidity</span></div>
+        <div class="parsed-row"><span class="parsed-label">Location</span><span class="parsed-value highlight">Warehouse Bay 3</span></div>
+        <div class="parsed-row"><span class="parsed-label">Est. Cost</span><span class="parsed-value cost">$0.25 &mdash; $0.80</span></div>
+        <div class="parsed-row"><span class="parsed-label">Est. Time</span><span class="parsed-value">30s &mdash; 3 min</span></div>
+        <div class="parsed-row"><span class="parsed-label">Robots nearby</span><span class="parsed-value highlight">3 online</span></div>
+      </div>
+      <div class="connect-card">
+        <p>To get an exact quote and start the auction, connect your AI assistant.<br>Claude will structure your request, manage the auction, and present results.</p>
+        <button class="btn btn-primary" id="connectClaudeBtn">Connect Claude &rarr;</button>
+        <div class="connect-features">
+          <span>Clarifies details</span>
+          <span>Sets accuracy</span>
+          <span>Manages auction</span>
+        </div>
+      </div>
+    </div>
+    <div class="mini-feed"><div class="mini-feed-inner">Rover-A completed humidity reading &middot; $0.35 &middot; 42s &nbsp;&nbsp;&middot;&nbsp;&nbsp; Rover-B came online &middot; Bay 5 &nbsp;&nbsp;&middot;&nbsp;&nbsp; Drone-C completed aerial survey &middot; $1.20 &nbsp;&nbsp;&middot;&nbsp;&nbsp; 3 robots available near Helsinki</div></div>
+  </div>
+
+  <!-- ========== SCREEN 3: CLAUDE SPEC ========== -->
+  <div id="screen-claude" class="screen">
+    <div class="intent-block">
+      <div style="text-align:center;padding:30px 0 10px;">
+        <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--green);letter-spacing:0.1em;">CONNECTED</div>
+        <div style="font-size:1.1rem;font-weight:500;margin-top:6px;">Claude structured your request</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-code">
+          <span class="key">sensors:</span> <span class="val-accent">temperature</span> (&plusmn;0.5&deg;C), <span class="val-accent">humidity</span> (&plusmn;2% RH)<br>
+          <span class="key">location:</span> <span class="val">Warehouse Bay 3</span><br>
+          <span class="key">budget:</span> <span class="val-amber">$2.00</span> max<br>
+          <span class="key">deadline:</span> <span class="val">15 minutes</span><br>
+          <span class="key">format:</span> <span class="val">JSON {temperature_c, humidity_pct, timestamp}</span><br>
+          <span class="key">payment:</span> <span class="val">pending connection</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:20px;">Spec looks good. Now connect payment to start the auction.</p>
+        <button class="btn btn-primary" id="goPaymentBtn">Connect Payment &rarr;</button>
+      </div>
+    </div>
+    <div class="mini-feed"><div class="mini-feed-inner">Rover-A idle &middot; Bay 3 &nbsp;&nbsp;&middot;&nbsp;&nbsp; Rover-B idle &middot; Bay 5 &nbsp;&nbsp;&middot;&nbsp;&nbsp; waiting for your task...</div></div>
+  </div>
+
+  <!-- ========== SCREEN 4: PAYMENT ========== -->
+  <div id="screen-payment" class="screen">
+    <div class="intent-block">
+      <div style="text-align:center;padding:30px 0 20px;">
+        <div style="font-size:1.1rem;font-weight:500;">Choose payment method</div>
+        <p style="color:var(--text-muted);font-size:0.82rem;margin-top:6px;">$25 credit bundle &middot; use credits across multiple tasks</p>
+      </div>
+      <div class="payment-options">
+        <div class="pay-option" id="payStripe">
+          <div class="pay-icon">&#128179;</div>
+          <div class="pay-label">Pay with Card</div>
+          <div class="pay-sub">Stripe &middot; Visa, Mastercard, Amex</div>
+        </div>
+        <div class="pay-option" id="payUSDC">
+          <div class="pay-icon">&#9672;</div>
+          <div class="pay-label">Pay with USDC</div>
+          <div class="pay-sub">Base network &middot; WalletConnect</div>
+        </div>
+      </div>
+      <div id="cardMock" style="display:none;">
+        <div class="mock-card">
+          <div class="card-number">4242 4242 4242 4242</div>
+          Exp: 12/28 &nbsp;&middot;&nbsp; CVC: 424 &nbsp;&middot;&nbsp; ZIP: 00100<br>
+          <span style="color:var(--text-muted);">Corporate Amex &middot; auto-filled</span>
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary" id="confirmPayBtn">Confirm &mdash; $25.00 credit bundle</button>
+        </div>
+      </div>
+      <div id="payConfirmed" style="display:none;text-align:center;padding:20px 0;">
+        <div style="color:var(--green);font-size:1rem;font-weight:600;">$25.00 credit bundle purchased</div>
+        <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);margin-top:6px;">YAK ROBOTICS MARKETPLACE $25.00</div>
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" id="startAuctionBtn">Start Auction &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 5: AUCTION ========== -->
+  <div id="screen-auction" class="screen">
+    <div class="auction-status" id="auctionStatus"><span class="spinner"></span>Finding robots near Bay 3...</div>
+    <div class="bid-grid">
+      <div class="bid-card" id="bidA">
+        <div class="bid-robot">Rover-A</div>
+        <div class="bid-location">Bay 3 &middot; 0m away &middot; Battery 87%</div>
+        <div class="bid-price-row">
+          <div class="bid-price">$0.35</div>
+          <div class="bid-confidence">98%</div>
+        </div>
+        <div class="score-label"><span>Price 40%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--accent);" data-width="92%"></div></div>
+        <div class="score-label"><span>Speed 25%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--green);" data-width="95%"></div></div>
+        <div class="score-label"><span>Confidence 20%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--amber);" data-width="98%"></div></div>
+        <div class="score-label"><span>Track Record 15%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--text-secondary);" data-width="96%"></div></div>
+        <div class="winner-badge">&#9889; WINNER &mdash; best composite score</div>
+      </div>
+      <div class="bid-card" id="bidB">
+        <div class="bid-robot">Rover-B</div>
+        <div class="bid-location">Bay 5 &middot; 80m away &middot; Battery 71%</div>
+        <div class="bid-price-row">
+          <div class="bid-price">$0.55</div>
+          <div class="bid-confidence">91%</div>
+        </div>
+        <div class="score-label"><span>Price 40%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--accent);" data-width="72%"></div></div>
+        <div class="score-label"><span>Speed 25%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--green);" data-width="68%"></div></div>
+        <div class="score-label"><span>Confidence 20%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--amber);" data-width="91%"></div></div>
+        <div class="score-label"><span>Track Record 15%</span><span></span></div>
+        <div class="score-bar"><div class="score-fill" style="background:var(--text-secondary);" data-width="82%"></div></div>
+        <div class="winner-badge">&#9889; WINNER</div>
+      </div>
+    </div>
+    <div id="execProgress" style="display:none;">
+      <div class="auction-status">Rover-A reading sensor...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 6: RESULT ========== -->
+  <div id="screen-result" class="screen">
+    <div class="result-hero">
+      <div class="checkmark">&#10003;</div>
+      <div class="result-reading"><span class="temp">22.8&deg;C</span> &nbsp; <span class="humid">47.3%</span></div>
+      <div class="result-sub">Bay 3 &middot; Measured by Rover-A &middot; just now</div>
+    </div>
+    <div class="result-meta">
+      <div class="meta-box"><div class="meta-val" style="color:var(--green);">$0.35</div><div class="meta-label">Cost</div></div>
+      <div class="meta-box"><div class="meta-val">42s</div><div class="meta-label">Time</div></div>
+      <div class="meta-box"><div class="meta-val" style="color:var(--amber);">$24.65</div><div class="meta-label">Balance</div></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="resetDemo()">Hire Again</button>
+      <button class="btn btn-secondary" id="addToClaudeBtn">Add to Claude</button>
+      <button class="btn btn-secondary" onclick="alert('{ &quot;temperature_celsius&quot;: 22.8, &quot;humidity_percent&quot;: 47.3, &quot;timestamp&quot;: &quot;2026-03-27T09:14:42Z&quot;, &quot;robot_id&quot;: &quot;rover-a&quot;, &quot;request_id&quot;: &quot;req_a1b2c3d4e5f6&quot; }')">Download Data</button>
+      <button class="btn btn-secondary" onclick="alert('Receipt: YAK ROBOTICS MARKETPLACE\nTask: Sensor Reading\nAmount: $0.35\nPayment: Stripe (credit bundle)\nRef: req_a1b2c3d4e5f6')">View Receipt</button>
+    </div>
+    <div class="mcp-tooltip" id="mcpTooltip">{
+  "mcpServers": {
+    "robot-marketplace": {
+      "type": "http",
+      "url": "https://marketplace.yakrobotics.com/fleet/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}
+
+Paste this into your .mcp.json or Claude Desktop settings.
+Next time, just ask Claude directly — no website needed.</div>
+    <div class="mini-feed"><div class="mini-feed-inner">Your task completed &middot; Rover-A &middot; $0.35 &nbsp;&nbsp;&middot;&nbsp;&nbsp; Rover-B idle &nbsp;&nbsp;&middot;&nbsp;&nbsp; 3 robots available &nbsp;&nbsp;&middot;&nbsp;&nbsp; 143 tasks completed today</div></div>
+  </div>
+
+  <footer>
+    Powered by the Robot Task Auction Protocol<br>
+    MCP: <a href="#">marketplace.yakrobotics.com/fleet/mcp</a> &nbsp;&middot;&nbsp;
+    API: <a href="#">/api/openapi.json</a> &nbsp;&middot;&nbsp;
+    <a href="https://github.com/YakRoboticsGarage/robot-marketplace">GitHub</a>
+  </footer>
+</div>
+
+<script>
+// --- FEED DATA ---
+const feedEvents = [
+  { type: 'completed', text: 'Rover-A completed humidity reading \u00b7 Helsinki', price: '$0.35', time: '42s ago' },
+  { type: 'online', text: 'Rover-B came online \u00b7 Helsinki \u00b7 temp, humidity, air', price: '', time: '2m ago' },
+  { type: 'completed', text: 'Drone-C completed aerial photo \u00b7 Espoo', price: '$1.20', time: '5m ago' },
+  { type: 'auction', text: 'Rover-A won auction \u00b7 Bay 3 sensor reading', price: '$0.35', time: '6m ago' },
+  { type: 'completed', text: 'Rover-B completed temp reading \u00b7 Bay 5', price: '$0.40', time: '11m ago' },
+  { type: 'online', text: 'Drone-C returned from charging \u00b7 Building 2', price: '', time: '14m ago' },
+  { type: 'auction', text: 'Rover-A won auction \u00b7 air quality survey', price: '$0.55', time: '18m ago' },
+  { type: 'completed', text: 'Rover-A completed air quality survey \u00b7 Bay 1', price: '$0.55', time: '20m ago' },
+];
+
+function renderFeed() {
+  const list = document.getElementById('feedList');
+  list.innerHTML = '';
+  feedEvents.forEach((ev, i) => {
+    const item = document.createElement('div');
+    item.className = 'feed-item';
+    item.style.animationDelay = (i * 0.07) + 's';
+    item.innerHTML = `
+      <div class="feed-dot ${ev.type}"></div>
+      <span>${ev.text}</span>
+      ${ev.price ? `<span class="feed-price">${ev.price}</span>` : ''}
+      <span class="feed-time">${ev.time}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// Cycle feed
+function cycleFeed() {
+  const newEvents = [
+    { type: 'completed', text: `Rover-${Math.random()>0.5?'A':'B'} completed sensor reading \u00b7 Helsinki`, price: `$${(0.25+Math.random()*0.5).toFixed(2)}`, time: 'just now' },
+    { type: 'auction', text: `New auction started \u00b7 ${['Bay 1','Bay 3','Bay 5','Building 2'][Math.floor(Math.random()*4)]}`, price: '', time: 'just now' },
+    { type: 'online', text: `Drone-C battery at ${70+Math.floor(Math.random()*25)}%`, price: '', time: 'just now' },
+  ];
+  const ev = newEvents[Math.floor(Math.random() * newEvents.length)];
+  feedEvents.unshift(ev);
+  if (feedEvents.length > 10) feedEvents.pop();
+  renderFeed();
+}
+
+renderFeed();
+setInterval(cycleFeed, 5000);
+
+// --- SCREEN NAVIGATION ---
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- SEARCH ---
+function fillSearch(text) {
+  document.getElementById('searchInput').value = text;
+  document.getElementById('searchInput').focus();
+}
+
+function submitSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+  document.getElementById('userQueryDisplay').textContent = `"${query}"`;
+  showScreen('screen-intent');
+}
+
+document.getElementById('searchGo').addEventListener('click', submitSearch);
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitSearch();
+});
+
+// --- CONNECT CLAUDE ---
+document.getElementById('connectClaudeBtn').addEventListener('click', () => {
+  const btn = document.getElementById('connectClaudeBtn');
+  btn.textContent = 'Connecting...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+  setTimeout(() => showScreen('screen-claude'), 1200);
+});
+
+// --- PAYMENT ---
+document.getElementById('goPaymentBtn').addEventListener('click', () => showScreen('screen-payment'));
+
+document.getElementById('payStripe').addEventListener('click', () => {
+  document.getElementById('cardMock').style.display = 'block';
+  document.getElementById('payStripe').style.borderColor = 'var(--accent)';
+  document.getElementById('payStripe').style.boxShadow = '0 0 20px var(--accent-glow)';
+});
+document.getElementById('payUSDC').addEventListener('click', () => {
+  // simulate USDC flow
+  document.getElementById('cardMock').style.display = 'none';
+  document.getElementById('payConfirmed').style.display = 'block';
+  document.getElementById('payConfirmed').querySelector('div').textContent = '$25.00 USDC deposited from wallet';
+});
+
+document.getElementById('confirmPayBtn').addEventListener('click', () => {
+  document.getElementById('cardMock').style.display = 'none';
+  document.getElementById('payConfirmed').style.display = 'block';
+});
+
+// --- AUCTION ---
+document.getElementById('startAuctionBtn').addEventListener('click', () => {
+  showScreen('screen-auction');
+  runAuction();
+});
+
+function runAuction() {
+  const bidA = document.getElementById('bidA');
+  const bidB = document.getElementById('bidB');
+  const status = document.getElementById('auctionStatus');
+
+  // Step 1: show bid A
+  setTimeout(() => {
+    bidA.classList.add('visible');
+    status.innerHTML = '<span class="spinner"></span>Collecting bids...';
+  }, 1200);
+
+  // Step 2: show bid B
+  setTimeout(() => {
+    bidB.classList.add('visible');
+  }, 2200);
+
+  // Step 3: animate score bars
+  setTimeout(() => {
+    document.querySelectorAll('.score-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width;
+    });
+    status.innerHTML = '<span class="spinner"></span>Scoring bids...';
+  }, 3000);
+
+  // Step 4: announce winner
+  setTimeout(() => {
+    bidA.classList.add('winner');
+    bidB.classList.add('loser');
+    status.innerHTML = 'Rover-A wins \u2014 best composite score';
+    status.style.color = 'var(--accent)';
+  }, 4500);
+
+  // Step 5: execution
+  setTimeout(() => {
+    document.getElementById('execProgress').style.display = 'block';
+    const fill = document.getElementById('progressFill');
+    requestAnimationFrame(() => fill.style.width = '100%');
+  }, 5500);
+
+  // Step 6: result
+  setTimeout(() => showScreen('screen-result'), 8000);
+}
+
+// --- RESULT: Add to Claude ---
+document.getElementById('addToClaudeBtn').addEventListener('click', () => {
+  const tip = document.getElementById('mcpTooltip');
+  tip.classList.toggle('visible');
+});
+
+// --- RESET ---
+function resetDemo() {
+  document.querySelectorAll('.bid-card').forEach(c => {
+    c.classList.remove('visible', 'winner', 'loser');
+  });
+  document.querySelectorAll('.score-fill').forEach(b => b.style.width = '0');
+  document.getElementById('progressFill').style.width = '0';
+  document.getElementById('execProgress').style.display = 'none';
+  document.getElementById('auctionStatus').innerHTML = '<span class="spinner"></span>Finding robots near Bay 3...';
+  document.getElementById('auctionStatus').style.color = '';
+  document.getElementById('cardMock').style.display = 'none';
+  document.getElementById('payConfirmed').style.display = 'none';
+  document.getElementById('payStripe').style.borderColor = '';
+  document.getElementById('payStripe').style.boxShadow = '';
+  document.getElementById('mcpTooltip').classList.remove('visible');
+  document.getElementById('searchInput').value = '';
+  showScreen('screen-landing');
+}
+</script>
+</body>
+</html>
