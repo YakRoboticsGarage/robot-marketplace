@@ -1,0 +1,23 @@
+{
+  "skill_name": "rfp-to-robot-spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Process this RFP into robot task specs: [contents of examples/mdot-highway-rfp.txt]",
+      "expected_output": "Should produce 2 task specs: (1) aerial LiDAR topo survey with sensors [aerial_lidar, rtk_gps, photogrammetry], accuracy ±0.05ft, MDOT 104.09 compliance; (2) pavement condition survey with GPR. Budget should total under $45,000. Deliverables should include LandXML, DXF, GeoTIFF, LAS, CSV.",
+      "files": ["examples/mdot-highway-rfp.txt"]
+    },
+    {
+      "id": 2,
+      "prompt": "Process this RFP into robot task specs: [contents of examples/bridge-inspection-rfp.txt]",
+      "expected_output": "Should produce 3+ task specs: (1) visual drone inspection for 47 bridges, (2) detailed hands-on inspection for 12 fracture-critical structures, (3) 3D scanning for 8 structures. Should reference NBIS, 23 CFR 650, and FHWA certification requirements.",
+      "files": ["examples/bridge-inspection-rfp.txt"]
+    },
+    {
+      "id": 3,
+      "prompt": "I need a pre-bid survey for a 20-acre commercial site in Grand Rapids, MI. The site has an existing parking lot that needs to be mapped, plus we need to check for underground utilities before demolition. Letting date is September 2026.",
+      "expected_output": "Should produce 2 task specs: (1) aerial topo survey ~20 acres with photogrammetry, accuracy per MDOT design survey standards; (2) GPR subsurface utility scan. Should use Michigan State Plane coordinates, NAD83/NAVD88. Budget estimate should be $3,000-6,000 for topo + $3,000-6,000 for GPR.",
+      "files": []
+    }
+  ]
+}

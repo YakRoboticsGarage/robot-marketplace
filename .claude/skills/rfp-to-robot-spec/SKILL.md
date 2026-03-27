@@ -1,104 +1,71 @@
 ---
 name: rfp-to-robot-spec
-description: Process construction RFP documents into structured robot task specifications. Use this skill when the user uploads, pastes, or references a construction RFP, bid document, survey scope, or project specification and wants to extract the survey/inspection requirements into a machine-readable format for the robot marketplace. Also trigger when the user says "parse this RFP", "extract specs", "what robots do we need for this project", or references MDOT, DOT, highway, bridge, or construction survey documents.
+description: Process construction RFP documents into structured robot task specifications for the YAK ROBOTICS marketplace. Use whenever the user uploads, pastes, or references a construction RFP, bid document, survey scope, project specification, or describes a survey need in plain language. Also trigger when the user says "parse this RFP", "extract specs", "what robots do we need", or mentions MDOT, DOT, highway survey, bridge inspection, topographic survey, GPR scan, LiDAR, or construction survey requirements — even if they don't explicitly ask for a "task spec."
 ---
 
-# RFP to Robot Task Spec
+# RFP → Robot Task Spec
 
-Convert construction RFP documents into structured JSON task specifications that can be posted directly to the YAK ROBOTICS marketplace auction engine.
+Transform construction RFP documents into machine-readable task specifications that the robot marketplace auction engine can process directly.
 
-## Input
+## Workflow
 
-The user provides one of:
-- A pasted RFP document or excerpt
-- A file path to a PDF or text document
-- A URL to a public bid document
-- A project description with survey requirements
+### 1. Canonicalize input
 
-## Process
+Accept any of: pasted RFP text, file path (PDF/text), URL, or plain-language description. Normalize to text. If the input is vague ("I need a survey for a highway project"), ask the user for: location, acreage, accuracy needs, and deadline. If those are in the document, extract them — don't ask again.
 
-### Step 1: Extract Survey Requirements
+### 2. Extract survey requirements
 
-Read the entire document and identify ALL survey, inspection, measurement, and data collection requirements. Look for:
+Scan for these categories. Mark each as FOUND or NOT FOUND:
 
-- **Survey types**: topographic, as-built, control, alignment, hydraulic, photogrammetric, bridge/structure
-- **Accuracy requirements**: horizontal, vertical, point density (in feet, cm, or metric)
-- **Deliverable formats**: LandXML, DXF, DWG, GeoTIFF, LAS/LAZ, CSV, PDF reports
-- **Area/scope**: acreage, linear feet, number of structures
-- **Coordinate systems**: NAD83, state plane zones, datums (NAVD88, IGLD85)
-- **Certifications required**: FAA Part 107, licensed surveyor, OSHA, confined space
-- **Standards referenced**: MDOT sections, AASHTO, NCHRP, USGS QL levels, FEMA
-- **Timeline constraints**: letting date, completion deadline, seasonal restrictions
-- **Special conditions**: traffic control, environmental restrictions, utility conflicts
+- Survey type (topo, as-built, control, bridge, hydraulic, photogrammetric, environmental)
+- Accuracy (horizontal, vertical, point density — in feet or metric)
+- Area/scope (acres, linear feet, structure count)
+- Deliverable formats (LandXML, DXF, GeoTIFF, LAS, CSV, e57, PDF)
+- Coordinate system and datum
+- Certifications (FAA Part 107, licensed surveyor, OSHA, PE, dive)
+- Referenced standards (MDOT sections, AASHTO, NCHRP, USGS QL, FEMA)
+- Timeline (letting date, completion deadline, seasonal constraints)
+- Special conditions (traffic control, night work, environmental restrictions, utility conflicts)
 
-### Step 2: Map to Michigan Standards (when applicable)
+### 3. Load applicable standards
 
-Cross-reference extracted requirements against these MDOT standards:
+For Michigan projects, read `references/michigan-standards.md` and apply MDOT accuracy tables. For other states, use AASHTO defaults. If no accuracy is specified, default to the most restrictive standard referenced in the document.
 
-**MDOT Accuracy Standards (95% confidence):**
-| Control Type | Horizontal | Vertical |
-|---|---|---|
-| Primary Control | ±0.05 ft | ±0.05 ft closure |
-| Intermediate Control | ±0.07 ft avg; ±0.10 ft max | ±0.10 ft accumulated |
-| Design Survey Hard Surfaces | ±0.05 ft | ±0.01 ft; ±0.02 ft relative |
-| Topographic Ground | N/A | ±0.10 ft accumulated |
+### 4. Map to robots and sensors
 
-**MDOT LiDAR Standards:**
-- Static TLS: 0.1 ft point spacing on structures, 0.3 ft on roads, validation within 0.05 ft
-- Mobile TLS: NCHRP 748 Category 1A for design projects
-- Deliverables: e57, LAS, or LAZ with NSSDA accuracy reports
+Read `references/robot-sensor-mapping.md`. For each survey requirement, identify the robot platform, sensor, and estimated cost. If the RFP requires multiple survey types, each becomes a separate task spec (different robots may bid on each).
 
-**MDOT Cross-Section Requirements (Section 104.09):**
-- Every 50 feet for quantity determination
-- Hard surfaces to nearest 0.01 foot
-- Ground to nearest 0.1 foot
+### 5. Generate task spec JSON
 
-### Step 3: Determine Robot/Sensor Requirements
+Output one JSON block per task. Each must pass validation:
 
-Map survey needs to specific robot capabilities:
+```bash
+python scripts/validate_task_spec.py < spec.json
+```
 
-| Survey Need | Robot Type | Sensor | Typical Platform |
-|---|---|---|---|
-| Topographic survey | Aerial drone | LiDAR + RTK-GPS | DJI Matrice 350 RTK + Zenmuse L2 |
-| Photogrammetry | Aerial drone | High-res camera | DJI Matrice 350 + Zenmuse P1 |
-| Subsurface/GPR | Ground robot | Ground-penetrating radar | Spot + GSSI StructureScan |
-| Bridge inspection | Inspection drone/crawler | Visual + thermal | Skydio X10 / Flyability ELIOS 3 |
-| 3D scanning | Ground robot | Terrestrial LiDAR | Spot + Leica BLK ARC |
-| Progress monitoring | Aerial drone | Camera + LiDAR | DJI Matrice 350 / Skydio X10 |
-| Structural inspection | Crawler/drone | Visual + crack detection | Gecko TOKA / Flyability ELIOS 3 |
-| Environmental survey | Multi-platform | Water quality / air / soil | Custom sensor platforms |
-
-### Step 4: Generate Task Spec JSON
-
-Output one or more task specs in this exact format:
+The spec structure:
 
 ```json
 {
-  "description": "Pre-bid topographic survey for I-94 reconstruction, 15-acre corridor",
-  "task_category": "site_survey",
+  "description": "Clear one-line summary of this specific task",
+  "task_category": "site_survey | bridge_inspection | progress_monitoring | as_built | subsurface_scan | environmental_survey | control_survey",
   "capability_requirements": {
     "hard": {
-      "sensors_required": ["aerial_lidar", "rtk_gps", "photogrammetry"],
-      "accuracy_required": {
-        "vertical_ft": 0.05,
-        "horizontal_ft": 0.05,
-        "point_density_ft": 0.3
-      },
+      "sensors_required": ["aerial_lidar", "rtk_gps"],
+      "accuracy_required": {"vertical_ft": 0.05, "horizontal_ft": 0.05},
       "certifications_required": ["faa_part_107", "licensed_surveyor"],
-      "area_acres": 15,
+      "area_acres": 12,
       "terrain": "highway_corridor",
-      "standards_compliance": ["MDOT_104.09", "NCHRP_748_Cat1A", "NSSDA"]
+      "standards_compliance": ["MDOT_104.09", "NCHRP_748_Cat1A"]
     },
     "soft": {
-      "preferred_deliverables": ["LAS", "LandXML", "DXF", "GeoTIFF", "CSV"],
+      "preferred_deliverables": ["LAS", "LandXML", "DXF", "GeoTIFF"],
       "preferred_coordinate_system": "NAD83 Michigan South Zone",
-      "preferred_datum": "NAVD88",
-      "cross_section_interval_ft": 50,
-      "contour_interval_ft": 1
+      "preferred_datum": "NAVD88"
     },
     "payload": {
       "type": "survey_data",
-      "fields": ["point_cloud", "topo_surface", "ortho_mosaic", "cross_sections", "control_report", "survey_report"],
+      "fields": ["point_cloud", "topo_surface", "ortho_mosaic"],
       "format": "multi_file"
     }
   },
@@ -106,50 +73,43 @@ Output one or more task specs in this exact format:
   "sla_seconds": 259200,
   "payment_method": "auto",
   "project_metadata": {
-    "project_name": "I-94 Reconstruction Phase 2",
+    "project_name": "...",
     "agency": "MDOT",
-    "control_section": "82XXX",
-    "job_number": "XXXXXX",
-    "location": "Wayne County, MI",
-    "letting_date": "2026-06-15",
-    "reference_standards": ["MDOT 2020 Std Specs Sec 104.09", "MDOT Survey Standards 2014", "NCHRP 748"],
-    "special_conditions": ["traffic_control_required", "night_work_preferred", "utility_conflicts_present"]
+    "location": "...",
+    "letting_date": "...",
+    "reference_standards": ["MDOT Sec 104.09"]
   }
 }
 ```
 
-**Task category values:**
-- `site_survey` — topographic, design survey, general site mapping
-- `bridge_inspection` — structural condition, under-deck, crack detection
-- `progress_monitoring` — construction progress documentation
-- `as_built` — final condition survey for project closeout
-- `subsurface_scan` — GPR, utility locating
-- `environmental_survey` — water quality, habitat, emissions
-- `control_survey` — primary/intermediate control establishment
+### 6. Present results
 
-### Step 5: Multi-Task Decomposition
+Output in this order:
+1. **Summary** — one paragraph on the project and survey needs
+2. **Extracted Requirements** — bulleted list of everything found
+3. **Task Specs** — JSON blocks (one per robot type)
+4. **Cost Estimate** — per-task and total, with market range
+5. **Robot Recommendations** — which platforms fulfill each task
 
-If the RFP requires multiple survey types (common), decompose into separate task specs — one per robot type needed. For example, a highway project might produce:
-1. Aerial LiDAR topo survey (drone)
-2. GPR subsurface scan (ground robot)
-3. Bridge condition inspection (inspection drone)
+Flag any requirements that no current marketplace robot can fulfill.
 
-Each is a separate auction task so different operators can bid on each.
+## References
 
-## Output Format
+- `references/michigan-standards.md` — MDOT accuracy tables, LiDAR specs, survey types, coordinate systems. Load for any Michigan project.
+- `references/robot-sensor-mapping.md` — survey need → robot platform → sensor → price range. Load for step 4.
 
-Present:
-1. **Summary** — one paragraph describing the project and survey needs
-2. **Extracted Requirements** — bulleted list of every survey requirement found
-3. **Standards Referenced** — which MDOT/AASHTO/federal standards apply
-4. **Task Specs** — one or more JSON blocks ready for the auction engine
-5. **Estimated Cost Range** — based on area, complexity, and market rates
-6. **Robot Recommendations** — which specific platforms would fulfill each task
+## Validation
 
-## Notes
+After generating specs, run the validation script to catch schema errors before presenting to the user:
 
-- Convert all imperial measurements to both feet and metric in the output
-- Flag any requirements that no current marketplace robot can fulfill
-- If accuracy requirements are ambiguous, default to MDOT design survey standards
-- Always include NSSDA accuracy reporting in deliverables for MDOT projects
-- Budget estimates use $150-300/acre for aerial topo, $3,000-6,000 for GPR, $500-1,500 for visual inspection
+```bash
+python scripts/validate_task_spec.py spec.json
+```
+
+This checks: required fields, valid categories, known sensors, valid certifications, budget minimum, deliverable formats. Exit 0 = valid.
+
+## Example inputs
+
+See `examples/` directory:
+- `mdot-highway-rfp.txt` — MDOT US-131 resurfacing, 6.6 miles
+- `bridge-inspection-rfp.txt` — Wayne County 47-bridge NBIS program
