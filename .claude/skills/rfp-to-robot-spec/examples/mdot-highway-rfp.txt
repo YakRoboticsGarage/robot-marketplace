@@ -1,0 +1,59 @@
+MICHIGAN DEPARTMENT OF TRANSPORTATION
+REQUEST FOR PROPOSAL — SURVEY SERVICES
+
+Project: US-131 Resurfacing, Kalamazoo County
+Control Section: 39042
+Job Number: 208432
+
+SCOPE OF WORK:
+The Michigan Department of Transportation requires survey services for the
+proposed resurfacing of US-131 from mile marker 36.2 to 42.8 in Kalamazoo
+County. The project area encompasses approximately 6.6 miles of divided highway.
+
+SURVEY REQUIREMENTS:
+
+1. TOPOGRAPHIC SURVEY
+   - Full topographic survey of existing roadway and 50-foot offset each side
+   - Cross-sections at 50-foot intervals per MDOT Section 104.09
+   - Hard surface elevations to nearest 0.01 foot
+   - Ground elevations to nearest 0.1 foot
+   - All drainage structures, utilities, signs, and appurtenances
+
+2. CONTROL SURVEY
+   - Primary control points at maximum 1000-foot intervals
+   - Bench marks every 1000 feet
+   - Michigan State Plane Coordinate System, South Zone
+   - NAD83(2011) horizontal datum, NAVD88 vertical datum
+
+3. PAVEMENT CONDITION DATA
+   - Rutting depth measurements at 50-foot intervals
+   - Joint/crack mapping
+   - Pavement thickness verification (minimum 5 cores per mile)
+
+4. DELIVERABLES
+   - LandXML surface model
+   - AutoCAD DXF with layers per MDOT standards
+   - Cross-section CSV files at 50-foot stations
+   - GeoTIFF orthomosaic at 2-inch GSD minimum
+   - LAS point cloud (ASPRS Class 2 ground)
+   - Survey report with NSSDA accuracy statement
+
+5. ACCURACY REQUIREMENTS
+   - Horizontal: ±0.05 feet (95% confidence)
+   - Vertical: ±0.05 feet on hard surfaces
+   - Point cloud validation within 0.05 feet per MDOT Chapter 9
+   - NCHRP Report 748 Category 1A compliance for mobile LiDAR
+
+6. CERTIFICATIONS
+   - Michigan Licensed Professional Surveyor required
+   - FAA Part 107 for aerial operations
+   - OSHA 10-hour for field crew
+   - MOT (Maintenance of Traffic) certified
+
+TIMELINE:
+   - Survey must be completed by April 30, 2026
+   - Letting date: August 2026
+
+BUDGET: Not to exceed $45,000 for all survey services.
+
+Submit proposals to MDOT Region Office, Kalamazoo.

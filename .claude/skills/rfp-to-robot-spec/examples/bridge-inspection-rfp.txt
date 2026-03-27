@@ -1,0 +1,49 @@
+WAYNE COUNTY ROAD COMMISSION
+BID REQUEST — BRIDGE INSPECTION SERVICES
+
+Project: Biennial Bridge Inspection Program — 2026-2027 Cycle
+Contract: WC-BR-2026-041
+
+SCOPE:
+Wayne County requires NBIS-compliant inspection of 47 bridges per 23 CFR 650.
+Inspections must follow MDOT Bridge Inspection Standards and AASHTO Manual.
+
+INSPECTION REQUIREMENTS:
+
+1. VISUAL INSPECTION (all 47 structures)
+   - Deck, superstructure, substructure condition rating per FHWA SI&A
+   - NBI condition codes for all elements
+   - Photographic documentation: minimum 20 photos per structure
+   - Underwater inspection where applicable (3 structures)
+
+2. DETAILED INSPECTION (12 structures — fracture critical)
+   - Hands-on inspection of fracture-critical members
+   - Crack measurement and mapping
+   - Section loss measurement
+   - Paint condition and corrosion documentation
+
+3. LOAD RATING VERIFICATION (5 structures)
+   - Field measurements for load rating model verification
+   - Bearing measurements, span lengths, member dimensions
+   - Material sampling if existing records unavailable
+
+4. 3D SCANNING (8 structures — condition changed since last cycle)
+   - Terrestrial LiDAR scan of full structure
+   - Point density minimum 0.1 ft on all structural elements
+   - Comparison with 2024 scan data where available
+   - Deliverable: e57 and LAS format, registered to county coordinate system
+
+5. DELIVERABLES
+   - Updated NBI coding sheets for all 47 structures
+   - Inspection reports per MDOT format
+   - Photographic database
+   - 3D point clouds for scanned structures
+   - Summary report with priority repair recommendations
+
+6. PERSONNEL
+   - Team leader: Michigan PE with FHWA-NHI-130055 certification
+   - Dive team certified for underwater inspection (3 structures)
+   - Licensed surveyor for 3D scanning
+
+TIMELINE: Complete all inspections between May 1 and October 31, 2026.
+BUDGET: Estimated $380,000 for all services.
