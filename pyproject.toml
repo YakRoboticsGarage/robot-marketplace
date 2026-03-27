@@ -25,7 +25,10 @@ all = [
 dev = [
     "pytest>=9.0",
     "pytest-asyncio>=1.0",
+    "pytest-cov>=6.0",
     "hypothesis>=6.0",
+    "ruff>=0.9",
+    "mypy>=1.14",
 ]
 
 [project.urls]
@@ -37,7 +40,37 @@ Protocol = "https://github.com/YakRoboticsGarage/yakrover-protocols/tree/main/ma
 asyncio_mode = "strict"
 markers = [
     "stripe: requires STRIPE_SECRET_KEY for live Stripe test API calls",
+    "blockchain: requires BASE_SEPOLIA_RPC_URL for on-chain tests",
+    "fleet: requires running fleet server for robot integration tests",
 ]
+addopts = "--strict-markers"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",          # pyflakes
+    "I",          # isort
+    "S",          # bandit (security)
+    "B",          # bugbear
+    "C4",         # comprehensions
+    "UP",         # pyupgrade
+]
+
+[tool.ruff.lint.per-file-ignores]
+"auction/tests/*" = ["S101"]  # allow assert in tests
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["stripe.*", "fastmcp.*", "eth_account.*", "aiosqlite.*"]
+ignore_missing_imports = true
 
 [tool.uv]
 prerelease = "allow"

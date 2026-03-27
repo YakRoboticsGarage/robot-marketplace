@@ -1,0 +1,62 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Run unit tests
+        run: uv run pytest auction/tests/ -q --tb=short -x --ignore=auction/tests/integration
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Ruff check
+        run: uv run ruff check auction/ src/
+      - name: Ruff format check
+        run: uv run ruff format --check auction/ src/
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Mypy
+        run: uv run mypy auction/ --ignore-missing-imports
+
+  # Integration tests — manual trigger or release tags only
+  stripe-integration:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Run Stripe integration tests
+        run: uv run pytest auction/tests/integration/ -m stripe -q --tb=short
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_KEY }}
