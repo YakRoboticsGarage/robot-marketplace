@@ -523,10 +523,17 @@ footer a:hover{text-decoration:underline}
     <div class="op-step"><h4>2. Configure</h4><p>Set pricing rules, capabilities, and availability. Your robots bid autonomously.</p></div>
     <div class="op-step"><h4>3. Earn</h4><p>Get paid per task via Stripe or USDC. Track revenue on your operator dashboard.</p></div>
   </div>
-  <div class="cta-block">
-    <p>Registration requires an ERC-8004 compatible robot with MCP server support.</p>
-    <button class="btn btn-primary" onclick="alert('Registration flow coming in v1.5.\n\nFor now, use:\nuv run python scripts/register.py\n\nSee: github.com/YakRoboticsGarage/yakrover-8004-mcp')">Register Your Robot</button>
-    <div style="margin-top:10px"><a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank" style="font-size:0.8rem;color:var(--link)">View documentation on GitHub &rarr;</a></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0">
+    <div class="cta-block" style="margin:0">
+      <p style="margin-bottom:12px"><strong>Already have a robot?</strong><br>Register it on-chain and start accepting tasks.</p>
+      <button class="btn btn-primary" onclick="alert('Registration flow coming in v1.5.\n\nFor now, use:\nuv run python scripts/register.py\n\nSee: github.com/YakRoboticsGarage/yakrover-8004-mcp')">Register Your Robot</button>
+      <div style="margin-top:10px"><a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank" style="font-size:0.8rem;color:var(--link)">View docs on GitHub &rarr;</a></div>
+    </div>
+    <div class="cta-block" style="margin:0;background:var(--accent-light)">
+      <p style="margin-bottom:12px;color:var(--accent-hover)"><strong>Don't have a robot yet?</strong><br>Get a starter kit and begin earning in under an hour.</p>
+      <button class="btn btn-primary" onclick="showScreen('s-buyrobot',0)">Buy a Starter Kit</button>
+      <div style="margin-top:10px;font-size:0.8rem;color:var(--text-3)">From $299 &middot; ~18 day breakeven</div>
+    </div>
   </div>
   <div style="text-align:center;padding:20px 0"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Back to marketplace</button></div>
 </div>
