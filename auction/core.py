@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import os
+import secrets
 import uuid
 import warnings
 from dataclasses import dataclass, field
@@ -68,6 +69,41 @@ class TaskState(str, Enum):
 
 # ---------------------------------------------------------------------------
 # DM-1: Task
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# FD-4: Commitment hash — H(request_id || salt) for on-chain memos
+# Replaces raw request_id in on-chain data. See FOUNDATIONAL_TECH_ANALYSIS.md
+# ---------------------------------------------------------------------------
+
+VALID_PAYMENT_METHODS = frozenset(["stripe", "usdc", "auto"])
+
+
+def generate_commitment_salt() -> str:
+    """Generate a cryptographically secure random salt for commitment hashes."""
+    return secrets.token_hex(16)
+
+
+def compute_commitment_hash(request_id: str, salt: str) -> str:
+    """Compute H(request_id || salt) using SHA-256.
+
+    This hash goes on-chain instead of the raw request_id. The platform
+    stores (request_id, salt) to verify linkage later. See FD-4.
+    """
+    payload = f"{request_id}||{salt}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def verify_commitment(request_id: str, salt: str, commitment_hash: str) -> bool:
+    """Verify that a commitment hash matches the given request_id and salt."""
+    return hmac.compare_digest(
+        compute_commitment_hash(request_id, salt),
+        commitment_hash,
+    )
+
+
+# ---------------------------------------------------------------------------
+# DM-1: Task categories
 # ---------------------------------------------------------------------------
 
 VALID_TASK_CATEGORIES = frozenset(
@@ -206,6 +242,11 @@ class Task:
     request_id: str = field(default_factory=lambda: f"req_{uuid.uuid4().hex[:12]}")
     auto_accept_seconds: int = 3600  # AD-7: stubbed in v0.1
     posted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    # v1.1.1: FD-4 commitment hash — on-chain memo uses this instead of raw request_id
+    commitment_salt: str = field(default_factory=generate_commitment_salt)
+    commitment_hash: str = ""
+    # v1.1.1: F-4 payment method selection
+    payment_method: str = "auto"  # "stripe" | "usdc" | "auto"
 
     def __post_init__(self) -> None:
         if self.budget_ceiling < Decimal("0.50"):
@@ -220,6 +261,19 @@ class Task:
             raise ValueError(
                 f"task_category must be one of {sorted(VALID_TASK_CATEGORIES)}, "
                 f"got '{self.task_category}'"
+            )
+        # v1.1.1: Generate commitment hash if not provided
+        if not self.commitment_hash:
+            object.__setattr__(
+                self,
+                "commitment_hash",
+                compute_commitment_hash(self.request_id, self.commitment_salt),
+            )
+        # v1.1.1: Validate payment method
+        if self.payment_method not in VALID_PAYMENT_METHODS:
+            raise ValueError(
+                f"payment_method must be one of {sorted(VALID_PAYMENT_METHODS)}, "
+                f"got '{self.payment_method}'"
             )
 
 

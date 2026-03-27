@@ -257,6 +257,8 @@ class AuctionEngine:
             "budget_ceiling": task.budget_ceiling,
             "sla_seconds": task.sla_seconds,
             "request_id": task.request_id,
+            "commitment_hash": task.commitment_hash,
+            "payment_method": task.payment_method,
             "auto_accept_seconds": task.auto_accept_seconds,
             "posted_at": task.posted_at.isoformat(),
         }
@@ -509,7 +511,7 @@ class AuctionEngine:
                 + "; ".join(validation_errors)
             )
 
-        # Build the Task (validates budget_ceiling, task_category)
+        # Build the Task (validates budget_ceiling, task_category, payment_method)
         task = Task(
             description=task_spec["description"],
             task_category=task_spec["task_category"],
@@ -517,6 +519,7 @@ class AuctionEngine:
             budget_ceiling=Decimal(str(task_spec["budget_ceiling"])),
             sla_seconds=task_spec["sla_seconds"],
             auto_accept_seconds=task_spec.get("auto_accept_seconds", 3600),
+            payment_method=task_spec.get("payment_method", "auto"),
         )
 
         record = TaskRecord(
@@ -575,6 +578,8 @@ class AuctionEngine:
 
         return {
             "request_id": task.request_id,
+            "commitment_hash": task.commitment_hash,
+            "payment_method": task.payment_method,
             "state": record.state.value,
             "posted_at": task.posted_at.isoformat(),
             "eligible_robots": n_eligible,
