@@ -1250,26 +1250,33 @@ function feedRobotName(name,i){
   var icon = (typeof i==='number') ? getRobotIcon(i) : '\u{1F916}';
   return icon+' <strong style="color:var(--text)">'+name+'</strong>';
 }
+var feedOperators=['Apex Aerial Surveys','SiteScan Robotics','Trident Autonomous','ClearLine Survey','Meridian Geospatial','SubStruct Inspections'];
+var feedEquip=['DJI M350 RTK','Spot + BLK ARC','Skydio X10','Autel EVO II RTK','DJI M350 + P1','Flyability ELIOS 3'];
 var feed=[
-  {t:'done',txt:feedRobotName('Apex Aerial Surveys',2)+' completed topo survey \u00b7 I-17 Corridor',p:'$2,400',tm:'42min ago',rtype:'done'},
-  {t:'online',txt:feedRobotName('Ethics Gradient',11)+' came online \u00b7 Stockholm',p:'',tm:'1m ago',rtype:'online'},
-  {t:'done',txt:feedRobotName('SiteScan Robotics',1)+' completed GPR scan \u00b7 Mesa commercial',p:'$3,200',tm:'2hr ago',rtype:'done'},
-  {t:'bid',txt:feedRobotName('Attitude Adjuster',13)+' won auction \u00b7 air quality \u00b7 Tokyo',p:'$0.45',tm:'3m ago',rtype:'bid'},
-  {t:'done',txt:feedRobotName('Of Course I Still Love You',16)+' completed vibration reading \u00b7 Oslo',p:'$0.62',tm:'4m ago',rtype:'done'},
-  {t:'online',txt:feedRobotName('Sense Amid Madness',10)+' came online \u00b7 Singapore',p:'',tm:'5m ago',rtype:'online'},
-  {t:'done',txt:feedRobotName('Quiet Immensity',1)+' completed temp reading \u00b7 Helsinki',p:'$0.40',tm:'6m ago',rtype:'done'},
-  {t:'bid',txt:feedRobotName('Sleeper Service',17)+' won auction \u00b7 thermal scan \u00b7 London',p:'$1.10',tm:'7m ago',rtype:'bid'},
+  {t:'done',txt:feedRobotName('Apex Aerial Surveys',2)+' completed topo survey \u00b7 I-94 corridor, Detroit',p:'$14,200',tm:'42min ago',rtype:'done'},
+  {t:'online',txt:feedRobotName('ClearLine Survey',3)+' came online \u00b7 Kalamazoo, MI',p:'',tm:'1m ago',rtype:'online'},
+  {t:'done',txt:feedRobotName('SiteScan Robotics',1)+' completed tunnel scan \u00b7 I-94 drainage, Detroit',p:'$24,000',tm:'2hr ago',rtype:'done'},
+  {t:'bid',txt:feedRobotName('Trident Autonomous',2)+' won auction \u00b7 bridge inspection \u00b7 Macomb Co',p:'$3,800',tm:'3hr ago',rtype:'bid'},
+  {t:'done',txt:feedRobotName('Meridian Geospatial',2)+' completed progress photos \u00b7 M-14 reconstruction',p:'$1,800',tm:'4hr ago',rtype:'done'},
+  {t:'online',txt:feedRobotName('SubStruct Inspections',5)+' came online \u00b7 Wayne Co, MI',p:'',tm:'5hr ago',rtype:'online'},
+  {t:'done',txt:feedRobotName('Apex Aerial Surveys',2)+' completed as-built survey \u00b7 US-131, Kalamazoo',p:'$8,400',tm:'6hr ago',rtype:'done'},
+  {t:'bid',txt:feedRobotName('SiteScan Robotics',1)+' won auction \u00b7 GPR scan \u00b7 Oakland Co bridge',p:'$12,500',tm:'8hr ago',rtype:'bid'},
 ];
 function renderFeed(){var l=document.getElementById('feedList');l.innerHTML='';feed.forEach(function(e,i){var d=document.createElement('div');d.className='feed-item';d.style.animationDelay=i*0.06+'s';d.innerHTML='<div class="fdot '+e.t+'"></div><span>'+e.txt+'</span>'+(e.p?'<span class="fprice">'+e.p+'</span>':'')+'<span class="ftime">'+e.tm+'</span>';l.appendChild(d)})}
 renderFeed();
+var feedTasks=['completed topo survey','completed GPR scan','completed bridge inspection','completed progress photos','completed as-built survey','completed tunnel scan','completed structural inspection'];
+var feedMIlocations=['Detroit','Kalamazoo','Grand Rapids','Ann Arbor','Lansing','Flint','Macomb Co','Oakland Co','Wayne Co','Washtenaw Co','Kent Co','Saginaw'];
+var feedProjects=['I-94 corridor','I-96 interchange','US-131 resurfacing','M-14 reconstruction','I-75 bridge','I-275 widening','M-59 bridge','US-23 corridor'];
 setInterval(function(){
-  var ri=Math.floor(Math.random()*100);
-  var feedNames=[genName(ri)];
-  var feedLocs=locations[Math.floor(Math.random()*locations.length)];
+  var oi=Math.floor(Math.random()*feedOperators.length);
+  var opName=feedOperators[oi];
+  var opType=oi; // index maps to type
+  var loc=feedMIlocations[Math.floor(Math.random()*feedMIlocations.length)];
+  var proj=feedProjects[Math.floor(Math.random()*feedProjects.length)];
   var acts=[
-    {t:'done',txt:feedRobotName(feedNames[0],ri)+' completed survey \u00b7 '+feedLocs,p:'$'+(800+Math.floor(Math.random()*3200)).toLocaleString()},
-    {t:'bid',txt:'New auction \u00b7 '+bays[Math.floor(Math.random()*bays.length)]+' \u00b7 '+feedLocs,p:''},
-    {t:'online',txt:feedRobotName(genName(Math.floor(Math.random()*200)),ri)+' came online \u00b7 '+feedLocs,p:''}
+    {t:'done',txt:feedRobotName(opName,opType)+' '+feedTasks[Math.floor(Math.random()*feedTasks.length)]+' \u00b7 '+proj+', '+loc,p:'$'+(1200+Math.floor(Math.random()*22000)).toLocaleString()},
+    {t:'bid',txt:'New auction \u00b7 '+bays[Math.floor(Math.random()*bays.length)]+' \u00b7 '+loc,p:''},
+    {t:'online',txt:feedRobotName(opName,opType)+' came online \u00b7 '+loc+', MI',p:''}
   ];
   var a=acts[Math.floor(Math.random()*acts.length)];
   feed.unshift({t:a.t,txt:a.txt,p:a.p||'',tm:'just now'});
