@@ -353,13 +353,13 @@ footer a:hover{text-decoration:underline}
 </header>
 
 <div class="steps" id="stepIndicator">
-  <div class="step active" data-step="1">Upload</div>
+  <div class="step active" data-step="1">Search</div>
   <span class="step-chevron">&rsaquo;</span>
-  <div class="step" data-step="2">Extract</div>
+  <div class="step" data-step="2">Review</div>
   <span class="step-chevron">&rsaquo;</span>
-  <div class="step" data-step="3">Fund</div>
+  <div class="step" data-step="3">Pay</div>
   <span class="step-chevron">&rsaquo;</span>
-  <div class="step" data-step="4">Award</div>
+  <div class="step" data-step="4">Result</div>
 </div>
 
 <!-- SCREEN 1: LANDING -->
@@ -375,10 +375,6 @@ footer a:hover{text-decoration:underline}
     </div>
     <div class="cycling-example" id="cyclingEx" aria-live="polite">
       <span></span><span></span>
-    </div>
-    <div style="margin-top:16px">
-      <button class="btn btn-primary" id="sampleRfpBtn" style="font-size:0.8rem;padding:8px 20px">Try with sample RFP &rarr;</button>
-      <div style="font-size:0.72rem;color:var(--text-3);margin-top:6px">MDOT US-131 Highway Resurfacing &middot; $45K survey package</div>
     </div>
   </div>
 
@@ -455,59 +451,35 @@ footer a:hover{text-decoration:underline}
 </div>
 </template>
 
-<!-- SCREEN 2: RFP PROCESSING -->
+<!-- SCREEN 2: INTENT + CLAUDE -->
 <div id="s-review" class="screen">
-  <div style="padding:24px 0">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 style="font-size:1.1rem;font-weight:700">Processing RFP</h2>
-      <span style="font-size:0.72rem;color:var(--text-3)">MDOT US-131 Resurfacing</span>
+  <div style="padding:32px 0">
+    <div style="background:var(--bg-subtle);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;padding:14px 18px;font-size:1rem;margin-bottom:20px" id="queryDisplay"></div>
+    <div class="card"><h3>Task Preview</h3>
+      <div class="parsed-row"><span class="plabel">Task</span><span class="pval">Site Survey</span></div>
+      <div class="parsed-row"><span class="plabel">Sensors</span><span class="pval">Aerial LiDAR, RTK-GPS, Photogrammetry</span></div>
+      <div class="parsed-row"><span class="plabel">Area</span><span class="pval green">12 acres &middot; I-17 corridor, Phoenix</span></div>
+      <div class="parsed-row"><span class="plabel">Accuracy</span><span class="pval">&plusmn;2cm vertical</span></div>
+      <div class="parsed-row"><span class="plabel">Est. Cost</span><span class="pval amber mono">$2,000 - $4,000</span></div>
+      <div class="parsed-row"><span class="plabel">Deliverables</span><span class="pval">LandXML, DXF, GeoTIFF</span></div>
+      <div class="parsed-row"><span class="plabel">Operators nearby</span><span class="pval green" id="nearbyCount">4 available in Phoenix Metro</span></div>
     </div>
-    <div class="card" style="max-height:180px;overflow-y:auto;font-size:0.75rem;color:var(--text-2);line-height:1.7;font-family:'JetBrains Mono',monospace;background:var(--bg-subtle)">
-      MICHIGAN DEPARTMENT OF TRANSPORTATION<br>
-      Project: US-131 Resurfacing, Kalamazoo County<br>
-      Control Section: 39042 &middot; Job Number: 208432<br><br>
-      Topographic survey of existing roadway and 50-foot offset each side. Cross-sections at 50-foot intervals per MDOT Section 104.09. Hard surface elevations to nearest 0.01 foot. LiDAR acquisition meeting NCHRP Report 748 Category 1A. Deliverables: LandXML, DXF, GeoTIFF, LAS, CSV cross-sections...<br><br>
-      GPR pavement thickness verification, minimum 5 cores per mile. Accuracy: &plusmn;0.05 feet horizontal and vertical. FAA Part 107 required. Budget: Not to exceed $45,000.
+    <div id="preConnect" class="cta-block">
+      <p>Connect your AI assistant to get an exact quote and manage the auction on your behalf.</p>
+      <button class="btn btn-primary" id="connectBtn">Connect your AI assistant &rarr;</button>
     </div>
-    <div id="rfpExtraction" style="margin-top:16px">
-      <div class="section-label">EXTRACTING REQUIREMENTS</div>
-      <div id="extractionList" style="display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-    <div id="rfpDecomp" style="display:none;margin-top:24px">
-      <div class="section-label">DECOMPOSED INTO 3 BIDDABLE TASKS</div>
-      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px">
-        <div class="card" style="margin:0;border-left:3px solid var(--accent)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:600;font-size:0.875rem">Task 1 of 3 &middot; Aerial LiDAR Topo Survey</span>
-            <span style="font-size:0.68rem;padding:2px 8px;background:var(--accent-light);color:var(--accent);border-radius:4px;text-transform:uppercase;letter-spacing:0.05em">INDEPENDENT</span>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-2)">80 acres &middot; &plusmn;0.05 ft vertical &middot; LandXML, DXF, GeoTIFF, LAS</div>
-          <div style="font-size:0.8rem;color:var(--text-2)">Sensors: aerial LiDAR, RTK-GPS, photogrammetry &middot; FAA Part 107</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:0.875rem;font-weight:600;margin-top:6px">Budget: $20,000</div>
-        </div>
-        <div class="card" style="margin:0;border-left:3px solid var(--accent)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:600;font-size:0.875rem">Task 2 of 3 &middot; GPR Subsurface Scan</span>
-            <span style="font-size:0.68rem;padding:2px 8px;background:var(--accent-light);color:var(--accent);border-radius:4px;text-transform:uppercase;letter-spacing:0.05em">INDEPENDENT</span>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-2)">6.6 miles &middot; pavement thickness + utility locate &middot; CSV, DXF</div>
-          <div style="font-size:0.8rem;color:var(--text-2)">Sensors: ground-penetrating radar &middot; OSHA 10-hr, MOT certified</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:0.875rem;font-weight:600;margin-top:6px">Budget: $15,000</div>
-        </div>
-        <div class="card" style="margin:0;border-left:3px solid var(--text-3)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:600;font-size:0.875rem">Task 3 of 3 &middot; Pavement Core Sampling</span>
-            <span style="font-size:0.68rem;padding:2px 8px;background:var(--bg-subtle);color:var(--text-3);border-radius:4px;text-transform:uppercase;letter-spacing:0.05em">MANUAL</span>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-3)">5 cores/mile &times; 6.6 miles &middot; requires physical coring rig</div>
-          <div style="font-size:0.8rem;color:var(--text-3);font-style:italic">No robot capability &mdash; flagged for manual vendor</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:0.875rem;font-weight:600;margin-top:6px;color:var(--text-3)">Budget: $10,000</div>
+    <div id="postConnect" style="display:none">
+      <div class="spec-card"><div class="spec-badge">Structured by Claude</div>
+        <div class="spec-code">
+          <span class="k">survey_type:</span> <span class="va">topographic</span> (pre-bid)<br>
+          <span class="k">sensors:</span> <span class="va">aerial LiDAR</span> (&plusmn;2cm), <span class="va">RTK-GPS</span>, <span class="va">photogrammetry</span><br>
+          <span class="k">area:</span> <span class="v">12 acres, I-17 &amp; Happy Valley Rd, Phoenix AZ</span><br>
+          <span class="k">budget:</span> <span class="vw">$5,000</span> max<br>
+          <span class="k">deadline:</span> <span class="v">48 hours</span><br>
+          <span class="k">deliverables:</span> <span class="v">LandXML + DXF (Civil 3D), GeoTIFF ortho, survey_report.pdf</span>
         </div>
       </div>
-      <div style="text-align:center;margin-top:20px">
-        <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px">2 tasks can be fulfilled by robots &middot; 1 flagged for manual vendor</p>
-        <button class="btn btn-primary" id="goPayBtn">Fund account &amp; start auctions &rarr;</button>
-      </div>
+      <div style="text-align:center"><button class="btn btn-primary" id="goPayBtn">Continue to Payment &rarr;</button></div>
     </div>
   </div>
 </div>
@@ -517,8 +489,8 @@ footer a:hover{text-decoration:underline}
   <div style="padding:32px 0">
     <div style="text-align:center;margin-bottom:20px">
       <h2 style="font-size:1.1rem;font-weight:600;margin-bottom:4px">Add credits to get started</h2>
-      <p style="font-size:0.8rem;color:var(--text-2)">$45,000 credit bundle &middot; covers the full US-131 survey package</p>
-      <p style="font-size:0.8rem;color:var(--text-3);margin-top:2px">2 robot tasks (~$35K) + 1 manual vendor (~$10K)</p>
+      <p style="font-size:0.8rem;color:var(--text-2)">$10,000 credit bundle &middot; use across multiple surveys</p>
+      <p style="font-size:0.8rem;color:var(--text-3);margin-top:2px">This topo survey will cost ~$2,400</p>
       <p style="font-size:0.72rem;color:var(--text-3);margin-top:4px">Cancel anytime. Unused credits are refundable.</p>
     </div>
     <div class="pay-grid">
@@ -527,129 +499,62 @@ footer a:hover{text-decoration:underline}
     </div>
     <div id="cardArea" style="display:none">
       <div class="mock-card"><div class="num">4242 4242 4242 4242</div>Exp 12/28 &middot; CVC 424<br><span style="color:var(--text-3)">Auto-filled from browser</span></div>
-      <div style="text-align:center"><button class="btn btn-primary" id="confirmPay">Confirm &mdash; $45,000</button></div>
+      <div style="text-align:center"><button class="btn btn-primary" id="confirmPay">Confirm &mdash; $10,000</button></div>
     </div>
     <div id="payDone" style="display:none;text-align:center;padding:20px 0">
-      <div style="color:var(--green);font-weight:600">$45,000 credits added</div>
-      <div style="font-size:0.72rem;color:var(--text-3);margin:6px 0 16px">Card statement: YAK ROBOTICS MARKETPLACE $45,000.00</div>
-      <button class="btn btn-primary" id="startAuction">Start 2 Auctions &rarr;</button>
+      <div style="color:var(--green);font-weight:600">$10,000 credits added</div>
+      <div style="font-size:0.72rem;color:var(--text-3);margin:6px 0 16px">Card statement: YAK ROBOTICS MARKETPLACE $10,000.00</div>
+      <button class="btn btn-primary" id="startAuction">Start Auction &rarr;</button>
     </div>
   </div>
 </div>
 
-<!-- SCREEN 4: PARALLEL AUCTIONS -->
+<!-- SCREEN 4: AUCTION -->
 <div id="s-auction" class="screen">
-  <div style="padding:24px 0">
-    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Auctions in Progress</h2>
-    <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:20px">2 tasks posted to marketplace &middot; operators bidding now</p>
-
-    <div class="card" style="border-left:3px solid var(--accent)" id="auction1">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-weight:600">Task 1: Aerial LiDAR Topo Survey</span>
-        <span class="auction-status-tag" id="a1status" style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--bg-subtle);color:var(--text-3);text-transform:uppercase;letter-spacing:0.05em"><span class="spinner" style="width:10px;height:10px;margin-right:4px"></span>BIDDING</span>
-      </div>
-      <div class="bid-grid" style="margin:0">
-        <div class="bid-card" id="bid1a" style="opacity:0;transform:translateY(8px)">
-          <div class="bid-name">SkyVista Survey</div>
-          <div class="bid-loc">Kalamazoo &middot; DJI M350 RTK &middot; Aerial LiDAR</div>
-          <div class="bid-price-row"><div class="bid-price">$14,200</div><div class="bid-conf">99.4%</div></div>
-          <div class="score-row"><div class="score-header"><span>Match</span><span>96.1</span></div><div class="score-bar"><div class="score-fill" data-w="96%"></div></div></div>
-          <div class="winner-tag">&#10003; Selected</div>
-        </div>
-        <div class="bid-card" id="bid1b" style="opacity:0;transform:translateY(8px)">
-          <div class="bid-name">Desert Drone Works</div>
-          <div class="bid-loc">Grand Rapids &middot; DJI M350 &middot; LiDAR + Photo</div>
-          <div class="bid-price-row"><div class="bid-price">$16,800</div><div class="bid-conf">97.1%</div></div>
-          <div class="score-row"><div class="score-header"><span>Match</span><span>82.3</span></div><div class="score-bar"><div class="score-fill" data-w="82%"></div></div></div>
-          <div class="winner-tag">&#10003; Selected</div>
-        </div>
-      </div>
+  <div class="auction-status" id="aStatus"><span class="spinner"></span>Finding operators near I-17 corridor...</div>
+  <div class="bid-grid">
+    <div class="bid-card" id="bidA">
+      <div class="bid-name">SkyVista Survey</div>
+      <div class="bid-loc">Phoenix Metro &middot; DJI M350 RTK &middot; Aerial LiDAR</div>
+      <div class="bid-price-row"><div class="bid-price">$2,400</div><div class="bid-conf">99.4%</div></div>
+      <div class="score-row"><div class="score-header"><span>Match Score</span><span>94.2</span></div><div class="score-bar"><div class="score-fill" data-w="94%"></div></div></div>
+      <div class="winner-tag">&#10003; Selected &mdash; best match</div>
     </div>
-
-    <div class="card" style="border-left:3px solid var(--accent);margin-top:12px" id="auction2">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-weight:600">Task 2: GPR Subsurface Scan</span>
-        <span class="auction-status-tag" id="a2status" style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--bg-subtle);color:var(--text-3);text-transform:uppercase;letter-spacing:0.05em"><span class="spinner" style="width:10px;height:10px;margin-right:4px"></span>BIDDING</span>
-      </div>
-      <div style="text-align:center;padding:12px 0" id="a2waiting">
-        <span class="spinner"></span> <span style="color:var(--text-3);font-size:0.8rem">Waiting for bids...</span>
-      </div>
-      <div class="bid-grid" style="margin:0;display:none" id="a2bids">
-        <div class="bid-card" id="bid2a" style="opacity:0;transform:translateY(8px)">
-          <div class="bid-name">GroundTruth Robotics</div>
-          <div class="bid-loc">Southwest MI &middot; Spot + GSSI GPR</div>
-          <div class="bid-price-row"><div class="bid-price">$12,500</div><div class="bid-conf">98.8%</div></div>
-          <div class="score-row"><div class="score-header"><span>Match</span><span>91.4</span></div><div class="score-bar"><div class="score-fill" data-w="91%"></div></div></div>
-          <div class="winner-tag">&#10003; Selected &mdash; sole bidder</div>
-        </div>
-      </div>
+    <div class="bid-card" id="bidB">
+      <div class="bid-name">GroundTruth Robotics</div>
+      <div class="bid-loc">Southwest US &middot; Spot + GPR &middot; Ground survey</div>
+      <div class="bid-price-row"><div class="bid-price">$3,800</div><div class="bid-conf">98.8%</div></div>
+      <div class="score-row"><div class="score-header"><span>Match Score</span><span>78.6</span></div><div class="score-bar"><div class="score-fill" data-w="79%"></div></div></div>
+      <div class="winner-tag">&#10003; Selected</div>
     </div>
-
-    <div class="card" style="border-left:3px solid var(--text-3);margin-top:12px;opacity:0.6">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-weight:600;color:var(--text-3)">Task 3: Pavement Core Sampling</span>
-        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--amber-bg);color:var(--amber);text-transform:uppercase;letter-spacing:0.05em">MANUAL</span>
-      </div>
-      <div style="font-size:0.8rem;color:var(--text-3);margin-top:6px">No robot capability &mdash; will be sent to manual vendor network</div>
-    </div>
+  </div>
+  <div id="execArea" style="display:none">
+    <div class="auction-status">SkyVista Survey conducting aerial LiDAR scan...</div>
+    <div class="progress-wrap"><div class="progress-outer"><div class="progress-inner" id="progFill"></div></div></div>
   </div>
 </div>
 
-<!-- SCREEN 5: RESULTS DASHBOARD -->
+<!-- SCREEN 5: RESULT -->
 <div id="s-result" class="screen">
-  <div style="padding:24px 0">
-    <div class="result-hero" style="padding:32px 0 16px">
-      <div class="result-check">&#10003;</div>
-      <div style="font-size:clamp(1rem,3vw,1.4rem);font-weight:700;margin-bottom:4px">US-131 Survey Package &mdash; 2 of 3 Tasks Awarded</div>
-      <div class="result-sub">MDOT Kalamazoo County &middot; Control Section 39042</div>
-    </div>
-
-    <div class="result-meta">
-      <div class="meta-box"><div class="meta-val" style="color:var(--green)">$26,700</div><div class="meta-lbl">ROBOT COST</div></div>
-      <div class="meta-box"><div class="meta-val">$45,000</div><div class="meta-lbl">RFP BUDGET</div></div>
-      <div class="meta-box"><div class="meta-val" style="color:var(--green)">41%</div><div class="meta-lbl">SAVINGS</div></div>
-    </div>
-
-    <div style="margin-top:20px">
-      <div class="card" style="margin-bottom:10px;border-left:3px solid var(--green)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:600;font-size:0.875rem">Task 1: Aerial LiDAR Topo</div>
-            <div style="font-size:0.75rem;color:var(--text-2)">SkyVista Survey &middot; $14,200 &middot; Est. 3 days</div>
-          </div>
-          <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">AWARDED</span>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:10px;border-left:3px solid var(--green)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:600;font-size:0.875rem">Task 2: GPR Subsurface Scan</div>
-            <div style="font-size:0.75rem;color:var(--text-2)">GroundTruth Robotics &middot; $12,500 &middot; Est. 2 days</div>
-          </div>
-          <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">AWARDED</span>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:10px;border-left:3px solid var(--amber)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:600;font-size:0.875rem">Task 3: Pavement Core Sampling</div>
-            <div style="font-size:0.75rem;color:var(--text-3)">No robot bids &middot; Budget: $10,000 &middot; Requires manual vendor</div>
-          </div>
-          <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--amber-bg);color:var(--amber);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">MANUAL</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-actions">
-      <button class="btn btn-primary" onclick="resetDemo()">Upload Another RFP</button>
-      <button class="btn btn-outline" id="addClaudeBtn">Add to Claude</button>
-      <button class="btn btn-outline" id="downloadBtn">Download Specs</button>
-      <button class="btn btn-link" id="receiptBtn">View Receipt</button>
-    </div>
-    <div class="cta-block" style="margin-top:20px;background:var(--accent-light)">
-      <p style="color:var(--accent-hover);margin-bottom:12px"><strong>Automate with your AI agent</strong><br>Connect your agent to process RFPs and manage auctions programmatically.</p>
-      <button class="btn btn-primary" onclick="showScreen('s-agentlink',0)">Link Your Agent &rarr;</button>
-    </div>
+  <div class="result-hero">
+    <div class="result-check">&#10003;</div>
+    <div class="result-reading" style="font-size:clamp(1rem,3vw,1.5rem)">12-Acre Topographic Survey Complete</div>
+    <div class="result-sub">I-17 Corridor &middot; SkyVista Survey &middot; &plusmn;3.2cm verified</div>
+  </div>
+  <div class="result-meta">
+    <div class="meta-box"><div class="meta-val" style="color:var(--green)">$2,400</div><div class="meta-lbl">Cost</div></div>
+    <div class="meta-box"><div class="meta-val">3.2 hrs</div><div class="meta-lbl">Time</div></div>
+    <div class="meta-box"><div class="meta-val" style="color:var(--amber)">$7,600</div><div class="meta-lbl">Balance</div></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn btn-primary" onclick="resetDemo()">Hire Again</button>
+    <button class="btn btn-outline" id="addClaudeBtn">Add to Claude</button>
+    <button class="btn btn-outline" id="downloadBtn">Download Data</button>
+    <button class="btn btn-link" id="receiptBtn">View Receipt</button>
+  </div>
+  <div class="cta-block" style="margin-top:24px;background:var(--accent-light)">
+    <p style="color:var(--accent-hover);margin-bottom:12px"><strong>Automate with your AI agent</strong><br>Connect your agent to post tasks, manage auctions, and get results programmatically.</p>
+    <button class="btn btn-primary" onclick="showScreen('s-agentlink',0)">Link Your Agent &rarr;</button>
   </div>
 </div>
 
@@ -1060,92 +965,48 @@ function isNoAvailRequest(q){var ql=q.toLowerCase();return noAvailKeywords.some(
 function submitSearch(){
   var q=document.getElementById('searchInput').value.trim();
   if(!q){document.getElementById('searchInput').classList.add('shake');setTimeout(function(){document.getElementById('searchInput').classList.remove('shake')},500);return}
-  // All text input routes to the RFP processing flow (same as sample RFP button)
+  document.getElementById('queryDisplay').textContent='"'+q+'"';
+  if(isNoAvailRequest(q)){
+    document.getElementById('nearbyCount').textContent='0 available';
+    document.getElementById('nearbyCount').style.color='var(--red)';
+    document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
+      if(i===0)r.querySelector('.pval').textContent='Specialized Task';
+      if(i===3)r.querySelector('.pval').textContent='No estimates available';
+    });
+    document.getElementById('preConnect').innerHTML='<div style="text-align:center;padding:8px 0"><div style="font-size:1.5rem;margin-bottom:8px">&#128270;</div><h3 style="font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--text)">No robots available for this task</h3><p style="color:var(--text-2);font-size:0.875rem;margin-bottom:16px;line-height:1.6">We don\'t currently have robots with the capabilities needed for this request. Here\'s what you can do:</p><div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;text-align:left"><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Set an alert</strong> \u2014 We\'ll notify you when a matching robot joins the network</div><div style="padding:12px;background:var(--bg-subtle);border-radius:var(--radius);font-size:0.8rem"><strong>Browse available robots</strong> \u2014 See what 1,047 registered robots can do</div><div style="padding:12px;background:var(--accent-light);border-radius:var(--radius);font-size:0.8rem"><strong>Don\'t have a robot?</strong> \u2014 <a href="#" style="color:var(--accent);font-weight:600" onclick="showScreen(\'s-buyrobot\',0);return false">Buy a starter kit</a> and join the marketplace as an operator</div></div><div style="margin-top:16px"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Try a different request</button></div></div>';
+  } else {
+    document.getElementById('nearbyCount').textContent='8 online in Helsinki';
+    document.getElementById('nearbyCount').style.color='var(--green)';
+    document.querySelectorAll('#s-review .parsed-row').forEach(function(r,i){
+      if(i===0)r.querySelector('.pval').textContent='Sensor Reading';
+      if(i===3)r.querySelector('.pval').textContent='$0.25 - $0.80';
+    });
+    document.getElementById('preConnect').innerHTML='<p>Connect your AI assistant to get an exact quote and manage the auction on your behalf.</p><button class="btn btn-primary" id="connectBtn">Connect your AI assistant \u2192</button>';
+    document.getElementById('connectBtn').onclick=function(){this.textContent='Connecting...';this.style.opacity='0.5';setTimeout(function(){document.getElementById('preConnect').style.display='none';document.getElementById('postConnect').style.display='block'},1000)};
+  }
   showScreen('s-review',2);
-  runRfpExtraction();
 }
 document.getElementById('searchGo').onclick=submitSearch;
 document.getElementById('searchInput').onkeydown=function(e){if(e.key==='Enter')submitSearch()};
 
-// Sample RFP button
-document.getElementById('sampleRfpBtn').onclick=function(){
-  showScreen('s-review',2);
-  runRfpExtraction();
-};
-
-// RFP extraction animation
-function runRfpExtraction(){
-  var items=[
-    {icon:'\u2713',text:'Survey type: Topographic + Subsurface',delay:600},
-    {icon:'\u2713',text:'Accuracy: \u00b10.05 ft vertical (MDOT Sec 104.09)',delay:1200},
-    {icon:'\u2713',text:'Area: 6.6 miles \u00d7 100 ft = ~80 acres',delay:1800},
-    {icon:'\u2713',text:'Deliverables: LandXML, DXF, GeoTIFF, LAS, CSV',delay:2400},
-    {icon:'\u2713',text:'Standards: MDOT 104.09, NCHRP 748 Cat 1A, NSSDA',delay:3000},
-    {icon:'\u2713',text:'Budget: $45,000 total',delay:3600},
-    {icon:'\u2713',text:'Timeline: Complete by April 30, 2026',delay:4200}
-  ];
-  var list=document.getElementById('extractionList');
-  list.innerHTML='';
-  items.forEach(function(item){
-    setTimeout(function(){
-      var div=document.createElement('div');
-      div.style.cssText='display:flex;gap:8px;align-items:center;font-size:0.8rem;padding:6px 0;animation:fadeIn 0.3s ease-out';
-      div.innerHTML='<span style="color:var(--green);font-weight:700">'+item.icon+'</span><span>'+item.text+'</span>';
-      list.appendChild(div);
-    },item.delay);
-  });
-  setTimeout(function(){
-    document.getElementById('rfpDecomp').style.display='block';
-    document.getElementById('rfpDecomp').scrollIntoView({behavior:'smooth',block:'nearest'});
-  },5200);
-}
+// Connect Claude
+document.getElementById('connectBtn').onclick=function(){this.textContent='Connecting...';this.style.opacity='0.5';setTimeout(function(){document.getElementById('preConnect').style.display='none';document.getElementById('postConnect').style.display='block'},1000)};
 
 // Payment
 document.getElementById('goPayBtn').onclick=function(){showScreen('s-pay',3)};
 document.getElementById('payStripe').onclick=function(){document.getElementById('cardArea').style.display='block';document.getElementById('payStripe').style.borderColor='var(--accent)'};
-document.getElementById('payUSDC').onclick=function(){document.getElementById('cardArea').style.display='none';document.getElementById('payDone').style.display='block';document.getElementById('payDone').querySelector('div').textContent='$45,000 USDC deposited'};
+document.getElementById('payUSDC').onclick=function(){document.getElementById('cardArea').style.display='none';document.getElementById('payDone').style.display='block';document.getElementById('payDone').querySelector('div').textContent='$25.00 USDC deposited'};
 document.getElementById('confirmPay').onclick=function(){document.getElementById('cardArea').style.display='none';document.getElementById('payDone').style.display='block'};
 
-// Parallel auctions
-document.getElementById('startAuction').onclick=function(){showScreen('s-auction',4);runParallelAuctions()};
-function runParallelAuctions(){
-  // Task 1: two bids come in
-  setTimeout(function(){
-    var b=document.getElementById('bid1a');b.style.opacity='1';b.style.transform='translateY(0)';b.style.transition='all 0.4s ease-out';
-  },1200);
-  setTimeout(function(){
-    var b=document.getElementById('bid1b');b.style.opacity='1';b.style.transform='translateY(0)';b.style.transition='all 0.4s ease-out';
-  },2000);
-  // Score bars fill
-  setTimeout(function(){
-    document.querySelectorAll('#auction1 .score-fill').forEach(function(f){f.style.width=f.dataset.w});
-  },2800);
-  // Winner selected
-  setTimeout(function(){
-    document.getElementById('bid1a').classList.add('winner');
-    document.getElementById('bid1b').classList.add('loser');
-    document.getElementById('a1status').innerHTML='<span style="color:var(--green)">\u2713 AWARDED</span>';
-    document.getElementById('a1status').style.background='var(--green-bg)';
-  },3800);
-
-  // Task 2: single bid comes in later
-  setTimeout(function(){
-    document.getElementById('a2waiting').style.display='none';
-    document.getElementById('a2bids').style.display='grid';
-    var b=document.getElementById('bid2a');b.style.opacity='1';b.style.transform='translateY(0)';b.style.transition='all 0.4s ease-out';
-  },4500);
-  setTimeout(function(){
-    document.querySelectorAll('#auction2 .score-fill').forEach(function(f){f.style.width=f.dataset.w});
-  },5200);
-  setTimeout(function(){
-    document.getElementById('bid2a').classList.add('winner');
-    document.getElementById('a2status').innerHTML='<span style="color:var(--green)">\u2713 AWARDED</span>';
-    document.getElementById('a2status').style.background='var(--green-bg)';
-  },6000);
-
-  // Navigate to results
-  setTimeout(function(){showScreen('s-result',4)},8000);
-}
+// Auction
+document.getElementById('startAuction').onclick=function(){showScreen('s-auction',4);runAuction()};
+function runAuction(){var a=document.getElementById('bidA'),b=document.getElementById('bidB'),st=document.getElementById('aStatus');
+setTimeout(function(){a.classList.add('vis');st.innerHTML='<span class="spinner"></span>Collecting bids...'},1000);
+setTimeout(function(){b.classList.add('vis')},1800);
+setTimeout(function(){document.querySelectorAll('.score-fill').forEach(function(f){f.style.width=f.dataset.w});st.innerHTML='<span class="spinner"></span>Scoring...'},2800);
+setTimeout(function(){a.classList.add('winner');b.classList.add('loser');st.innerHTML='SkyVista Survey selected';st.style.color='var(--accent)'},4000);
+setTimeout(function(){document.getElementById('execArea').style.display='block';requestAnimationFrame(function(){document.getElementById('progFill').style.width='100%'})},5000);
+setTimeout(function(){showScreen('s-result',4)},7500)}
 
 // Robot detail panel
 var openDetailId=null;
@@ -1223,7 +1084,7 @@ document.getElementById('modalOverlay').onclick=function(e){if(e.target===docume
 
 document.getElementById('addClaudeBtn').onclick=function(){openModal('Add to Claude','{\n  "mcpServers": {\n    "robot-marketplace": {\n      "type": "http",\n      "url": "https://marketplace.yakrobotics.com/fleet/mcp",\n      "headers": {\n        "Authorization": "Bearer YOUR_TOKEN"\n      }\n    }\n  }\n}\n\nPaste into .mcp.json or Claude Desktop settings.')};
 document.getElementById('downloadBtn').onclick=function(){openModal('Survey Deliverables','Files delivered:\n\n1. point_cloud.las (478 MB)\n   LiDAR point cloud, 12-acre coverage, 100 pts/m\u00b2\n\n2. topo_map.dxf (24 MB)\n   Civil 3D-ready surface model, 0.5m contours\n\n3. ortho_mosaic.tif (312 MB)\n   4cm/px orthomosaic, georeferenced\n\n4. cross_sections.csv (1.1 MB)\n   50-ft station cross-sections, cut/fill volumes\n\n5. survey_report.pdf (2.4 MB)\n   RTK accuracy report, ground control points,\n   weather conditions, operator certifications\n\nMetadata:\n  operator: SkyVista Survey\n  request_id: req_a1b2c3d4e5f6\n  accuracy_verified: \u00b11.8cm vertical\n  coordinate_system: NAD83 / Arizona Central (ft)\n  datum: NAVD88')};
-document.getElementById('receiptBtn').onclick=function(){openModal('Receipt','YAK ROBOTICS MARKETPLACE\n\nRFP: US-131 Resurfacing Survey Package\nAgency: MDOT Kalamazoo County\nControl Section: 39042\n\nTask 1: Aerial LiDAR Topo Survey\n  Operator: SkyVista Survey\n  Amount: $14,200.00\n  Ref: req_131_topo_001\n\nTask 2: GPR Subsurface Scan\n  Operator: GroundTruth Robotics\n  Amount: $12,500.00\n  Ref: req_131_gpr_001\n\nTask 3: Pavement Core Sampling\n  Status: Pending manual vendor\n  Budget: $10,000.00\n\nTotal Robot Tasks: $26,700.00\nPayment: Credit balance (Stripe)\nDate: 2026-03-28\nBalance after: $18,300.00')};
+document.getElementById('receiptBtn').onclick=function(){openModal('Receipt','YAK ROBOTICS MARKETPLACE\n\nTask: Pre-Bid Topographic Survey\nSite: 12 acres, I-17 & Happy Valley Rd, Phoenix AZ\nOperator: SkyVista Survey\nEquipment: DJI Matrice 350 RTK + Zenmuse L2\nAmount: $2,400.00\nPayment: Credit balance (Stripe)\nRef: req_a1b2c3d4e5f6\nDate: 2026-03-27 09:14:42 UTC\nDuration: 3.2 hours\nAccuracy: \u00b11.8cm verified\n\nBalance after: $7,600.00')};
 
 // ===== PART C: ROBOT EXPLORER =====
 var explorerShowing=0;
@@ -1623,26 +1484,17 @@ function renderAgentStep(){
 // Reset
 function resetDemo(){
   closeRobotDetail();
-  // Reset bid cards
-  document.querySelectorAll('.bid-card').forEach(function(c){
-    c.classList.remove('vis','winner','loser');
-    c.style.opacity='0';c.style.transform='translateY(8px)';c.style.transition='none';
-  });
+  document.querySelectorAll('.bid-card').forEach(function(c){c.classList.remove('vis','winner','loser')});
   document.querySelectorAll('.score-fill').forEach(function(b){b.style.width='0'});
-  // Reset auction statuses
-  ['a1status','a2status'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){el.innerHTML='<span class="spinner" style="width:10px;height:10px;margin-right:4px"></span>BIDDING';el.style.background='var(--bg-subtle)'}
-  });
-  var a2w=document.getElementById('a2waiting');if(a2w)a2w.style.display='block';
-  var a2b=document.getElementById('a2bids');if(a2b)a2b.style.display='none';
-  // Reset RFP processing
-  var el=document.getElementById('extractionList');if(el)el.innerHTML='';
-  var rd=document.getElementById('rfpDecomp');if(rd)rd.style.display='none';
-  // Reset payment
+  document.getElementById('progFill').style.width='0';
+  document.getElementById('execArea').style.display='none';
+  document.getElementById('aStatus').innerHTML='<span class="spinner"></span>Finding operators near I-17 corridor...';
+  document.getElementById('aStatus').style.color='';
   document.getElementById('cardArea').style.display='none';
   document.getElementById('payDone').style.display='none';
   document.getElementById('payStripe').style.borderColor='';
+  document.getElementById('preConnect').style.display='block';
+  document.getElementById('postConnect').style.display='none';
   document.getElementById('searchInput').value='';
   showScreen('s-landing',1);
 }
