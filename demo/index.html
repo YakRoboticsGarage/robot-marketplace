@@ -832,7 +832,23 @@ footer a:hover{text-decoration:underline}
     </div>
 
     <div id="awardsDone" style="display:none;padding:20px 0">
-      <div class="card" style="border:2px solid var(--green);text-align:center;padding:28px" id="signingCard">
+      <div id="activatePrompt" class="card" style="border:2px solid var(--accent);text-align:center;padding:24px">
+        <div style="font-size:1.5rem;margin-bottom:8px">&#128221;</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:6px">Ready to Activate</div>
+        <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto">
+          You have agreed to both task awards. Review the summary below, then sign and activate to begin work.
+        </div>
+        <div class="card" style="text-align:left;background:var(--bg-subtle);margin:0 auto 16px;max-width:420px;padding:14px">
+          <div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 1</span><span class="pval">Apex Aerial Surveys &middot; $72,000</span></div>
+          <div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 2</span><span class="pval">SiteScan Robotics &middot; $98,000</span></div>
+          <div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Total</span><span class="pval" style="font-weight:700">$170,000</span></div>
+          <div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Bond</span><span class="pval green">SUR-2025-MI-4847291 verified</span></div>
+          <div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Agreement</span><span class="pval">ConsensusDocs 750 (auto-generated)</span></div>
+        </div>
+        <button class="btn btn-primary" id="activateServicesBtn" style="font-size:0.875rem;padding:10px 28px;background:var(--navy)">Sign &amp; Activate Services &rarr;</button>
+        <div style="font-size:0.65rem;color:var(--text-3);margin-top:8px">By signing, you authorize operators to begin work per the agreed terms.</div>
+      </div>
+      <div class="card" style="border:2px solid var(--green);text-align:center;padding:28px;display:none" id="signingCard">
         <div id="signingAnim" style="padding:16px 0">
           <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 12px"></div>
           <div style="font-weight:600;font-size:0.95rem">Recording execution commitment...</div>
@@ -1518,14 +1534,14 @@ document.getElementById('confirmRejectBtn').onclick=function(){
 var awards={task1:false,task2:false};
 document.getElementById('confirmAward1').onclick=function(){
   awards.task1=true;
-  this.textContent='\u2713 Committed';this.style.background='var(--green)';this.style.pointerEvents='none';
+  this.textContent='\u2713 Agreed';this.style.background='var(--green)';this.style.pointerEvents='none';
   this.parentElement.querySelector('.btn-outline').style.display='none';
   var toggle=this.parentElement.querySelector('a');if(toggle)toggle.style.display='none';
   checkAllAwards();
 };
 document.getElementById('confirmAward2').onclick=function(){
   awards.task2=true;
-  this.textContent='\u2713 Committed';this.style.background='var(--green)';this.style.pointerEvents='none';
+  this.textContent='\u2713 Agreed';this.style.background='var(--green)';this.style.pointerEvents='none';
   this.parentElement.querySelector('.btn-outline').style.display='none';
   var toggle=this.parentElement.querySelector('a');if(toggle)toggle.style.display='none';
   checkAllAwards();
@@ -1534,13 +1550,19 @@ function checkAllAwards(){
   if(awards.task1 && awards.task2){
     document.getElementById('awardsDone').style.display='block';
     document.getElementById('awardsDone').scrollIntoView({behavior:'smooth'});
-    // Animate the signing sequence
-    setTimeout(function(){
-      document.getElementById('signingAnim').style.display='none';
-      document.getElementById('signingDone').style.display='block';
-    },2500);
   }
 }
+document.getElementById('activateServicesBtn').onclick=function(){
+  // Hide the activation prompt, show signing animation
+  document.getElementById('activatePrompt').style.display='none';
+  document.getElementById('signingCard').style.display='block';
+  document.getElementById('signingCard').scrollIntoView({behavior:'smooth'});
+  // Animate the signing sequence
+  setTimeout(function(){
+    document.getElementById('signingAnim').style.display='none';
+    document.getElementById('signingDone').style.display='block';
+  },2500);
+};
 document.getElementById('goToResults').onclick=function(){showScreen('s-result',6)};
 function runParallelAuctions(){
   // Task 1: two bids come in
@@ -2104,6 +2126,8 @@ function resetDemo(){
   document.querySelectorAll('#s-review-award .btn-outline').forEach(function(b){b.style.display=''});
   document.querySelectorAll('#s-review-award a').forEach(function(a){a.style.display=''});
   var ad=document.getElementById('awardsDone');if(ad)ad.style.display='none';
+  var ap=document.getElementById('activatePrompt');if(ap)ap.style.display='';
+  var sc=document.getElementById('signingCard');if(sc)sc.style.display='none';
   var sa=document.getElementById('signingAnim');if(sa)sa.style.display='';
   var sd=document.getElementById('signingDone');if(sd)sd.style.display='none';
   document.getElementById('searchInput').value='';
