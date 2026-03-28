@@ -29,7 +29,19 @@
   --shadow-lg:0 2px 8px rgba(0,0,0,0.08);
 }
 html{font-size:16px}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.032;background-image:
+  linear-gradient(rgba(27,58,92,0.4) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(27,58,92,0.4) 1px, transparent 1px),
+  linear-gradient(rgba(27,58,92,0.15) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(27,58,92,0.15) 1px, transparent 1px),
+  radial-gradient(ellipse 800px 600px at 30% 40%, rgba(27,58,92,0.3) 0%, transparent 70%),
+  radial-gradient(ellipse 600px 900px at 70% 60%, rgba(27,58,92,0.2) 0%, transparent 70%);
+background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px, 100% 100%, 100% 100%}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.018;background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Cellipse cx='250' cy='300' rx='200' ry='150' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='250' cy='300' rx='160' ry='120' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='250' cy='300' rx='120' ry='90' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='250' cy='300' rx='80' ry='60' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='250' cy='300' rx='40' ry='30' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='580' cy='550' rx='180' ry='130' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='580' cy='550' rx='140' ry='100' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='580' cy='550' rx='100' ry='70' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3Cellipse cx='580' cy='550' rx='60' ry='40' fill='none' stroke='%231B3A5C' stroke-width='1'/%3E%3C/svg%3E");
+background-size:800px 800px}
+body>*{position:relative;z-index:1}
 h1,h2,h3{font-weight:700;letter-spacing:-0.02em}
 .mono{font-family:'JetBrains Mono',monospace}
 .container{max-width:880px;margin:0 auto;padding:0 20px}
@@ -56,7 +68,7 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* Hero */
-.hero{text-align:center;padding:60px 0 32px;background-image:linear-gradient(rgba(203,213,224,0.15) 1px, transparent 1px),linear-gradient(90deg, rgba(203,213,224,0.15) 1px, transparent 1px);background-size:40px 40px}
+.hero{text-align:center;padding:60px 0 32px}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:0.68rem;font-weight:500;color:var(--green);background:var(--green-bg);padding:5px 12px;border-radius:4px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
 .hero-badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
