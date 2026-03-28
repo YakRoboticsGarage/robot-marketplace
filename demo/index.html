@@ -321,6 +321,13 @@ footer{padding:20px 0;text-align:center;font-size:0.72rem;color:var(--text-3);li
   /* Bid cards */
   .bid-price{font-size:1.1rem}
   .bid-loc{font-size:0.65rem}
+  /* Auction status tags — prevent spinner/text split */
+  .auction-status-tag,.auction-status-tag span{white-space:nowrap;display:inline-flex;align-items:center}
+  #s-auction .card{padding:14px}
+  #s-auction [style*="display:flex;justify-content:space-between"]{flex-wrap:wrap;gap:4px}
+  #s-auction .bid-card{padding:14px}
+  .auction-status{font-size:0.82rem;padding:20px 0 12px}
+  .spinner{flex-shrink:0}
   /* Result meta */
   .meta-val{font-size:1rem}
   /* Robot detail */
@@ -330,8 +337,14 @@ footer{padding:20px 0;text-align:center;font-size:0.72rem;color:var(--text-3);li
   /* Award review */
   #s-review-award .card{padding:14px}
   #s-review-award [style*="grid-template-columns:repeat(auto-fit"]{grid-template-columns:1fr !important}
+  #s-review-award [style*="display:flex;gap:8px;align-items:center"]{flex-wrap:wrap}
+  #s-review-award [style*="margin-left:auto"]{margin-left:0 !important;margin-top:4px;font-size:0.68rem !important}
+  #s-review-award [style*="font-weight:600;font-size:0.875rem"]{font-size:0.75rem !important}
   /* RFP processing */
-  #s-review .card{max-height:140px}
+  #s-review .card{max-height:140px;padding:12px}
+  #s-review [style*="font-size:0.875rem"]{font-size:0.75rem !important}
+  #s-review [style*="font-size:0.8rem"]{font-size:0.7rem !important}
+  #s-review [style*="display:flex;justify-content:space-between"]{flex-wrap:wrap;gap:4px}
   /* Payment */
   .pay-grid{grid-template-columns:1fr}
   .pay-opt{padding:16px}
@@ -552,11 +565,13 @@ footer a:hover{text-decoration:underline}
 <!-- SCREEN 2: RFP PROCESSING -->
 <div id="s-review" class="screen">
   <div style="padding:24px 0">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 style="font-size:1.1rem;font-weight:700">Processing RFQ</h2>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <a href="https://www.michigan.gov/mdot/-/media/Project/Websites/MDOT/Business/Contractors/Innovative-Contracting/I94-drainage-tunnel/RFQ.pdf" target="_blank" style="font-size:0.72rem;color:var(--link);text-decoration:none">View original RFQ (PDF) &rarr;</a>
-        <a href="https://www.michigan.gov/mdot/business/contractors/innovativecontracting/i-94-drainage-tunnel" target="_blank" style="font-size:0.72rem;color:var(--link);text-decoration:none">MDOT project page &rarr;</a>
+    <div style="margin-bottom:16px">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:6px">Processing RFQ</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.72rem">
+        <a href="https://www.michigan.gov/mdot/-/media/Project/Websites/MDOT/Business/Contractors/Innovative-Contracting/I94-drainage-tunnel/RFQ.pdf" target="_blank" style="color:var(--link);text-decoration:none">View RFQ (PDF) &rarr;</a>
+        <span style="color:var(--border)">&middot;</span>
+        <a href="https://www.michigan.gov/mdot/business/contractors/innovativecontracting/i-94-drainage-tunnel" target="_blank" style="color:var(--link);text-decoration:none">MDOT project &rarr;</a>
+        <span style="color:var(--border)">&middot;</span>
         <a href="#" onclick="openModal('Task Spec JSON','[\n  {\n    &quot;description&quot;: &quot;Pre-construction topographic survey, I-94 corridor, Detroit&quot;,\n    &quot;task_category&quot;: &quot;site_survey&quot;,\n    &quot;task_decomposition&quot;: {&quot;rfp_id&quot;: &quot;rfp_mdot_i94_tunnel_2025&quot;, &quot;task_index&quot;: 1, &quot;total_tasks&quot;: 3, &quot;dependencies&quot;: [], &quot;bundling&quot;: &quot;independent&quot;},\n    &quot;capability_requirements&quot;: {\n      &quot;hard&quot;: {&quot;sensors_required&quot;: [&quot;aerial_lidar&quot;, &quot;rtk_gps&quot;, &quot;photogrammetry&quot;], &quot;accuracy_required&quot;: {&quot;vertical_ft&quot;: 0.05}, &quot;certifications_required&quot;: [&quot;faa_part_107&quot;, &quot;licensed_surveyor&quot;], &quot;terrain&quot;: &quot;highway_corridor&quot;, &quot;standards_compliance&quot;: [&quot;MDOT_104.09&quot;]}\n    },\n    &quot;budget_ceiling&quot;: &quot;85000.00&quot;,\n    &quot;sla_seconds&quot;: 1209600\n  },\n  {\n    &quot;description&quot;: &quot;Tunnel 3D scanning and as-built, 6000 ft drainage tunnel&quot;,\n    &quot;task_category&quot;: &quot;as_built&quot;,\n    &quot;task_decomposition&quot;: {&quot;rfp_id&quot;: &quot;rfp_mdot_i94_tunnel_2025&quot;, &quot;task_index&quot;: 2, &quot;total_tasks&quot;: 3, &quot;dependencies&quot;: [], &quot;bundling&quot;: &quot;independent&quot;},\n    &quot;capability_requirements&quot;: {\n      &quot;hard&quot;: {&quot;sensors_required&quot;: [&quot;terrestrial_lidar&quot;], &quot;accuracy_required&quot;: {&quot;point_density_ft&quot;: 0.05}, &quot;certifications_required&quot;: [&quot;licensed_surveyor&quot;, &quot;confined_space&quot;], &quot;terrain&quot;: &quot;pipeline&quot;}\n    },\n    &quot;budget_ceiling&quot;: &quot;120000.00&quot;,\n    &quot;sla_seconds&quot;: 1814400\n  }\n]');return false" style="font-size:0.72rem;color:var(--link);text-decoration:none">Download task JSON &darr;</a>
       </div>
     </div>
