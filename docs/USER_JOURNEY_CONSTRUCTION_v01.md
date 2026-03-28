@@ -1,10 +1,12 @@
 # User Journey: Construction Site Surveying (v0.1)
 
-> **Version:** 0.1 | **Date:** 2026-03-27 | **Story:** Construction Wedge
+> **Version:** 0.1.1 | **Date:** 2026-03-28 | **Story:** Construction Wedge
 >
 > This is the construction-focused user journey for the marketplace.
 > It describes Marco's experience hiring robots for a pre-bid highway survey.
 > For research backing, see `research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md`, `research/RESEARCH_ROBOTS_AND_SENSORS.md`.
+> For payment/legal research, see `research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md`, `research/RESEARCH_PAYMENT_BOND_VERIFICATION.md`, `research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md`.
+> For gap analysis, see `research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md`.
 > See also: `_archive/USER_JOURNEY_MARKETPLACE_v01.md` (Sarah), `USER_JOURNEY_LUNAR_v01.md` (Kenji), `USER_JOURNEY_PRIVATE_v01.md` (Diane).
 
 ---
@@ -25,17 +27,22 @@ Marco does not care about robots. He cares about getting accurate site data into
 
 Before Marco ever posts a task, someone at Ridgeline sets up the account.
 
-1. **Ridgeline's controller visits the platform dashboard** and creates a company account. Links a corporate card or funds a USDC wallet on Base.
-2. **The controller purchases a $5,000 credit bundle** -- a single line item: `YAK ROBOTICS MARKETPLACE $5,000.00`. Or transfers 5,000 USDC to the platform wallet.
-3. **Marco's AI assistant (Claude) is connected.** The controller pastes an API key into Claude's configuration. Marco's assistant can spend up to $5,000 per task, auto-approving anything under $500.
-4. **Default deliverable formats are set:** LandXML for terrain models, DXF for plan overlays, CSV for cross-sections. These match Ridgeline's Civil 3D and HCSS HeavyBid import requirements.
+1. **Ridgeline's controller visits the platform dashboard** and creates a company account. The controller chooses a payment method based on project type:
+   - **MDOT / public projects:** Upload the project's payment bond certificate (PDF). The marketplace verifies the bond number, surety, and coverage amount against the surety's online portal. Tasks are marked **"Payment Bonded"** -- operators can see surety-guaranteed payment security before they bid.
+   - **Private projects:** Connect a bank account via Plaid (ACH verification) and fund a milestone escrow, or purchase a prepaid credit bundle. Tasks are marked **"Escrow Funded."**
+   - **Small tasks (under $5K):** Purchase a prepaid credit bundle -- a single line item: `YAK ROBOTICS MARKETPLACE $5,000.00`. Or transfer 5,000 USDC to the platform wallet.
+2. **Marco's AI assistant (Claude) is connected.** The controller pastes an API key into Claude's configuration. Marco's assistant can spend up to $5,000 per task, auto-approving anything under $500.
+3. **Default deliverable formats are set:** LandXML for terrain models, DXF for plan overlays, CSV for cross-sections. These match Ridgeline's Civil 3D and HCSS HeavyBid import requirements.
+4. **Insurance and licensing defaults are set:** The controller enters Ridgeline's minimum insurance requirements (CGL $1M/$2M, E&O $1M/$2M, drone/aviation liability $1M) and licensing requirements (PLS in Arizona, FAA Part 107). These become automatic qualification checks on every auction.
 
-That's it. Marco has $5,000 in platform credits. No blockchain wallet setup, no drone pilot certifications, no sensor selection. His assistant is authorized to act on his behalf.
+That's it. Marco has verified payment capability on the platform. No blockchain wallet setup, no drone pilot certifications, no sensor selection. His assistant is authorized to act on his behalf.
 
 <details>
 <summary>Under the hood</summary>
 
-Credits are held in a prepaid wallet on the platform. The company card is charged only when the controller buys a new credit bundle. USDC deposits are detected on-chain and credited to the internal ledger. Both funding sources look identical to Marco.
+**Payment verification depends on project type.** For MDOT projects, the payment bond already exists (required by Michigan law MCL 129.201 for public projects over $50K). The marketplace extracts bond number, surety name, principal, and penal sum from the uploaded PDF and cross-references against the surety's verification portal (Travelers, Liberty Mutual, CNA, etc.). The GC does not pay anything new -- the marketplace verifies an existing instrument. For private projects, the controller funds milestone escrow via ACH. For small tasks, prepaid credits work like before. USDC deposits are detected on-chain and credited to the internal ledger. All funding sources look identical to Marco.
+
+**Insurance minimums** are stored as account-level defaults and applied to every auction as hard constraints. Operators whose COI does not meet the minimums are filtered out before their bids are scored.
 
 </details>
 
@@ -96,11 +103,38 @@ RedRock wins. Lower price, stronger track record.
 
 **Total: $3,600.** That is 58% less than a human survey crew's $8,500 quote for the same corridor, and data arrives days sooner.
 
-Claude confirms both with one message to Marco:
+### Award Confirmation (Marco reviews the recommended winners)
 
-> "Two operators selected. SkyView Mapping (drone LiDAR, $2,200) and RedRock Robotics (Spot GPR, $1,400). Total: $3,600. SkyView flies Wednesday morning (weather clear, winds 8 mph). RedRock runs GPR Wednesday afternoon. Processed data to you by Friday evening. Approved?"
+Claude presents the recommended winners to Marco with a qualification summary:
 
-Marco replies: "Approved."
+> "I'm recommending two operators for your SR-89A survey. Here's the summary:
+>
+> **Task 1 -- Aerial LiDAR:** SkyView Mapping ($2,200)
+> - Insurance: CGL $2M/$5M, E&O $1M/$2M, drone liability $2M -- all exceed your minimums
+> - Licensing: PLS #48271 (Arizona, active through Dec 2027), FAA Part 107 current
+> - Track record: 4.8 stars, 47 completed surveys, no disputes
+>
+> **Task 2 -- GPR Subsurface:** RedRock Robotics ($1,400)
+> - Insurance: CGL $1M/$2M, E&O $1M/$2M -- meets minimums
+> - Licensing: PLS #51034 (Arizona, active through Jun 2027), FAA Part 107 current
+> - Track record: 4.6 stars, 31 completed tasks, no disputes
+>
+> Total: $3,600. SkyView flies Wednesday morning (weather clear, winds 8 mph). RedRock runs GPR Wednesday afternoon. Processed data to you by Friday evening.
+>
+> Confirm award, or would you like to review other bidders?"
+
+Marco replies: "Confirmed."
+
+Claude generates the subcontract agreements automatically -- one for each operator, populated from the task spec, bid terms, and Ridgeline's standard provisions. Both operators receive their agreements and countersign digitally. Work is authorized to begin.
+
+<details>
+<summary>Under the hood</summary>
+
+The award confirmation step is a deliberate pause between the auction engine's recommendation and the start of work. The system runs automated checks before presenting the recommendation to Marco: (a) COI parsed from ACORD 25 form -- policy current, limits verified, additional insured endorsement confirmed, (b) PLS license validated against the Arizona Board of Technical Registration database, (c) FAA Part 107 certificate verified, (d) no DBE/MBE conflicts for the project. If any check fails, the operator is flagged and the next-ranked bidder is presented instead. Marco can also reject a recommended winner for reasons the system cannot detect -- prior bad experience, conflict of interest, client-prohibited vendor -- and the system moves to the next bidder.
+
+After Marco confirms, the marketplace auto-generates a subcontract based on ConsensusDocs 751 (short form) with survey-specific exhibits: scope from task spec, price from bid, deliverable formats, accuracy requirements, weather constraints, data ownership terms, limitation of liability (1x task fee), and mutual indemnification. Digital signatures via ESIGN/UETA-compliant e-signature. Both parties execute before work begins.
+
+</details>
 
 ### The Survey
 
@@ -252,23 +286,64 @@ Marco typed two sentences and got a bid-ready data package. That's the product.
 
 ---
 
+## What Marco's Legal Team Sees
+
+Ridgeline's project administrator and legal counsel have a separate dashboard view. For the SR-89A survey, they see:
+
+**Payment Security:**
+- Payment method: Prepaid credits (private project) or Payment Bond verified (MDOT project)
+- Bond status (if public): Bond #SUR-2026-48812, Travelers Casualty and Surety, penal sum $18.4M, verified against Travelers portal
+- Escrow status (if private): $3,600 reserved from prepaid balance at award confirmation
+
+**Operator Qualifications (per operator):**
+- Certificate of Insurance (ACORD 25): parsed and verified
+  - CGL: carrier, policy number, limits, additional insured status, waiver of subrogation
+  - Professional Liability / E&O: carrier, retroactive date, limits
+  - Drone / Aviation Liability: carrier, limits, hull coverage
+  - Workers Comp: statutory, employer's liability limits
+- PLS license: number, state, expiration, firm Certificate of Authorization
+- FAA Part 107: certificate number, expiration
+- DBE/MBE status (for federally-funded projects): certified or N/A
+
+**Agreement Status:**
+- Auto-generated subcontract (ConsensusDocs 751 short form + survey exhibits)
+- Key terms: scope, price, deliverable formats, accuracy requirements, schedule, retainage (if applicable), data ownership, limitation of liability (1x fee), mutual indemnification, dispute resolution (negotiation -> mediation -> arbitration)
+- Execution status: both parties signed digitally (ESIGN/UETA compliant)
+- Audit trail: timestamped log of all actions from task posting through award confirmation
+
+**Compliance Flags (auto-monitored):**
+- Insurance expiration alerts (yellow at 30 days, red at 7 days)
+- PLS license renewal reminders
+- MDOT prompt payment tracking (10-day requirement after receiving owner payment, MCL 125.1561)
+- Lien waiver exchange status (auto-generated conditional/unconditional waivers at each payment milestone)
+
+The legal team never touches a routine survey task. They review only when the system flags an exception -- an expired policy, a licensing gap, a DBE shortfall, or a disputed deliverable.
+
+---
+
 ## Timing
 
 | Event | Time | Elapsed |
 |-------|------|---------|
 | Marco sends request | Tue 8:15 AM | 0 |
 | Claude scopes and posts two tasks | Tue 8:16 AM | 1 min |
+| Payment verification (bond or escrow confirmed) | Tue 8:17 AM | 2 min |
 | Bids received from 6 robots | Tue 10:30 AM | 2 hr 15 min |
-| Claude recommends winners, Marco approves | Tue 10:35 AM | 2 hr 20 min |
+| Automated qualification checks (COI, PLS, Part 107) | Tue 10:31 AM | 2 hr 16 min |
+| Claude presents recommended winners to Marco | Tue 10:32 AM | 2 hr 17 min |
+| Marco reviews qualifications and confirms award | Tue 10:35 AM | 2 hr 20 min |
+| Subcontracts auto-generated and sent for e-signature | Tue 10:36 AM | 2 hr 21 min |
+| Both operators countersign agreements | Tue 11:15 AM | 3 hr |
 | Drone LiDAR survey (SkyView) | Wed 7:00-9:30 AM | Day 2 |
 | GPR subsurface scan (RedRock) | Wed 1:00-4:30 PM | Day 2 |
 | Raw data uploaded by both operators | Wed 6:00 PM | Day 2 |
 | Processing pipeline runs overnight | Wed-Thu | Day 2-3 |
 | Processed deliverables in Marco's inbox | Fri 6:00 AM | Day 3 |
 | Marco completes earthwork takeoff | Fri 12:00 PM | Day 3 |
+| Lien waivers exchanged, escrow released | Fri 1:00 PM | Day 3 |
 | **Total: request to bid-ready data** | | **~3 days** |
 
-Compare: human survey crew would have delivered in 10-12 days (5-6 days field work + 5-6 days processing). Marco gained a full week.
+Compare: human survey crew would have delivered in 10-12 days (5-6 days field work + 5-6 days processing). Marco gained a full week. The award confirmation, agreement execution, and payment verification added less than one hour to the timeline -- all happening while Marco was doing other work.
 
 ---
 

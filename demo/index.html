@@ -359,7 +359,11 @@ footer a:hover{text-decoration:underline}
   <span class="step-chevron">&rsaquo;</span>
   <div class="step" data-step="3">Verify</div>
   <span class="step-chevron">&rsaquo;</span>
-  <div class="step" data-step="4">Award</div>
+  <div class="step" data-step="4">Bid</div>
+  <span class="step-chevron">&rsaquo;</span>
+  <div class="step" data-step="5">Review</div>
+  <span class="step-chevron">&rsaquo;</span>
+  <div class="step" data-step="6">Award</div>
 </div>
 
 <!-- SCREEN 1: LANDING -->
@@ -626,6 +630,64 @@ footer a:hover{text-decoration:underline}
         <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--amber-bg);color:var(--amber);text-transform:uppercase;letter-spacing:0.05em">MANUAL</span>
       </div>
       <div style="font-size:0.8rem;color:var(--text-3);margin-top:6px">Requires human tunnel survey manager with 10yr experience &mdash; sent to specialist vendors</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4B: AWARD REVIEW -->
+<div id="s-review-award" class="screen">
+  <div style="padding:24px 0">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Review Recommended Winners</h2>
+    <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:20px">Automated checks complete &middot; confirm or reject each award</p>
+
+    <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-weight:600;font-size:0.875rem">Task 1: Pre-Construction Topo &mdash; SkyVista Survey</div>
+          <div style="font-size:0.75rem;color:var(--text-2)">$72,000 &middot; Est. 2 weeks &middot; DJI M350 RTK fleet</div>
+        </div>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">RECOMMENDED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;margin-bottom:12px">
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; PLS License: MI #42871 valid</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; FAA Part 107: current</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; Insurance: CGL + E&O + Aviation</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; SAM.gov: no debarment</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; MDOT prequalified</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; DBE participation: 9.2% (goal: 8%)</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward1">Confirm Award</button>
+        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','Select a reason for rejecting this bidder:\n\n\u2022 Conflict of interest\n\u2022 Prior unsatisfactory experience\n\u2022 Insurance limits insufficient\n\u2022 DBE non-compliance\n\u2022 Client prohibited vendor list\n\u2022 Other\n\nThe next-ranked bidder (AeroSpec Solutions, $89,000) will be presented for review.')">Reject</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-weight:600;font-size:0.875rem">Task 2: Tunnel 3D Scanning &mdash; GroundTruth Robotics</div>
+          <div style="font-size:0.75rem;color:var(--text-2)">$98,000 &middot; Est. 3 weeks &middot; Spot + Leica BLK ARC</div>
+        </div>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">RECOMMENDED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;margin-bottom:12px">
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; PLS License: MI #38104 valid</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; Confined space certified</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; Insurance: CGL + E&O</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; SAM.gov: no debarment</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; MDOT prequalified</div>
+        <div style="font-size:0.72rem;padding:6px 10px;background:var(--amber-bg);color:var(--amber);border-radius:4px">&#9888; Sole bidder (no competition)</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward2">Confirm Award</button>
+        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','No other bidders available for this task.\n\nOptions:\n\u2022 Re-post with extended bid window\n\u2022 Adjust scope or budget\n\u2022 Contact GroundTruth directly to negotiate')">Reject</button>
+      </div>
+    </div>
+
+    <div id="awardsDone" style="display:none;text-align:center;padding:16px 0">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--green-bg);border-radius:var(--radius);color:var(--green);font-weight:600;font-size:0.875rem">&#10003; All awards confirmed</div>
+      <div style="font-size:0.72rem;color:var(--text-3);margin:10px 0">Agreements generating &middot; Insurance verified &middot; Work authorization pending</div>
+      <button class="btn btn-primary" id="goToResults" style="margin-top:12px">View Results Dashboard &rarr;</button>
     </div>
   </div>
 </div>
@@ -1182,6 +1244,28 @@ document.getElementById('confirmPay').onclick=function(){document.getElementById
 
 // Parallel auctions
 document.getElementById('startAuction').onclick=function(){showScreen('s-auction',4);runParallelAuctions()};
+
+// Award review
+var awards={task1:false,task2:false};
+document.getElementById('confirmAward1').onclick=function(){
+  awards.task1=true;
+  this.textContent='\u2713 Confirmed';this.style.background='var(--green)';this.style.pointerEvents='none';
+  this.parentElement.querySelector('.btn-outline').style.display='none';
+  checkAllAwards();
+};
+document.getElementById('confirmAward2').onclick=function(){
+  awards.task2=true;
+  this.textContent='\u2713 Confirmed';this.style.background='var(--green)';this.style.pointerEvents='none';
+  this.parentElement.querySelector('.btn-outline').style.display='none';
+  checkAllAwards();
+};
+function checkAllAwards(){
+  if(awards.task1 && awards.task2){
+    document.getElementById('awardsDone').style.display='block';
+    document.getElementById('awardsDone').scrollIntoView({behavior:'smooth'});
+  }
+}
+document.getElementById('goToResults').onclick=function(){showScreen('s-result',6)};
 function runParallelAuctions(){
   // Task 1: two bids come in
   setTimeout(function(){
@@ -1217,8 +1301,8 @@ function runParallelAuctions(){
     document.getElementById('a2status').style.background='var(--green-bg)';
   },6000);
 
-  // Navigate to results
-  setTimeout(function(){showScreen('s-result',4)},8000);
+  // Navigate to award review (not directly to results)
+  setTimeout(function(){showScreen('s-review-award',5)},8000);
 }
 
 // Robot detail panel
@@ -1735,6 +1819,13 @@ function resetDemo(){
   document.getElementById('cardArea').style.display='none';
   document.getElementById('payDone').style.display='none';
   document.getElementById('payStripe').style.borderColor='';
+  // Reset award review
+  awards={task1:false,task2:false};
+  document.querySelectorAll('#s-review-award .btn-primary').forEach(function(b){
+    b.textContent='Confirm Award';b.style.background='';b.style.pointerEvents='';
+  });
+  document.querySelectorAll('#s-review-award .btn-outline').forEach(function(b){b.style.display=''});
+  var ad=document.getElementById('awardsDone');if(ad)ad.style.display='none';
   document.getElementById('searchInput').value='';
   showScreen('s-landing',1);
 }

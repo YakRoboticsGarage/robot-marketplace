@@ -2,13 +2,15 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-03-27 (rev 4, construction surveying wedge)
+**Last updated:** 2026-03-28 (rev 4.1, payment bonds + award confirmation + legal framework)
 **Status:** v1.0 built (151 tests, 15 MCP tools). v1.5 next. This roadmap is built around construction site surveying as the wedge market.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
 > User journey: `docs/USER_JOURNEY_CONSTRUCTION_v01.md` (Marco).
 > Research backing: `research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md`, `research/RESEARCH_ROBOTS_AND_SENSORS.md`, `research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md`.
+> Payment/legal research: `research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md`, `research/RESEARCH_PAYMENT_BOND_VERIFICATION.md`, `research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md`.
+> Gap analysis: `research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md`. Feedback: `feedback/FEEDBACK_AWARD_CONFIRMATION.md`.
 
 ---
 
@@ -112,6 +114,22 @@ Marco's assistant posts a construction survey task with structured specs -- accu
 - `reference_data`: optional baseline terrain model for progress comparison
 - Validation: reject tasks where accuracy requirement exceeds sensor capability
 
+**Payment bond verification (NEW — from payment flow research):**
+- Bond verification API: GC uploads payment bond certificate (PDF), marketplace extracts bond number, surety name, principal, penal sum, project
+- Cross-reference against surety verification portals (Travelers, Liberty Mutual, CNA, Zurich, Hartford)
+- Treasury Dept Circular 570 check for surety standing on federal bonds
+- Tasks marked **"Payment Bonded"** (public projects) or **"Escrow Funded"** (private projects) -- visible to operators before bidding
+- Supports three commitment mechanisms: (a) payment bond upload, (b) ACH-funded milestone escrow via Plaid, (c) prepaid credit bundle
+- Replaces credit card as default payment for construction tasks over $5K
+
+**Basic insurance and license verification (NEW — from legal framework research):**
+- COI intake: operator uploads ACORD 25 certificate of insurance
+- Basic field extraction: coverage types, limits, policy expiration, additional insured status
+- PLS license number capture and expiration tracking per state
+- FAA Part 107 certificate number capture
+- Hard constraint filter: operators below account-level insurance minimums are excluded from bidding
+- Expiration alerts: yellow at 30 days, red at 7 days
+
 **ERC-8004 extensions (F-8):**
 - Agent card: `min_price`, `accepted_currencies`, `reputation_score`
 - NEW: `sensor_capabilities` list (lidar, gpr, rgb, thermal), `coverage_area` GeoJSON, `accuracy_spec`
@@ -141,6 +159,13 @@ Marco's assistant posts a construction survey task with structured specs -- accu
 - No automated dispute resolution
 - No cross-chain support (Base only)
 - No payment flow in frontend (Phase 2, v2.0)
+- No award confirmation flow (v2.0) -- v1.5 uses auto-award
+- No auto-generated subcontracts (v2.0)
+- No automated ACORD 25 parsing (v2.0) -- v1.5 captures COI fields manually
+- No PLS license board API integration (v2.0) -- v1.5 captures license number and expiration only
+- No escrow milestone management (v2.5)
+- No retainage tracking (v2.5)
+- No lien waiver automation (v2.5)
 
 ---
 
@@ -176,6 +201,38 @@ Diane posts an inspection with `privacy: true`. Her task spec is encrypted, matc
 - **Recurring task automation:** Monthly progress monitoring auto-scheduled. Agent posts task, collects bids, dispatches flight, delivers report -- no Marco input needed.
 - **Weather-aware scheduling:** NOAA API integration. Tasks auto-schedule into flyable windows. Weather holds preserve partial data and auto-resume.
 
+**Award confirmation flow (NEW — from feedback + legal research):**
+- Recommended winner presented to buyer with qualification summary (insurance, licensing, track record)
+- Buyer confirms award or rejects and advances to next-ranked bidder
+- Rejection reasons tracked: conflict of interest, insufficient insurance, DBE shortfall, prohibited vendor, prior bad experience, PLS not licensed in state
+- Automated pre-award checks: COI verification, PLS state validation, Part 107 status, DBE/MBE certification
+- State machine transition: `AUCTION_COMPLETE` -> `RECOMMENDED` -> `AWARD_CONFIRMED` (or `AWARD_REJECTED` -> re-recommend) -> `AGREEMENT_PENDING` -> `AWARDED`
+
+**Auto-generated subcontract (NEW — from legal framework research):**
+- Template based on ConsensusDocs 751 (short form) with survey-specific exhibits
+- Auto-populated from task spec + winning bid: scope, price, deliverables, accuracy, schedule, weather constraints
+- Standard terms: data ownership (processed deliverables to client, raw data retained by operator), limitation of liability (1x task fee), mutual indemnification (each party's percentage of negligence), dispute resolution (negotiation -> mediation -> arbitration per ConsensusDocs model)
+- Digital execution via ESIGN/UETA-compliant e-signature
+- Both parties must sign before work is authorized
+
+**COI parsing and verification (NEW — ACORD 25 automated):**
+- Automated parsing of ACORD 25 certificates: producer, insurer names + NAIC numbers, policy numbers, dates, coverage types, limits, additional insured (ADDL INSD), waiver of subrogation (SUBR WVD)
+- Verification: policy current, limits meet task-specific minimums, additional insured endorsement present
+- Integration path: myCOI or Jones for real-time certificate tracking
+- CGL professional services exclusion flagging (E&O required separately for survey work)
+
+**PLS license verification (NEW):**
+- Validation against state licensing board databases (starting with AZ, NV, NM, MI)
+- Firm Certificate of Authorization check (required in Michigan per MCL 339.2007)
+- Multi-state license tracking for operators covering multiple geographies
+- Continuing education compliance monitoring (30 hrs/biennium in Michigan)
+
+**DBE tracking (NEW — required for federally-funded projects):**
+- DBE/MBE/WBE certification capture and verification
+- MDOT MERS Form 2124A integration for DBE payment tracking
+- DBE goal compliance monitoring at project level
+- Reporting for GC's federal funding compliance
+
 **Operator dashboard (Alex's story):**
 - Robot registration, pricing config, coverage area definition
 - Task history, revenue per robot, payout history
@@ -201,6 +258,11 @@ Diane posts an inspection with `privacy: true`. Her task spec is encrypted, matc
 - Weather hold pauses, preserves data, and resumes without manual intervention
 - Alex onboards a drone and earns revenue within 1 hour
 - Private task completes with encrypted spec; only winning robot sees details
+- Award confirmation flow: Marco reviews recommended winner, checks qualifications, confirms or rejects
+- Auto-generated subcontract executes digitally before work starts
+- COI parsed from ACORD 25 with limits verified against task minimums
+- PLS license validated against state board for at least one state (AZ)
+- DBE tracking operational for MDOT-funded project tasks
 
 ---
 
@@ -218,7 +280,14 @@ Mining scored second (3.95/5) in the wedge analysis. The strongest lunar transfe
 
 ### Key deliverables
 
-- **Mining task spec extensions:** `survey_type` adds `volumetric_stockpile`, `blast_pattern`, `highwall_stability`, `haul_road_condition`
+**Construction payment maturation (NEW — from payment flow research):**
+- **Escrow milestone management:** Rolling escrow model -- GC funds each milestone 5 days before it's due. Milestone triggers: work verification (point cloud QA) -> invoice auto-generated -> GC has 5 business days to approve or dispute -> funds released. Supports both full escrow (GC deposits total upfront) and bond-backed (no cash escrowed, operator relies on bond claim).
+- **Retainage tracking:** 5-10% retainage withheld per progress payment, tracked per project. Retainage release upon substantial completion / final QA period (30-60 days). Michigan public project support: retainage reduction to 0% after 50% completion.
+- **Lien waiver exchange:** Auto-generated conditional and unconditional lien waivers at each payment milestone. Tracks waiver status per operator per project. Integration with GC's pay application workflow (AIA G702/G703 format).
+- **Prompt payment compliance:** MDOT 10-day payment tracking (special provision). Michigan public project 1.5%/month penalty calculation for late payments. Dashboard alerts for approaching deadlines.
+
+**Mining task spec extensions:**
+- `survey_type` adds `volumetric_stockpile`, `blast_pattern`, `highwall_stability`, `haul_road_condition`
 - **Mining deliverable formats:** volumetric change reports, MSHA-formatted safety reports, fragmentation analysis
 - **Dust-hardened operation profiles:** extended sensor cleaning intervals, reduced-visibility flight patterns
 - **Inventory reconciliation:** survey volumes correlated against truck-scale tonnage
@@ -229,6 +298,10 @@ Mining scored second (3.95/5) in the wedge analysis. The strongest lunar transfe
 - Volumetric stockpile survey completes with accurate volume calculation (within 2% of manual survey)
 - Same drone operator serves both construction and mining tasks from one dashboard
 - Mine surveyor receives MSHA-formatted deliverables without manual reformatting
+- Escrow milestone payment releases correctly after QA verification on a multi-milestone task
+- Retainage tracked and released at project closeout
+- Lien waivers auto-generated and exchanged at each payment milestone
+- MDOT prompt payment compliance tracked with alerts for a live project
 
 ---
 
@@ -384,7 +457,19 @@ These decisions are made now (v1.5) and affect all future versions. They are arc
 **Description:** Coordinating drone + Spot + GPR on the same corridor in one day requires airspace deconfliction, schedule sequencing, and data merge. Failure of one subtask may block others.
 **Mitigation:** Parallel subtask design where possible (drone morning, Spot afternoon). Partial delivery model -- completed subtasks deliver even if others fail. Re-auction failed subtasks independently.
 
-### Risk 8 — Lunar communication relay availability
+### Risk 8 — Regulatory compliance for payment facilitation
+
+**Affects:** v1.5+ (bond verification, escrow, milestone payments)
+**Description:** The marketplace facilitates payments between GCs and robot operators. Depending on implementation, this could trigger money transmitter licensing requirements at the state level. Escrow management may require trust account registration. Bond verification creates potential liability if the marketplace misrepresents a bond's validity and an operator relies on that representation.
+**Mitigation:** Phase 1 (v1.5) uses prepaid credit bundles (already covered by Stripe's money transmitter licenses). Bond verification is informational only -- the marketplace displays bond status but does not guarantee payment. Escrow (v2.5) requires legal review of money transmitter obligations per state. Consult FinCEN guidance on marketplace payment facilitation before v2.5 architecture is finalized.
+
+### Risk 9 — Insurance verification liability
+
+**Affects:** v2.0+ (COI parsing, automated qualification checks)
+**Description:** If the marketplace verifies an operator's insurance and the verification is wrong -- expired policy, insufficient limits, missing endorsement -- the marketplace may bear liability when a claim arises and the operator is underinsured. COI parsing is imperfect: ACORD 25 forms vary in layout, and a parsed "current" policy may have been cancelled since the certificate was issued.
+**Mitigation:** Insurance verification is a snapshot, not a guarantee. Terms of service must disclaim marketplace liability for insurance accuracy. Integrate with real-time certificate tracking services (myCOI, Jones) in v2.0 to reduce staleness risk. Display verification date prominently. Require operators to update COIs when policies renew. Consider E&O coverage for the marketplace itself.
+
+### Risk 10 — Lunar communication relay availability
 
 **Affects:** v4.0
 **Description:** Lunar Pathfinder (late 2026) provides intermittent coverage. Multi-hour blackouts are the default.
@@ -402,9 +487,14 @@ These decisions are made now (v1.5) and affect all future versions. They are arc
 | **Survey data** | Synthetic point clouds | Real LiDAR, GPR, photogrammetry data |
 | **Processing** | Mock deliverable generation | Full point cloud pipeline, format validation |
 | **Hosting** | `localhost:8000` | Cloud host with public URL |
+| **Payment (bond)** | Mock bond upload + verification | Real surety portal cross-reference |
+| **Payment (escrow)** | Plaid sandbox + test ACH | Plaid production + real ACH |
 | **Stripe** | `sk_test_xxx` | `sk_live_xxx` (real charges) |
 | **Crypto rail** | Base Sepolia testnet | Base mainnet USDC |
 | **On-chain memos** | Commitment hash (Sepolia) | Commitment hash (mainnet) |
+| **Insurance/COI** | Mock ACORD 25 parsing | myCOI/Jones real-time integration |
+| **Licensing** | Mock PLS/Part 107 lookup | State board API integration |
+| **Agreements** | Mock subcontract generation | DocuSign/Adobe Sign e-signature |
 | **Frontend** | localhost:3000 | Vercel edge deployment |
 | **Weather** | Mock NOAA responses | Live NOAA Aviation Weather API |
 | **Operators** | Simulated bids | Regional drone service companies |
