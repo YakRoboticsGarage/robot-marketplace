@@ -404,13 +404,11 @@ footer a:hover{text-decoration:underline}
   </div>
 
   <div class="operator-cta-strip">
-    <div class="ocs-content">
-      <div class="ocs-main">
-        <strong>Own survey equipment?</strong> List your drones and robots on the marketplace.
-        <button class="btn btn-primary" style="padding:7px 18px;font-size:0.8rem;margin-left:12px" onclick="showScreen('s-operator',0)">Become an Operator</button>
-      </div>
-      <div class="ocs-fleet">
-        Survey firm? <a href="#" onclick="openModal('Firm &amp; Fleet Registration','For established survey firms and multi-platform operators:\n\nContact: operators@yakrobotics.com\n\nWhat we offer:\n- Fill downtime between direct contracts\n- Expand your service area without marketing spend\n- Escrow-backed payment on every task\n- Dedicated account manager for 5+ platforms\n- API integration with your existing workflow\n\nInclude in your email:\n- Equipment list (drones, ground robots, sensors)\n- Service area and certifications\n- Current utilization rate\n\nWe respond within 24 hours.');return false" style="color:var(--accent);font-weight:500;text-decoration:none">Register your firm &rarr;</a>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="font-size:0.8rem;color:var(--text-2)"><strong>Own survey equipment?</strong> List your drones and robots on the marketplace.</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-shrink:0">
+        <button class="btn btn-primary" style="padding:7px 18px;font-size:0.8rem" onclick="showScreen('s-operator',0)">Become an Operator</button>
+        <a href="#" onclick="openModal('Firm &amp; Fleet Registration','For established survey firms and multi-platform operators:\n\nContact: operators@yakrobotics.com\n\nWhat we offer:\n- Fill downtime between direct contracts\n- Expand your service area without marketing spend\n- Escrow-backed payment on every task\n- Dedicated account manager for 5+ platforms\n- API integration with your existing workflow\n\nInclude in your email:\n- Equipment list (drones, ground robots, sensors)\n- Service area and certifications\n- Current utilization rate\n\nWe respond within 24 hours.');return false" style="font-size:0.8rem;color:var(--accent);text-decoration:none;white-space:nowrap">Survey firm? Register &rarr;</a>
       </div>
     </div>
   </div>
