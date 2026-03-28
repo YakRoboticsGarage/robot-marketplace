@@ -658,7 +658,7 @@ footer a:hover{text-decoration:underline}
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward1">Confirm Award</button>
-        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','Select a reason for rejecting this bidder:\n\n\u2022 Conflict of interest\n\u2022 Prior unsatisfactory experience\n\u2022 Insurance limits insufficient\n\u2022 DBE non-compliance\n\u2022 Client prohibited vendor list\n\u2022 Other\n\nThe next-ranked bidder (AeroSpec Solutions, $89,000) will be presented for review.')">Reject</button>
+        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openRejectModal(1,'SkyVista Survey','AeroSpec Solutions at $89,000')">Reject</button>
         <a href="#" style="font-size:0.72rem;color:var(--link);text-decoration:none;margin-left:auto" onclick="var el=document.getElementById('profile1');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'View operator profile \u25BC':'Hide profile \u25B2';return false">View operator profile &#9660;</a>
       </div>
       <div id="profile1" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn 0.25s">
@@ -705,7 +705,7 @@ footer a:hover{text-decoration:underline}
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward2">Confirm Award</button>
-        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','No other bidders available for this task.\n\nOptions:\n\u2022 Re-post with extended bid window\n\u2022 Adjust scope or budget\n\u2022 Contact GroundTruth directly to negotiate')">Reject</button>
+        <button class="btn btn-outline" style="font-size:0.8rem" onclick="openRejectModal(2,'GroundTruth Robotics',null)">Reject</button>
         <a href="#" style="font-size:0.72rem;color:var(--link);text-decoration:none;margin-left:auto" onclick="var el=document.getElementById('profile2');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'View operator profile \u25BC':'Hide profile \u25B2';return false">View operator profile &#9660;</a>
       </div>
       <div id="profile2" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn 0.25s">
@@ -949,6 +949,37 @@ footer a:hover{text-decoration:underline}
     <h2 id="modalTitle"></h2>
     <pre id="modalContent"></pre>
     <div style="margin-top:12px;text-align:right"><button class="btn btn-outline" onclick="copyModalContent()">Copy</button></div>
+  </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="modal-overlay" id="rejectOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:440px">
+    <button class="close" onclick="document.getElementById('rejectOverlay').classList.remove('open')">&times;</button>
+    <h2>Decline Award</h2>
+    <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px">Notify <strong id="rejectOperatorName"></strong> with reason for declining.</p>
+    <div style="margin-bottom:12px">
+      <label style="font-size:0.72rem;color:var(--text-3);display:block;margin-bottom:6px">REASON</label>
+      <select id="rejectReason" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.8rem;background:var(--bg);color:var(--text)">
+        <option value="">Select a reason...</option>
+        <option value="conflict">Conflict of interest</option>
+        <option value="experience">Prior unsatisfactory experience</option>
+        <option value="insurance">Insurance limits insufficient for this project</option>
+        <option value="dbe">DBE/MBE non-compliance</option>
+        <option value="prohibited">Client prohibited vendor list</option>
+        <option value="licensing">Licensing concern</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:0.72rem;color:var(--text-3);display:block;margin-bottom:6px">MESSAGE TO OPERATOR (optional)</label>
+      <textarea id="rejectMessage" rows="3" placeholder="Add context for the operator..." style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.8rem;resize:vertical;background:var(--bg);color:var(--text)"></textarea>
+    </div>
+    <div id="rejectNextBidder" style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px;padding:10px;background:var(--bg-subtle);border-radius:6px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" style="font-size:0.8rem" onclick="document.getElementById('rejectOverlay').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" style="font-size:0.8rem;background:var(--red)" id="confirmRejectBtn">Send Decline</button>
+    </div>
   </div>
 </div>
 
@@ -1294,6 +1325,39 @@ document.getElementById('confirmPay').onclick=function(){document.getElementById
 
 // Parallel auctions
 document.getElementById('startAuction').onclick=function(){showScreen('s-auction',4);runParallelAuctions()};
+
+// Reject modal
+var rejectingTask=null;
+function openRejectModal(taskNum,operatorName,nextBidder){
+  rejectingTask=taskNum;
+  document.getElementById('rejectOperatorName').textContent=operatorName;
+  document.getElementById('rejectReason').value='';
+  document.getElementById('rejectMessage').value='';
+  var nb=document.getElementById('rejectNextBidder');
+  if(nextBidder){
+    nb.innerHTML='Next bidder: <strong>'+nextBidder+'</strong> will be presented for review.';
+    nb.style.display='block';
+  } else {
+    nb.innerHTML='<strong>No other bidders.</strong> Options after declining: re-post with extended bid window, adjust scope/budget, or contact operators directly.';
+    nb.style.display='block';
+  }
+  document.getElementById('rejectOverlay').classList.add('open');
+}
+document.getElementById('confirmRejectBtn').onclick=function(){
+  var reason=document.getElementById('rejectReason').value;
+  if(!reason){document.getElementById('rejectReason').style.borderColor='var(--red)';return}
+  document.getElementById('rejectOverlay').classList.remove('open');
+  // Mock: show decline sent confirmation
+  var taskCard=document.querySelectorAll('#s-review-award .card')[rejectingTask===1?0:1];
+  taskCard.style.opacity='0.4';
+  taskCard.style.borderLeftColor='var(--text-3)';
+  var badge=taskCard.querySelector('[style*="RECOMMENDED"]')||taskCard.querySelectorAll('span')[1];
+  if(rejectingTask===1){
+    taskCard.innerHTML='<div style="padding:8px 0;text-align:center;color:var(--text-3);font-size:0.8rem"><strong>Task 1 declined</strong> &mdash; notification sent to SkyVista Survey<br><span style="font-size:0.72rem">Next bidder (AeroSpec Solutions) will be contacted</span></div>';
+  } else {
+    taskCard.innerHTML='<div style="padding:8px 0;text-align:center;color:var(--text-3);font-size:0.8rem"><strong>Task 2 declined</strong> &mdash; notification sent to GroundTruth Robotics<br><span style="font-size:0.72rem">Task will be re-posted with extended bid window</span></div>';
+  }
+};
 
 // Award review
 var awards={task1:false,task2:false};
