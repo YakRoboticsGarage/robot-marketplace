@@ -448,8 +448,16 @@ footer a:hover{text-decoration:underline}
     <div class="detail-reviews"></div>
   </div>
 
+  <div class="detail-section">
+    <h4>Legal &amp; Insurance</h4>
+    <div class="detail-grid detail-legal"></div>
+    <div style="margin-top:8px;font-size:0.72rem;color:var(--text-3)">
+      <a href="#" onclick="openModal('Standard Terms','SURVEY SERVICES AGREEMENT\n(Auto-generated from marketplace template)\n\nScope: Per task specification posted to marketplace\nPayment: Per marketplace escrow / bond terms\nInsurance: Operator maintains CGL, E&O, and aviation\n  liability per limits shown above\nLimitation of Liability: 1x total task fee\nIndemnification: Mutual, proportional fault\nData Ownership: Client owns all deliverables upon payment\nDispute Resolution: Negotiation > Mediation > Binding Arbitration\nStandard of Care: Reasonably prudent surveyor\nGoverning Law: State of project location\n\nFull terms available upon award.\nBased on ConsensusDocs 750 framework.');return false" style="color:var(--link);text-decoration:none">View standard terms &rarr;</a>
+    </div>
+  </div>
+
   <div class="detail-actions">
-    <button class="btn btn-primary detail-hire-btn">Hire this robot</button>
+    <button class="btn btn-primary detail-hire-btn">Hire this operator</button>
     <a href="#" target="_blank" class="btn btn-outline detail-chain-link" style="font-size:0.8rem">View on-chain registration &rarr;</a>
   </div>
 </div>
@@ -667,6 +675,17 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
 
+    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--link)">
+      <h3 style="margin-bottom:12px">AGREEMENTS EXECUTED</h3>
+      <div class="parsed-row"><span class="plabel">Contract Type</span><span class="pval">Marketplace Subcontract (ConsensusDocs 750)</span></div>
+      <div class="parsed-row"><span class="plabel">Insurance Verified</span><span class="pval green">CGL, E&O, Aviation &mdash; all current</span></div>
+      <div class="parsed-row"><span class="plabel">PLS License</span><span class="pval green">MI #42871 &amp; MI #38104 verified</span></div>
+      <div class="parsed-row"><span class="plabel">Limitation of Liability</span><span class="pval mono">1x task fee per operator</span></div>
+      <div class="parsed-row"><span class="plabel">Data Ownership</span><span class="pval">Client owns all deliverables upon payment</span></div>
+      <div class="parsed-row"><span class="plabel">Dispute Resolution</span><span class="pval">Negotiation &rarr; Mediation &rarr; Binding Arbitration</span></div>
+      <div style="margin-top:10px"><a href="#" onclick="openModal('Agreement Detail','SURVEY SERVICES SUBCONTRACT\n\nGenerated: 2026-03-28\nTemplate: ConsensusDocs 750 (modified)\n\n--- TASK 1 ---\nOperator: SkyVista Survey LLC\nScope: Pre-construction topographic survey\nFee: $72,000 (milestone billing)\nInsurance: CGL $2M/$4M, E&O $2M/$4M, Aviation $5M\nPLS: MI #42871 (supervising: J. Chen, PLS)\nLOL: $72,000 (1x fee)\nRetainage: 10% until acceptance\n\n--- TASK 2 ---\nOperator: GroundTruth Robotics Inc\nScope: Tunnel 3D scanning and as-built\nFee: $98,000 (milestone billing)\nInsurance: CGL $1M/$2M, E&O $1M/$2M\nPLS: MI #38104 (supervising: R. Torres, PLS)\nLOL: $98,000 (1x fee)\nRetainage: 10% until acceptance\n\n--- COMMON TERMS ---\nIndemnification: Mutual, proportional fault\nData Ownership: Client owns deliverables upon payment\nStandard of Care: Reasonably prudent surveyor\nDispute Resolution: Negotiation (30 days) > Mediation > Arbitration\nGoverning Law: Michigan\nPayment Bond: SUR-2025-MI-4847291 (Travelers)\n\nSigned digitally by all parties via YAK ROBOTICS marketplace.');return false" style="font-size:0.72rem;color:var(--link);text-decoration:none">View full agreement &rarr;</a></div>
+    </div>
+
     <div class="result-actions">
       <button class="btn btn-primary" onclick="resetDemo()">Upload Another RFP</button>
       <button class="btn btn-outline" id="addClaudeBtn">Add to Claude</button>
@@ -869,6 +888,15 @@ var robotData = {
       {stars:4,time:'1 week ago',text:'Slight delay due to wind hold but they resumed automatically. Data quality was perfect.'},
       {stars:5,time:'2 weeks ago',text:'Best aerial survey operator on the platform. Their RTK accuracy is consistently under 2cm.'}
     ],
+    legal: [
+      {label:'Operator',value:'SkyVista Survey LLC'},
+      {label:'PLS License',value:'MI #42871 (exp. 2027-11-30)'},
+      {label:'FAA Part 107',value:'#FA4291847 (current)'},
+      {label:'CGL Insurance',value:'$2M/$4M \u2014 Hartford'},
+      {label:'E&O / Professional',value:'$2M/$4M \u2014 Berkley'},
+      {label:'Aviation Liability',value:'$5M \u2014 Global Aerospace'},
+      {label:'LOL Cap',value:'1x task fee'}
+    ],
     searchPrefill: 'Pre-bid topographic survey, highway project, Phoenix area'
   },
   'quiet-immensity': {
@@ -890,6 +918,15 @@ var robotData = {
       {stars:4,time:'2 weeks ago',text:'Took longer than estimated due to site access, but the 3D point cloud was worth the wait.'},
       {stars:5,time:'3 weeks ago',text:'Set up recurring GPR monitoring via API for our retention basin project. Catches settlement early.'}
     ],
+    legal: [
+      {label:'Operator',value:'GroundTruth Robotics Inc'},
+      {label:'PLS License',value:'MI #38104 (exp. 2026-08-15)'},
+      {label:'FAA Part 107',value:'N/A (ground operations only)'},
+      {label:'CGL Insurance',value:'$1M/$2M \u2014 Travelers'},
+      {label:'E&O / Professional',value:'$1M/$2M \u2014 CNA'},
+      {label:'Confined Space',value:'OSHA 1910.146 certified crew'},
+      {label:'LOL Cap',value:'1x task fee'}
+    ],
     searchPrefill: 'GPR subsurface scan, commercial lot, Phoenix area'
   },
   'so-much-for-subtlety': {
@@ -909,6 +946,16 @@ var robotData = {
       {stars:4,time:'4 days ago',text:'Progress photos for our Tempe project were detailed. Thermal overlay caught a moisture issue in the foundation.'},
       {stars:4,time:'1 week ago',text:'Great for visual inspection of retaining walls. The AI flight path covered every angle.'},
       {stars:5,time:'3 weeks ago',text:'BVLOS capability means they can cover large highway corridors without repositioning. Huge time saver.'}
+    ],
+    legal: [
+      {label:'Operator',value:'AeroSpec Solutions LLC'},
+      {label:'PLS License',value:'AZ #47291 (exp. 2027-03-01)'},
+      {label:'FAA Part 107',value:'#FA5518293 (current)'},
+      {label:'BVLOS Waiver',value:'AZ site-specific (FAA-2025-1847)'},
+      {label:'CGL Insurance',value:'$1M/$2M \u2014 Liberty Mutual'},
+      {label:'E&O / Professional',value:'$1M/$2M \u2014 Hanover'},
+      {label:'Aviation Liability',value:'$2M \u2014 Starr Aviation'},
+      {label:'LOL Cap',value:'1x task fee'}
     ],
     searchPrefill: 'Visual inspection + thermal, construction site, Scottsdale'
   }
@@ -1212,6 +1259,15 @@ function openRobotDetail(robotId){
   });
   panel.querySelector('.detail-reviews').innerHTML=reviewsHtml;
 
+  // Legal
+  var legalHtml='';
+  if(data.legal){
+    data.legal.forEach(function(l){
+      legalHtml+='<div class="detail-item"><div class="di-label">'+l.label+'</div><div class="di-value">'+l.value+'</div></div>';
+    });
+  }
+  panel.querySelector('.detail-legal').innerHTML=legalHtml;
+
   panel.querySelector('.detail-chain-link').href='https://basescan.org/address/'+data.ethAddr;
   panel.querySelector('.close-detail').onclick=function(){closeRobotDetail()};
   panel.querySelector('.detail-hire-btn').onclick=function(){
@@ -1412,8 +1468,17 @@ function showRobotProfile(idx, namedId){
     }
     html+='</div>';
 
-    var searchText=caps[0]+' reading in '+bays[idx%bays.length];
-    html+='<div class="detail-actions"><button class="btn btn-primary" onclick="document.getElementById(\'searchInput\').value=\''+searchText.replace(/'/g,"\\'")+'\';resetDemo();document.getElementById(\'searchInput\').focus()">Hire this robot</button></div>';
+    // Legal section (generated)
+    html+='<div class="detail-section"><h4>Legal &amp; Insurance</h4><div class="detail-grid">';
+    html+='<div class="detail-item"><div class="di-label">Operator</div><div class="di-value">'+name+' LLC</div></div>';
+    html+='<div class="detail-item"><div class="di-label">PLS License</div><div class="di-value">On file (verified)</div></div>';
+    html+='<div class="detail-item"><div class="di-label">CGL Insurance</div><div class="di-value">$1M/$2M (current)</div></div>';
+    html+='<div class="detail-item"><div class="di-label">E&amp;O Insurance</div><div class="di-value">$1M/$2M (current)</div></div>';
+    html+='<div class="detail-item"><div class="di-label">LOL Cap</div><div class="di-value">1x task fee</div></div>';
+    html+='</div></div>';
+
+    var searchText=caps[0]+' survey in '+bays[idx%bays.length];
+    html+='<div class="detail-actions"><button class="btn btn-primary" onclick="document.getElementById(\'searchInput\').value=\''+searchText.replace(/'/g,"\\'")+'\';resetDemo();document.getElementById(\'searchInput\').focus()">Hire this operator</button></div>';
   }
 
   container.innerHTML=html;
