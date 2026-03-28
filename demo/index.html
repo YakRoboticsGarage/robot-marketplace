@@ -845,50 +845,82 @@ footer a:hover{text-decoration:underline}
 
 <!-- SCREEN: BUY A ROBOT -->
 <div id="s-buyrobot" class="screen">
-  <div style="text-align:center;padding:40px 0 20px">
-    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:8px">Get Started with a Robot</h2>
-    <p style="color:var(--text-2);font-size:0.875rem;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto">Don't have a robot yet? Start earning on the marketplace with survey equipment. Register, configure pricing, and begin accepting tasks.</p>
+  <div style="text-align:center;padding:40px 0 12px">
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:8px">Become a Survey Operator</h2>
+    <p style="color:var(--text-2);font-size:0.875rem;margin-bottom:4px;max-width:520px;margin-left:auto;margin-right:auto">The marketplace provides demand from day one — the #1 reason drone survey startups fail is finding clients.</p>
+    <p style="color:var(--text-3);font-size:0.75rem;margin-bottom:24px">368,000+ Part 107 holders in the US &middot; 67% of GCs already own drones &middot; 10-16 weeks to first billable project</p>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:24px">
-    <div class="card" style="text-align:center">
-      <div style="font-size:2rem;margin-bottom:8px">&#129302;</div>
-      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">DJI Matrice 350 RTK</h3>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);margin:8px 0">~$14,800</div>
-      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
-        <li>&#10003; Aerial LiDAR (Zenmuse L2) + RTK-GPS</li>
-        <li>&#10003; 45MP photogrammetry (Zenmuse P1)</li>
-        <li>&#10003; FAA Part 107 required</li>
-        <li>&#10003; Ideal for topo surveys, progress monitoring</li>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:16px">
+    <div class="card" style="text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3 style="font-size:0.875rem;font-weight:600;text-transform:none;letter-spacing:0">Tier 1: Entry</h3>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--green-bg);color:var(--green);text-transform:uppercase;letter-spacing:0.04em">Small sites</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:8px">Autel EVO II Pro RTK V3</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:10px">$8K &mdash; $12K all-in</div>
+      <ul style="font-size:0.75rem;color:var(--text-2);line-height:1.9;list-style:none;padding:0">
+        <li>&#10003; 6K camera + RTK positioning (~$3K)</li>
+        <li>&#10003; Pix4D or DroneDeploy subscription (~$300/mo)</li>
+        <li>&#10003; Field laptop + GCP targets (~$2K)</li>
+        <li>&#10003; Insurance: CGL + aviation (~$3K/yr)</li>
+        <li>&#10003; FAA Part 107 (~$175 + 2-4 weeks study)</li>
       </ul>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="alert('Pre-order coming Q2 2026.\n\nJoin waitlist: hello@yakrobotics.com')">Pre-order</button>
+      <div style="font-size:0.72rem;color:var(--text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Good for: progress photos, small site topo, visual inspection. Not sufficient for DOT design-grade surveys.</div>
     </div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:2rem;margin-bottom:8px">&#128640;</div>
-      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">Boston Dynamics Spot</h3>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);margin:8px 0">~$75,000</div>
-      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
-        <li>&#10003; Terrestrial LiDAR (Leica BLK ARC)</li>
-        <li>&#10003; GPR sled for subsurface scanning</li>
-        <li>&#10003; Autonomous navigation, IP67</li>
-        <li>&#10003; Ideal for tunnels, confined spaces, GPR</li>
+    <div class="card" style="text-align:left;border:2px solid var(--accent)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3 style="font-size:0.875rem;font-weight:600;text-transform:none;letter-spacing:0">Tier 2: Professional</h3>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);text-transform:uppercase;letter-spacing:0.04em">Most work</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:8px">DJI Matrice 350 RTK + Zenmuse L2 + P1</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:10px">$35K &mdash; $45K all-in</div>
+      <ul style="font-size:0.75rem;color:var(--text-2);line-height:1.9;list-style:none;padding:0">
+        <li>&#10003; M350 RTK + L2 LiDAR + P1 camera (~$26K)</li>
+        <li>&#10003; D-RTK 2 GNSS base station (~$3K)</li>
+        <li>&#10003; Pix4Dmatic + PIX4Dsurvey (~$3.5K/yr)</li>
+        <li>&#10003; Processing laptop + field gear (~$3K)</li>
+        <li>&#10003; Insurance: CGL + E&O + aviation (~$6K/yr)</li>
+        <li>&#10003; PLS supervision arrangement</li>
       </ul>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="alert('Pre-order coming Q2 2026.\n\nJoin waitlist: hello@yakrobotics.com')">Pre-order</button>
+      <div style="font-size:0.72rem;color:var(--text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Handles 80%+ of construction survey work: topo, design, as-built, progress monitoring. DOT-grade accuracy with GCPs.</div>
     </div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:2rem;margin-bottom:8px">&#127968;</div>
-      <h3 style="font-size:0.95rem;font-weight:600;text-transform:none;letter-spacing:0;margin-bottom:4px">Bring Your Own</h3>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text-2);margin:8px 0">Free</div>
-      <ul style="text-align:left;font-size:0.8rem;color:var(--text-2);line-height:2;list-style:none;padding:0">
-        <li>&#10003; Any robot with HTTP/MCP support</li>
-        <li>&#10003; ESP32, Raspberry Pi, ROS compatible</li>
-        <li>&#10003; Open-source registration script</li>
-        <li>&#10003; Community support on GitHub</li>
+    <div class="card" style="text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3 style="font-size:0.875rem;font-weight:600;text-transform:none;letter-spacing:0">Tier 3: Full-Service</h3>
+        <span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--bg-subtle);color:var(--text-3);text-transform:uppercase;letter-spacing:0.04em">Enterprise</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:8px">Multi-platform: M350 + Spot + BLK ARC + GPR</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:10px">$160K &mdash; $210K all-in</div>
+      <ul style="font-size:0.75rem;color:var(--text-2);line-height:1.9;list-style:none;padding:0">
+        <li>&#10003; DJI M350 RTK aerial platform (~$26K)</li>
+        <li>&#10003; Boston Dynamics Spot + BLK ARC (~$121K)</li>
+        <li>&#10003; GSSI GPR sled (~$15K)</li>
+        <li>&#10003; Software, GNSS, processing (~$10K)</li>
+        <li>&#10003; Insurance: full coverage (~$10K/yr)</li>
+        <li>&#10003; Licensed PLS on staff</li>
       </ul>
-      <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank" class="btn btn-outline" style="margin-top:12px;width:100%;text-decoration:none;justify-content:center">View on GitHub</a>
+      <div style="font-size:0.72rem;color:var(--text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Full DOT capability: aerial + ground + subsurface + tunnel. Can bid on any task on the marketplace.</div>
     </div>
   </div>
-  <div class="cta-block" style="background:var(--accent-light)">
-    <p style="color:var(--accent-hover)"><strong>Earnings vary by location and demand.</strong> Operators set their own pricing and bid on tasks that match their equipment.</p>
+
+  <div class="card" style="margin-bottom:16px;background:var(--bg-subtle)">
+    <h3 style="margin-bottom:10px">ALREADY HAVE EQUIPMENT?</h3>
+    <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:8px">67% of major construction firms already own survey drones. List your existing equipment on the marketplace to fill downtime, expand your service area, and access new clients without marketing spend.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" style="font-size:0.8rem" onclick="showScreen('s-operator',0)">List Your Equipment</button>
+      <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank" class="btn btn-outline" style="font-size:0.8rem;text-decoration:none">Technical Docs</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:10px">WHAT YOU NEED BESIDES EQUIPMENT</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+      <div style="font-size:0.75rem;color:var(--text-2);padding:10px;background:var(--bg-subtle);border-radius:6px"><strong>FAA Part 107</strong><br>$175 exam fee &middot; 2-4 weeks study &middot; 84% pass rate</div>
+      <div style="font-size:0.75rem;color:var(--text-2);padding:10px;background:var(--bg-subtle);border-radius:6px"><strong>PLS Supervision</strong><br>Arrange with a licensed surveyor to review and stamp deliverables</div>
+      <div style="font-size:0.75rem;color:var(--text-2);padding:10px;background:var(--bg-subtle);border-radius:6px"><strong>Insurance</strong><br>CGL ($1M/$2M) + E&O ($1M) + Aviation liability &middot; ~$4-10K/yr</div>
+      <div style="font-size:0.75rem;color:var(--text-2);padding:10px;background:var(--bg-subtle);border-radius:6px"><strong>OSHA 10-Hour</strong><br>$25 online course &middot; required for construction site access</div>
+    </div>
   </div>
   <div style="text-align:center;padding:20px 0"><button class="btn btn-outline" onclick="resetDemo()">&#8592; Back to marketplace</button></div>
 </div>
