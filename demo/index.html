@@ -292,6 +292,78 @@ header{padding:16px 0;display:flex;align-items:center;justify-content:space-betw
 
 /* Footer */
 footer{padding:20px 0;text-align:center;font-size:0.72rem;color:var(--text-3);line-height:2;background:var(--bg-subtle);border-top:1px solid var(--border)}
+
+/* ===== MOBILE FIXES (375px target) ===== */
+@media(max-width:600px){
+  .container{padding:0 14px}
+  .hero{padding:40px 0 24px}
+  .hero h1{font-size:1.4rem}
+  .search-input{font-size:0.85rem;padding:12px 48px 12px 14px}
+  .search-go{width:36px;height:34px}
+  .search-go svg{width:16px;height:16px}
+  .cycling-example{font-size:0.72rem}
+  /* Steps: smaller on mobile */
+  .steps{padding:8px 0;gap:0}
+  .step{padding:2px 6px;font-size:0.55rem}
+  .step-chevron{width:12px;margin:0 1px}
+  /* Feed */
+  .feed-item{font-size:0.72rem;padding:6px 8px;gap:6px}
+  .fprice{font-size:0.72rem}
+  .ftime{font-size:0.62rem}
+  /* Operator strip */
+  .operator-cta-strip{padding:12px 14px}
+  .operator-cta-strip>div{flex-direction:column;text-align:center;gap:8px}
+  .operator-cta-strip>div>div:last-child{flex-direction:column;gap:6px}
+  /* Cards */
+  .card{padding:16px}
+  .parsed-row{font-size:0.75rem;flex-wrap:wrap;gap:4px}
+  .plabel{flex-basis:100%}
+  /* Bid cards */
+  .bid-price{font-size:1.1rem}
+  .bid-loc{font-size:0.65rem}
+  /* Result meta */
+  .meta-val{font-size:1rem}
+  /* Robot detail */
+  .robot-detail{padding:16px}
+  .detail-grid{grid-template-columns:1fr !important}
+  .task-stats{grid-template-columns:repeat(3,1fr) !important}
+  /* Award review */
+  #s-review-award .card{padding:14px}
+  #s-review-award [style*="grid-template-columns:repeat(auto-fit"]{grid-template-columns:1fr !important}
+  /* RFP processing */
+  #s-review .card{max-height:140px}
+  /* Payment */
+  .pay-grid{grid-template-columns:1fr}
+  .pay-opt{padding:16px}
+  /* Signing card */
+  #signingCard{padding:20px}
+  #signingCard .card{padding:10px}
+  #signingCard .parsed-row{font-size:0.65rem}
+  /* Buy robot tiers */
+  #s-buyrobot [style*="grid-template-columns:repeat(auto-fit"]{grid-template-columns:1fr !important}
+  #s-buyrobot .card{padding:14px}
+  /* Profile inline */
+  #profile1 .detail-grid,#profile2 .detail-grid{grid-template-columns:1fr !important}
+  /* Agent link */
+  .agent-pick-grid{grid-template-columns:1fr !important}
+  .agent-pick{padding:12px}
+  .config-snippet{font-size:0.62rem;word-break:break-all}
+  /* Trust strip */
+  .trust-strip{font-size:0.65rem;padding:12px 10px}
+  .trust-strip span{margin:0 6px;font-size:0.62rem}
+  /* Modal */
+  .modal{padding:16px;max-width:95%}
+  .modal pre{font-size:0.65rem;padding:10px}
+  /* Reject modal */
+  #rejectOverlay .modal{max-width:95%}
+  /* How section */
+  .how-step{padding:10px}
+  .how-step p{font-size:0.72rem}
+  /* Buttons */
+  .btn{padding:8px 16px;font-size:0.8rem}
+  .result-actions{gap:6px}
+  .result-actions .btn{padding:8px 12px;font-size:0.72rem}
+}
 footer a{color:var(--link);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
