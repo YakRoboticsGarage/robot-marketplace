@@ -656,9 +656,34 @@ footer a:hover{text-decoration:underline}
         <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; MDOT prequalified</div>
         <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; DBE participation: 9.2% (goal: 8%)</div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward1">Confirm Award</button>
         <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','Select a reason for rejecting this bidder:\n\n\u2022 Conflict of interest\n\u2022 Prior unsatisfactory experience\n\u2022 Insurance limits insufficient\n\u2022 DBE non-compliance\n\u2022 Client prohibited vendor list\n\u2022 Other\n\nThe next-ranked bidder (AeroSpec Solutions, $89,000) will be presented for review.')">Reject</button>
+        <a href="#" style="font-size:0.72rem;color:var(--link);text-decoration:none;margin-left:auto" onclick="var el=document.getElementById('profile1');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'View operator profile \u25BC':'Hide profile \u25B2';return false">View operator profile &#9660;</a>
+      </div>
+      <div id="profile1" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn 0.25s">
+        <div class="detail-grid" style="margin-bottom:12px">
+          <div class="detail-item"><div class="di-label">Platform</div><div class="di-value">DJI Matrice 350 RTK fleet (4 units)</div></div>
+          <div class="detail-item"><div class="di-label">LiDAR</div><div class="di-value">Zenmuse L2 — &plusmn;3-5cm, 150m AGL</div></div>
+          <div class="detail-item"><div class="di-label">Photogrammetry</div><div class="di-value">Zenmuse P1 45MP full-frame</div></div>
+          <div class="detail-item"><div class="di-label">RTK GPS</div><div class="di-value">&plusmn;1cm horizontal, &plusmn;1.5cm vertical</div></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">INSURANCE &amp; LEGAL</div>
+        <div class="detail-grid" style="margin-bottom:12px">
+          <div class="detail-item"><div class="di-label">Operator</div><div class="di-value">SkyVista Survey LLC</div></div>
+          <div class="detail-item"><div class="di-label">PLS License</div><div class="di-value">MI #42871 (exp. 2027-11-30)</div></div>
+          <div class="detail-item"><div class="di-label">CGL Insurance</div><div class="di-value">$2M/$4M — Hartford</div></div>
+          <div class="detail-item"><div class="di-label">E&amp;O / Professional</div><div class="di-value">$2M/$4M — Berkley</div></div>
+          <div class="detail-item"><div class="di-label">Aviation Liability</div><div class="di-value">$5M — Global Aerospace</div></div>
+          <div class="detail-item"><div class="di-label">LOL Cap</div><div class="di-value">1x task fee ($72,000)</div></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">TRACK RECORD</div>
+        <div class="task-stats" style="margin-bottom:12px">
+          <div class="task-stat"><div class="ts-val">287</div><div class="ts-lbl">Tasks</div></div>
+          <div class="task-stat"><div class="ts-val" style="color:var(--green)">99.4%</div><div class="ts-lbl">Completion</div></div>
+          <div class="task-stat"><div class="ts-val">42min</div><div class="ts-lbl">Avg time</div></div>
+        </div>
+        <a href="#" onclick="openModal('Standard Terms','SURVEY SERVICES AGREEMENT — SkyVista Survey LLC\n\nScope: Per task specification (Pre-Construction Topo)\nFee: $72,000 (milestone billing)\nInsurance: CGL $2M/$4M, E&O $2M/$4M, Aviation $5M\nPLS: MI #42871 (supervising: J. Chen, PLS)\nLimitation of Liability: $72,000 (1x fee)\nRetainage: 10% until acceptance\nIndemnification: Mutual, proportional fault\nData Ownership: Client owns deliverables upon payment\nDispute: Negotiation > Mediation > Arbitration\nGoverning Law: Michigan\nTemplate: ConsensusDocs 750');return false" style="font-size:0.72rem;color:var(--link);text-decoration:none">View draft agreement &rarr;</a>
       </div>
     </div>
 
@@ -678,9 +703,34 @@ footer a:hover{text-decoration:underline}
         <div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; MDOT prequalified</div>
         <div style="font-size:0.72rem;padding:6px 10px;background:var(--amber-bg);color:var(--amber);border-radius:4px">&#9888; Sole bidder (no competition)</div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-primary" style="font-size:0.8rem" id="confirmAward2">Confirm Award</button>
         <button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal('Reject Award','No other bidders available for this task.\n\nOptions:\n\u2022 Re-post with extended bid window\n\u2022 Adjust scope or budget\n\u2022 Contact GroundTruth directly to negotiate')">Reject</button>
+        <a href="#" style="font-size:0.72rem;color:var(--link);text-decoration:none;margin-left:auto" onclick="var el=document.getElementById('profile2');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'View operator profile \u25BC':'Hide profile \u25B2';return false">View operator profile &#9660;</a>
+      </div>
+      <div id="profile2" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn 0.25s">
+        <div class="detail-grid" style="margin-bottom:12px">
+          <div class="detail-item"><div class="di-label">Platform</div><div class="di-value">Boston Dynamics Spot (3 units) + GPR sled</div></div>
+          <div class="detail-item"><div class="di-label">3D Scanner</div><div class="di-value">Leica BLK ARC — &plusmn;5mm-1cm SLAM</div></div>
+          <div class="detail-item"><div class="di-label">GPR</div><div class="di-value">GSSI StructureScan Mini XT 1.6GHz</div></div>
+          <div class="detail-item"><div class="di-label">Autonomy</div><div class="di-value">Spot SDK waypoint missions, 90min battery</div></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">INSURANCE &amp; LEGAL</div>
+        <div class="detail-grid" style="margin-bottom:12px">
+          <div class="detail-item"><div class="di-label">Operator</div><div class="di-value">GroundTruth Robotics Inc</div></div>
+          <div class="detail-item"><div class="di-label">PLS License</div><div class="di-value">MI #38104 (exp. 2026-08-15)</div></div>
+          <div class="detail-item"><div class="di-label">CGL Insurance</div><div class="di-value">$1M/$2M — Travelers</div></div>
+          <div class="detail-item"><div class="di-label">E&amp;O / Professional</div><div class="di-value">$1M/$2M — CNA</div></div>
+          <div class="detail-item"><div class="di-label">Confined Space</div><div class="di-value">OSHA 1910.146 certified crew</div></div>
+          <div class="detail-item"><div class="di-label">LOL Cap</div><div class="di-value">1x task fee ($98,000)</div></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">TRACK RECORD</div>
+        <div class="task-stats" style="margin-bottom:12px">
+          <div class="task-stat"><div class="ts-val">156</div><div class="ts-lbl">Tasks</div></div>
+          <div class="task-stat"><div class="ts-val" style="color:var(--green)">98.8%</div><div class="ts-lbl">Completion</div></div>
+          <div class="task-stat"><div class="ts-val">3.2hr</div><div class="ts-lbl">Avg time</div></div>
+        </div>
+        <a href="#" onclick="openModal('Standard Terms','SURVEY SERVICES AGREEMENT — GroundTruth Robotics Inc\n\nScope: Per task specification (Tunnel 3D Scanning)\nFee: $98,000 (milestone billing)\nInsurance: CGL $1M/$2M, E&O $1M/$2M\nPLS: MI #38104 (supervising: R. Torres, PLS)\nLimitation of Liability: $98,000 (1x fee)\nRetainage: 10% until acceptance\nConfined Space: OSHA 1910.146 certified\nIndemnification: Mutual, proportional fault\nData Ownership: Client owns deliverables upon payment\nDispute: Negotiation > Mediation > Arbitration\nGoverning Law: Michigan\nTemplate: ConsensusDocs 750');return false" style="font-size:0.72rem;color:var(--link);text-decoration:none">View draft agreement &rarr;</a>
       </div>
     </div>
 
