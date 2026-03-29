@@ -1518,17 +1518,48 @@ document.getElementById('confirmRejectBtn').onclick=function(){
   var reason=document.getElementById('rejectReason').value;
   if(!reason){document.getElementById('rejectReason').style.borderColor='var(--red)';return}
   document.getElementById('rejectOverlay').classList.remove('open');
-  // Mock: show decline sent confirmation
-  var taskCard=document.querySelectorAll('#s-review-award .card')[rejectingTask===1?0:1];
-  taskCard.style.opacity='0.4';
-  taskCard.style.borderLeftColor='var(--text-3)';
-  var badge=taskCard.querySelector('[style*="RECOMMENDED"]')||taskCard.querySelectorAll('span')[1];
+  var taskCard=document.querySelectorAll('#s-review-award > div > .card')[rejectingTask===1?0:1];
+
   if(rejectingTask===1){
-    taskCard.innerHTML='<div style="padding:8px 0;text-align:center;color:var(--text-3);font-size:0.8rem"><strong>Task 1 declined</strong> &mdash; notification sent to Apex Aerial Surveys<br><span style="font-size:0.72rem">Next bidder (Trident Autonomous) will be contacted</span></div>';
+    // Task 1 has a next bidder — show them
+    taskCard.style.borderLeftColor='var(--amber)';
+    taskCard.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:0.72rem;color:var(--amber)">Apex Aerial declined &mdash; showing next ranked bidder</span><span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--amber-bg);color:var(--amber);text-transform:uppercase;letter-spacing:0.04em">BIDDER 2 OF 2</span></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:8px"><div><div style="font-weight:600;font-size:0.875rem">Task 1: Pre-Construction Topo &mdash; Meridian Geospatial</div><div style="font-size:0.75rem;color:var(--text-2)">$89,000 &middot; Est. 2.5 weeks &middot; DJI M350 RTK + P1</div></div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;margin-bottom:12px">'+
+    '<div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; PLS License: CO #29841 valid</div>'+
+    '<div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; FAA Part 107: current</div>'+
+    '<div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; Insurance: CGL + E&O</div>'+
+    '<div style="font-size:0.72rem;padding:6px 10px;background:var(--green-bg);color:var(--green);border-radius:4px">&#10003; SAM.gov: clear</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
+    '<button class="btn btn-primary" style="font-size:0.8rem" onclick="awards.task1=true;this.textContent=\'\\u2713 Agreed\';this.style.background=\'var(--green)\';this.style.pointerEvents=\'none\';this.parentElement.querySelector(\'.btn-outline\').style.display=\'none\';checkAllAwards()">Agree &amp; Commit</button>'+
+    '<button class="btn btn-outline" style="font-size:0.8rem" onclick="skipTask(1)">Skip This Task</button>'+
+    '</div>';
   } else {
-    taskCard.innerHTML='<div style="padding:8px 0;text-align:center;color:var(--text-3);font-size:0.8rem"><strong>Task 2 declined</strong> &mdash; notification sent to SiteScan Robotics<br><span style="font-size:0.72rem">Task will be re-posted with extended bid window</span></div>';
+    // Task 2 sole bidder rejected — show skip/repost options
+    taskCard.style.borderLeftColor='var(--text-3)';taskCard.style.opacity='0.85';
+    taskCard.innerHTML='<div style="text-align:center;padding:12px 0">'+
+    '<div style="font-size:0.875rem;font-weight:600;margin-bottom:6px">Task 2: All Bidders Reviewed</div>'+
+    '<div style="font-size:0.75rem;color:var(--text-2);margin-bottom:14px">SiteScan Robotics declined &mdash; no remaining bidders for tunnel scanning.</div>'+
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'+
+    '<button class="btn btn-outline" style="font-size:0.8rem" onclick="skipTask(2)">Skip This Task</button>'+
+    '<button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal(\'Re-Post Task\',\'Task 2: Tunnel 3D Scanning will be re-posted with:\\n\\n\\u2022 Extended bid window (7 days)\\n\\u2022 Wider geographic reach\\n\\u2022 Adjusted scope (optional)\\n\\nYou can proceed with Task 1 while this re-posts.\')">Re-Post Task</button>'+
+    '<button class="btn btn-outline" style="font-size:0.8rem" onclick="openModal(\'Revise Scope\',\'Adjust Task 2 scope before re-posting:\\n\\n\\u2022 Reduce tunnel length\\n\\u2022 Accept different equipment types\\n\\u2022 Adjust budget ceiling\\n\\u2022 Change timeline\\n\\nRevised task will be posted as a new auction.\')">Revise &amp; Re-Post</button>'+
+    '</div></div>';
+    awards.task2='skipped';
+    checkAllAwards();
   }
 };
+
+// Skip task
+function skipTask(taskNum){
+  var taskCard=document.querySelectorAll('#s-review-award > div > .card')[taskNum===1?0:1];
+  taskCard.style.borderLeftColor='var(--text-3)';taskCard.style.opacity='0.5';
+  taskCard.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.8rem;color:var(--text-3)"><strong>Task '+taskNum+'</strong> &mdash; Skipped</div><span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:var(--bg-subtle);color:var(--text-3);text-transform:uppercase;letter-spacing:0.04em">SKIPPED</span></div>';
+  if(taskNum===1) awards.task1='skipped';
+  else awards.task2='skipped';
+  checkAllAwards();
+}
 
 // Award review
 var awards={task1:false,task2:false};
@@ -1547,7 +1578,24 @@ document.getElementById('confirmAward2').onclick=function(){
   checkAllAwards();
 };
 function checkAllAwards(){
-  if(awards.task1 && awards.task2){
+  var t1resolved=(awards.task1===true||awards.task1==='skipped');
+  var t2resolved=(awards.task2===true||awards.task2==='skipped');
+  var atLeastOneConfirmed=(awards.task1===true||awards.task2===true);
+  if(t1resolved && t2resolved && atLeastOneConfirmed){
+    // Update the activation summary based on what was confirmed vs skipped
+    var summaryHtml='';
+    if(awards.task1===true) summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 1</span><span class="pval">'+(awards.task1NextBidder||'Apex Aerial Surveys')+' &middot; $'+(awards.task1NextBidder?'89,000':'72,000')+'</span></div>';
+    else summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 1</span><span class="pval" style="color:var(--text-3)">Skipped</span></div>';
+    if(awards.task2===true) summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 2</span><span class="pval">SiteScan Robotics &middot; $98,000</span></div>';
+    else summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Task 2</span><span class="pval" style="color:var(--text-3)">Skipped</span></div>';
+    var total=0;
+    if(awards.task1===true) total+=awards.task1NextBidder?89000:72000;
+    if(awards.task2===true) total+=98000;
+    summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Total</span><span class="pval" style="font-weight:700">$'+total.toLocaleString()+'</span></div>';
+    summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Bond</span><span class="pval green">SUR-2025-MI-4847291 verified</span></div>';
+    summaryHtml+='<div class="parsed-row" style="font-size:0.75rem"><span class="plabel">Agreement</span><span class="pval">ConsensusDocs 750 (auto-generated)</span></div>';
+    var summaryCard=document.querySelector('#activatePrompt .card');
+    if(summaryCard) summaryCard.innerHTML=summaryHtml;
     document.getElementById('awardsDone').style.display='block';
     document.getElementById('awardsDone').scrollIntoView({behavior:'smooth'});
   }
