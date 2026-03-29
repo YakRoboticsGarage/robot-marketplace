@@ -1,0 +1,2617 @@
+# ============================================================
+# COMPETITION RANKING — Integration Judge (Judge 3)
+#
+# 1st: ENTRY 5 (Ontology Purist) — The structural fixes (ID normalization,
+#      type declarations, dangling reference cleanup, glossary enrichment)
+#      are foundational. Every other entry's improvements become MORE useful
+#      once the ontology is machine-traversable. Without Entry 5's fixes,
+#      the YAML remains a human-readable document pretending to be a schema.
+#      The six structural defects and four thejaymo gaps are precise,
+#      actionable, and improve every downstream consumer.
+#
+# 2nd: ENTRY 4 (Legal Critic) — Identified 5 CRITICAL gaps (retainage,
+#      lien waivers, disputed state, money transmission, insurance).
+#      These are not theoretical — they are legal obligations that block
+#      production launch. The payment flow state machine is the highest-
+#      impact single addition.
+#
+# 3rd: ENTRY 2 (Technical Architect) — MCP tool schemas, state machine
+#      inconsistencies, and refund semantics are implementation-critical.
+#      The cross-repo coherence and execution stack contracts bring
+#      engineering rigor the v1.1 lacked.
+#
+# 4th: ENTRY 3 (UX Critic) — Operator/agent journey parity, demo screen
+#      mapping, feedback integration, and manual-task flagging are all
+#      valid gaps. The implementation_status field is a practical tool for
+#      tracking ideal vs. actual.
+#
+# 5th: ENTRY 1 (Strategy Critic) — Validation register, competitive moats,
+#      lunar business model, and talisman metadata are strategically sound
+#      but less urgent than structural/legal/technical fixes. Still, every
+#      idea is incorporated below.
+#
+# ALL 5 entries contributed unique improvements integrated into v2.0.
+# ============================================================
+
+# ============================================================
+# PRODUCT_DSL.yaml — Ontological Map of the Robot Task Auction Marketplace
+# The single document that describes the entire product, its strategy,
+# its assumptions, its risks, and what to build next.
+# ============================================================
+# Schema version: 2.0
+# Generated: 2026-03-29
+# Revised: 2026-03-29 — integrates all 5 competition critiques
+# Synthesis of: Architect (entity-relationship), Strategist (bet chains,
+#   unknowns, transfer maps), Engineer (MCP tools, settlement, execution stack),
+#   Ontology Purist (ID normalization, types, cross-refs), Legal Critic
+#   (payment flow, insurance, data ownership), UX Critic (journey parity,
+#   demo mapping, feedback), Strategy Critic (validation, moats, talisman),
+#   Technical Architect (tool schemas, state machine fixes, refund semantics)
+# Reference: https://github.com/tehjaymo/thejaymo.net (Knowledge Object patterns)
+# ============================================================
+
+meta:
+  name: "Robot Task Auction Marketplace"
+  project: yakrover-auction-explorer
+  schema_version: "2.0"
+  updated: "2026-03-29"
+  provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
+  license: "Proprietary — YAK Robotics Garage"
+
+# [Entry 5] Closed enum declarations for machine-readability
+types:
+  status:
+    enum: [built, next, future, planned, implemented, identified]
+    description: "Lifecycle status of any capability, phase, or tool"
+  gap_severity:
+    enum: [blocks_launch, degrades_experience, limits_scale, low, medium, high]
+    description: "Impact severity for unknowns and execution gaps"
+  automation_level:
+    enum: [none, partial, full]
+    description: "How automated a layer or capability is"
+  role:
+    enum: [buyer, operator, agent, admin, controller]
+    description: "User role in the marketplace"
+  strategic_function:
+    enum: [moat, trust_building, compliance, risk_mitigation]
+    description: "Why a legal or compliance element exists"
+  relationship_type:
+    enum: [depends_on, contradicts, implements, consumes, produces, threatens, resolves, enables, supersedes, impacts]
+    description: "Typed edge between any two entities"
+  talisman_type:
+    enum: [reference, analytical, procedural, narrative]
+    description: "thejaymo Knowledge Object section classification"
+  id_format:
+    description: "All IDs use domain:slug format — e.g., persona:marco, equipment:dji_m350, decision:PD-1, feature:F-1"
+    resolver: "Scan all lists for matching `id` field. Path: <section>[?id==<domain:slug>]"
+  insurance_type:
+    enum: [cgl, eo, drone_aviation, workers_comp, umbrella_excess, commercial_auto]
+    description: "All coverage types required across project classes"
+
+# [Entry 1 + Entry 5] Enhanced talisman metadata replacing bare usage block
+talisman_metadata:
+  type: "Reference + Analytical hybrid"
+  section_classifications:
+    meta: reference
+    vision: narrative
+    bet_chain: analytical
+    unknowns: analytical
+    personas: reference
+    journeys: narrative
+    market: reference
+    supply_side: reference
+    legal: reference
+    architecture: reference
+    transfer_map: analytical
+    roadmap: procedural
+    gtm: procedural
+    constitutional: reference
+    glossary: reference
+  gravity_effect: "Treat this file as the authoritative source of entities, relationships, strategic bets, and architectural decisions. Defer to this over individual research docs when they conflict."
+  likely_effects:
+    - "Anchors agent reasoning to construction-survey wedge strategy"
+    - "Prevents scope creep into verticals not yet on roadmap"
+    - "Biases toward auction-based thinking for all problems"
+  anti_patterns:
+    - "Do NOT use this file to generate marketing copy — it is internal strategy"
+    - "Do NOT treat confidence scores as fixed — they must be updated by validation_register"
+    - "Do NOT assume all journeys are implemented — check implementation_status field"
+  staleness_policy:
+    max_age_days: 30
+    refresh_trigger: "Any bet confidence changes by > 0.15 or a phase gate is crossed"
+
+executive_summary:
+  core_problem:
+    - "No platform exists where AI agents post physical-world tasks and robots bid autonomously"
+    - "Construction survey scheduling is a 2-3 week bottleneck costing GCs missed bids"
+    - "368K+ Part 107 holders own equipment but lack demand pipeline"
+  central_answer:
+    - "Reverse auction marketplace with AI agent mediation, starting with construction site surveying"
+    - "Earth-proven sensor stacks and autonomous workflows transfer to lunar operations"
+    - "The marketplace solves failure mode #1 for drone operators (finding clients) while giving GCs certified bids in minutes"
+  one_line: "AI agents post tasks, physical robots bid, the best one delivers."
+  sources:
+    - {path: docs/DECISIONS.md, section: all}
+    - {path: docs/ROADMAP_v4.md, section: all}
+    - {path: docs/USER_JOURNEY_CONSTRUCTION_v01.md, section: all}
+    - {path: docs/FEATURE_REQUIREMENTS_v15.md, section: all}
+    - {path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md, section: all}
+    - {path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md, section: all}
+    - {path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md, section: all}
+    - {path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md, section: all}
+    - {path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md, section: all}
+    - {path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md, section: all}
+    - {path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md, section: all}
+    - {path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md, section: all}
+    - {path: docs/research/RESEARCH_MICHIGAN_RFP_EXAMPLES.md, section: all}
+    - {path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md, section: all}
+    - {path: docs/research/RESEARCH_TERMINOLOGY_ROBOT_VS_INDUSTRY.md, section: all}
+    - {path: docs/research/RESEARCH_PRIVACY_CHAINS.md, section: all}
+    - {path: docs/research/RESEARCH_MARKETPLACE_JUSTIFICATION.md, section: all}
+    - {path: docs/research/RESEARCH_ROBOTS_AND_SENSORS.md, section: all}
+    - {path: docs/research/RESEARCH_REJECT_RECOVERY_FLOW.md, section: all}
+    # [Entry 3] Feedback files as first-class sources
+    - {path: docs/feedback/FEEDBACK_SENIOR_PM_MARKET_FOCUS.md, section: all, synthesis: "Origin of construction wedge pivot"}
+    - {path: docs/feedback/FEEDBACK_REJECT_DEAD_END.md, section: all, synthesis: "Known UX blocker in reject flow"}
+    - {path: docs/feedback/CRITIQUE_PRODUCT.md, section: all, synthesis: "Six screens too many concern"}
+    - {path: docs/feedback/CRITIQUE_UX_DESIGN.md, section: all, synthesis: "No back navigation"}
+    - {path: docs/feedback/FEEDBACK_V4_FOUNDER.md, section: all, synthesis: "8 founder-requested changes"}
+  cross_reference_syntax: "domain:slug (e.g., persona:marco, equipment:dji_m350, phase:v1.5, decision:PD-1, feature:F-1)"
+  decision_id_prefixes:
+    AD: architectural
+    TC: technical_constraint
+    PD: product
+    FD: foundational_design
+    PP: privacy
+    LD: lunar
+    DM: data_model
+
+# ============================================================
+# VISION — stable identity + testable thesis + positioning
+# ============================================================
+vision:
+  north_star: "AI agents post tasks, physical robots bid autonomously, winners get paid."
+  mechanism: reverse_auction_marketplace
+  category: robot_task_marketplace
+  tagline: "Marco doesn't hire robots. He hires site data. The marketplace is just how it shows up."
+  sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+  thesis:
+    claim: "Construction site surveying is the right wedge market for a robot task auction marketplace"
+    confidence: 0.8
+    evidence:
+      - "US construction surveying = $8B/yr; pre-bid surveys = $1.2B/yr"
+      - "67% of major US construction firms already use drones"
+      - "Sensor stack (LiDAR, RTK-GPS, GPR, photogrammetry) transfers directly to lunar ops"
+      - "No direct competitor exists — auction + physical robots + AI agents is an open gap"
+    sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+  positioning:
+    vs_botshare: "Botshare is fixed-price robot rental (China). We are auction-based task fulfillment with AI agents."
+    vs_rentahuman: "RentAHuman hires humans for AI agent tasks. We hire robots. Same architecture, different supply."
+    vs_fabric_openmind: "Fabric builds robot economy protocol/infra. We build the marketplace layer on top."
+    vs_akash: "Akash proves reverse auction works for compute. We apply it to physical robots."
+    direct_competitors: none
+    sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}]
+
+# ============================================================
+# BET CHAIN — dependent strategic bets with evidence
+# [Entry 5] gravity_effect on ALL bets, not just 4 of 7
+# ============================================================
+bet_chain:
+  sources: [{path: docs/research/DEBATE_SCHEMA_STRATEGIST.md}]
+  bets:
+    - id: bet:survey_bottleneck_real
+      claim: "Buyer pain is scheduling speed, not unit cost — survey crew bottleneck costs GCs 2-3 missed bids/quarter"
+      confidence: 0.85
+      gravity_effect: "This is the foundational bet. If false, the construction wedge fails. Prioritize customer discovery to validate."
+      evidence_for:
+        - "Marco's crews booked solid March-October; 3 overlapping bids each spring letting season"
+        - "Human crew: $8-10K, 5-6 day turnaround. Marketplace: $1.5-3K, same-day flight, 24hr delivery"
+      evidence_against:
+        - "Some GCs may have sufficient in-house survey capacity"
+      falsified_by: "Zero GCs sign up within 90 days citing scheduling pain"
+      validated_by: "12+ senior estimators at ENR Top 400 regional firms cite scheduling as top-3 pain"
+      depends_on: []
+      enables: [bet:construction_wedge_works]
+      sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+    - id: bet:robot_supply_exists
+      claim: "Sufficient drone/robot operators exist in target geos to serve construction survey demand"
+      gravity_effect: "Supply-side bet. If false, marketplace has no inventory. Validate by counting Part 107 holders in target geos."
+      confidence: 0.75
+      evidence_for:
+        - "368,600+ FAA Part 107 holders (end 2023), growing ~50K/year"
+        - "67% of major US construction firms already use drones"
+        - "DJI M350+L2 is ~$27K — hundreds of independent operators own this config"
+      evidence_against:
+        - "Rural coverage gaps (Journey B: Raton, NM — nearest operator 180 miles away)"
+        - "Operators may resist automated bid engines"
+      falsified_by: "Fewer than 5 operators register in AZ/NV/NM within 60 days of launch"
+      validated_by: "5+ operators register within 60 days without paid acquisition"
+      depends_on: []
+      enables: [bet:construction_wedge_works]
+      sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+
+    - id: bet:agent_mediation_adds_value
+      claim: "AI agent mediation is worth more than a booking portal — translating need to spec, orchestrating multi-robot tasks, generating deliverables"
+      gravity_effect: "Differentiator bet. If false, product is just another Thumbtack. Validate by measuring time-to-spec with and without agent."
+      confidence: 0.8
+      evidence_for:
+        - "McKinsey: agentic AI in procurement delivers 19-21% lower costs, 58% shorter cycles"
+        - "Marco says 'I need topo for SR-89A' — agent decomposes into 2 parallel tasks, selects sensors, evaluates bids"
+        - "Portal requires buyer to know robot types, sensor specs, data formats — which is the expertise they are buying"
+      evidence_against:
+        - "Simple repeat tasks (monthly progress flights) may not need agent intelligence"
+      falsified_by: "Buyers consistently bypass agent to post tasks manually"
+      validated_by: "Agent-mediated tasks complete 50%+ faster than manual-posted tasks"
+      depends_on: []
+      enables: [bet:construction_wedge_works]
+      sources: [{path: docs/research/RESEARCH_MARKETPLACE_JUSTIFICATION.md}]
+
+    - id: bet:construction_wedge_works
+      claim: "Construction site surveying is the right first market — highest weighted score (4.25/5)"
+      confidence: 0.8
+      gravity_effect: "Convergence bet. If this fails, the entire roadmap stalls. All three precursor bets must hold."
+      depends_on: [bet:survey_bottleneck_real, bet:robot_supply_exists, bet:agent_mediation_adds_value]
+      enables: [bet:mining_expansion, bet:infra_expansion, bet:lunar_transfer]
+      falsified_by: "No operator signs up in target geo within 90 days of launch"
+      validated_by: "10 GC customers complete paid surveys with NPS > 40"
+      sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+    - id: bet:mining_expansion
+      claim: "Mining/quarrying is a natural second market — same robots, same sensors, score 3.95/5"
+      confidence: 0.7
+      gravity_effect: "Expansion bet. Validates that the marketplace generalizes beyond construction. Informs vertical-agnostic architecture."
+      depends_on: [bet:construction_wedge_works]
+      enables: [bet:lunar_transfer]
+      falsified_by: "Mining operators reject marketplace model due to geographic concentration"
+      validated_by: "3+ mining operators register and complete paid volumetric surveys"
+      sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+    - id: bet:infra_expansion
+      claim: "Infrastructure monitoring is third — strongest regulatory tailwind (600K+ bridges mandated), score 3.65/5"
+      confidence: 0.7
+      gravity_effect: "Regulatory-pull bet. Unlike construction (push), infrastructure has a federal mandate creating guaranteed demand. Validates scoring_profiles."
+      depends_on: [bet:construction_wedge_works]
+      enables: [bet:lunar_transfer]
+      falsified_by: "Specialized form factors (bridge crawlers) cannot be aggregated on supply side"
+      validated_by: "1+ DOT pilot produces NBI-formatted deliverables via marketplace"
+      sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+    - id: bet:lunar_transfer
+      claim: "Earth construction/mining sensor stacks and workflows transfer to lunar surface operations"
+      gravity_effect: "Long-term vision bet. If false, lunar is a separate product, not a transfer. Validate via transfer_map analysis."
+      confidence: 0.6
+      depends_on: [bet:construction_wedge_works, bet:mining_expansion]
+      enables: []
+      falsified_by: "Lunar-specific requirements (radiation hardening, vacuum operation, comm latency) invalidate Earth-proven workflows"
+      validated_by: "Simulated lunar task completes using Earth-proven auction engine + DTN protocol"
+      sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+# [Entry 1] Validation register — experiments that update bet confidence
+validation_register:
+  sources: [{path: docs/research/COMPETITION_1_STRATEGY.md}]
+  experiments:
+    - id: experiment:gc_discovery_interviews
+      bet_tested: bet:survey_bottleneck_real
+      method: "Interview 20 senior estimators at ENR Top 400 regional firms"
+      success_signal: "12+ cite scheduling as top-3 pain"
+      status: not_started
+      confidence_delta: "+0.10 if positive, -0.30 if negative"
+    - id: experiment:operator_signup_60day
+      bet_tested: bet:robot_supply_exists
+      method: "Launch operator registration in AZ/NV/NM"
+      success_signal: "5+ operators register within 60 days"
+      status: not_started
+      confidence_delta: "+0.10 if positive, -0.25 if negative"
+    - id: experiment:agent_vs_manual_time
+      bet_tested: bet:agent_mediation_adds_value
+      method: "A/B test time-to-spec for 10 tasks: agent-mediated vs manual posting"
+      success_signal: "Agent-mediated completes 50%+ faster"
+      status: not_started
+      confidence_delta: "+0.10 if positive, -0.20 if negative"
+    - id: experiment:first_10_gc_nps
+      bet_tested: bet:construction_wedge_works
+      method: "Survey first 10 paying GC customers"
+      success_signal: "NPS > 40"
+      status: not_started
+      confidence_delta: "+0.15 if positive, -0.25 if negative"
+
+# ============================================================
+# UNKNOWNS — things we don't know, with severity and deadlines
+# [Entry 5] Added threatens: links to bets
+# [Entry 5] Added implied_critiques per thejaymo pattern
+# ============================================================
+unknowns:
+  sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+  register:
+    - id: unknown:flight_planning_api
+      question: "No flight planning API exists in the MCP tool set — how does a robot get from boundary polygon to waypoints?"
+      severity: blocks_launch
+      gap_reference: layer:2_mission_planning
+      threatens: [bet:agent_mediation_adds_value]
+      implied_critique: "The agent cannot orchestrate what it cannot plan. Without this, agent mediation is limited to bid evaluation."
+      mitigation: "Build plan_flight MCP tool that calls DJI Pilot 2 / Pix4Dcapture API"
+      resolve_by: phase:v2.0
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+    - id: unknown:autonomous_terrain_nav
+      question: "Autonomous navigation over unstructured construction terrain is unsolved at required reliability"
+      severity: degrades_experience
+      threatens: [bet:robot_supply_exists]
+      implied_critique: "If robots cannot self-deploy, the marketplace is a human-mediated dispatch service, not an autonomous marketplace."
+      mitigation: "Rely on operator-deployed robots (human transports to site) for v1.5-v2.0; on-site deployment model"
+      resolve_by: phase:v2.0
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+    - id: unknown:infield_qc
+      question: "No in-field data quality validation — robot cannot verify capture meets spec before leaving site"
+      severity: blocks_launch
+      gap_reference: layer:4_infield_qc
+      threatens: [bet:construction_wedge_works]
+      implied_critique: "Without QC, the marketplace delivers data of unknown quality. GCs will not trust unvalidated data for bids."
+      mitigation: "Build validate_capture MCP tool checking point density, coverage, GSD against task spec"
+      resolve_by: phase:v2.0
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+    - id: unknown:operator_adoption
+      question: "Will operators adopt automated bid engines or resist?"
+      severity: degrades_experience
+      threatens: [bet:robot_supply_exists]
+      implied_critique: "Automated bidding is the core product thesis. If operators insist on manual bid review, marketplace speed advantage shrinks."
+      mitigation: "Start with manual bid review; auto-bidding is opt-in"
+      resolve_by: phase:v1.5
+      sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+
+    - id: unknown:payment_bond_scale
+      question: "Does payment bond verification scale beyond Michigan?"
+      severity: limits_scale
+      threatens: [bet:construction_wedge_works]
+      implied_critique: "Bond verification is listed as a moat, but moats that do not scale are just local features."
+      mitigation: "Start with top 5 sureties (Travelers, Liberty Mutual, CNA, Zurich, Hartford); expand"
+      resolve_by: phase:v2.0
+      sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+
+    - id: unknown:eu_amlr_interpretation
+      question: "EU AMLR Article 79 (July 2027) bans CASPs from handling privacy-preserving digital assets — how broadly interpreted?"
+      severity: limits_scale
+      threatens: [bet:lunar_transfer]
+      implied_critique: "If privacy rails are blocked in the EU, shielded settlement modes cannot serve European space agencies."
+      mitigation: "Platform-mediated TEE model designed for most conservative interpretation; legal opinion before v3.0"
+      resolve_by: phase:v3.0
+      sources: [{path: docs/research/RESEARCH_PRIVACY_CHAINS.md}]
+
+    - id: unknown:horizen_l3_viability
+      question: "Is Horizen L3 on Base mature enough for Mode 2 settlement?"
+      severity: degrades_experience
+      threatens: [bet:construction_wedge_works]
+      implied_critique: "The privacy roadmap depends on a single L3 provider. If they fail, privacy settlement is delayed indefinitely."
+      mitigation: "v1.5 evaluation (feature:F-12); settlement abstraction ensures fallback to app-layer TEE on Base"
+      resolve_by: phase:v1.5
+      sources: [{path: docs/FEATURE_REQUIREMENTS_v15.md}]
+
+    - id: unknown:regulatory_autonomous_drone
+      question: "Regulatory status of fully autonomous commercial drone operations is ambiguous (Part 108 BVLOS is new)"
+      severity: limits_scale
+      threatens: [bet:robot_supply_exists, bet:agent_mediation_adds_value]
+      implied_critique: "If autonomous ops stay heavily restricted, the marketplace must broker human-piloted missions — reducing the AI agent value prop."
+      mitigation: "Part 107 + LAANC sufficient for v1.5-v2.0; monitor Part 108 adoption"
+      resolve_by: phase:v2.0
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: unknown:lunar_comm_relay
+      question: "Lunar Pathfinder provides intermittent coverage — multi-hour blackouts are default"
+      severity: blocks_launch  # for v4.0 specifically
+      threatens: [bet:lunar_transfer]
+      implied_critique: "DTN tolerance is necessary but the business model must also tolerate days-long settlement delays."
+      mitigation: "Idempotent DTN bundles; batched settlement tolerates hours-to-days delay; <50% uptime assumed"
+      resolve_by: phase:v4.0
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    # [Entry 4] New unknowns from legal critique
+    - id: unknown:money_transmission_escrow
+      question: "Does holding funds in a platform-controlled escrow account make us a money transmitter?"
+      severity: blocks_launch
+      threatens: [bet:construction_wedge_works]
+      implied_critique: "Escrow is in the architecture but licensing is not. Launching escrow without MTL is a federal crime."
+      mitigation: "Legal review before escrow launch; Stripe covers v1.5 prepaid model. Escrow at v2.5 requires state-by-state analysis."
+      resolve_by: phase:v2.5
+      sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+
+# ============================================================
+# PERSONAS — all user types including agents
+# [Entry 3] Added controller persona
+# [Entry 5] Normalized all IDs to domain:slug
+# ============================================================
+personas:
+  - id: persona:sarah
+    name: "Sarah — Facilities Manager"
+    role: buyer
+    phase: phase:v1.0
+    jtbd: "Warehouse sensor readings via AI assistant"
+    sources: [{path: docs/ROADMAP_v4.md}]
+
+  - id: persona:marco
+    name: "Marco Reyes — Senior Estimator"
+    role: buyer
+    phase: phase:v1.5
+    company: "Ridgeline Civil ($180M revenue, 340 employees, Phoenix HQ)"
+    discretionary_authority_usd: 15000
+    active_bids: "4-6 simultaneous"
+    jtbd:
+      - situation: "3 bids overlap in spring letting season; both survey crews booked March-October"
+        motivation: "Get accurate site data into Civil 3D before Thursday's bid deadline"
+        outcome: "Win $14.2M highway contract with quantities he trusts"
+    pain: "Time, not cost. $8-10K human crew takes 5-6 days. Marketplace: $1.5-3K, same-day flight."
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+  - id: persona:alex
+    name: "Alex — Independent Operator"
+    role: operator
+    phase: phase:v2.0
+    jtbd:
+      - situation: "Owns DJI M350+L2 ($40K invested), gets 2-3 survey jobs/month via word of mouth"
+        motivation: "Fill idle equipment days, stop cold-calling GCs for work"
+        outcome: "Earn first $2,200 within a week of registration"
+    pain: "Finding clients is failure mode #1 for drone operators — not certification or equipment"
+    equipment: [equipment:dji_m350, equipment:zenmuse_l2]
+    sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+
+  # [Entry 3] New persona: Controller
+  - id: persona:controller
+    name: "Controller / AP Manager"
+    role: controller
+    phase: phase:v1.5
+    jtbd:
+      - situation: "CFO asks controller to set up the company's marketplace account"
+        motivation: "Configure payment methods, insurance defaults, agent spending limits"
+        outcome: "Company ready to post tasks with proper financial controls"
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+  - id: persona:diane
+    name: "Diane — Program Manager"
+    role: buyer
+    phase: phase:v2.0
+    jtbd: "Classified inspections with encrypted specs"
+    sources: [{path: docs/ROADMAP_v4.md}]
+
+  - id: persona:mine_surveyor
+    name: "Mine Surveyor"
+    role: buyer
+    phase: phase:v2.5
+    jtbd: "Volumetric stockpile surveys, highwall inspections; $5-20K budget per survey"
+    sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+  - id: persona:bridge_pm
+    name: "Bridge Program Manager"
+    role: buyer
+    phase: phase:v3.0
+    jtbd: "Federally mandated bridge inspections (23 CFR 650); NBI-formatted deliverables"
+    sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+  - id: persona:kenji
+    name: "Kenji — JAXA Project Coordinator"
+    role: buyer
+    phase: phase:v4.0
+    jtbd: "Lunar regolith surveys via DTN to rovers for Artemis base construction"
+    sources: [{path: docs/ROADMAP_v4.md}]
+
+  - id: persona:claude_agent
+    name: "Claude (AI Agent)"
+    role: agent
+    phase: phase:v1.0
+    capabilities:
+      - "Translate natural language to structured task specs"
+      - "Decompose multi-sensor requests into parallel subtasks"
+      - "Evaluate bids on capability, reputation, price"
+      - "Schedule around weather windows via NOAA API"
+      - "Auto-schedule recurring progress monitoring"
+    # [Entry 3] Agent authorization boundaries
+    authorization:
+      spending_limit_per_task_usd: 5000
+      auto_approve_under_usd: 500
+      configurable_by: persona:controller
+    failure_modes:
+      - "Misparses RFP — decomposes into wrong sensor types"
+      - "Recommends filtered-out bidder — insurance or license gap missed"
+      - "Over-decomposes simple task into unnecessary subtasks"
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+  - id: persona:platform_admin
+    name: "Platform Administrator"
+    role: admin
+    phase: phase:v1.5
+    jtbd: "Monitor health, manage payouts, oversee settlement"
+    sources: [{path: docs/ROADMAP_v4.md}]
+
+# ============================================================
+# JOURNEYS — pipeline-stage model with actor handoffs
+# [Entry 3] Added operator, agent, and controller journeys
+# [Entry 3] Added implementation_status to stages
+# [Entry 5] Normalized actor references to use component: prefix
+# ============================================================
+journeys:
+  - id: journey:pre_bid_survey
+    name: "Pre-Bid Survey (Happy Path)"
+    persona: persona:marco
+    phase: phase:v1.5
+    implementation_status: partial
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+    stages:
+      - actor: persona:marco
+        action: "Types natural language request to Claude"
+        example: "I need topo and subsurface data for SR-89A widening, 12 acres, bid deadline Thursday"
+        implementation_status: implemented
+      - actor: persona:claude_agent
+        action: "Parses request into 2 parallel task specs (aerial LiDAR + GPR)"
+        tools: [skill:rfp_to_robot_spec, skill:rfp_to_site_recon]
+        implementation_status: implemented
+      - actor: component:auction_engine
+        action: "Opens RFQ, collects bids (6 robots, 4 operators), filters on hard constraints"
+        duration: "~2 hours"
+        implementation_status: implemented
+      - actor: persona:claude_agent
+        action: "Runs automated checks (COI, PLS, Part 107, debarment) and presents recommended winners"
+        implementation_status: partial
+        note: "Debarment check not yet implemented"
+      - actor: persona:marco
+        action: "Reviews qualifications, confirms award"
+        duration: "3 minutes"
+        implementation_status: planned
+      - actor: component:auction_engine
+        action: "Generates subcontracts (ConsensusDocs 751), both operators countersign"
+        implementation_status: planned
+      - actor: equipment:dji_m350
+        action: "SkyView flies corridor Wednesday AM — 2.5 hours, 4.2M pts/sec"
+        implementation_status: planned
+      - actor: equipment:spot
+        action: "RedRock deploys Spot+GPR Wednesday PM — 3.5 hours"
+        implementation_status: planned
+      - actor: component:settlement
+        action: "Settlement triggers: $3,600 total ($2,200 SkyView + $1,400 RedRock)"
+        implementation_status: planned
+      - actor: persona:marco
+        action: "Imports LandXML into Civil 3D, completes earthwork takeoff in 4 hours, bids $14.2M"
+        implementation_status: planned
+    outcome: "Request to bid-ready data in ~3 days. Human crew: 10-12 days. Saved $4,900 (58%) + won the contract."
+    failure_modes:
+      - ref: journey:no_robots_available
+      - ref: journey:weather_hold
+
+  - id: journey:no_robots_available
+    name: "No Robots Available (Journey B)"
+    persona: persona:marco
+    phase: phase:v1.5
+    implementation_status: implemented
+    outcome: "Immediate notification, zero charge, demand logged for heatmap"
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+  - id: journey:weather_hold
+    name: "Mid-Task Weather Hold (Journey C)"
+    persona: persona:marco
+    phase: phase:v1.5
+    implementation_status: planned
+    outcome: "System pauses, preserves 40% partial data, auto-resumes when NOAA clears, merges seamlessly"
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+  - id: journey:reject_recovery
+    name: "Award Rejection and Recovery"
+    persona: persona:marco
+    phase: phase:v2.0
+    implementation_status: broken
+    known_issues:
+      - {ref: docs/feedback/FEEDBACK_REJECT_DEAD_END.md, description: "Reject button leads to dead-end in current demo"}
+    stages:
+      - actor: persona:marco
+        action: "Rejects recommended winner (reason: conflict, bad experience, DBE shortfall, etc.)"
+        implementation_status: implemented
+      - actor: component:auction_engine
+        action: "Walks ranked list to next bidder; runs same automated checks"
+        implementation_status: broken
+      - actor: persona:marco
+        action: "Reviews next candidate, confirms or rejects again"
+        implementation_status: planned
+      - actor: component:auction_engine
+        action: "If all bidders exhausted: offer re-post, skip, or withdraw"
+        implementation_status: planned
+    sources: [{path: docs/research/RESEARCH_REJECT_RECOVERY_FLOW.md}]
+
+  # [Entry 3] New journey: Operator onboarding
+  - id: journey:operator_onboarding
+    name: "Operator Onboarding (Alex)"
+    persona: persona:alex
+    phase: phase:v2.0
+    implementation_status: partial
+    sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+    stages:
+      - actor: persona:alex
+        action: "Discovers marketplace via industry forum or referral"
+        implementation_status: not_applicable
+      - actor: persona:alex
+        action: "Views 'Become a Survey Operator' page with 3 equipment tiers"
+        demo_screen: s-operator
+        implementation_status: implemented
+      - actor: persona:alex
+        action: "Registers firm, uploads Part 107, OSHA cert, insurance COI"
+        implementation_status: planned
+      - actor: component:auction_engine
+        action: "Verifies Part 107 against FAA database, parses ACORD 25, checks PLS"
+        implementation_status: planned
+      - actor: persona:alex
+        action: "Registers robot(s) with ERC-8004 identity, sets pricing and availability"
+        implementation_status: planned
+      - actor: persona:alex
+        action: "Views demand heatmap showing unserved task locations near their geo"
+        implementation_status: planned
+      - actor: component:auction_engine
+        action: "First task match — Alex receives bid opportunity notification"
+        implementation_status: planned
+      - actor: persona:alex
+        action: "Reviews task, submits bid (manual or auto-bid), wins, completes, gets paid"
+        implementation_status: planned
+    outcome: "First $2,200 earned within a week. Marketplace solves client acquisition."
+
+  # [Entry 3] New journey: Agent onboarding
+  - id: journey:agent_onboarding
+    name: "Agent Connection (Claude/GPT)"
+    persona: persona:claude_agent
+    phase: phase:v1.5
+    implementation_status: partial
+    sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+    stages:
+      - actor: persona:controller
+        action: "Navigates to Agent Link screen, selects AI provider (Claude, GPT, etc.)"
+        demo_screen: s-agentlink
+        implementation_status: implemented
+      - actor: persona:controller
+        action: "Generates API key, copies MCP configuration snippet"
+        implementation_status: planned
+      - actor: persona:claude_agent
+        action: "Connects via MCP, runs tool verification (post_task, get_bids, etc.)"
+        implementation_status: planned
+      - actor: persona:controller
+        action: "Sets spending limits, auto-approve threshold, task type restrictions"
+        implementation_status: planned
+    outcome: "Agent connected and authorized with appropriate financial guardrails."
+
+  # [Entry 3] New journey: Controller setup
+  - id: journey:controller_setup
+    name: "Company Account Setup (Controller)"
+    persona: persona:controller
+    phase: phase:v1.5
+    implementation_status: planned
+    stages:
+      - actor: persona:controller
+        action: "Creates company account, selects payment method (Stripe or USDC)"
+        implementation_status: planned
+      - actor: persona:controller
+        action: "Uploads payment bond certificate for bonded projects"
+        demo_screen: s-pay
+        implementation_status: implemented
+      - actor: persona:controller
+        action: "Sets insurance defaults (minimum CGL, E&O, drone liability per project type)"
+        implementation_status: planned
+      - actor: persona:controller
+        action: "Connects AI assistant via Agent Link flow"
+        implementation_status: planned
+      - actor: persona:controller
+        action: "Invites team members (estimators like Marco) with role-based permissions"
+        implementation_status: planned
+    outcome: "Company ready to post tasks with financial controls and compliance defaults."
+
+  # [Entry 3] New journey: Recurring task
+  - id: journey:recurring_task
+    name: "Recurring Progress Monitoring"
+    persona: persona:marco
+    phase: phase:v2.0
+    implementation_status: planned
+    stages:
+      - actor: persona:marco
+        action: "Completes first survey, marks project as recurring (monthly progress monitoring)"
+      - actor: persona:claude_agent
+        action: "Auto-schedules next 14 flights over 24-month project lifecycle"
+      - actor: component:auction_engine
+        action: "Sends repeat RFQ to same operator with loyalty pricing, or re-opens if unavailable"
+      - actor: persona:marco
+        action: "Reviews monthly progress diff — cut/fill vs. design"
+    outcome: "Retention mechanism: one project becomes 14 flights over 2 years."
+
+# [Entry 3] Demo screen map — links demo IDs to YAML nodes
+demo_screen_map:
+  - screen_id: s-hero
+    journey_stage: null
+    description: "Landing page with marketplace stats"
+    aspirational_metrics: {operators_online: 47, robots_registered: 312, states_covered: 4, tasks_completed_weekly: 14283}
+    note: "Metrics are aspirational — no YAML targets yet"
+  - screen_id: s-rfp
+    journey_stage: journey:pre_bid_survey.stages[0]
+    description: "RFP upload and extraction"
+  - screen_id: s-decompose
+    journey_stage: journey:pre_bid_survey.stages[1]
+    description: "Task decomposition view — robot vs manual triage"
+    # [Entry 3] Manual-flagged tasks
+    supports_manual_flag: true
+    note: "Task 3 flagged MANUAL — requires human tunnel survey manager. This smart triage is a differentiator."
+  - screen_id: s-auction
+    journey_stage: journey:pre_bid_survey.stages[2]
+    description: "Live auction view with bidder cards"
+  - screen_id: s-review
+    journey_stage: journey:pre_bid_survey.stages[4]
+    description: "Award review with qualifications"
+  - screen_id: s-operator
+    journey_stage: journey:operator_onboarding.stages[1]
+    description: "Become a Survey Operator — 3 equipment tiers"
+  - screen_id: s-buyrobot
+    journey_stage: null
+    description: "Buy a Robot — tiered equipment recommendations"
+  - screen_id: s-agentlink
+    journey_stage: journey:agent_onboarding.stages[0]
+    description: "Connect AI assistant (Claude/GPT)"
+  - screen_id: s-explorer
+    journey_stage: null
+    description: "Robot explorer — search, filter by type, profile drilldown"
+  - screen_id: s-feed
+    journey_stage: null
+    description: "Live activity feed with SSE events"
+  - screen_id: s-pay
+    journey_stage: journey:controller_setup.stages[1]
+    description: "Payment verification — bond upload"
+  - screen_id: signingCard
+    journey_stage: journey:pre_bid_survey.stages[5]
+    description: "Sign & Activate Services — contract execution"
+
+# ============================================================
+# MARKET — competitive landscape, TAM, wedge logic, geos, partnerships
+# [Entry 5] Structured TAM as numeric fields
+# ============================================================
+market:
+  wedge:
+    industry: construction_site_surveying
+    tam:
+      amount_usd: 8000000000
+      period: yearly
+      geography: US
+      description: "US construction surveying"
+    wedge_tam:
+      amount_usd: 1200000000
+      period: yearly
+      geography: US
+      description: "Pre-bid surveys"
+    raas_market:
+      amount_usd: 28500000000
+      year: 2024
+      cagr_pct: 17.9
+      projected_usd: 76600000000
+      projected_year: 2030
+    first_customers: "Estimators at mid-size civil GCs ($50-500M revenue) preparing highway and commercial bids"
+    target_count: 10
+    sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+  competitive_landscape:
+    direct_competitors: none  # No live platform: task auction + physical robots + AI agents
+    closest_adjacents:
+      - name: Botshare
+        url: botshare.com
+        model: "Fixed-price robot rental (China). 600+ providers, 1000+ devices."
+        threat: high
+        sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}]
+      - name: RentAHuman.ai
+        url: rentahuman.ai
+        model: "AI agents hire humans for physical tasks. 600K+ workers, MCP integration."
+        threat: high
+      - name: Fabric/OpenMind
+        url: coinmarketcap.com/currencies/fabric-foundation
+        model: "Robot economy protocol on Base. ROBO token. $20M Pantera round."
+        threat: high
+      - name: Akash Network
+        url: akash.network
+        model: "Reverse auction for compute (Cosmos). Best reference architecture."
+        threat: low
+      - name: Fetch.ai
+        url: fetch.ai
+        model: "Agent marketplace. 3M+ agents. Agent-to-agent negotiation."
+        threat: medium
+      - name: Robonomics
+        url: robonomics.network
+        model: "Robot liability contracts on Polkadot. Oldest project (since 2018)."
+        threat: medium
+    sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}]
+
+  # [Entry 1] Competitive moats — distinct from legal moats
+  competitive_moats:
+    durable:
+      - id: moat:geo_operator_density
+        description: "Operator network density in target metros — hard to replicate without demand"
+        defensibility: high
+        timeline_to_build: "6-12 months"
+      - id: moat:construction_domain_intelligence
+        description: "RFP-to-task decomposition, deliverable format validation, agency-specific compliance"
+        defensibility: high
+        timeline_to_build: "3-6 months"
+      - id: moat:legal_compliance_stack
+        description: "Bond verification, COI parsing, PLS validation, DBE tracking"
+        defensibility: medium
+        note: "Replicable with effort but requires domain expertise"
+        timeline_to_build: "6+ months"
+    response_playbook:
+      fabric_ships_marketplace:
+        trigger: "Fabric launches task marketplace on Base"
+        response: "Accelerate construction-domain features they cannot match; legal stack is 6-month head start"
+      rentahuman_adds_robots:
+        trigger: "RentAHuman adds robot operators to their 600K worker network"
+        response: "They lack sensor-specific matching and deliverable pipelines; compete on quality not quantity"
+      dji_launches_marketplace:
+        trigger: "DJI Enterprise launches a survey marketplace"
+        response: "DJI is single-vendor; marketplace is equipment-agnostic. DJI operators are our supply side."
+
+  affordances:
+    - name: MCP
+      role: "AI agents control robots via standardized protocol"
+      status: built
+      evidence: "phosphobot, ROS MCP servers, Arduino MCP integrations exist"
+    - name: ERC-8004
+      role: "On-chain identity registry for AI agents"
+      status: built
+      evidence: "Ethereum mainnet since Jan 2026"
+    - name: x402
+      role: "HTTP-native payment protocol using USDC"
+      status: built
+      evidence: "100M+ payments in first 6 months. Coinbase + Cloudflare."
+      sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}]
+
+  verticals:
+    - id: vertical:construction
+      name: Construction Site Surveying
+      score: 4.25
+      phase: phase:v1.5
+      lunar_transfer: 5
+      market_size: 4
+    - id: vertical:mining
+      name: Mining / Quarrying
+      score: 3.95
+      phase: phase:v2.5
+      lunar_transfer: 5
+      market_size: 3
+    - id: vertical:infrastructure
+      name: Infrastructure Monitoring
+      score: 3.65
+      phase: phase:v3.0
+      lunar_transfer: 3
+      market_size: 4
+      sources: [{path: docs/research/RESEARCH_WEDGE_INDUSTRY_ANALYSIS.md}]
+
+  geographies:
+    primary:
+      - state: Arizona
+        cities: [Phoenix, Sedona, Tucson, Flagstaff]
+        rationale: "Marco's home base. Active highway construction. Year-round flyable weather (except monsoon Jul-Sep)."
+      - state: Nevada
+        cities: [Las Vegas, Reno]
+        rationale: "Adjacent market to AZ. Construction boom."
+      - state: New Mexico
+        cities: [Albuquerque]
+        rationale: "Coverage gap identified in Journey B (Raton). Growing corridor work."
+    secondary:
+      - state: Michigan
+        rationale: "MDOT is a sophisticated DOT with well-documented RFP processes. 43+ active Michigan RFP examples researched."
+        rfp_examples: docs/research/RESEARCH_MICHIGAN_RFP_EXAMPLES.md
+    sources: [{path: docs/ROADMAP_v4.md}]
+
+  partnerships:
+    - type: equipment
+      target: "DJI Enterprise, Skydio, Boston Dynamics"
+      value: "Supply-side equipment ecosystem"
+    - type: dot
+      target: "MDOT, TxDOT, ADOT"
+      value: "Demand-side pilot programs"
+    - type: survey_firms
+      target: "Woolpert, NV5 Geospatial, Zeitview"
+      value: "Established operators with fleet capacity"
+    - type: payment_infra
+      target: "Coinbase (x402), Circle (USDC), Stripe (fiat)"
+      value: "Settlement rails"
+
+# ============================================================
+# SUPPLY SIDE — operator economics, equipment, onboarding
+# [Entry 5] Structured price fields as objects
+# ============================================================
+supply_side:
+  equipment_catalog:
+    - id: equipment:dji_m350
+      type: drone
+      manufacturer: DJI
+      model: "Matrice 350 RTK"
+      price:
+        min_usd: 13600
+        max_usd: 14800
+        note: "drone only"
+      max_payload_kg: 2.7
+      flight_time_min: 55
+      rtk_capable: true
+      ip_rating: IP55
+      operating_temp: "-20C to 50C"
+      obstacle_avoidance: basic
+      autonomy_level: semi
+      marketplace_tier: 1
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:zenmuse_l2
+      type: sensor
+      manufacturer: DJI
+      model: "Zenmuse L2 (LiDAR)"
+      price:
+        min_usd: 12400
+        max_usd: 13500
+      point_rate: "240K pts/s single, 1.2M multi-return"
+      accuracy_h_cm: 5
+      accuracy_v_cm: 4
+      detection_range_m: 450
+      coverage_per_flight_km2: 2.5
+      usgs_quality_level: QL1
+      compatible_platforms: [equipment:dji_m350]
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:zenmuse_p1
+      type: sensor
+      manufacturer: DJI
+      model: "Zenmuse P1 (Photogrammetry)"
+      price:
+        min_usd: 6650
+        max_usd: 7600
+      resolution_mp: 45
+      accuracy_h_cm: 3
+      accuracy_v_cm: 5
+      gsd_at_3cm: true
+      compatible_platforms: [equipment:dji_m350]
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:skydio_x10
+      type: drone
+      manufacturer: Skydio
+      model: "X10"
+      price:
+        min_usd: 16000
+        max_usd: 20000
+      flight_time_min: 40
+      rtk_capable: true
+      obstacle_avoidance: full
+      autonomy_level: full
+      us_made: true
+      cameras: "6x 32MP nav, 50MP wide, 64MP narrow, FLIR Boson+ 640x512 thermal"
+      marketplace_tier: 1
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:autel_evo2_rtk
+      type: drone
+      manufacturer: Autel
+      model: "EVO II Pro RTK V3"
+      price:
+        min_usd: 2800
+        max_usd: 3800
+      flight_time_min: 36
+      rtk_capable: true
+      marketplace_tier: 1
+      note: "Budget entry point — ideal for independent operators entering market"
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:spot
+      type: ground_robot
+      manufacturer: Boston Dynamics
+      model: "Spot"
+      price:
+        min_usd: 74500
+        max_usd: 195000
+        note: "base $74,500; fully equipped up to $195K"
+      weight_kg: 32
+      runtime_min: 90
+      ip_rating: IP54
+      payload_kg: 14
+      autonomy_level: semi
+      marketplace_tier: 3
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:spot_blk_arc
+      type: ground_robot_scanner
+      manufacturer: "Boston Dynamics + Leica"
+      model: "Spot + BLK ARC"
+      price:
+        min_usd: 121000
+        max_usd: 150000
+      lidar_range_m: "0.5-25"
+      slam: "GrandSLAM (LiDAR + Visual + IMU)"
+      marketplace_tier: 3
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+    - id: equipment:flyability_elios3
+      type: drone
+      manufacturer: Flyability
+      model: "ELIOS 3"
+      price:
+        min_usd: 40000
+        max_usd: 55000
+      flight_time_min: 9  # with LiDAR
+      use_case: "Confined-space inspection (box girders, tanks, tunnels)"
+      marketplace_tier: 2
+      sources: [{path: docs/research/RESEARCH_REAL_SURVEY_EQUIPMENT.md}]
+
+  # [Entry 1] Prototype fleet — bridges YakRoboticsGarage repos to catalog
+  prototype_fleet:
+    - repo: yakrover-8004-mcp
+      equipment_analog: equipment:spot
+      erc8004: true
+      note: "Real ERC-8004 implementation for yakrover"
+    - repo: tumbller-8004-mcp
+      equipment_analog: null
+      erc8004: true
+      note: "Tumbller educational robot with ERC-8004"
+    - repo: tello-8004-mcp
+      equipment_analog: null
+      erc8004: true
+      note: "DJI Tello drone with ERC-8004"
+
+  onboarding:
+    timeline_best_case_weeks: "6-8"
+    timeline_typical_weeks: "10-16"
+    bottleneck: "Finding first client — not certification or equipment. Marketplace solves this."
+    sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+    steps:
+      - name: "FAA Part 107"
+        duration: "2-4 weeks"
+        cost_usd: 175
+        pass_rate: "84.2% (2024: 67,576 test-takers)"
+      - name: "Equipment purchase"
+        duration: "1-3 weeks"
+      - name: "Insurance procurement"
+        duration: "1-3 weeks"
+        annual_cost_range_usd: "$4,100-$10,100"
+      - name: "OSHA 10-hour construction"
+        duration: "1-2 weeks"
+        cost_usd: "$50-$90"
+      - name: "Practice flights + calibration"
+        duration: "1-2 weeks"
+    why_operators_list:
+      - "Fill downtime — weather cancellations, seasonal slowdowns become revenue"
+      - "Expand geography without overhead"
+      - "New client pipeline — hardest part of drone surveying is finding clients"
+      - "Recurring revenue from progress monitoring (12-24 months)"
+      - "Reduced admin burden — contracts, insurance, invoicing handled by marketplace"
+    # [Entry 3] Operator churn modeling
+    churn_risks:
+      - trigger: "Low bid volume in first 30 days"
+        mitigation: "Demand heatmap showing upcoming task locations"
+      - trigger: "Payment delays (> 10 days)"
+        mitigation: "Prompt payment compliance per MCL 125.1561"
+      - trigger: "Platform takes too large a fee"
+        mitigation: "Transparent fee structure, competitive with direct client acquisition cost"
+
+  economics:
+    tier_1_budget:
+      label: "Side Hustle"
+      all_in_cost_usd: "$8K-$12K"
+      equipment: "Autel EVO II Pro RTK + Emlid GNSS + Pix4D"
+      eligible_tasks: "Small-site photogrammetry, residential, light commercial"
+      monthly_revenue_range_usd: "$3K-$8K"
+      breakeven_months: "2-4"
+    tier_2_professional:
+      label: "Professional Operator"
+      all_in_cost_usd: "$35K-$45K"
+      equipment: "DJI M350 RTK + Zenmuse L2 + RTK base + Pix4D + field kit"
+      eligible_tasks: "All construction survey types including DOT corridors"
+      monthly_revenue_range_usd: "$15K-$30K"
+      breakeven_months: "2-3"
+    tier_3_multi_sensor:
+      label: "Multi-Sensor Firm"
+      all_in_cost_usd: "$60K-$90K"
+      equipment: "M350+L2, M350+P1, Skydio X10, full GCP kit, processing workstation"
+      eligible_tasks: "Everything — LiDAR, photogrammetry, inspection, thermal"
+      monthly_revenue_range_usd: "$30K-$50K"
+      breakeven_months: "2-3"
+      note: "Demo shows Tier 3 at $160-210K including Spot+BLK ARC — that is a Tier 4 config not yet in YAML"
+    operator_rates:
+      basic_photogrammetry_per_acre_usd: "$30-$80"
+      lidar_topo_per_acre_usd: "$50-$120"
+      progress_monitoring_per_acre_usd: "$5-$20"
+      structure_inspection_day_usd: "$1,500-$3,000"
+      as_built_per_acre_usd: "$60-$120"
+    sources: [{path: docs/research/RESEARCH_OPERATOR_ONBOARDING_CONSTRUCTION.md}]
+
+# ============================================================
+# LEGAL — contracts, bonds, insurance, compliance
+# [Entry 4] Expanded with payment flow, data ownership, dispute, OSHA, Remote ID
+# ============================================================
+legal:
+  moats:
+    - id: legal:payment_bond_verification
+      description: "Bond verification flow (MCL 129.201 for MI public projects >$50K). Operators see 'Payment Bonded' badge before bidding."
+      strategic_function: moat
+      jurisdictions: [MI, federal]
+      threshold_usd: 50000
+      sureties: [Travelers, Liberty Mutual, CNA, Zurich, Hartford]
+      sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+
+    - id: legal:pe_stamped_deliverables
+      description: "PLS stamp required on survey plats and deliverables relied upon for construction. All 50 states."
+      strategic_function: moat
+      note: "Drone operator collects data; PLS supervises and stamps. Dual licensing model."
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: legal:coi_verification
+      description: "Automated ACORD 25 parsing. CGL, E&O, drone/aviation liability verified against task minimums."
+      strategic_function: trust_building
+      # [Entry 4] COI schema with parseable fields
+      coi_schema:
+        standard: "ACORD 25"
+        parsed_fields:
+          - policy_number
+          - naic_number
+          - additional_insured_status
+          - waiver_of_subrogation
+          - retroactive_date
+          - expiration_date
+          - coverage_limits
+        jurisdiction_variants:
+          - {state: TX, form: "TxDOT Form 1560-CSS", note: "TxDOT rejects standard ACORD forms"}
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: legal:dbe_tracking
+      description: "DBE/MBE compliance tracking for federally-funded projects (49 CFR Part 26). MDOT MERS Form 2124A."
+      strategic_function: moat
+      sources: [{path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md}]
+
+    # [Entry 4] Debarment check capability
+    - id: legal:debarment_check
+      description: "SAM.gov API + state debarment list verification before award"
+      strategic_function: trust_building
+      api: "SAM.gov Entity API"
+      check_point: "award_confirmation.recommended -> award_confirmed"
+      sources: [{path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md}]
+
+  overhead:
+    - id: legal:faa_part_107
+      description: "Remote Pilot Certificate required for all commercial drone ops"
+      type: compliance
+      renewal: "24 months, online recurrent training"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: legal:laanc
+      description: "LAANC authorization for controlled airspace (many urban construction sites)"
+      type: compliance
+      automatable: true
+      api: "Aloft/DroneUp LAANC API"
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+    # [Entry 4] Remote ID compliance
+    - id: legal:remote_id
+      description: "FAA Remote ID required on all drones over 0.55 lbs — compliance prerequisite for every drone operation"
+      type: compliance
+      enforcement_date: "2023-09-16"
+      verification: "Operator must declare Remote ID module serial number at registration"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    # [Entry 4] OSHA compliance
+    - id: legal:osha_compliance
+      description: "OSHA compliance for construction site operations — site safety plan, PPE, incident reporting"
+      type: compliance
+      requirements:
+        - "OSHA 10-hour construction safety training"
+        - "Site-specific safety plan per project"
+        - "PPE when on active construction sites"
+        - "Incident reporting within 8 hours for fatality, 24 hours for hospitalization"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: legal:money_transmitter
+      description: "Payment facilitation may trigger state money transmitter licensing"
+      type: risk_mitigation
+      mitigation: "v1.5 uses prepaid credits (covered by Stripe's licenses). Escrow (v2.5) requires legal review."
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    # [Entry 4] Money transmission expanded
+    - id: legal:money_transmission_detail
+      description: "State-by-state money transmitter analysis for escrow and crypto settlement"
+      type: risk_mitigation
+      stripe_coverage: "Stripe holds money transmitter licenses; platform pass-through is covered"
+      escrow_licensing_required: true
+      crypto_msb_registration: "FinCEN MSB registration required if platform touches USDC outside Stripe flow"
+      ny_bitlicense: "Required if serving NY customers with crypto settlement"
+      resolve_before: phase:v2.5
+      sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+
+  contract_templates:
+    - id: contract:consensusdocs_751
+      name: "ConsensusDocs 751 (Short Form)"
+      use_case: "Standard survey task orders"
+      auto_populated_from: "task spec + winning bid"
+      key_terms:
+        data_ownership: "Processed deliverables to client; raw data retained by operator for E&O defense"
+        liability_cap: "1x task fee"
+        indemnification: "Mutual, each party's percentage of negligence (ConsensusDocs model)"
+        dispute_resolution: "Negotiation -> mediation -> arbitration"
+        # [Entry 4] Billing format
+        billing_format: "AIA G702/G703 for progress billing"
+        # [Entry 4] Limitation of liability
+        limitation_of_liability: "Displayed at award time. Cap = 1x task fee."
+      digital_execution: "ESIGN/UETA compliant"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: contract:consensusdocs_750
+      name: "ConsensusDocs 750 (Long Form)"
+      use_case: "Larger or more complex survey contracts"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: contract:consensusdocs_752
+      name: "ConsensusDocs 752 (Federal)"
+      use_case: "Federal government construction subcontracts"
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+  insurance_requirements:
+    # [Entry 4] All 6 coverage types
+    private_project:
+      cgl: "$1M per occurrence / $2M aggregate"
+      eo: "$1M per claim / $2M aggregate"
+      drone_liability: "$1M per occurrence"
+      workers_comp: "Statutory"
+      umbrella_excess: "Not typically required"
+      commercial_auto: "$1M combined single limit"
+    dot_public_project:
+      cgl: "$2M per occurrence / $5M aggregate"
+      eo: "$2M per claim / $5M aggregate"
+      drone_liability: "$2M-$5M per occurrence"
+      workers_comp: "Statutory"
+      umbrella_excess: "$2M-$10M"
+      commercial_auto: "$1M-$2M combined single limit"
+    # [Entry 4] E&O tail coverage
+    eo_tail_policy:
+      type: claims_made
+      risk: "Operator who drops E&O after project exposes platform to downstream claims"
+      tail_coverage_minimum_years: 3
+      platform_enforcement: "Flag operators whose E&O lapses within tail period"
+    # [Entry 4] Statute of limitations affecting E&O
+    statute_of_limitations:
+      - {state: TX, years: 10, note: "Survey error claims"}
+      - {state: MI, years: 6, note: "Professional malpractice"}
+      - {state: AZ, years: 6, note: "Professional malpractice"}
+    sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+  # [Entry 4] Payment flow as first-class state machine
+  payment_flow:
+    description: "Legally-required payment chain from bond to closeout"
+    states:
+      - escrow_funded
+      - milestone_billed
+      - milestone_approved
+      - payment_released
+      - retainage_held
+      - retainage_released
+      - lien_waiver_exchanged
+      - closed
+    retainage:
+      default_pct: 10
+      michigan_reduction: "Reducible to 0% after 50% completion on public projects"
+      release_trigger: "Substantial completion + final inspection"
+    prompt_payment_timers:
+      - jurisdiction: MI
+        statute: "MCL 125.1561"
+        days_after_owner_payment: 10
+        penalty_monthly_pct: 1.5
+        exclusions: "MDOT projects, schools, contracts under $30K"
+      - jurisdiction: federal
+        statute: "Prompt Payment Act (31 USC 3901)"
+        days_after_acceptance: 30
+        penalty: "Per-diem interest at Treasury rate"
+    lien_waiver:
+      required: true
+      exchange_point: "After final payment, before closeout"
+      michigan_statute: "MCL 570.1101 et seq."
+    billing_format: "AIA G702/G703"
+    sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+
+  # [Entry 4] Data ownership as first-class entity
+  data_ownership:
+    raw_sensor_data:
+      owner: operator
+      rationale: "Retained for E&O liability defense"
+      retention_years: 7
+    processed_deliverables:
+      owner: client
+      transfer_trigger: "Final payment received"
+    derived_products:
+      owner: "Jointly licensed — client gets exclusive use for project; operator retains for portfolio/training"
+      note: "Who owns the 3D model generated from a point cloud the client paid for? Must be addressed in contract."
+    platform_data_rights:
+      task_metadata: "Platform retains anonymized task metadata for analytics and benchmarking"
+      bid_data: "Platform retains anonymized bid data for pricing intelligence"
+      training_data: "Platform may NOT use client deliverables for model training without explicit consent"
+    privacy:
+      neighboring_property:
+        risk: "Drone surveys near property boundaries can capture private data"
+        mitigation: "Privacy buffer zone configurable per task; default 50ft from boundary"
+        legal_basis: "United States v. Causby, Nevada drone trespass law"
+      pii_in_operator_profiles:
+        fields_affected: [pls_license_number, home_address, tax_id]
+        applicable_laws: [CCPA, state_privacy_laws]
+        classification: "PII — encrypted at rest, access-controlled"
+    sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+  # [Entry 4] Multi-state PLS licensing model
+  pls_licensing:
+    description: "Professional Land Surveyor licensing varies by state — marketplace must track per-state requirements"
+    states:
+      - state: MI
+        statute: "MCL 339.2001 et seq."
+        firm_authorization: "MCL 339.2007 — Certificate of Authorization required for firms"
+        continuing_education: "30 hours per biennial renewal"
+      - state: AZ
+        statute: "ARS 32-101 et seq."
+        reciprocity: "NCEES record accepted"
+        continuing_education: "30 hours per biennial renewal"
+      - state: NV
+        statute: "NRS 625"
+        reciprocity: "Comity with NCEES"
+        continuing_education: "30 hours per biennial renewal"
+      - state: NM
+        statute: "NMSA 61-23-1 et seq."
+        reciprocity: "NCEES record accepted"
+        continuing_education: "30 hours per biennial renewal"
+    sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+  michigan_specifics:
+    surveyor_licensing: "MCL 339.2001 et seq."
+    firm_authorization: "MCL 339.2007 — Certificate of Authorization required for firms"
+    continuing_education: "30 hours per biennial renewal"
+    payment_bond_threshold: "MCL 129.201 — public projects >= $50K"
+    prompt_payment: "MCL 125.1561 — 10 days after receiving owner payment, 1.5%/mo penalty"
+    prompt_payment_exclusions: "MDOT projects, schools, contracts under $30K"
+    lien_rights: "MCL 570.1107a-b — surveyors as 'design professionals' since 2018"
+    sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+# ============================================================
+# ARCHITECTURE — capabilities, components, MCP tools, settlement,
+#   execution stack, state machines, skills
+# [Entry 2] Added tool schemas, fixed state machines, added refund semantics
+# [Entry 2] Added scoring_profiles per vertical
+# [Entry 2] Added frontend component
+# [Entry 2] Added repos section for cross-repo coherence
+# ============================================================
+architecture:
+  capabilities:
+    - id: cap:task_posting
+      description: "Agent translates natural language into structured task spec with sensor, accuracy, deliverable requirements"
+      status: implemented
+      phase: phase:v1.0
+    - id: cap:reverse_auction
+      description: "RFQ auction — open indefinitely, agent controls close"
+      status: implemented
+      phase: phase:v1.0
+      decisions: [decision:PD-1]
+    - id: cap:automated_bidding
+      description: "Robots run bid_engine(task) -> Bid autonomously"
+      status: implemented
+      phase: phase:v1.0
+      decisions: [decision:PD-2]
+    - id: cap:bid_signing
+      description: "Every bid signed with ERC-8004 Ed25519 key"
+      status: implemented
+      phase: phase:v1.0
+      decisions: [decision:PD-3]
+    - id: cap:filter_then_score
+      description: "Two-phase matching: hard constraint filter then weighted scoring"
+      status: implemented
+      phase: phase:v1.0
+      decisions: [decision:AD-5, decision:AD-6]
+    - id: cap:fiat_settlement
+      description: "Stripe Connect Express + prepaid wallet model"
+      status: implemented
+      phase: phase:v1.0
+      decisions: [decision:TC-2]
+    - id: cap:crypto_settlement
+      description: "USDC on Base via x402 middleware"
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:TC-4]
+    - id: cap:settlement_abstraction
+      description: "4-mode interface supporting immediate/batched x transparent/private"
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:FD-1]
+    - id: cap:commitment_hash
+      description: "H(request_id || salt) in on-chain memos, never raw request_id"
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:FD-4]
+    - id: cap:hidden_wallet_addresses
+      description: "Robot wallet addresses never in public API responses"
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:PP-2]
+    - id: cap:award_confirmation
+      description: "Human reviews recommended winner with automated checks before work starts"
+      status: planned
+      phase: phase:v2.0
+      sources: [{path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md}]
+    - id: cap:multi_robot_workflows
+      description: "Compound tasks decomposed into ordered/parallel subtasks across robot types"
+      status: planned
+      phase: phase:v2.0
+    # [Entry 3] Manual-flagged task triage
+    - id: cap:manual_task_flagging
+      description: "Smart triage: tasks that require human specialists flagged and routed to specialist vendors"
+      status: planned
+      phase: phase:v2.0
+      example: "Task 3 flagged MANUAL — requires human tunnel survey manager"
+    - id: cap:privacy_tee
+      description: "TEE-based confidential compute for encrypted task matching"
+      status: planned
+      phase: phase:v2.0
+      decisions: [decision:PP-4]
+    - id: cap:dtn_batched_settlement
+      description: "Batched transparent settlement via DTN for lunar operations"
+      status: planned
+      phase: phase:v4.0
+      decisions: [decision:LD-8]
+
+  # [Entry 2] Scoring profiles per vertical
+  scoring_profiles:
+    - id: scoring:construction
+      vertical: vertical:construction
+      weights: {price: 0.40, sla: 0.25, confidence: 0.20, reputation: 0.15}
+      decisions: [decision:AD-6]
+    - id: scoring:mining
+      vertical: vertical:mining
+      weights: {price: 0.35, sla: 0.25, confidence: 0.20, reputation: 0.15, volumetric_accuracy: 0.05}
+    - id: scoring:infrastructure
+      vertical: vertical:infrastructure
+      weights: {price: 0.25, sla: 0.20, confidence: 0.15, reputation: 0.10, nbi_certification_match: 0.15, form_factor_availability: 0.15}
+    - id: scoring:lunar
+      vertical: null
+      weights: {price: 0.30, speed: 0.20, confidence: 0.15, track_record: 0.10, power_margin: 0.15, dust_exposure: 0.10}
+      decisions: [decision:LD-6]
+
+  components:
+    - id: component:auction_engine
+      path: auction/engine.py
+      description: "Task, Bid, AuctionResult, score_bids(), state machine"
+      decisions: [decision:PD-1, decision:PD-2, decision:AD-5, decision:AD-6, decision:AD-7, decision:AD-8]
+      impacts: [cap:reverse_auction, cap:automated_bidding, cap:filter_then_score]
+    - id: component:core
+      path: auction/core.py
+      description: "Task, Bid, AuctionResult dataclasses, signing"
+      decisions: [decision:PD-3, decision:AD-3]
+    - id: component:wallet
+      path: auction/wallet.py
+      description: "WalletLedger with debit/credit log"
+      decisions: [decision:TC-2]
+    - id: component:stripe_service
+      path: auction/stripe_service.py
+      description: "Stripe Connect Express + Separate Charges and Transfers"
+      decisions: [decision:TC-2, decision:TC-3]
+    - id: component:store
+      path: auction/store.py
+      description: "SQLite persistence via SyncTaskStore"
+    - id: component:discovery_bridge
+      path: auction/discovery_bridge.py
+      description: "ERC-8004 robot discovery"
+      consumes: [repo:yakrover-8004-mcp]
+    - id: component:mcp_server
+      path: src/core/server.py
+      description: "Fleet MCP server"
+    - id: component:mock_fleet
+      path: auction/mock_fleet.py
+      description: "Simulated robots for testing"
+    - id: component:escrow_contract
+      path: contracts/RobotTaskEscrow.sol
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:FD-1, decision:TC-4]
+    - id: component:settlement
+      path: auction/settlement.py
+      status: planned
+      phase: phase:v1.5
+      decisions: [decision:FD-1, decision:FD-4]
+    # [Entry 2] Frontend component
+    - id: component:frontend
+      path: demo/index.html
+      description: "Next.js landing page + demo with robot cards, live feed, auction flow"
+      status: implemented
+      phase: phase:v1.5
+      note: "Demo pricing ($0.25-$5.00 in schema.org) does not match construction pricing ($1,500-$5,000). Reconcile before launch."
+
+  # [Entry 2] External repos consumed by the marketplace
+  repos:
+    - id: repo:yakrover-8004-mcp
+      url: "https://github.com/YakRoboticsGarage/yakrover-8004-mcp"
+      consumed_by: component:discovery_bridge
+      provides:
+        - "ERC-8004 agent card with tool surface"
+        - "MCP tools for yakrover control"
+      agent_card_fields: [min_price, accepted_currencies, reputation_score, sensor_capabilities]
+      note: "External MCP server — agents must coordinate between this and component:mcp_server"
+    - id: repo:tumbller-8004-mcp
+      url: "https://github.com/YakRoboticsGarage/tumbller-8004-mcp"
+      erc8004: true
+    - id: repo:tello-8004-mcp
+      url: "https://github.com/YakRoboticsGarage/tello-8004-mcp"
+      erc8004: true
+    - id: repo:cryptobotics-whitepaper
+      url: "https://github.com/YakRoboticsGarage/cryptobotics-whitepaper"
+      note: "Whitepaper never referenced in v1.1 YAML — should be cited for vision section"
+
+  mcp_tools:
+    existing_count: 15
+    status_summary: "15 implemented, 3+ planned from gap analysis"
+    # [Entry 2] Full parameter/return/error schemas for each tool
+    existing:
+      - name: post_task
+        wraps: AuctionEngine.post_task
+        triggers_state: "null -> posted"
+        parameters:
+          - {name: description, type: string, required: true}
+          - {name: requirements, type: object, required: false}
+          - {name: max_price_usd, type: number, required: false}
+          - {name: deadline_seconds, type: integer, required: false}
+        returns: {type: Task, fields: [task_id, status, created_at]}
+        errors: [INVALID_TASK_SPEC, BELOW_MINIMUM_PRICE, INSUFFICIENT_FUNDS]
+      - name: submit_bid
+        wraps: AuctionEngine.submit_bid
+        triggers_state: "posted -> bidding"
+        parameters:
+          - {name: task_id, type: string, required: true}
+          - {name: robot_id, type: string, required: true}
+          - {name: price_usd, type: number, required: true}
+          - {name: sla_seconds, type: integer, required: true}
+          - {name: confidence, type: number, required: true}
+          - {name: signature, type: string, required: true}
+        returns: {type: Bid, fields: [bid_id, task_id, status]}
+        errors: [TASK_NOT_FOUND, TASK_NOT_ACCEPTING_BIDS, INVALID_SIGNATURE, PRICE_BELOW_MINIMUM]
+      - name: accept_bid
+        wraps: AuctionEngine.accept_bid
+        triggers_state: "bidding -> bid_accepted"
+        parameters:
+          - {name: task_id, type: string, required: true}
+          - {name: bid_id, type: string, required: true}
+        returns: {type: AuctionResult, fields: [task_id, winning_bid_id, status]}
+        errors: [TASK_NOT_FOUND, BID_NOT_FOUND, TASK_NOT_IN_BIDDING]
+      - name: auction_execute
+        wraps: AuctionEngine.execute
+        triggers_state: "bid_accepted -> in_progress"
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: Task, fields: [task_id, status]}
+        errors: [TASK_NOT_FOUND, TASK_NOT_ACCEPTED]
+      - name: confirm_delivery
+        wraps: AuctionEngine.confirm_delivery
+        triggers_state: "delivered -> verified"
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: Task, fields: [task_id, status, settlement_receipt]}
+        errors: [TASK_NOT_FOUND, TASK_NOT_DELIVERED]
+      - name: reject_delivery
+        wraps: AuctionEngine.reject_delivery
+        triggers_state: "delivered -> rejected"
+        parameters:
+          - {name: task_id, type: string, required: true}
+          - {name: reason, type: string, required: true}
+        returns: {type: Task, fields: [task_id, status]}
+        errors: [TASK_NOT_FOUND, TASK_NOT_DELIVERED]
+      - name: cancel_task
+        wraps: AuctionEngine.cancel_task
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: Task, fields: [task_id, status]}
+        errors: [TASK_NOT_FOUND, TASK_IN_PROGRESS]
+      - name: auction_get_status
+        note: "Returns available_actions list (AD-14) and next_action hint (AD-13)"
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: TaskStatus, fields: [task_id, status, available_actions, next_action]}
+        errors: [TASK_NOT_FOUND]
+      - name: auction_quick_hire
+        note: "Single tool for entire lifecycle — post, bid, accept, execute, confirm (AD-12)"
+        parameters:
+          - {name: description, type: string, required: true}
+          - {name: robot_id, type: string, required: true}
+          - {name: max_price_usd, type: number, required: false}
+        returns: {type: AuctionResult, fields: [task_id, winning_bid_id, status]}
+        errors: [INVALID_TASK_SPEC, ROBOT_NOT_FOUND, INSUFFICIENT_FUNDS]
+      - name: auction_fund_wallet
+        wraps: WalletLedger.credit
+        parameters:
+          - {name: robot_id, type: string, required: true}
+          - {name: amount_usd, type: number, required: true}
+        returns: {type: WalletBalance, fields: [robot_id, balance_usd]}
+        errors: [ROBOT_NOT_FOUND, INVALID_AMOUNT]
+      # [Entry 2] 5 previously unaccounted tools
+      - name: get_bids
+        wraps: AuctionEngine.get_bids
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: list, items: Bid}
+        errors: [TASK_NOT_FOUND]
+      - name: get_task
+        wraps: AuctionEngine.get_task
+        parameters:
+          - {name: task_id, type: string, required: true}
+        returns: {type: Task}
+        errors: [TASK_NOT_FOUND]
+      - name: list_tasks
+        wraps: AuctionEngine.list_tasks
+        parameters:
+          - {name: status, type: string, required: false}
+        returns: {type: list, items: Task}
+        errors: []
+      - name: get_wallet_balance
+        wraps: WalletLedger.balance
+        parameters:
+          - {name: robot_id, type: string, required: true}
+        returns: {type: WalletBalance, fields: [robot_id, balance_usd]}
+        errors: [ROBOT_NOT_FOUND]
+      - name: deliver_task
+        wraps: AuctionEngine.deliver
+        triggers_state: "in_progress -> delivered"
+        parameters:
+          - {name: task_id, type: string, required: true}
+          - {name: deliverable_url, type: string, required: false}
+        returns: {type: Task, fields: [task_id, status]}
+        errors: [TASK_NOT_FOUND, TASK_NOT_IN_PROGRESS]
+    planned:
+      - name: plan_flight
+        status: planned
+        gap_reference: unknown:flight_planning_api
+        description: "Convert boundary polygon + sensor + altitude + overlap into waypoints"
+        parameters:
+          - {name: boundary, type: "GeoJSON Polygon", required: true}
+          - {name: sensor_id, type: string, required: true}
+          - {name: altitude_agl_m, type: number, required: true}
+          - {name: overlap_pct, type: number, required: true, default: 70}
+        returns: {type: FlightPlan, fields: [waypoints, estimated_duration_min, estimated_coverage_km2]}
+        errors: [INVALID_BOUNDARY, SENSOR_NOT_FOUND, ALTITUDE_OUT_OF_RANGE]
+        sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+      - name: validate_capture
+        status: planned
+        gap_reference: unknown:infield_qc
+        description: "Check point density, coverage, GSD against task spec before declaring complete"
+        parameters:
+          - {name: task_id, type: string, required: true}
+          - {name: capture_path, type: string, required: true}
+        returns: {type: QCReport, fields: [pass, point_density_achieved, coverage_pct, gsd_cm, accuracy_estimate]}
+        errors: [TASK_NOT_FOUND, CAPTURE_NOT_FOUND, QC_CHECK_FAILED]
+        sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+      - name: file_laanc
+        status: identified
+        description: "File LAANC authorization via Aloft/DroneUp API"
+        parameters:
+          - {name: boundary, type: "GeoJSON Polygon", required: true}
+          - {name: max_altitude_agl_ft, type: number, required: true}
+          - {name: date, type: string, required: true}
+        returns: {type: LANCAuth, fields: [authorization_id, status, expires_at]}
+        errors: [AIRSPACE_DENIED, INVALID_BOUNDARY, API_UNAVAILABLE]
+        sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+  settlement:
+    interface:
+      name: SettlementInterface
+      methods: [settle, verify, batch_settle, refund]
+      decisions: [decision:FD-1]
+      # [Entry 2] Refund semantics
+      refund_definition:
+        signature: "refund(receipt: SettlementReceipt, reason: RefundReason, amount: Decimal) -> RefundReceipt"
+        reasons: [buyer_timeout, delivery_failure, dispute_resolution, partial_quality_failure]
+        refund_receipt_fields: [original_receipt_id, refund_amount, refund_reason, refund_tx_hash, timestamp]
+        mode_constraints:
+          immediate: "Refund processed immediately on Base"
+          batched: "Refund queued in next DTN bundle — cannot claw back in-transit bundles"
+          private: "Refund uses same shielded channel as original settlement"
+      # [Entry 4] Hold for disputes
+      hold_pending_dispute:
+        signature: "hold(receipt: SettlementReceipt, dispute_id: str) -> HoldReceipt"
+        description: "Freezes escrowed funds during dispute resolution"
+    modes:
+      - id: settlement:immediate_transparent
+        timing: immediate
+        privacy: transparent
+        chain: base
+        protocol: x402
+        currency: usdc
+        version_implemented: "v1.5"
+        escrow_contract: component:escrow_contract
+        commitment_hash: "H(request_id || salt)"
+        decisions: [decision:FD-1, decision:FD-4, decision:TC-4]
+      - id: settlement:immediate_private
+        timing: immediate
+        privacy: shielded
+        chain: base_horizen_l3
+        protocol: null
+        currency: usdc
+        version_implemented: null
+        version_designed: "v3.0"
+        notes: "Horizen L3 on Base — TEE-based compliant privacy, same EVM. Eval in v1.5 (feature:F-12)."
+        decisions: [decision:FD-5]
+      - id: settlement:batched_transparent
+        timing: batched
+        privacy: transparent
+        chain: base
+        protocol: dtn_settlement_bundle
+        currency: usdc
+        version_implemented: null
+        version_designed: "v4.0"
+        notes: "Lunar operations — settlement queued until comm window"
+        decisions: [decision:LD-8]
+      - id: settlement:batched_private
+        timing: batched
+        privacy: shielded
+        chain: null
+        version_implemented: null
+        version_designed: "v3.0+"
+        notes: "Convergence of lunar + privacy tracks"
+    payment_split:
+      on_acceptance_pct: 25
+      on_delivery_pct: 75
+      decisions: [decision:PD-4]
+      canonical: true  # [Entry 5] marks this as the canonical location (vs pol:payment_split)
+    privacy_constraints:
+      - rule: "Robot wallet addresses NEVER in API responses"
+        decisions: [decision:PP-2]
+        enforced_at: api_layer
+      - rule: "Commitment hash, never raw request_id, in on-chain memos"
+        decisions: [decision:FD-4]
+        enforced_at: settlement_layer
+      - rule: "No new metadata fields on ERC-8004 entries"
+        enforced_at: discovery_bridge
+    sources: [{path: docs/FEATURE_REQUIREMENTS_v15.md}]
+
+  execution_stack:
+    sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+    layers:
+      # [Entry 2] Added layer_contract with inputs/outputs/passes_to
+      - id: layer:0_regulatory
+        name: "Regulatory Compliance"
+        description: "LAANC, 811 notification, COA, PE oversight"
+        automation_level: partial
+        human_required: true
+        gap_severity: low
+        owner: operator
+        layer_contract:
+          inputs: [task_spec.regulatory_requirements, site_recon.airspace_class]
+          outputs: [laanc_authorization, pe_oversight_assignment, safety_plan]
+          passes_to: layer:1_site_access
+
+      - id: layer:1_site_access
+        name: "Site Access"
+        description: "Physical transport to launch position, gate access, safety compliance"
+        automation_level: none
+        human_required: true
+        gap_severity: medium
+        owner: operator
+        note: "LOW for on-site robots, HIGH for remote deployment"
+        layer_contract:
+          inputs: [laanc_authorization, site_recon.boundary_polygon, safety_plan]
+          outputs: [robot_at_launch_position, site_conditions_confirmed]
+          passes_to: layer:2_mission_planning
+
+      - id: layer:2_mission_planning
+        name: "Mission Planning"
+        description: "Convert boundary + spec into flight plan / scan plan"
+        automation_level: none
+        human_required: true  # currently
+        gap_severity: high
+        planned_tool: plan_flight
+        depends_on: [layer:1_site_access]
+        inputs_from: [skill:rfp_to_site_recon, skill:rfp_to_robot_spec]
+        layer_contract:
+          inputs:
+            - {field: boundary_polygon, from: skill:rfp_to_site_recon, format: "GeoJSON Polygon"}
+            - {field: airspace_class, from: skill:rfp_to_site_recon}
+            - {field: obstacles_within_1nm, from: skill:rfp_to_site_recon}
+            - {field: sensor_requirements, from: skill:rfp_to_robot_spec}
+            - {field: accuracy_required, from: skill:rfp_to_robot_spec}
+          outputs: [flight_plan, scan_plan, estimated_duration]
+          passes_to: layer:3_mission_execution
+
+      - id: layer:3_mission_execution
+        name: "Mission Execution"
+        description: "Fly the plan, avoid obstacles, handle weather holds"
+        automation_level: partial
+        human_required: false
+        gap_severity: medium
+        depends_on: [layer:2_mission_planning]
+        note: "Handled by robot firmware (DJI Pilot, Skydio autonomy, Spot API)"
+        layer_contract:
+          inputs: [flight_plan, weather_clearance]
+          outputs: [raw_sensor_data, flight_log, coverage_report]
+          passes_to: layer:4_infield_qc
+
+      - id: layer:4_infield_qc
+        name: "In-Field Quality Control"
+        description: "Validate capture quality before declaring mission complete"
+        automation_level: none
+        human_required: true  # currently
+        gap_severity: high
+        planned_tool: validate_capture
+        depends_on: [layer:3_mission_execution]
+        checks:
+          - {name: point_density_vs_spec, threshold_source: "task_spec.accuracy_required.point_density"}
+          - {name: coverage_completeness, threshold: ">=95%"}
+          - {name: gsd_achieved, threshold_source: "task_spec.accuracy_required.gsd_cm"}
+          - {name: accuracy_estimate, threshold_source: "task_spec.accuracy_required.vertical_ft"}
+        layer_contract:
+          inputs: [raw_sensor_data, task_spec.accuracy_required]
+          outputs: [qc_report, pass_fail_status]
+          passes_to: layer:5_deliverable_generation
+
+      - id: layer:5_deliverable_generation
+        name: "Deliverable Generation"
+        description: "Raw data -> processed outputs (DTM, ortho, contours, reports)"
+        automation_level: partial
+        human_required: true  # format conversion to agency standards
+        gap_severity: medium
+        depends_on: [layer:4_infield_qc]
+        processing_models: [operator_processes, platform_saas, marketplace_task]
+        layer_contract:
+          inputs: [raw_sensor_data, qc_report, task_spec.deliverable_formats]
+          outputs: [processed_deliverables, pe_review_package]
+          passes_to: null  # terminal layer
+
+    coverage_summary:
+      skills_cover: "Layer 0 (identified, not executed) + Layer 2 inputs (boundary, constraints)"
+      auction_covers: "Operator selection (right robot, certs, location)"
+      missing: "Layer 2 (flight planning API), Layer 4 (in-field QC), Layer 5 (automated processing)"
+
+  state_machines:
+    task_lifecycle:
+      initial_state: posted
+      terminal_states: [settled, withdrawn, cancelled, failed]
+      sources: [{path: docs/DECISIONS.md, section: "AD-8"}]
+      # [Entry 2] Added re_pooled and expired states
+      # [Entry 4] Added disputed state
+      states:
+        posted:
+          transitions:
+            - {to: bidding, trigger: first_bid_received}
+            - {to: withdrawn, trigger: poster_withdraws}
+            - {to: expired, trigger: deadline_reached}
+        bidding:
+          transitions:
+            - {to: bid_accepted, trigger: poster_accepts_bid}
+            - {to: withdrawn, trigger: poster_withdraws}
+            - {to: expired, trigger: deadline_reached}
+        bid_accepted:
+          transitions:
+            - {to: in_progress, trigger: operator_begins_work}
+            - {to: re_pooled, trigger: operator_rejects}
+            - {to: re_pooled, trigger: operator_timeout}
+        re_pooled:
+          description: "Task returns to bidding pool after operator rejection or timeout"
+          transitions:
+            - {to: bidding, trigger: re_opened}
+            - {to: withdrawn, trigger: poster_withdraws}
+        in_progress:
+          transitions:
+            - {to: delivered, trigger: operator_delivers}
+            - {to: re_pooled, trigger: operator_abandons}
+          timeout: {source: "task.sla_seconds", on_expire: abandon_and_repool}
+        delivered:
+          transitions:
+            - {to: verified, trigger: poster_verifies}
+            - {to: in_progress, trigger: poster_rejects, action: request_redelivery}
+            - {to: disputed, trigger: operator_contests_rejection}
+          timeout: {duration_seconds: 3600, on_expire: auto_accept, decisions: [decision:AD-7]}
+        # [Entry 4] Disputed state with financial holds
+        disputed:
+          description: "Buyer rejected delivery and operator contests — funds held pending resolution"
+          transitions:
+            - {to: mediation, trigger: mediation_initiated}
+            - {to: verified, trigger: dispute_resolved_for_operator}
+            - {to: re_pooled, trigger: dispute_resolved_for_buyer}
+          settlement_action: hold_pending_dispute
+          routing:
+            under_25k: fast_track
+            over_25k: standard
+        mediation:
+          transitions:
+            - {to: arbitration, trigger: mediation_failed}
+            - {to: verified, trigger: mediation_resolved_for_operator}
+            - {to: cancelled, trigger: mediation_resolved_for_buyer}
+        arbitration:
+          transitions:
+            - {to: verified, trigger: arbitration_for_operator}
+            - {to: cancelled, trigger: arbitration_for_buyer}
+        verified:
+          transitions: [{to: settled, trigger: settlement_complete}]
+        settled: {transitions: []}
+        withdrawn: {transitions: []}
+        cancelled: {transitions: []}
+        failed: {transitions: []}
+        expired:
+          description: "Task deadline reached without completion"
+          transitions:
+            - {to: cancelled, trigger: poster_cancels}
+            - {to: bidding, trigger: poster_extends_deadline}
+
+    award_confirmation:
+      sources: [{path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md}]
+      # [Entry 2] Explicit join point to task_lifecycle
+      joins_task_lifecycle_at: bid_accepted
+      states:
+        auction_complete:
+          transitions: [{to: recommended, trigger: scoring_complete}]
+        recommended:
+          transitions:
+            - {to: award_confirmed, trigger: buyer_confirms}
+            - {to: award_rejected, trigger: buyer_rejects}
+          timeout: {duration_hours: 72, reminder: true, expire_days: 7}
+        award_rejected:
+          transitions:
+            - {to: recommended, trigger: next_bidder_promoted}
+            - {to: re_pooled, trigger: all_bidders_exhausted}
+          rejection_reasons: [conflict_of_interest, insufficient_insurance, dbe_shortfall, prohibited_vendor, prior_bad_experience, pls_not_licensed, debarment]
+        award_confirmed:
+          transitions: [{to: agreement_pending, trigger: subcontract_generated}]
+        agreement_pending:
+          transitions: [{to: awarded, trigger: both_parties_sign}]
+        awarded:
+          transitions: [{to: bid_accepted, trigger: work_authorized, note: "Joins task_lifecycle.bid_accepted"}]
+
+    # [Entry 4] Payment flow state machine
+    payment_lifecycle:
+      sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+      initial_state: escrow_funded
+      terminal_states: [closed]
+      states:
+        escrow_funded:
+          transitions: [{to: milestone_billed, trigger: operator_submits_invoice}]
+        milestone_billed:
+          transitions:
+            - {to: milestone_approved, trigger: buyer_approves}
+            - {to: milestone_billed, trigger: buyer_requests_revision}
+        milestone_approved:
+          transitions: [{to: payment_released, trigger: payment_processed}]
+          prompt_payment_timer: true
+        payment_released:
+          transitions: [{to: retainage_held, trigger: retainage_withheld}]
+        retainage_held:
+          transitions: [{to: retainage_released, trigger: substantial_completion}]
+        retainage_released:
+          transitions: [{to: lien_waiver_exchanged, trigger: waiver_signed}]
+        lien_waiver_exchanged:
+          transitions: [{to: closed, trigger: closeout_complete}]
+        closed: {transitions: []}
+
+  skills:
+    # [Entry 2] Expanded with references, validation_scripts, examples
+    - id: skill:rfp_to_robot_spec
+      status: implemented
+      version: "1.0"
+      description: "Extract task specification from an RFP document"
+      inputs: [rfp_document]
+      outputs:
+        - sensor_requirements
+        - accuracy_requirements
+        - deliverable_formats
+        - budget_ceiling_usd
+        - regulatory_requirements
+      references:
+        - path: .claude/skills/rfp-to-robot-spec/michigan-standards.md
+        - path: .claude/skills/rfp-to-robot-spec/aashto-federal-standards.md
+        - path: .claude/skills/rfp-to-robot-spec/robot-sensor-mapping.md
+      validation_scripts:
+        - path: .claude/skills/rfp-to-robot-spec/validate_task_spec.py
+      examples_directory: .claude/skills/rfp-to-robot-spec/examples/
+      example_count: 7
+      execution_stack_coverage: {layer_0: identifies_requirements, layer_2: provides_inputs}
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+    - id: skill:rfp_to_site_recon
+      status: implemented
+      version: "1.0"
+      description: "Generate execution context from RFP + public data sources"
+      inputs: [rfp_document, skill:rfp_to_robot_spec.outputs]
+      outputs:
+        - boundary_polygon
+        - airspace_class
+        - obstacles
+        - weather_norms
+        - unknowns
+        - pre_mobilization_checklist
+      references:
+        - path: .claude/skills/rfp-to-site-recon/public-data-sources.md
+      validation_scripts:
+        - path: .claude/skills/rfp-to-site-recon/validate_site_recon.py
+      execution_stack_coverage: {layer_0: flags_constraints, layer_2: provides_inputs}
+      staleness_policy: {max_age_days: 90, fields_affected: [airspace_class, obstacles, weather_norms]}
+      sources: [{path: docs/research/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md}]
+
+# ============================================================
+# TRANSFER MAP — Earth to Lunar capability transfer
+# [Entry 1] Added lunar business model
+# [Entry 5] Equipment refs use IDs, not prose names
+# ============================================================
+transfer_map:
+  sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+  sensors_that_transfer:
+    - sensor: LiDAR
+      equipment_refs: [equipment:zenmuse_l2, equipment:spot_blk_arc]
+      earth_use: "Topographic survey, DTM generation, volumetrics"
+      lunar_use: "Terrain mapping at Shackleton Crater rim"
+      transfers: true
+      note: "Works better in vacuum — no atmospheric scattering"
+    - sensor: RTK-GPS
+      earth_use: "Centimeter positioning for survey accuracy"
+      lunar_use: "Replaced by LunaNet positioning beacons"
+      transfers: false
+      replacement: "NASA LunaNet"
+    - sensor: Photogrammetry
+      equipment_refs: [equipment:zenmuse_p1]
+      earth_use: "3D models, orthomosaics, structure documentation"
+      lunar_use: "Boulder field characterization, crater morphology"
+      transfers: true
+    - sensor: GPR
+      earth_use: "Subsurface utility detection, soil profiling"
+      lunar_use: "Regolith depth and ice concentration profiling for ISRU"
+      transfers: true
+    - sensor: Thermal_IR
+      earth_use: "Insulation defects, water infiltration"
+      lunar_use: "Critical for -173C to +127C surface temperature swing management"
+      transfers: true
+    - sensor: IMU
+      earth_use: "Navigation stabilization"
+      lunar_use: "Navigation in reduced gravity (1/6 g)"
+      transfers: true
+
+  workflows_that_transfer:
+    - earth: "Pre-bid topographic survey"
+      lunar: "Terrain mapping for pad siting"
+      transfer_quality: direct
+    - earth: "Existing condition documentation"
+      lunar: "Boulder field and crater characterization"
+      transfer_quality: direct
+    - earth: "Subsurface GPR assessment"
+      lunar: "Regolith depth and ice profiling for ISRU"
+      transfer_quality: direct
+    - earth: "Progress monitoring (cut/fill)"
+      lunar: "Tracking autonomous excavation of landing pads"
+      transfer_quality: direct
+    - earth: "As-built verification"
+      lunar: "Habitat foundation confirmation before pressurization"
+      transfer_quality: direct
+
+  software_that_transfers:
+    - "Auction engine and scoring function"
+    - "Agent orchestration and task decomposition"
+    - "ERC-8004 identity and reputation system"
+    - "Point cloud classification and terrain modeling"
+    - "Volumetric computation and deviation analysis"
+    - "Deliverable pipeline and format conversion"
+
+  gaps_lunar_requires:
+    sources: [{path: docs/ROADMAP_v4.md}]
+    items:
+      - "Radiation-hardened electronics"
+      - "Vacuum-rated mechanical systems"
+      - "DTN/Bundle Protocol communication (RFC 9171) tolerating multi-hour blackouts"
+      - "Reduced gravity navigation (1/6 g)"
+      - "Regolith dust mitigation for optics and mechanisms"
+      - "Solar/RTG power management with lunar night hibernation"
+      - "Thin Moon-side agent: minimal C/Rust state machine (not Python)"
+      - "Checkpoint-and-resume for 14-day lunar night transitions"
+
+  lunar_task_spec_extensions:
+    sources: [{path: docs/ROADMAP_v4.md}]
+    fields:
+      - thermal_window
+      - power_budget_wh
+      - illumination_required
+      - comm_window_required
+
+  # [Entry 1] Lunar business model — who pays and how
+  lunar_business_model:
+    gravity_effect: "The lunar narrative is only credible if the business model transfers, not just the sensors."
+    open_questions:
+      - "NASA CLPS contracts are firm-fixed-price to payload providers, not reverse-auction"
+      - "Who is the buyer: NASA directly, CLPS payload provider, or commercial lunar company?"
+      - "Auction mechanism may need adaptation: pre-qualified pool + task order, not open RFQ"
+    procurement_vehicles:
+      - {name: "CLPS", type: firm_fixed_price, buyer: NASA, relevance: "Task orders to pre-qualified providers"}
+      - {name: "Artemis support", type: cost_plus, buyer: NASA, relevance: "Survey work as subcontract"}
+      - {name: "Commercial lunar", type: negotiated, buyer: "ispace/Astrobotic/Intuitive Machines", relevance: "Most auction-compatible"}
+
+# ============================================================
+# ROADMAP — capability unlock sequence with gates
+# [Entry 5] Added resolves: links from phases to unknowns
+# ============================================================
+roadmap:
+  phases:
+    - id: phase:v1.0
+      label: "Auction Engine (Warehouse + Fiat)"
+      status: built
+      personas: [persona:sarah, persona:claude_agent]
+      stats: {tests: 151, mcp_tools: 15, loc: 11400}
+      resolves: []
+      capabilities_unlocked:
+        - "Auction core: Task, Bid, AuctionResult, score_bids()"
+        - "Hard constraint filter + 4-factor weighted scoring"
+        - "HMAC + ERC-8004 Ed25519 bid signing"
+        - "Failure recovery: robot offline, bad payload, auto-accept timer"
+        - "Internal wallet ledger with debit/credit log"
+        - "Stripe Connect Express payouts"
+        - "SQLite persistence via SyncTaskStore"
+        - "15 MCP tools including auction_quick_hire"
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    - id: phase:v1.5
+      label: "Crypto Rail + Construction Wedge"
+      status: next
+      timeline: "Weeks 13-16 (4 weeks)"
+      personas: [persona:marco, persona:controller]
+      features: [feature:F-1, feature:F-2, feature:F-3, feature:F-4, feature:F-5, feature:F-6, feature:F-7, feature:F-8, feature:F-9, feature:F-10, feature:F-11, feature:F-12]
+      decisions: [decision:FD-1, decision:FD-2, decision:FD-3, decision:FD-4, decision:FD-5, decision:PP-2]
+      resolves: [unknown:operator_adoption, unknown:horizen_l3_viability]
+      entry_gate: "v1.0 complete (151 tests passing)"
+      capabilities_unlocked:
+        - "x402 USDC payment on Base"
+        - "RobotTaskEscrow.sol with 4-mode settlement interface"
+        - "Commitment hash in on-chain memos"
+        - "Robot wallet addresses hidden from API"
+        - "Construction task spec extensions (survey_type, accuracy, deliverables, weather)"
+        - "Payment bond verification"
+        - "Basic COI and PLS license capture"
+        - "ERC-8004 agent card: min_price, accepted_currencies, reputation_score, sensor_capabilities"
+        - "Encrypted task specs at rest"
+        - "DTN message schema (design only)"
+        - "BBS+ credential schema (design only)"
+        - "Horizen L3 testnet evaluation"
+        - "Next.js landing page with intent capture"
+        - "CI/CD: GitHub Actions"
+      sources: [{path: docs/FEATURE_REQUIREMENTS_v15.md}]
+
+    - id: phase:v2.0
+      label: "Multi-Robot Workflows + Operator Dashboard"
+      status: future
+      timeline: "Weeks 17-28 (12 weeks)"
+      personas: [persona:marco, persona:alex, persona:diane]
+      resolves: [unknown:flight_planning_api, unknown:autonomous_terrain_nav, unknown:infield_qc, unknown:payment_bond_scale, unknown:regulatory_autonomous_drone]
+      entry_gate: "v1.5 complete; 5+ operators registered"
+      capabilities_unlocked:
+        - "Compound task decomposition (aerial + ground + GPR)"
+        - "Award confirmation flow with automated pre-award checks"
+        - "Auto-generated subcontracts (ConsensusDocs 751)"
+        - "Automated ACORD 25 COI parsing"
+        - "PLS license board API integration (starting AZ, NV, NM, MI)"
+        - "DBE tracking for federally-funded projects"
+        - "Operator dashboard with demand heatmap"
+        - "Weather-aware scheduling via NOAA API"
+        - "TEE-based encrypted task matching (Diane)"
+        - "Frontend Phase 2-3: payment flow, live auction, WalletConnect"
+        - "Manual-flagged task triage (robot vs human specialist)"
+        - "Debarment check via SAM.gov API"
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    - id: phase:v2.5
+      label: "Mining Expansion + Payment Maturation"
+      status: future
+      timeline: "Weeks 29-36 (8 weeks)"
+      personas: [persona:mine_surveyor]
+      resolves: [unknown:money_transmission_escrow]
+      entry_gate: "v2.0 complete; proven multi-robot workflows"
+      capabilities_unlocked:
+        - "Mining task spec extensions (volumetric_stockpile, blast_pattern, highwall_stability)"
+        - "Escrow milestone management (rolling escrow)"
+        - "Retainage tracking (5-10%, reducible after 50% completion in MI)"
+        - "Lien waiver exchange automation"
+        - "MDOT 10-day prompt payment compliance tracking"
+        - "Payment lifecycle state machine (escrow_funded -> closed)"
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    - id: phase:v3.0
+      label: "Infrastructure + Privacy"
+      status: future
+      timeline: "Weeks 37-48 (12 weeks)"
+      personas: [persona:bridge_pm, persona:diane]
+      resolves: [unknown:eu_amlr_interpretation]
+      entry_gate: "Operator network density > 15 robots/metro; Horizen L3 eval complete"
+      capabilities_unlocked:
+        - "Bridge inspection task specs (NBI element-level ratings)"
+        - "Specialized form factors: Flyability ELIOS 3, Gecko TOKA"
+        - "Delegated ZK proofs for task verification"
+        - "Horizen L3 Mode 2 settlement (if eval positive)"
+        - "BBS+ anonymous reputation at operational scale"
+        - "Government contract compliance: encrypted specs, audit trails, viewer keys"
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+    - id: phase:v4.0
+      label: "Lunar Operations"
+      status: future
+      timeline: "2028+"
+      personas: [persona:kenji]
+      resolves: [unknown:lunar_comm_relay]
+      entry_gate: "Proven auction engine + agent layer + supply network + reputation system with 1000+ completed tasks"
+      capabilities_unlocked:
+        - "DTN/Bundle Protocol (RFC 9171) for Moon-Earth messaging"
+        - "Thin Moon-side agent: C/Rust state machine"
+        - "Lunar task spec extensions"
+        - "Mode 3 batched transparent settlement"
+        - "Checkpoint-and-resume for lunar night"
+        - "Lunar night queue: tasks with TTL auto-execute at dawn"
+      success_criteria:
+        - "Task dispatched from Earth, executed by simulated rover via DTN, verified, settled on Base"
+        - "Bid window handles 3-8 second RTT without protocol failure"
+        - "All protocol messages are idempotent DTN bundles tolerating replay and reordering"
+      sources: [{path: docs/ROADMAP_v4.md}]
+
+  milestones:
+    - id: milestone:first_10_gc_customers
+      gate_for: phase:v2.0
+      condition: "10 GC customers signed, construction surveys completed"
+    - id: milestone:operator_density
+      gate_for: phase:v3.0
+      condition: "15+ robots per target metro (Phoenix, Tucson, Albuquerque)"
+    - id: milestone:1000_completed_tasks
+      gate_for: phase:v4.0
+      condition: "1000+ completed tasks with functional reputation system"
+
+# ============================================================
+# FEATURES — explicit feature entities to resolve ghost references
+# [Entry 5] These were previously referenced as F-1..F-12 but never defined
+# ============================================================
+features:
+  - id: feature:F-1
+    name: "Settlement Abstraction Layer"
+    decisions: [decision:FD-1]
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-2
+    name: "RobotTaskEscrow.sol Smart Contract"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-3
+    name: "x402 USDC Payment Integration"
+    decisions: [decision:TC-4]
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-4
+    name: "Commitment Hash in On-Chain Memos"
+    decisions: [decision:FD-4]
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-5
+    name: "SettlementReceipt Dataclass"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-6
+    name: "Construction Task Spec Extensions"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-7
+    name: "Structured Error Codes (AD-15)"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-8
+    name: "Hidden Wallet Addresses"
+    decisions: [decision:PP-2]
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-9
+    name: "Encrypted Task Specs at Rest"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-10
+    name: "DTN Message Schema (Design Only)"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-11
+    name: "BBS+ Credential Schema (Design Only)"
+    phase: phase:v1.5
+    status: planned
+  - id: feature:F-12
+    name: "Horizen L3 Testnet Evaluation"
+    decisions: [decision:FD-5]
+    phase: phase:v1.5
+    status: planned
+
+# ============================================================
+# GTM — go-to-market strategy (separate from roadmap)
+# ============================================================
+gtm:
+  first_customers:
+    who: "Estimators at mid-size civil GCs ($50-500M revenue)"
+    where: "Arizona, Nevada, New Mexico (secondary: Michigan)"
+    pain: "Survey scheduling bottleneck costs 2-3 missed bids/quarter (~$500K-$1M per missed bid)"
+    discretionary_budget: "$15K per bid for pre-construction services"
+    target_count: 10
+    sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+
+  channels:
+    - name: "Direct outreach to ENR Top 400 regional firms"
+      stage: phase:v1.5
+    - name: "Operator demand heatmap showing unserved task locations"
+      stage: phase:v2.0
+    - name: "MDOT/ADOT pilot program for UAS survey services"
+      stage: phase:v2.0
+      evidence: "MDOT already has 'UAS Systems Development Consulting Service' RFP"
+      sources: [{path: docs/research/RESEARCH_MICHIGAN_RFP_EXAMPLES.md}]
+    - name: "Construction technology conferences (CONEXPO-CON/AGG)"
+      stage: phase:v2.0
+
+  messaging:
+    to_buyers: "Get bid-ready site data in 3 days, not 12. Your AI assistant handles the robots."
+    to_operators: "Fill your idle days. Get paid in 24 hours. No client acquisition cost."
+    to_investors: "Every task Marco hires robots for has a lunar analog. The path from Phoenix to Shackleton Crater is a graduation, not a pivot."
+
+  terminology:
+    brand: "Robot Marketplace — memorable, clear, industry warming to 'robotics' in company names"
+    in_ui: "drone (for aerial), robot (for legged), autonomous equipment (for heavy machinery)"
+    in_specs: "UAS (government contexts), autonomous survey platform (formal)"
+    sources: [{path: docs/research/RESEARCH_TERMINOLOGY_ROBOT_VS_INDUSTRY.md}]
+
+# ============================================================
+# CONSTITUTIONAL — system invariants vs policies
+# [Entry 2] Added test_id and ci_gate to invariants
+# ============================================================
+constitutional:
+  invariants:
+    - id: inv:wallet_non_negative
+      rule: "Wallet balances must never go negative under any scenario"
+      enforced_at: wallet_ledger
+      test_id: "test_wallet_never_negative"
+      ci_gate: "uv run pytest auction/tests/test_wallet.py -k negative"
+      sources: [{path: CLAUDE.md}]
+
+    - id: inv:bid_signing
+      rule: "Bids are signed and non-repudiable from day one"
+      decisions: [decision:PD-3]
+      enforced_at: bid_submission
+      test_id: "test_bid_signature_required"
+      ci_gate: "uv run pytest auction/tests/test_core.py -k signing"
+      sources: [{path: docs/DECISIONS.md}]
+
+    - id: inv:no_wallet_in_api
+      rule: "Robot wallet addresses never appear in API responses"
+      decisions: [decision:PP-2]
+      enforced_at: api_layer
+      test_id: "test_no_wallet_in_response"
+      ci_gate: "grep -r 'wallet_address' auction/ --include='*.py' | grep -v test | grep -v '#'"
+      sources: [{path: docs/FEATURE_REQUIREMENTS_v15.md}]
+
+    - id: inv:commitment_hash_only
+      rule: "On-chain memos carry only H(request_id || salt), never raw request_id"
+      decisions: [decision:FD-4]
+      enforced_at: settlement_layer
+      test_id: "test_commitment_hash_not_raw_id"
+      sources: [{path: docs/FEATURE_REQUIREMENTS_v15.md}]
+
+    - id: inv:idempotent_payments
+      rule: "All payment operations must be idempotent — handle retries safely"
+      enforced_at: settlement_layer
+      test_id: "test_payment_idempotency"
+      sources: [{path: CLAUDE.md}]
+
+    - id: inv:no_hardcoded_keys
+      rule: "NEVER hardcode Stripe API keys, wallet private keys, or USDC addresses in source"
+      enforced_at: code_review
+      ci_gate: "uv run ruff check auction/ --select S105,S106"
+      sources: [{path: CLAUDE.md}]
+
+    - id: inv:payment_audit_trail
+      rule: "Every payment state change logged to SQLite audit trail"
+      enforced_at: settlement_layer
+      test_id: "test_audit_trail_completeness"
+      sources: [{path: CLAUDE.md}]
+
+    - id: inv:minimum_task_price
+      rule: "No task below $0.50 USD"
+      decisions: [decision:TC-1]
+      enforced_at: post_task
+      test_id: "test_minimum_price_enforced"
+      sources: [{path: docs/DECISIONS.md}]
+
+  policies:
+    - id: pol:scoring_weights
+      rule: "Scoring: price 40%, SLA 25%, confidence 20%, reputation 15% (construction default)"
+      adjustable_by: platform_admin
+      canonical_location: scoring_profiles.scoring:construction
+      decisions: [decision:AD-6]
+      sources: [{path: docs/DECISIONS.md}]
+
+    - id: pol:auto_accept_timeout
+      rule: "Delivery auto-accepted after 3600 seconds if agent doesn't respond"
+      adjustable_by: per_task
+      decisions: [decision:AD-7]
+      sources: [{path: docs/DECISIONS.md}]
+
+    - id: pol:payment_split
+      rule: "25% on acceptance, 75% on delivery"
+      adjustable_by: platform_admin
+      canonical_location: architecture.settlement.payment_split
+      decisions: [decision:PD-4]
+      sources: [{path: docs/DECISIONS.md}]
+
+    - id: pol:insurance_minimums
+      rule: "CGL $1M/$2M, E&O $1M/$2M, drone $1M for private; doubled for DOT"
+      adjustable_by: per_account
+      sources: [{path: docs/research/RESEARCH_LEGAL_FRAMEWORK_SURVEY_CONTRACTS.md}]
+
+    - id: pol:coi_expiration_alerts
+      rule: "Yellow at 30 days, red at 7 days"
+      adjustable_by: platform_admin
+      sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+
+    - id: pol:award_timeout
+      rule: "72-hour reminder, 7-day expiration if GC does not act"
+      adjustable_by: per_task
+      sources: [{path: docs/research/RESEARCH_AWARD_CONFIRMATION_PROCESS.md}]
+
+    - id: pol:reject_warning
+      rule: "After 3+ rejections, warn: 'Multiple rejections may indicate scope or budget issue'"
+      adjustable_by: platform_admin
+      sources: [{path: docs/research/RESEARCH_REJECT_RECOVERY_FLOW.md}]
+
+    - id: pol:high_trust_seed
+      rule: "v1 assumes good-faith actors. No disputes, arbitration, reputation slashing, or fraud detection."
+      decisions: [decision:PD-7]
+      adjustable_by: phase_gate
+      sources: [{path: docs/DECISIONS.md}]
+
+    # [Entry 3] Design constraint from feedback
+    - id: pol:screen_count_target
+      rule: "Core buyer flow should be completable in 4 screens or fewer"
+      origin: docs/feedback/CRITIQUE_PRODUCT.md
+      status: not_met
+      note: "Demo currently has 6+ steps. Known gap."
+
+    # [Entry 3] Navigation constraint from feedback
+    - id: pol:back_navigation
+      rule: "Every screen must have back navigation to the previous step"
+      origin: docs/feedback/CRITIQUE_UX_DESIGN.md
+      status: not_met
+
+  agent_governance:
+    - rule: "Agent may not override operator pricing"
+      sources: [{path: docs/DECISIONS.md}]
+    - rule: "Agent must verify delivery before releasing payment (PD-5)"
+      sources: [{path: docs/DECISIONS.md}]
+    - rule: "Agent controls auction close timing — no forced timer (PD-1)"
+      sources: [{path: docs/DECISIONS.md}]
+    - rule: "Agent spending limit configurable per account (Marco: $5K/task, auto-approve under $500)"
+      sources: [{path: docs/USER_JOURNEY_CONSTRUCTION_v01.md}]
+    - rule: "Agent cannot approve its own deliverables in future oracle-assisted verification"
+      phase: phase:v3.0
+    # [Entry 3] Agent-to-agent interaction policy
+    - rule: "Agent-to-agent negotiation (buyer agent <-> operator agent) deferred to v3.0+"
+      phase: phase:v3.0
+      note: "Fetch.ai has 3M+ agents with agent-to-agent negotiation. Monitor for competitive pressure."
+
+# [Entry 5] Ontological relationships — typed edges between entities
+relationships:
+  - {from: component:auction_engine, to: cap:reverse_auction, type: implements}
+  - {from: component:auction_engine, to: cap:filter_then_score, type: implements}
+  - {from: component:settlement, to: cap:settlement_abstraction, type: implements}
+  - {from: component:settlement, to: cap:crypto_settlement, type: implements}
+  - {from: component:escrow_contract, to: cap:crypto_settlement, type: implements}
+  - {from: component:discovery_bridge, to: repo:yakrover-8004-mcp, type: consumes}
+  - {from: skill:rfp_to_robot_spec, to: layer:2_mission_planning, type: produces}
+  - {from: skill:rfp_to_site_recon, to: layer:2_mission_planning, type: produces}
+  - {from: unknown:flight_planning_api, to: bet:agent_mediation_adds_value, type: threatens}
+  - {from: unknown:infield_qc, to: bet:construction_wedge_works, type: threatens}
+  - {from: phase:v2.0, to: unknown:flight_planning_api, type: resolves}
+  - {from: phase:v2.0, to: unknown:infield_qc, type: resolves}
+  - {from: decision:FD-1, to: component:settlement, type: impacts}
+  - {from: decision:FD-1, to: component:escrow_contract, type: impacts}
+  - {from: decision:FD-4, to: component:settlement, type: impacts}
+  - {from: decision:PP-2, to: component:discovery_bridge, type: impacts}
+  - {from: decision:PD-1, to: component:auction_engine, type: impacts}
+  - {from: equipment:dji_m350, to: equipment:zenmuse_l2, type: "compatible_platform"}
+  - {from: equipment:dji_m350, to: equipment:zenmuse_p1, type: "compatible_platform"}
+
+# [Entry 3] Feedback synthesis — maps feedback to YAML nodes with status
+feedback_synthesis:
+  - feedback_file: docs/feedback/FEEDBACK_SENIOR_PM_MARKET_FOCUS.md
+    theme: "Construction wedge pivot origin"
+    affects: [bet:construction_wedge_works, market.wedge]
+    status: addressed
+    note: "Led to the entire construction wedge strategy"
+  - feedback_file: docs/feedback/FEEDBACK_REJECT_DEAD_END.md
+    theme: "Reject flow dead end"
+    affects: [journey:reject_recovery, state_machines.award_confirmation]
+    status: pending
+    note: "Known UX blocker — demo reject button leads to dead end"
+  - feedback_file: docs/feedback/CRITIQUE_PRODUCT.md
+    theme: "Too many screens"
+    affects: [pol:screen_count_target]
+    status: pending
+  - feedback_file: docs/feedback/CRITIQUE_UX_DESIGN.md
+    theme: "No back navigation"
+    affects: [pol:back_navigation]
+    status: pending
+  - feedback_file: docs/feedback/FEEDBACK_V4_FOUNDER.md
+    theme: "Founder-requested changes (8 items)"
+    affects: [roadmap]
+    status: partial
+
+# ============================================================
+# GLOSSARY — domain terms for LLM and new-reader clarity
+# [Entry 5] Restructured with definition + note + borrowed per thejaymo
+# ============================================================
+glossary:
+  reverse_auction:
+    definition: "Buyer posts a task, multiple sellers (robot operators) bid. Lowest qualified bid wins. Opposite of traditional auction where buyers bid up."
+    note: "Standard procurement term. Our implementation adds AI agent mediation."
+    borrowed: true
+  MCP:
+    definition: "Model Context Protocol — standard for connecting AI agents to external tools and services. An agent uses MCP to call marketplace tools (post_task, get_bids, etc.)."
+    note: "Anthropic-originated protocol. Rapidly adopted across AI ecosystem."
+    borrowed: true
+  ERC_8004:
+    definition: "Ethereum token standard for on-chain robot identity. Each robot has a registered identity that enables discovery, reputation, and payment."
+    note: "Ethereum mainnet since Jan 2026. We have 3 real implementations (yakrover, tumbller, tello)."
+    borrowed: true
+  x402:
+    definition: "HTTP payment protocol by Coinbase. Embeds payment proof in HTTP headers so robots can be paid per-task via USDC."
+    note: "100M+ payments in first 6 months. Our primary crypto rail."
+    borrowed: true
+  JTBD:
+    definition: "Jobs-to-be-Done — framework for understanding what customers hire products to do. Marco hires robots to get pre-bid survey data faster."
+    note: "Coined by Clayton Christensen. Applied to all persona definitions."
+    borrowed: true
+  DTN:
+    definition: "Delay-Tolerant Networking — store-and-forward protocol for high-latency links (Earth-Moon). Messages queue at each node until the next link is available."
+    note: "RFC 9171. Critical for lunar settlement modes."
+    borrowed: true
+  BBS_plus:
+    definition: "BBS+ signatures — anonymous credential scheme allowing robots to prove aggregate reputation stats without revealing individual task history."
+    note: "Academic origin. Applied in our Mode 2/4 privacy settlement."
+    borrowed: true
+  LAANC:
+    definition: "Low Altitude Authorization and Notification Capability — FAA system for automated drone airspace authorization."
+    note: "Automatable via Aloft/DroneUp API. Required for most urban construction sites."
+    borrowed: true
+  PLS:
+    definition: "Professional Land Surveyor — state-licensed individual required to stamp survey deliverables. Robots operate under PLS supervision."
+    note: "Licensing varies by state. See legal.pls_licensing for multi-state model."
+    borrowed: true
+  ConsensusDocs:
+    definition: "Industry-standard construction contract forms. ConsensusDocs 750/751 are subcontractor agreements used in the marketplace."
+    note: "Preferred over AIA forms for subcontractor-friendly terms."
+    borrowed: true
+  TEE:
+    definition: "Trusted Execution Environment — hardware-secured computing enclave. Used for privacy-preserving task matching and scoring."
+    note: "Intel SGX, ARM TrustZone, AMD SEV. Platform-mediated TEE is our AMLR compliance strategy."
+    borrowed: true
+  commitment_hash:
+    definition: "H(request_id || salt) — cryptographic hash stored on-chain instead of raw task ID. Proves payment-task linkage without revealing which task."
+    note: "Coined for this project. Decision FD-4."
+    borrowed: false
+  RFQ:
+    definition: "Request for Qualifications — procurement document issued by DOTs to select qualified contractors for design-build projects."
+    note: "Also used loosely to mean the marketplace's task posting (which is closer to an RFP)."
+    borrowed: true
+  GC:
+    definition: "General Contractor — the prime contractor who hires survey subcontractors (and robot operators) to complete portions of a project."
+    note: "Our primary buyer persona (Marco) is an estimator at a GC."
+    borrowed: true
+  NSSDA:
+    definition: "National Standard for Spatial Data Accuracy — the US standard for reporting positional accuracy of geospatial data (used for LiDAR QC)."
+    note: "Referenced in task spec accuracy requirements."
+    borrowed: true
+  # [Entry 4] New glossary entries
+  retainage:
+    definition: "Percentage of contract value (typically 5-10%) withheld by the buyer until substantial completion. Standard in construction."
+    note: "Michigan allows reduction to 0% after 50% completion on public projects."
+    borrowed: true
+  lien_waiver:
+    definition: "Legal document signed by the contractor waiving the right to file a mechanic's lien. Required for payment closeout."
+    note: "Michigan MCL 570.1101 et seq. Non-optional for construction contracts."
+    borrowed: true
+  ACORD_25:
+    definition: "Standard insurance certificate form used across the US. Parseable fields include policy number, limits, additional insured status."
+    note: "TxDOT uses its own Form 1560-CSS instead."
+    borrowed: true
+  NBI:
+    definition: "National Bridge Inventory — federal database of bridge condition ratings. NBI-formatted deliverables required for federally mandated inspections."
+    note: "23 CFR 650. Key deliverable format for infrastructure vertical."
+    borrowed: true
+
+# ============================================================
+# MANTRA + ESSENCE — anchoring statements
+# ============================================================
+mantra: "AI agents post tasks, physical robots bid, the best one delivers."
+essence: "This file is the single ontological map of the product — every entity, bet, unknown, and architectural decision lives here. When in doubt, read this first."
