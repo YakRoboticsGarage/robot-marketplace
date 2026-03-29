@@ -22,6 +22,10 @@
   --gray-400: #9CA3AF;
   --gray-600: #6B7280;
   --gray-800: #374151;
+  --green: #059669;
+  --green-bg: #D1FAE5;
+  --blue: #2563EB;
+  --blue-bg: #DBEAFE;
   --radius: 6px;
 }
 
@@ -62,7 +66,6 @@ body {
   color: var(--navy);
 }
 
-/* Yak icon watermark */
 .yak-mark {
   position: absolute;
   top: 28px;
@@ -273,6 +276,60 @@ p, li {
   margin-bottom: 16px;
 }
 
+.badge-green {
+  display: inline-block;
+  background: var(--green);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-blue {
+  display: inline-block;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-gray {
+  display: inline-block;
+  background: var(--gray-400);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-outline {
+  display: inline-block;
+  background: transparent;
+  color: var(--gray-400);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: var(--radius);
+  border: 2px solid var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.slide-dark .badge-outline {
+  color: rgba(255,255,255,0.4);
+  border-color: rgba(255,255,255,0.3);
+}
+
 .timeline {
   display: flex;
   flex-direction: column;
@@ -363,47 +420,6 @@ p, li {
   flex-shrink: 0;
 }
 
-.competitor-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--gray-200);
-  font-size: 15px;
-}
-
-.slide-dark .competitor-row { border-bottom-color: rgba(255,255,255,0.1); }
-
-.competitor-name {
-  font-weight: 600;
-  min-width: 160px;
-}
-
-.competitor-desc {
-  flex: 1;
-  color: var(--gray-600);
-}
-
-.slide-dark .competitor-desc { color: rgba(255,255,255,0.55); }
-
-.competitor-tag {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: var(--radius);
-  white-space: nowrap;
-}
-
-.tag-no-auction { background: var(--gray-100); color: var(--gray-600); }
-.tag-no-robots { background: #FEF3C7; color: #92400E; }
-.tag-no-marketplace { background: #DBEAFE; color: #1E40AF; }
-.tag-no-agents { background: #F3E8FF; color: #6B21A8; }
-
-.slide-dark .tag-no-auction { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
-.slide-dark .tag-no-robots { background: rgba(232,121,43,0.15); color: var(--orange-light); }
-.slide-dark .tag-no-marketplace { background: rgba(59,130,246,0.15); color: #93C5FD; }
-.slide-dark .tag-no-agents { background: rgba(139,92,246,0.15); color: #C4B5FD; }
-
 .use-of-funds {
   display: flex;
   flex-direction: column;
@@ -462,6 +478,140 @@ p, li {
   padding-bottom: 2px;
 }
 
+.source {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.slide-dark .source { color: rgba(255,255,255,0.3); }
+
+/* 2x2 Matrix */
+.matrix-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 1;
+  margin: 24px auto 0;
+}
+
+.matrix-grid {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-left: 2px solid var(--gray-200);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.slide-dark .matrix-grid {
+  border-left-color: rgba(255,255,255,0.2);
+  border-bottom-color: rgba(255,255,255,0.2);
+}
+
+.matrix-quadrant {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.matrix-quadrant.tl { top: 0; left: 0; }
+.matrix-quadrant.tr { top: 0; left: 50%; }
+.matrix-quadrant.bl { bottom: 0; left: 0; }
+.matrix-quadrant.br { bottom: 0; left: 50%; }
+
+.matrix-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gray-400);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.matrix-dot.us {
+  width: 22px;
+  height: 22px;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(232,121,43,0.25);
+}
+
+.matrix-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.matrix-desc {
+  font-size: 11px;
+  opacity: 0.5;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.matrix-axis-label {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+
+.matrix-axis-x {
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.matrix-axis-y {
+  top: 50%;
+  left: -28px;
+  transform: translateY(-50%) rotate(-90deg);
+  white-space: nowrap;
+}
+
+.matrix-label-lo-x { position: absolute; bottom: -28px; left: 0; font-size: 11px; opacity: 0.35; }
+.matrix-label-hi-x { position: absolute; bottom: -28px; right: 0; font-size: 11px; opacity: 0.35; }
+.matrix-label-lo-y { position: absolute; bottom: 0; left: -60px; font-size: 11px; opacity: 0.35; }
+.matrix-label-hi-y { position: absolute; top: 0; left: -60px; font-size: 11px; opacity: 0.35; }
+
+/* Liability chain */
+.liability-chain {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 24px;
+}
+
+.liability-step {
+  flex: 1;
+  padding: 20px 16px;
+  text-align: center;
+  position: relative;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+}
+
+.slide-dark .liability-step {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.liability-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  color: var(--orange);
+  font-weight: 700;
+  font-size: 20px;
+}
+
 .max-w-700 { max-width: 700px; }
 .max-w-800 { max-width: 800px; }
 .max-w-900 { max-width: 900px; }
@@ -484,6 +634,39 @@ p, li {
   margin: 20px 0;
 }
 
+.not-list li {
+  padding: 10px 0 10px 36px;
+  position: relative;
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 500;
+}
+
+.not-list li::before {
+  content: "\2717";
+  position: absolute;
+  left: 0;
+  color: var(--gray-400);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.is-item {
+  padding: 10px 0 10px 36px;
+  position: relative;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.is-item::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--orange);
+  font-weight: 700;
+  font-size: 22px;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .slide { padding: 48px 32px; }
@@ -491,8 +674,9 @@ p, li {
   .stat-row { gap: 24px; }
   .flow-arrow { flex-direction: column; }
   .flow-arrow-icon { transform: rotate(90deg); }
-  .competitor-row { flex-direction: column; gap: 8px; }
-  .competitor-name { min-width: auto; }
+  .liability-chain { flex-direction: column; }
+  .liability-arrow { transform: rotate(90deg); padding: 4px 0; justify-content: center; }
+  .matrix-container { max-width: 100%; }
 }
 
 @media (max-width: 600px) {
@@ -513,36 +697,38 @@ p, li {
   <div>
     <h1>YAK ROBOTICS</h1>
     <div class="divider"></div>
-    <p class="tagline">"Certified bids in minutes, not weeks."</p>
-    <p class="subtitle max-w-700">Robot task auction marketplace for construction surveying.<br>AI agents post tasks. Certified operators bid. GCs get site data faster.</p>
+    <p class="tagline">A procurement platform for construction survey services.</p>
+    <p class="subtitle max-w-700">GCs describe what they need. Certified drone operators compete on price and speed. The platform handles compliance, escrow, and deliverable QA.</p>
     <div class="stat-row" style="margin-top:48px;">
       <div class="stat">
         <div class="stat-value">$2.5M</div>
-        <div class="stat-label">Seed round</div>
+        <div class="stat-label">Seed round (post-money SAFE)</div>
       </div>
       <div class="stat">
         <div class="stat-value">$8B</div>
-        <div class="stat-label">US survey TAM</div>
+        <div class="stat-label">US construction surveying TAM</div>
+        <div class="source">Source: IBISWorld / Grand View Research</div>
       </div>
       <div class="stat">
-        <div class="stat-value">0</div>
-        <div class="stat-label">Direct competitors</div>
+        <div class="stat-value">Pre-revenue</div>
+        <div class="stat-label">Prototype + deep domain research</div>
       </div>
     </div>
-    <a href="https://yakrobot.bid" class="cta-link" target="_blank">yakrobot.bid</a>
+    <a href="https://yakrobot.bid" class="cta-link" target="_blank">Live demo: yakrobot.bid</a>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 2: THE PROBLEM -->
+<!-- SLIDE 2: THE PROBLEM (EMERGENCY USE CASE) -->
 <!-- ============================================================ -->
 <section class="slide slide-light" id="slide-2">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">02</div>
   <div class="max-w-900">
     <span class="badge">The Problem</span>
-    <h2>GCs wait 2-3 weeks for survey data.<br>During peak season, that means <span class="accent">missed bids worth $5-20M each</span>.</h2>
-    <p class="mb-24" style="font-size:16px; color:var(--gray-600);">Meanwhile, 368K drone operators have idle equipment. The industry runs on phone calls and rolodexes -- no marketplace, no bidding, no automation.</p>
+    <h2>You win a $14M highway contract.<br>Field conditions don't match plan sheets.<br>You need a re-survey in 48 hours<br>to avoid a <span class="accent">$500K change order</span>.</h2>
+    <p style="font-size:18px; color:var(--gray-600); margin-bottom:8px;">Your usual survey crew is booked for 3 weeks.</p>
+    <p class="mb-24" style="font-size:16px; color:var(--gray-600);">This is the real pain: not routine surveys (you plan around those), but the emergency re-survey when schedule and dollars are on the line. Today, there is no fast way to find a certified operator with the right equipment who is available this week.</p>
 
     <h3 class="mt-32 mb-16">How GCs buy surveys today: 9 steps, 10-15 business days</h3>
     <ol class="process-list">
@@ -556,7 +742,7 @@ p, li {
       <li>Estimator imports into HeavyBid or Civil 3D for quantity takeoff</li>
       <li>Total elapsed: 10-15 business days -- if the crew is even available</li>
     </ol>
-    <p class="mt-24 small muted">Source: GC discovery interviews, MDOT bid analysis (43 real RFPs)</p>
+    <p class="mt-24 small muted">Source: MDOT bid analysis (43 real RFPs from 2024-2026 letting schedule)</p>
   </div>
 </section>
 
@@ -568,31 +754,31 @@ p, li {
   <div class="slide-number">03</div>
   <div class="max-w-900">
     <span class="badge">The Solution</span>
-    <h2>Describe what you need. Get certified bids in minutes.</h2>
-    <p class="subtitle max-w-700 mb-24">Upload an RFP or describe your survey need in plain English. AI extracts requirements, decomposes into biddable tasks, certified operators bid, and you get Civil 3D-ready deliverables with a full compliance trail.</p>
+    <h2>Describe what you need. Get certified bids the same day.</h2>
+    <p class="subtitle max-w-700 mb-24">Upload an RFP or describe your survey need in plain English. The platform translates that into a survey scope, certified operators bid, and you get deliverables formatted for HeavyBid or Civil 3D -- with a full compliance trail.</p>
 
     <div class="flow-arrow">
-      <div class="flow-step">Upload RFP</div>
+      <div class="flow-step">Describe survey need</div>
       <span class="flow-arrow-icon">&rarr;</span>
       <div class="flow-step">AI extracts specs</div>
       <span class="flow-arrow-icon">&rarr;</span>
-      <div class="flow-step">Tasks decomposed</div>
-      <span class="flow-arrow-icon">&rarr;</span>
       <div class="flow-step">Operators bid</div>
       <span class="flow-arrow-icon">&rarr;</span>
-      <div class="flow-step">Compliance checks</div>
+      <div class="flow-step">Compliance verified</div>
       <span class="flow-arrow-icon">&rarr;</span>
-      <div class="flow-step" style="border:1px solid var(--orange);">Work starts</div>
+      <div class="flow-step">Escrow-backed payment</div>
+      <span class="flow-arrow-icon">&rarr;</span>
+      <div class="flow-step" style="border:1px solid var(--orange);">PLS-stamped deliverables</div>
     </div>
 
     <div class="grid-2 mt-32">
       <div>
         <h3 style="color:rgba(255,255,255,0.5);">Before YAK</h3>
-        <p>Phone calls to 1-3 firms. 10-15 day wait. Manual data formatting. No price transparency. Missed bids during peak season.</p>
+        <p>Phone calls to 1-3 firms. 5-10 day wait. Manual data formatting. No price transparency. During emergencies, no options at all.</p>
       </div>
       <div>
         <h3 style="color:var(--orange);">After YAK</h3>
-        <p>Describe your need in English. Certified bids in 2 hours. Same-day flight, 24-hour processed delivery. Civil 3D-ready. 60-80% cost reduction.</p>
+        <p>Describe your need in English. Certified bids within hours. Faster flight scheduling. LandXML deliverables formatted for your estimating software. Full PLS stamp and E&O coverage.</p>
       </div>
     </div>
 
@@ -601,356 +787,486 @@ p, li {
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 4: HOW IT WORKS -->
+<!-- SLIDE 4: WHAT WE'RE NOT -->
 <!-- ============================================================ -->
 <section class="slide slide-offwhite" id="slide-4">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">04</div>
   <div class="max-w-900">
-    <span class="badge">How It Works</span>
-    <h2>Three steps. Minutes, not weeks.</h2>
-    <div class="grid-3">
-      <div class="card card-orange">
-        <div class="step-number">01</div>
-        <h3>Upload RFP or describe your survey need</h3>
-        <p>"I need topo for a 12-acre highway widening, data by Saturday." The AI agent translates your business need into robot task specifications -- sensor requirements, deliverable formats, coverage area, compliance criteria.</p>
-      </div>
-      <div class="card card-orange">
-        <div class="step-number">02</div>
-        <h3>Certified operators bid in minutes</h3>
-        <p>Part 107-certified, PLS-affiliated drone operators compete on price, capability, and reputation. The platform verifies insurance, certifications, and equipment specs automatically. No phone tag.</p>
-      </div>
-      <div class="card card-orange">
-        <div class="step-number">03</div>
-        <h3>Get Civil 3D-ready deliverables</h3>
-        <p>LandXML terrain models, DXF contour maps, cross-sections at 50-foot stations -- formatted for HeavyBid, B2W, or Civil 3D. Full compliance trail: PLS stamp, insurance verification, flight logs.</p>
-      </div>
-    </div>
+    <span class="badge">What We Are</span>
+    <h2>Let's be clear about what this is and isn't.</h2>
 
-    <div class="stat-row mt-32">
-      <div class="stat">
-        <div class="stat-value">58%</div>
-        <div class="stat-label">Cost reduction vs. human crew</div>
+    <div class="grid-2 mt-16">
+      <div>
+        <h3 class="mb-16" style="color:var(--gray-400);">We are NOT</h3>
+        <ul class="not-list" style="list-style:none;">
+          <li>A staffing agency</li>
+          <li>A drone company</li>
+          <li>A blockchain project</li>
+          <li>A survey firm</li>
+          <li>A data processing shop</li>
+        </ul>
       </div>
-      <div class="stat">
-        <div class="stat-value">24hr</div>
-        <div class="stat-label">Processed data turnaround</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">$3,600</div>
-        <div class="stat-label">vs. $8,500 for same corridor</div>
+      <div>
+        <h3 class="mb-16" style="color:var(--orange);">We ARE</h3>
+        <div class="is-item">A procurement platform for construction survey services.</div>
+        <p class="mt-16" style="font-size:16px; color:var(--gray-600);">
+          We connect GCs who need survey data with certified drone operators who can deliver it -- faster, with better price transparency, and with a full compliance trail. Think of it as a specialized marketplace where the platform handles scope translation, operator verification, escrow, and deliverable QA.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 5: MARKET SIZE -->
+<!-- SLIDE 5: HOW IT WORKS -->
 <!-- ============================================================ -->
 <section class="slide slide-dark" id="slide-5">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">05</div>
   <div class="max-w-900">
-    <span class="badge">Market</span>
-    <h2>Large market. Clear expansion path.</h2>
-
-    <div class="stat-row">
-      <div class="stat">
-        <div class="stat-value">$8B</div>
-        <div class="stat-label">US construction surveying TAM</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">$1.2B</div>
-        <div class="stat-label">Pre-bid surveys (wedge)</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">368K</div>
-        <div class="stat-label">FAA Part 107 holders</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">$1.97B</div>
-        <div class="stat-label">MDOT annual lettings</div>
-      </div>
-    </div>
-
-    <h3 class="mt-32 mb-16" style="color:rgba(255,255,255,0.6);">Expansion Sequence</h3>
-    <div class="grid-4">
-      <div class="card" style="border-top:3px solid var(--orange);">
-        <div class="step-number">Year 1</div>
-        <h3>Construction</h3>
-        <p class="small" style="color:rgba(255,255,255,0.55);">Highway surveying, earthwork, progress monitoring. Prove the model with 10 GC customers in Michigan.</p>
-      </div>
-      <div class="card">
-        <div class="step-number">Year 2</div>
-        <h3>Mining</h3>
-        <p class="small" style="color:rgba(255,255,255,0.55);">Same robots, same sensors. Volumetric surveys for quarries and open-pit mines. Dust-hardened ops.</p>
-      </div>
-      <div class="card">
-        <div class="step-number">Year 3</div>
-        <h3>Infrastructure</h3>
-        <p class="small" style="color:rgba(255,255,255,0.55);">Bridge inspection, confined-space platforms. Federal mandates drive demand. Add bridge crawlers.</p>
-      </div>
-      <div class="card">
-        <div class="step-number">Year 4+</div>
-        <h3>Lunar</h3>
-        <p class="small" style="color:rgba(255,255,255,0.55);">Same sensors, same workflows. Artemis base site prep. LiDAR works in vacuum. Not a pivot -- a graduation.</p>
-      </div>
-    </div>
-
-    <p class="mt-24 small" style="color:rgba(255,255,255,0.35);">RaaS market: $28.5B (2024) growing at 17.9% CAGR to $76.6B by 2030. Source: Precedence Research.</p>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- SLIDE 6: WHY NOW -->
-<!-- ============================================================ -->
-<section class="slide slide-light" id="slide-6">
-  <div class="yak-mark">YAK</div>
-  <div class="slide-number">06</div>
-  <div class="max-w-900">
-    <span class="badge">Why Now</span>
-    <h2>Three converging forces that didn't exist together before 2025.</h2>
-    <div class="grid-3 mt-32">
+    <span class="badge">How It Works</span>
+    <h2>Three steps. Same day, not weeks.</h2>
+    <div class="grid-3">
       <div class="card card-orange">
-        <h3>AI Agents</h3>
-        <p>MCP protocol enables agent-mediated procurement. AI translates "I need topo for a highway bid" into robot task specs, evaluates bids across robot types, and assembles deliverable packages. McKinsey: agentic procurement delivers 19-21% lower costs, 58% shorter cycles.</p>
+        <div class="step-number">01</div>
+        <h3>Describe your survey need</h3>
+        <p>"I need topo for a 12-acre highway widening, LandXML for HeavyBid, data by Saturday." AI-assisted scope translation turns your business need into a precise survey specification -- sensor requirements, deliverable formats, coverage area, accuracy tolerance.</p>
       </div>
       <div class="card card-orange">
-        <h3>Drone Maturity</h3>
-        <p>DJI Matrice 350 RTK + Zenmuse L2 delivers survey-grade LiDAR at $26K -- a price point that makes independent operator businesses viable. 5cm accuracy, 4.2M points/sec. The workhorse is ready.</p>
+        <div class="step-number">02</div>
+        <h3>Certified operators bid</h3>
+        <p>Part 107-certified drone operators with PLS relationships compete on price, capability, and turnaround. The platform verifies insurance (E&O + aviation), certifications, and equipment specs. No phone tag, no voicemail.</p>
       </div>
       <div class="card card-orange">
-        <h3>Regulatory Clarity</h3>
-        <p>Part 107 is mature (368K holders, 84% pass rate). Part 108 BVLOS rules are finalizing. ERC-8004 + x402 give robots on-chain identity and payment rails. The legal framework caught up.</p>
-      </div>
-    </div>
-    <p class="mt-32" style="font-size:16px; color:var(--gray-600);">The infrastructure layers (MCP robot servers, on-chain robot identity, stablecoin payments) matured in 2025. The marketplace layer for physical robot tasks does not yet exist. The window is open.</p>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- SLIDE 7: TRACTION -->
-<!-- ============================================================ -->
-<section class="slide slide-offwhite" id="slide-7">
-  <div class="yak-mark">YAK</div>
-  <div class="slide-number">07</div>
-  <div class="max-w-900">
-    <span class="badge">Traction</span>
-    <h2>Built, tested, and pointed at real customers.</h2>
-
-    <div class="grid-2">
-      <div>
-        <h3 class="mb-16">Product</h3>
-        <ul class="check-list">
-          <li>v1.0 auction engine built: <span class="mono">147 tests</span>, <span class="mono">15 MCP tools</span>, <span class="mono">11.4K LOC</span></li>
-          <li>Live interactive demo at <a href="https://yakrobot.bid" target="_blank" style="color:var(--orange); font-weight:600;">yakrobot.bid</a></li>
-          <li>YAML product explorer at <a href="https://yakrobot.bid/yaml" target="_blank" style="color:var(--orange); font-weight:600;">yakrobot.bid/yaml</a> -- 2,617-line ontology</li>
-          <li>Settlement abstraction: Stripe (fiat) + USDC on Base (crypto)</li>
-          <li>ERC-8004 robot identity integration</li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="mb-16">Market Validation</h3>
-        <ul class="check-list">
-          <li><span class="mono">43</span> real MDOT RFPs analyzed and decomposed</li>
-          <li><span class="mono">15</span> target GCs identified in Michigan (Tier 1-3)</li>
-          <li><span class="mono">0/15</span> have in-house drone survey -- greenfield market</li>
-          <li><span class="mono">14</span> target operators identified</li>
-          <li>SSI confirmed as MDOT-approved survey partner</li>
-          <li><span class="mono">40+</span> research documents across market, legal, technical</li>
-        </ul>
+        <div class="step-number">03</div>
+        <h3>Get PLS-stamped deliverables</h3>
+        <p>LandXML terrain models, contour maps, cross-sections at 50-foot stations -- formatted for HeavyBid, B2W, or Civil 3D. PLS stamp on the deliverable. Escrow-backed payment released on acceptance.</p>
       </div>
     </div>
 
     <div class="stat-row mt-32">
       <div class="stat">
-        <div class="stat-value">147</div>
-        <div class="stat-label">Passing tests</div>
+        <div class="stat-value">$3,600</div>
+        <div class="stat-label">Estimated cost for 12-acre topo</div>
+        <div class="source">Source: Operator pricing research, MI/AZ market</div>
       </div>
       <div class="stat">
-        <div class="stat-value">15</div>
-        <div class="stat-label">MCP tools</div>
+        <div class="stat-value">$8,500</div>
+        <div class="stat-label">Same corridor, traditional crew</div>
+        <div class="source">Source: GC discovery research, MDOT bid data</div>
       </div>
       <div class="stat">
-        <div class="stat-value">43</div>
-        <div class="stat-label">Real RFPs analyzed</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">0/15</div>
-        <div class="stat-label">GCs with in-house drone survey</div>
+        <div class="stat-value">12%</div>
+        <div class="stat-label">Buyer-side platform fee</div>
+        <div class="source">Operator receives 100% of their bid</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 8: BUSINESS MODEL -->
+<!-- SLIDE 6: MARKET SIZE -->
 <!-- ============================================================ -->
-<section class="slide slide-dark" id="slide-8">
+<section class="slide slide-light" id="slide-6">
+  <div class="yak-mark">YAK</div>
+  <div class="slide-number">06</div>
+  <div class="max-w-900">
+    <span class="badge">Market</span>
+    <h2>Large market. Clear wedge. Massive supply.</h2>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-value">$8B</div>
+        <div class="stat-label">US construction surveying TAM</div>
+        <div class="source">Source: IBISWorld Industry Report, Grand View Research 2024</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">$1.2B</div>
+        <div class="stat-label">Pre-bid surveys (our wedge)</div>
+        <div class="source">Source: SYNTHESIS_JTBD_WEDGE_PROPOSAL analysis</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">368K</div>
+        <div class="stat-label">FAA Part 107 certificate holders</div>
+        <div class="source">Source: FAA UAS data, 2025</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">$1.97B</div>
+        <div class="stat-label">MDOT annual lettings (Michigan alone)</div>
+        <div class="source">Source: MDOT 2024-2026 letting schedule</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mt-32">
+      <div>
+        <h3>Why construction surveying?</h3>
+        <p class="small" style="color:var(--gray-600);">Survey is the first spend on every construction project. It is standardized (MDOT has published specs), repeat-purchase (progress monitoring is monthly), and underserved by technology. GCs outsource it because they must -- none of the 15 Michigan GCs we researched have in-house drone survey capability.</p>
+      </div>
+      <div>
+        <h3>Broader opportunity</h3>
+        <p class="small" style="color:var(--gray-600);">RaaS (Robotics-as-a-Service) market is $28.5B (2024), growing at 17.9% CAGR to $76.6B by 2030. The same marketplace model applies to mining volumetrics, infrastructure inspection, and other verticals that need on-demand physical data collection.</p>
+        <div class="source mt-8">Source: Precedence Research, RaaS Market Report 2024</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: COMPETITIVE POSITIONING (2x2 MATRIX) -->
+<!-- ============================================================ -->
+<section class="slide slide-dark" id="slide-7">
+  <div class="yak-mark">YAK</div>
+  <div class="slide-number">07</div>
+  <div class="max-w-900">
+    <span class="badge">Competition</span>
+    <h2>We occupy the empty quadrant.</h2>
+    <p style="color:rgba(255,255,255,0.6); margin-bottom:16px;">Adjacent players exist in every other quadrant. Nobody automates procurement AND delivers physical execution.</p>
+
+    <div class="grid-2">
+      <div class="matrix-container" style="aspect-ratio:auto; height:auto;">
+        <!-- CSS Grid-based 2x2 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:2px; border-left:2px solid rgba(255,255,255,0.2); border-bottom:2px solid rgba(255,255,255,0.2); padding-left:12px; padding-bottom:12px; position:relative;">
+
+          <!-- Y-axis label -->
+          <div style="position:absolute; left:-52px; top:50%; transform:translateY(-50%) rotate(-90deg); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; opacity:0.4; white-space:nowrap;">Physical Execution</div>
+
+          <!-- X-axis label -->
+          <div style="position:absolute; bottom:-24px; left:50%; transform:translateX(-50%); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; opacity:0.4;">Procurement Automation</div>
+
+          <!-- Top-left: Automated + Digital -->
+          <div class="card" style="text-align:center; padding:20px 12px;">
+            <div style="font-size:11px; opacity:0.35; margin-bottom:8px;">Automated / Digital Only</div>
+            <div style="margin-bottom:6px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">BuildingConnected</div>
+            <div style="font-size:11px; opacity:0.5;">Bid management SaaS (Autodesk)</div>
+            <div style="margin-top:8px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">Thumbtack</div>
+            <div style="font-size:11px; opacity:0.5;">Automated matching, human labor</div>
+          </div>
+
+          <!-- Top-right: Automated + Physical (US!) -->
+          <div class="card" style="text-align:center; padding:20px 12px; border:2px solid var(--orange); background:rgba(232,121,43,0.08);">
+            <div style="font-size:11px; color:var(--orange); font-weight:700; margin-bottom:8px;">AUTOMATED / PHYSICAL</div>
+            <div style="margin-bottom:6px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:inline-block;box-shadow:0 0 0 4px rgba(232,121,43,0.25);"></div>
+            </div>
+            <div style="font-size:16px; font-weight:700; color:var(--orange);">YAK Robotics</div>
+            <div style="font-size:12px; opacity:0.6;">AI-assisted procurement +<br>physical robot delivery</div>
+          </div>
+
+          <!-- Bottom-left: Manual + Digital -->
+          <div class="card" style="text-align:center; padding:20px 12px;">
+            <div style="font-size:11px; opacity:0.35; margin-bottom:8px;">Manual / Digital Only</div>
+            <div style="margin-bottom:6px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">DroneDeploy</div>
+            <div style="font-size:11px; opacity:0.5;">Mapping SaaS, no procurement</div>
+            <div style="margin-top:8px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">Fabric/OpenMind</div>
+            <div style="font-size:11px; opacity:0.5;">Protocol layer, no task execution</div>
+          </div>
+
+          <!-- Bottom-right: Manual + Physical -->
+          <div class="card" style="text-align:center; padding:20px 12px;">
+            <div style="font-size:11px; opacity:0.35; margin-bottom:8px;">Manual / Physical</div>
+            <div style="margin-bottom:6px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">Traditional Survey Firms</div>
+            <div style="font-size:11px; opacity:0.5;">Phone-based, relationship-driven</div>
+            <div style="margin-top:8px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--gray-400);display:inline-block;"></div>
+            </div>
+            <div style="font-size:13px; font-weight:600;">Botshare</div>
+            <div style="font-size:11px; opacity:0.5;">Robot rental, fixed pricing (China)</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card card-orange" style="margin-bottom:20px;">
+          <h3>We're the only player in the top-right quadrant.</h3>
+          <p class="small" style="color:rgba(255,255,255,0.6);">No live platform combines AI-assisted procurement with physical robot task delivery for construction.</p>
+        </div>
+
+        <h3 style="color:rgba(255,255,255,0.5); margin-top:24px;">Honest threat assessment</h3>
+        <p class="small" style="color:rgba(255,255,255,0.5);"><strong style="color:rgba(255,255,255,0.7);">DroneDeploy</strong> (10K+ customers) is one product decision away from adding procurement. Their risk: they are a SaaS tool, not a marketplace. Adding bidding changes their business model.</p>
+        <p class="small mt-8" style="color:rgba(255,255,255,0.5);"><strong style="color:rgba(255,255,255,0.7);">Fabric/OpenMind</strong> ($20M from Pantera) is building robot economy infrastructure. Their risk: protocol layer, not construction-domain. One pivot away from competing.</p>
+        <div class="source mt-8">Source: Crunchbase, company announcements 2024-2025</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: WHY NOW -->
+<!-- ============================================================ -->
+<section class="slide slide-offwhite" id="slide-8">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">08</div>
   <div class="max-w-900">
-    <span class="badge">Business Model</span>
-    <h2>12% take rate on task GMV. Operator gets 100% of their bid.</h2>
-
-    <div class="grid-2 mt-16">
-      <div>
-        <p class="mb-24">Buyer-side fee, inclusive of Stripe processing. Lower than construction staffing agencies (15-30%). Higher than basic marketplaces (3-5%) because we provide escrow, insurance verification, contract generation, deliverable QA, and PLS tracking.</p>
-
-        <div class="card" style="background:rgba(232,121,43,0.1); border-color:var(--orange);">
-          <p class="small mb-8" style="color:rgba(255,255,255,0.5);">Example: Full project lifecycle</p>
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-            <span style="font-size:16px;">Task value</span>
-            <span class="mono" style="font-size:24px; font-weight:700;">$72,000</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-            <span style="font-size:16px;">Platform fee (12%)</span>
-            <span class="mono" style="font-size:24px; font-weight:700; color:var(--orange);">$8,640</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:baseline;">
-            <span style="font-size:16px;">Operator receives</span>
-            <span class="mono" style="font-size:24px; font-weight:700;">$72,000</span>
-          </div>
-        </div>
+    <span class="badge">Why Now</span>
+    <h2>Three forces converging in 2025-2026.</h2>
+    <div class="grid-3 mt-32">
+      <div class="card card-orange">
+        <h3>AI-Assisted Procurement</h3>
+        <p>LLMs can now translate "I need topo for a highway bid" into structured survey specifications -- sensor requirements, deliverable formats, accuracy tolerances. This was manual work until 2024.</p>
+        <div class="source mt-8">McKinsey: AI-assisted procurement delivers 19-21% lower costs, 58% shorter procurement cycles. Source: McKinsey Digital, 2024.</div>
       </div>
-
-      <div>
-        <h3 class="mb-16" style="color:rgba(255,255,255,0.6);">18-Month Projection</h3>
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <div>
-            <p class="small" style="color:rgba(255,255,255,0.5);">Revenue starts</p>
-            <p class="mono" style="font-size:20px; font-weight:700;">Month 4 (MDOT pilot)</p>
-          </div>
-          <div>
-            <p class="small" style="color:rgba(255,255,255,0.5);">Month 18 GMV</p>
-            <p class="mono" style="font-size:20px; font-weight:700;">$288K/mo</p>
-          </div>
-          <div>
-            <p class="small" style="color:rgba(255,255,255,0.5);">Month 18 platform revenue</p>
-            <p class="mono" style="font-size:20px; font-weight:700;">$34.5K/mo</p>
-          </div>
-          <div>
-            <p class="small" style="color:rgba(255,255,255,0.5);">18-month total GMV</p>
-            <p class="mono" style="font-size:20px; font-weight:700;">$1.5M</p>
-          </div>
-          <div>
-            <p class="small" style="color:rgba(255,255,255,0.5);">Break-even</p>
-            <p class="mono" style="font-size:20px; font-weight:700;">~Month 28</p>
-          </div>
-        </div>
+      <div class="card card-orange">
+        <h3>Survey-Grade Drones at Scale</h3>
+        <p>DJI Matrice 350 RTK + Zenmuse L2 delivers survey-grade LiDAR at $26K -- making independent operator businesses viable. 5cm accuracy, 4.2M points/sec. Three years ago this was $150K+.</p>
+        <div class="source mt-8">Source: DJI Enterprise pricing, 2025. L2 spec sheet.</div>
+      </div>
+      <div class="card card-orange">
+        <h3>Regulatory Maturity</h3>
+        <p>Part 107 is mature (368K holders, 84% pass rate). BVLOS rules are finalizing. The operator supply base exists and is growing. The legal framework for commercial drone operations is settled.</p>
+        <div class="source mt-8">Source: FAA UAS data, 2025. Part 107 certificate statistics.</div>
       </div>
     </div>
+    <p class="mt-32" style="font-size:16px; color:var(--gray-600);">The supply side (operators + equipment) is ready. The technology layer (AI + procurement software) is ready. The marketplace layer connecting them to construction buyers does not yet exist.</p>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 9: COMPETITIVE LANDSCAPE -->
+<!-- SLIDE 9: PROFESSIONAL LIABILITY -->
 <!-- ============================================================ -->
-<section class="slide slide-light" id="slide-9">
+<section class="slide slide-dark" id="slide-9">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">09</div>
   <div class="max-w-900">
-    <span class="badge">Competition</span>
-    <h2>Nobody has built this.<br>The intersection is empty.</h2>
-    <p class="mb-24" style="color:var(--gray-600);">No live platform combines task auction + physical robots + AI agents. Adjacent players are each missing at least one critical layer.</p>
+    <span class="badge">Liability &amp; Compliance</span>
+    <h2>The #1 question GCs will ask:<br>"If the survey is wrong, who pays?"</h2>
+    <p style="color:rgba(255,255,255,0.6); margin-bottom:32px;">Construction surveys in Michigan require a Professional Land Surveyor (PLS) stamp. Our marketplace must handle the professional liability chain -- this is non-negotiable.</p>
 
-    <div class="competitor-row" style="border-bottom:2px solid var(--gray-200); font-weight:600;">
-      <div class="competitor-name">Company</div>
-      <div class="competitor-desc">What they do</div>
-      <div style="min-width:110px;">Missing</div>
-    </div>
-    <div class="competitor-row">
-      <div class="competitor-name">Botshare</div>
-      <div class="competitor-desc">Robot rental marketplace (China). 600+ providers. Fixed pricing.</div>
-      <div><span class="competitor-tag tag-no-auction">No auction</span></div>
-    </div>
-    <div class="competitor-row">
-      <div class="competitor-name">RentAHuman.ai</div>
-      <div class="competitor-desc">MCP + auction mechanics. 600K workers. AI agents hire humans.</div>
-      <div><span class="competitor-tag tag-no-robots">No robots</span></div>
-    </div>
-    <div class="competitor-row">
-      <div class="competitor-name">Fabric / OpenMind</div>
-      <div class="competitor-desc">Robot economy protocol. ROBO token on Base. $20M Pantera round.</div>
-      <div><span class="competitor-tag tag-no-marketplace">No marketplace</span></div>
-    </div>
-    <div class="competitor-row">
-      <div class="competitor-name">BuildingConnected</div>
-      <div class="competitor-desc">Construction bid management (Autodesk). Bid solicitation, not execution.</div>
-      <div><span class="competitor-tag tag-no-robots">No execution</span></div>
-    </div>
-    <div class="competitor-row" style="border-bottom:none;">
-      <div class="competitor-name">Akash Network</div>
-      <div class="competitor-desc">Reverse auction for compute on Cosmos. Proves auction model works.</div>
-      <div><span class="competitor-tag tag-no-robots">No robots</span></div>
+    <div class="liability-chain">
+      <div class="liability-step card">
+        <h3 style="color:var(--orange);">Operator</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">Carries drone aviation insurance. Flies the site, collects raw data. Part 107 certified.</p>
+      </div>
+      <div class="liability-arrow">&rarr;</div>
+      <div class="liability-step card">
+        <h3 style="color:var(--orange);">PLS (Surveyor)</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">Michigan-licensed PLS stamps the deliverable. Carries E&O insurance. Legally responsible for accuracy.</p>
+      </div>
+      <div class="liability-arrow">&rarr;</div>
+      <div class="liability-step card">
+        <h3 style="color:var(--orange);">Platform (YAK)</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">Verifies all insurance + certifications. Holds escrow. Carries platform E&O + cyber liability. Provides audit trail.</p>
+      </div>
+      <div class="liability-arrow">&rarr;</div>
+      <div class="liability-step card">
+        <h3 style="color:var(--orange);">GC (Buyer)</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">Receives PLS-stamped deliverable with E&O coverage they can flow claims through -- same as hiring a survey firm directly.</p>
+      </div>
     </div>
 
-    <div class="card card-orange mt-32" style="max-width:600px;">
-      <h3>YAK is the only platform combining:</h3>
-      <p class="mt-8">Reverse auction + physical robots + AI agent orchestration + construction-domain intelligence + on-chain settlement option</p>
+    <div class="grid-2 mt-32">
+      <div class="card">
+        <h3>Key requirement: Named PLS on every deliverable</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">Not "PLS-affiliated." An actual Michigan-licensed Professional Land Surveyor who stamps the final product and whose E&O insurance backs it. The platform verifies this before any deliverable ships.</p>
+      </div>
+      <div class="card">
+        <h3>Deliverable specs in GC language</h3>
+        <p class="small" style="color:rgba(255,255,255,0.6);">LandXML or .TIN for HeavyBid. DWG with Civil 3D feature codes matching MDOT standards. DTM (not DSM) for quantity takeoff. Cross-sections at 50-foot stations. MDOT Geodetic Survey Section compliance.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 10: ROADMAP -->
+<!-- SLIDE 10: WHAT'S BUILT (STATUS) -->
 <!-- ============================================================ -->
-<section class="slide slide-dark" id="slide-10">
+<section class="slide slide-light" id="slide-10">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">10</div>
   <div class="max-w-900">
-    <span class="badge">Roadmap</span>
-    <h2>18 months to Series A readiness.</h2>
+    <span class="badge">Current Status</span>
+    <h2>Honest about where we are.</h2>
+    <p style="color:var(--gray-600); margin-bottom:8px; font-size:16px;">Pre-revenue. Pre-customer. Deep domain research + working prototype + Michigan family connections in construction. Seeking seed capital and co-founders to validate.</p>
 
-    <div class="timeline mt-32">
-      <div class="timeline-item">
-        <div class="timeline-date">v1.5 / Q2 2026</div>
-        <div class="timeline-content">
-          <h3>Crypto Rail + Construction Specs + Michigan Pilot</h3>
-          <p>USDC settlement on Base. Construction-specific task specs (topo, GPR, progress monitoring). MDOT pilot with first paid task. 4-month sprint.</p>
+    <div class="grid-2 mt-24">
+      <div>
+        <div style="margin-bottom:24px;">
+          <span class="badge-green">BUILT</span>
+          <ul class="check-list" style="margin-top:12px;">
+            <li>Working auction engine with scoring, state machine, and settlement abstraction</li>
+            <li>AI-assisted scope extraction -- processes real MDOT RFQ into biddable task specs</li>
+            <li>Interactive demo at <a href="https://yakrobot.bid" target="_blank" style="color:var(--orange); font-weight:600;">yakrobot.bid</a></li>
+            <li>40+ research documents across market, legal, technical, and operator domains</li>
+          </ul>
+        </div>
+
+        <div>
+          <span class="badge-blue">IN PROGRESS</span>
+          <ul class="check-list" style="margin-top:12px;">
+            <li>Michigan GC outreach -- 15 GCs identified, briefing packets prepared</li>
+            <li>Operator engagement -- 14 Michigan drone operators mapped</li>
+            <li>Co-founder search (technical + BD)</li>
+          </ul>
         </div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-date">v2.0 / Q3-Q4 2026</div>
-        <div class="timeline-content">
-          <h3>Multi-Robot Workflows + Operator Dashboard</h3>
-          <p>Parallel multi-robot task execution. Operator dashboard with bid management, payment tracking. 10 active GCs, $50K+ monthly GMV target.</p>
+
+      <div>
+        <div style="margin-bottom:24px;">
+          <span class="badge-gray">PLANNED</span>
+          <ul class="check-list" style="margin-top:12px;">
+            <li>MDOT corridor pilot -- first paid survey task</li>
+            <li>Operator dashboard with bid management and payment tracking</li>
+            <li>PLS partnership network in Michigan</li>
+            <li>Escrow-backed payment flow (Stripe)</li>
+          </ul>
+        </div>
+
+        <div>
+          <span class="badge-outline">LONG-TERM VISION</span>
+          <ul class="check-list" style="margin-top:12px;">
+            <li>Mining / quarrying expansion (when construction is proven)</li>
+            <li>Infrastructure monitoring (federal mandate-driven)</li>
+            <li>Multi-state expansion (OH, IN, IL)</li>
+          </ul>
         </div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-date">v2.5 / 2027</div>
-        <div class="timeline-content">
-          <h3>Mining &amp; Quarrying Expansion</h3>
-          <p>Same robots, new buyer persona. Volumetric surveys for open-pit mines. Ohio expansion. Privacy layer (ZK proofs, TEE attestation).</p>
-        </div>
+    </div>
+
+    <div class="stat-row mt-32">
+      <div class="stat">
+        <div class="stat-value">15</div>
+        <div class="stat-label">Michigan GCs identified -- 0 have in-house drone survey</div>
+        <div class="source">Source: Michigan GC landscape research, 2026</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-date">v3.0 / 2027</div>
-        <div class="timeline-content">
-          <h3>Infrastructure Monitoring</h3>
-          <p>Bridge inspection, confined-space platforms. Federal mandate-driven demand. 35+ active GCs, $288K GMV/mo. Series A position.</p>
-        </div>
+      <div class="stat">
+        <div class="stat-value">14</div>
+        <div class="stat-label">Michigan drone operators mapped with briefing packets</div>
+        <div class="source">Source: Operator onboarding research, 2026</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-date">v4.0 / 2028+</div>
-        <div class="timeline-content">
-          <h3>Lunar Operations</h3>
-          <p>Same sensors, same workflows. Artemis base site prep, regolith surveys, habitat foundation verification. The path from Detroit to the Moon is a graduation, not a pivot.</p>
-        </div>
+      <div class="stat">
+        <div class="stat-value">43</div>
+        <div class="stat-label">Real MDOT RFPs analyzed and decomposed</div>
+        <div class="source">Source: MDOT 2024-2026 letting schedule</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 11: THE ASK -->
+<!-- SLIDE 11: BUSINESS MODEL -->
 <!-- ============================================================ -->
-<section class="slide slide-light" id="slide-11">
+<section class="slide slide-dark" id="slide-11">
   <div class="yak-mark">YAK</div>
   <div class="slide-number">11</div>
   <div class="max-w-900">
+    <span class="badge">Business Model</span>
+    <h2>12% buyer-side fee. Operator gets 100% of their bid.</h2>
+
+    <div class="grid-2 mt-16">
+      <div>
+        <p class="mb-24" style="color:rgba(255,255,255,0.7);">Fee is charged on top of the operator's bid price, inclusive of payment processing. Lower than construction staffing agencies (15-30%). Higher than basic marketplaces (3-5%) because we provide escrow, insurance verification, PLS tracking, deliverable QA, and contract generation.</p>
+
+        <div class="card" style="background:rgba(232,121,43,0.1); border-color:var(--orange);">
+          <p class="small mb-8" style="color:rgba(255,255,255,0.5);">Example: Typical aerial topo survey</p>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+            <span style="font-size:16px;">Task value</span>
+            <span class="mono" style="font-size:24px; font-weight:700;">$3,600</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+            <span style="font-size:16px;">Platform fee (12%)</span>
+            <span class="mono" style="font-size:24px; font-weight:700; color:var(--orange);">$432</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <span style="font-size:16px;">Operator receives</span>
+            <span class="mono" style="font-size:24px; font-weight:700;">$3,600</span>
+          </div>
+        </div>
+        <div class="source mt-8">Comparable take rates: Upwork 10%, construction staffing 15-30%, AWS Marketplace 3-5%. Source: Upwork 10-K 2025, industry benchmarks.</div>
+      </div>
+
+      <div>
+        <h3 class="mb-16" style="color:rgba(255,255,255,0.6);">Why operators will join</h3>
+        <ul class="check-list" style="color:rgba(255,255,255,0.7);">
+          <li>Zero cost to onboard -- no listing fees, no subscription</li>
+          <li>100% of their bid price, always</li>
+          <li>Access to GC demand they can't reach through cold outreach</li>
+          <li>Escrow protects against non-payment</li>
+          <li>Platform handles contract paperwork and compliance docs</li>
+        </ul>
+
+        <h3 class="mt-24 mb-16" style="color:rgba(255,255,255,0.6);">Why GCs will use it</h3>
+        <ul class="check-list" style="color:rgba(255,255,255,0.7);">
+          <li>Faster access to certified operators, especially in emergencies</li>
+          <li>Price transparency -- competitive bids, not take-it-or-leave-it quotes</li>
+          <li>Compliance trail (PLS stamp, E&O, insurance) in one place</li>
+          <li>Deliverables formatted for their estimating software</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: PHASE GATES (ROADMAP) -->
+<!-- ============================================================ -->
+<section class="slide slide-offwhite" id="slide-12">
+  <div class="yak-mark">YAK</div>
+  <div class="slide-number">12</div>
+  <div class="max-w-900">
+    <span class="badge">Roadmap</span>
+    <h2>Phase gates, not years. Each unlocks the next.</h2>
+
+    <div class="timeline mt-32">
+      <div class="timeline-item">
+        <div class="timeline-date" style="color:var(--green);">Phase 1</div>
+        <div class="timeline-content">
+          <h3>Michigan Pilot <span class="badge-green" style="margin-left:8px; vertical-align:middle;">GATE: First transaction</span></h3>
+          <p>Complete first paid survey task through the platform. One GC, one operator, one MDOT corridor. Validate: will a GC actually buy through us? Will an operator deliver? Does the liability chain hold?</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date" style="color:var(--blue);">Phase 2</div>
+        <div class="timeline-content">
+          <h3>Michigan Scale <span class="badge-blue" style="margin-left:8px; vertical-align:middle;">GATE: 10+ GCs, 5+ operators</span></h3>
+          <p>Prove repeatable demand. Operator dashboard, bid management, payment tracking. Target: $50K+ monthly GMV, repeat purchases from 3+ GCs.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">Phase 3</div>
+        <div class="timeline-content">
+          <h3>Multi-State Expansion <span class="badge-gray" style="margin-left:8px; vertical-align:middle;">GATE: Positive unit economics</span></h3>
+          <p>Expand to Ohio, Indiana, Illinois -- adjacent DOT markets with similar letting structures. Each new state requires PLS network, operator supply, and GC demand development.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">Phase 4</div>
+        <div class="timeline-content">
+          <h3>Additional Verticals <span class="badge-gray" style="margin-left:8px; vertical-align:middle;">GATE: Construction fundamentals proven</span></h3>
+          <p>Mining volumetrics, infrastructure monitoring. Same operator supply, new buyer personas. Only when construction marketplace is self-sustaining.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-orange mt-32" style="max-width:600px;">
+      <p class="small"><strong>Long-term vision:</strong> The auction engine and operator network could eventually serve any industry that needs on-demand physical data collection -- including space operations when commercial programs mature. But that is a vision, not a plan. We earn the right to expand by proving fundamentals first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: THE ASK -->
+<!-- ============================================================ -->
+<section class="slide slide-dark" id="slide-13">
+  <div class="yak-mark">YAK</div>
+  <div class="slide-number">13</div>
+  <div class="max-w-900">
     <span class="badge">The Ask</span>
-    <h2>$2.5M seed. 18 months to first revenue and Ohio expansion.</h2>
+    <h2>$2.5M seed to validate the model in Michigan.</h2>
 
     <div class="grid-2">
       <div>
@@ -978,12 +1294,13 @@ p, li {
               <span class="mono" style="font-weight:600;">18 months</span>
             </div>
           </div>
+          <div class="source mt-16">Comparable seeds: Built Robotics $2.5M (2016), DroneDeploy $2M (2013), OpenSpace $3.3M (2017), PlanHub $4M (2019). Source: Crunchbase.</div>
         </div>
 
-        <h3 class="mt-32 mb-16">Looking For</h3>
-        <ul class="check-list">
-          <li><strong>Technical co-founder</strong> -- full-stack + blockchain. Owns auction engine, smart contracts, MCP integration.</li>
-          <li><strong>BD co-founder</strong> -- construction industry relationships. GC network in Michigan/Midwest.</li>
+        <h3 class="mt-32 mb-16" style="color:rgba(255,255,255,0.6);">Also Looking For</h3>
+        <ul class="check-list" style="color:rgba(255,255,255,0.7);">
+          <li><strong>Technical co-founder</strong> -- full-stack marketplace engineer. Owns auction engine, operator dashboard, payment flows.</li>
+          <li><strong>BD co-founder</strong> -- construction industry relationships. GC network in Michigan/Midwest. Can get meetings, not just send emails.</li>
         </ul>
       </div>
 
@@ -992,13 +1309,13 @@ p, li {
         <div class="use-of-funds">
           <div class="fund-bar">
             <div class="fund-label">Engineering</div>
-            <div class="fund-track"><div class="fund-fill" style="width:59%"></div></div>
-            <div class="fund-pct">59%</div>
+            <div class="fund-track"><div class="fund-fill" style="width:47%"></div></div>
+            <div class="fund-pct">47%</div>
           </div>
           <div class="fund-bar">
-            <div class="fund-label">Legal / Compliance</div>
-            <div class="fund-track"><div class="fund-fill" style="width:8%"></div></div>
-            <div class="fund-pct">8%</div>
+            <div class="fund-label">Product &amp; Design</div>
+            <div class="fund-track"><div class="fund-fill" style="width:12%"></div></div>
+            <div class="fund-pct">12%</div>
           </div>
           <div class="fund-bar">
             <div class="fund-label">Go-to-Market</div>
@@ -1006,14 +1323,19 @@ p, li {
             <div class="fund-pct">10%</div>
           </div>
           <div class="fund-bar">
+            <div class="fund-label">Legal / Compliance</div>
+            <div class="fund-track"><div class="fund-fill" style="width:8%"></div></div>
+            <div class="fund-pct">8%</div>
+          </div>
+          <div class="fund-bar">
+            <div class="fund-label">Domain &amp; Ops</div>
+            <div class="fund-track"><div class="fund-fill" style="width:8%"></div></div>
+            <div class="fund-pct">8%</div>
+          </div>
+          <div class="fund-bar">
             <div class="fund-label">Infrastructure</div>
             <div class="fund-track"><div class="fund-fill" style="width:4%"></div></div>
             <div class="fund-pct">4%</div>
-          </div>
-          <div class="fund-bar">
-            <div class="fund-label">Operations</div>
-            <div class="fund-track"><div class="fund-fill" style="width:8%"></div></div>
-            <div class="fund-pct">8%</div>
           </div>
           <div class="fund-bar">
             <div class="fund-label">Contingency (20%)</div>
@@ -1021,14 +1343,13 @@ p, li {
             <div class="fund-pct">12%</div>
           </div>
         </div>
+        <div class="source mt-8">Full financial model: 18-month burn analysis with sensitivity scenarios. Source: FINANCIAL_ANALYSIS_RAISE.md</div>
 
-        <h3 class="mt-32 mb-16">18-Month Milestones</h3>
-        <ul class="check-list" style="font-size:14px;">
-          <li>M4: MDOT pilot -- first paid task</li>
-          <li>M10: 10 active GCs, $50K+ monthly GMV</li>
-          <li>M12: Series A readiness signal</li>
-          <li>M15: Mining vertical first customer</li>
-          <li>M18: 35 GCs, $288K GMV/mo, Series A raise</li>
+        <h3 class="mt-24 mb-16">Phase Gate Milestones</h3>
+        <ul class="check-list" style="font-size:14px; color:rgba(255,255,255,0.7);">
+          <li>Phase 1: First paid task on a real MDOT corridor</li>
+          <li>Phase 2: 10 active GCs, 5+ operators, $50K+ monthly GMV</li>
+          <li>Phase 2 exit: Series A readiness ($250K+ monthly GMV)</li>
         </ul>
       </div>
     </div>
@@ -1036,60 +1357,39 @@ p, li {
 </section>
 
 <!-- ============================================================ -->
-<!-- SLIDE 12: WHY US -->
+<!-- SLIDE 14: WHY US / CLOSING -->
 <!-- ============================================================ -->
-<section class="slide slide-dark" id="slide-12">
+<section class="slide slide-light" id="slide-14">
   <div class="yak-mark">YAK</div>
-  <div class="slide-number">12</div>
+  <div class="slide-number">14</div>
   <div class="max-w-900">
     <span class="badge">Why Us</span>
-    <h2>Family ties. Deep research. Working prototype.</h2>
+    <h2>Deep research. Working prototype. Michigan roots.</h2>
 
     <div class="grid-2 mt-16">
       <div>
         <ul class="check-list" style="font-size:16px;">
-          <li><strong>Michigan construction roots.</strong> Family ties in Michigan construction. Ground-level access to GCs and the MDOT ecosystem.</li>
-          <li><strong>Research depth.</strong> 40+ documents, 2,617-line product YAML, 43 real MDOT RFPs decomposed. We know this market.</li>
-          <li><strong>Working product.</strong> v1.0 built with 147 tests, 15 MCP tools, live demo. Not slides -- software.</li>
-          <li><strong>No direct competitors.</strong> The intersection of task auction + physical robots + AI agents is an open gap. First-mover advantage is available.</li>
-          <li><strong>Clear expansion path.</strong> Construction proves the model. Mining, infrastructure, and lunar operations use the same sensors, same workflows, same auction engine.</li>
+          <li><strong>Michigan construction family ties.</strong> Ground-level access to GCs and the MDOT ecosystem. Not cold outreach -- warm introductions.</li>
+          <li><strong>Domain research depth.</strong> 40+ documents, 2,617-line product ontology, 43 real MDOT RFPs decomposed. We know the difference between a DTM and a DSM and why it matters for quantity takeoff.</li>
+          <li><strong>Working prototype.</strong> Auction engine with scoring, settlement abstraction, AI scope extraction. Not slides -- software you can interact with at yakrobot.bid.</li>
+          <li><strong>Smart positioning.</strong> Buyer-side fee means zero cost for operators to join. Operators get 100% of their bid. The supply side has no reason to say no.</li>
+          <li><strong>Honest about stage.</strong> We have research and a prototype. We don't have customers or revenue yet. We're raising to get those.</li>
         </ul>
       </div>
       <div>
-        <div class="card" style="margin-bottom:24px;">
-          <p style="font-size:18px; font-style:italic; line-height:1.6; color:rgba(255,255,255,0.8);">"The path from Detroit to the Moon is a graduation, not a pivot."</p>
+        <div class="card" style="margin-bottom:24px; border-left:3px solid var(--orange);">
+          <p style="font-size:16px; line-height:1.6; color:var(--gray-600);"><strong style="color:var(--navy);">The single question that matters:</strong> Will a Michigan GC change their behavior and buy a survey through our platform instead of calling their usual firm?</p>
+          <p class="mt-16" style="font-size:14px; color:var(--gray-600);">We don't know yet. That's what the seed round is for. But the 43 MDOT RFPs, the 15 GC profiles, the 14 operator briefing packets, and the working auction engine give us the best possible starting position to find out.</p>
         </div>
 
         <div class="card">
-          <h3 class="mb-16">Comparable Seed Rounds</h3>
-          <div style="display:flex; flex-direction:column; gap:8px; font-size:14px;">
-            <div style="display:flex; justify-content:space-between;">
-              <span>Built Robotics</span>
-              <span class="mono">$2.5M (2016)</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>DroneDeploy</span>
-              <span class="mono">$2M (2013)</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>OpenSpace</span>
-              <span class="mono">$3.3M (2017)</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>PlanHub</span>
-              <span class="mono">$4M (2019)</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>Buildots</span>
-              <span class="mono">$3.5M (2019)</span>
-            </div>
-          </div>
-          <p class="tiny mt-16" style="color:rgba(255,255,255,0.35);">All raised Series A+ afterward. Combined $400M+ in follow-on funding.</p>
+          <h3>What would make this fundable tomorrow</h3>
+          <p class="small" style="color:var(--gray-600);">One signed LOI from a Michigan GC. One operator agreement. A co-founder with a construction Rolodex. We're working toward all three.</p>
         </div>
 
         <div class="mt-32" style="text-align:center;">
           <a href="https://yakrobot.bid" class="cta-link" target="_blank" style="font-size:20px;">yakrobot.bid</a>
-          <p class="tiny mt-16" style="color:rgba(255,255,255,0.35);">github.com/YakRoboticsGarage</p>
+          <p class="tiny mt-16" style="color:var(--gray-400);">github.com/YakRoboticsGarage</p>
         </div>
       </div>
     </div>
