@@ -1,116 +1,136 @@
-# Robot Task Auction Marketplace
+# YAK ROBOTICS — Robot Task Auction Marketplace
 
-A standalone marketplace module where AI agents post tasks, physical robots bid, and winners are paid via Stripe (fiat) or crypto.
+A marketplace where AI agents post construction survey tasks, certified robot operators bid autonomously, and the best one delivers. Starting with construction site surveying, scaling to mining, infrastructure, and lunar operations.
+
+**Live demo:** [yakrobot.bid](https://yakrobot.bid)
+
+## The Problem
+
+Construction survey scheduling is a 2-3 week bottleneck costing GCs missed bids. 368,000+ Part 107 holders own survey drones but lack a demand pipeline. No platform exists where AI agents post physical-world tasks and robots bid autonomously.
+
+## The Product
+
+Upload an RFP → the system extracts survey requirements → decomposes into independently biddable tasks → certified operators bid → you review winners with automated compliance checks → sign and activate → get Civil 3D-ready deliverables.
+
+**Demo flow:** [yakrobot.bid](https://yakrobot.bid) walks through a real MDOT I-94 Drainage Tunnel RFQ.
+
+## Project Structure
+
+```
+robot-marketplace/
+│
+├── auction/                     ← Core auction engine (Python)
+│   ├── core.py                  # Task, Bid, scoring, signing, commitment hash
+│   ├── engine.py                # AuctionEngine — state machine, rate limits
+│   ├── api.py                   # HTTP API for web frontend
+│   ├── settlement.py            # 4-mode settlement abstraction (FD-1)
+│   ├── mcp_tools.py             # 15 MCP tool handlers
+│   ├── wallet.py                # WalletLedger with thread-safe mutations
+│   ├── stripe_service.py        # Stripe SDK with idempotency keys
+│   ├── store.py                 # SQLite persistence
+│   ├── reputation.py            # ReputationTracker
+│   └── tests/                   # 147 passing + integration stubs
+│
+├── demo/                        ← Live website (yakrobot.bid)
+│   └── index.html               # Full interactive demo
+│
+├── docs/                        ← Documentation
+│   ├── ROADMAP_v4.md            # Construction → Mining → Infra → Lunar
+│   ├── USER_JOURNEY_CONSTRUCTION_v01.md  # Marco's journey
+│   ├── FEATURE_REQUIREMENTS_v15.md       # v1.5 build spec
+│   ├── DECISIONS.md             # All product/technical decisions
+│   ├── DEVELOPMENT_STRATEGY.md  # Testing & code safety (5-layer strategy)
+│   ├── research/                # 38 research docs (see research/README.md)
+│   │   ├── PRODUCT_DSL_v2.yaml  # ← THE product ontology (2,617 lines)
+│   │   ├── market/              # Wedge analysis, competitive landscape
+│   │   ├── legal/               # Contracts, bonds, payment flows
+│   │   ├── technical/           # Architecture, execution gaps
+│   │   └── operator/            # Onboarding, equipment, sensors
+│   └── feedback/                # Audits, critiques, founder feedback
+│
+├── .claude/
+│   ├── skills/
+│   │   ├── rfp-to-robot-spec/   # RFP → auction task specs
+│   │   └── rfp-to-site-recon/   # RFP → execution context
+│   └── hooks/block-secrets.sh   # Prevents committing API keys
+│
+├── .github/workflows/test.yml   # CI: tests + ruff + mypy
+├── CLAUDE.md                    # Payment safety rules for Claude
+├── serve_with_auction.py        # MCP gateway server
+└── pyproject.toml               # Dependencies, ruff, mypy config
+```
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/YakRoboticsGarage/robot-marketplace.git
+cd robot-marketplace && uv sync --all-extras
+
+# Run tests
+uv run pytest auction/tests/ -q --tb=short
+
+# Run the demo auction
+PYTHONPATH=. uv run python auction/demo.py
+
+# Or connect as MCP server
+claude mcp add-json yak-robotics '{"type":"http","url":"http://localhost:8001/fleet/mcp"}'
+```
+
+See [GETTING_STARTED.md](GETTING_STARTED.md) for full setup including Stripe and robot simulator.
+
+## Key Documents
+
+Start here, in this order:
+
+| # | Document | What it tells you |
+|---|----------|-------------------|
+| 1 | **[PRODUCT_DSL_v2.yaml](docs/research/PRODUCT_DSL_v2.yaml)** | The entire product in one file — vision, bets, users, architecture, market, legal, roadmap |
+| 2 | **[Research README](docs/research/README.md)** | Index of all 38 research documents |
+| 3 | **[User Journey](docs/USER_JOURNEY_CONSTRUCTION_v01.md)** | Marco's story — pre-bid survey for a highway project |
+| 4 | **[Roadmap v4](docs/ROADMAP_v4.md)** | Construction → Mining → Infrastructure → Lunar |
+| 5 | **[Decisions](docs/DECISIONS.md)** | Every product and technical decision with rationale |
+| 6 | **[Feature Requirements v1.5](docs/FEATURE_REQUIREMENTS_v15.md)** | What's being built next (12 features with acceptance criteria) |
+
+## Skills
+
+Two Claude Code skills for processing construction RFPs:
+
+| Skill | What it does |
+|-------|-------------|
+| **rfp-to-robot-spec** | Extracts survey requirements from RFPs → structured JSON task specs for the auction engine |
+| **rfp-to-site-recon** | Generates execution context from RFPs + public data → site boundary, airspace, weather, utilities |
+
+Both follow the [skill-creator-springett](https://github.com/bglek/skill-creator-springett) framework with validation scripts, reference docs, and eval test cases.
 
 ## Related Repositories
 
 | Repository | What it contains |
 |-----------|-----------------|
-| **[robot-marketplace](https://github.com/YakRoboticsGarage/robot-marketplace)** (this repo) | The marketplace code — auction engine, wallet, scoring, MCP tools, tests |
-| **[yakrover-protocols/marketplace](https://github.com/YakRoboticsGarage/yakrover-protocols/tree/main/marketplace)** | Protocol specification — user journey, decisions, diagrams, research |
 | **[yakrover-8004-mcp](https://github.com/YakRoboticsGarage/yakrover-8004-mcp)** | Robot framework — MCP servers, ERC-8004 discovery, robot plugins |
-
-## Quick Start
-
-**Run as an MCP server** (connect Claude Code directly):
-
-```bash
-# 1. Clone this repo + the robot framework
-git clone https://github.com/YakRoboticsGarage/robot-marketplace.git
-git clone https://github.com/YakRoboticsGarage/yakrover-8004-mcp.git
-
-# 2. Install dependencies
-cd robot-marketplace && uv sync
-
-# 3. Terminal 1 — start the robot simulator
-cd ../yakrover-8004-mcp
-PYTHONPATH=src uv run python -m robots.fakerover.simulator
-
-# 4. Terminal 2 — start the auction MCP server
-cd ../robot-marketplace
-PYTHONPATH=.:../yakrover-8004-mcp/src uv run python serve_with_auction.py
-
-# 5. Connect Claude Code
-claude mcp add --transport http fleet http://localhost:8000/fleet/mcp
-
-# 6. Talk naturally:
-#   "Check the temperature in Bay 3"
-#   "What robots are available?"
-```
-
-**Or run the standalone demo** (no MCP connection needed):
-
-```bash
-# Terminal 1: Start the robot simulator
-cd yakrover-8004-mcp
-PYTHONPATH=src uv run python -m robots.fakerover.simulator
-
-# Terminal 2: Run the auction demo
-cd robot-marketplace
-PYTHONPATH=. uv run python auction/demo.py
-```
-
-See [GETTING_STARTED.md](GETTING_STARTED.md) for the full walkthrough including Stripe setup.
-
-## Architecture
-
-```
-robot-marketplace/              ← This repo
-├── auction/
-│   ├── core.py                 # Data types, scoring, signing, constraints
-│   ├── engine.py               # AuctionEngine — 11-state lifecycle, wallet, reputation
-│   ├── wallet.py               # Internal ledger + Stripe wallet service
-│   ├── reputation.py           # Computed from task history
-│   ├── store.py                # SQLite persistence
-│   ├── stripe_service.py       # Stripe SDK wrapper (stub/live dual mode)
-│   ├── mcp_tools.py            # 15 FastMCP tools for fleet server
-│   ├── discovery_bridge.py     # ERC-8004 discovery → auction adapter
-│   ├── mock_fleet.py           # 5 simulated robots for demo/testing
-│   ├── demo.py                 # 5-scenario demo
-│   └── tests/                  # 151 tests
-├── serve_with_auction.py       # MCP server launcher
-├── docs/                       # Architecture docs
-└── research/                   # Research synthesis
-
-yakrover-8004-mcp/              ← Peer dependency (robot framework)
-├── src/core/plugin.py          # RobotPlugin with bid() method
-├── src/core/server.py          # Fleet server with auction_engine hook
-└── src/robots/fakerover/       # Simulated robot with bid() override
-```
-
-The marketplace connects to `yakrover-8004-mcp` via the `discovery_bridge.py` adapter. If the robot framework isn't installed, mock robots work standalone.
+| **[yakrover-protocols](https://github.com/YakRoboticsGarage/yakrover-protocols)** | Protocol specifications |
+| **[yakrover-skills](https://github.com/YakRoboticsGarage/yakrover-skills)** | Robot discovery skills |
 
 ## Key Numbers
 
 - **15 MCP tools** including `auction_quick_hire` (single-call auctions)
-- **151 tests**, all passing
-- **5 demo scenarios** — happy path, no robots, cheapest loses, timeout recovery, bad payload rejection
-- **Stripe integration** verified with real test-mode transfers (EUR 0.35 → operator)
-- **SQLite persistence** with write-through on every state transition
-- **Ed25519 signing** with HMAC fallback
-- **Structured error responses** — `error_code`/`message`/`hint`, never raw Python exceptions
-- **State-aware navigation** — `next_action`, `available_actions` guide agents through the lifecycle
+- **147 tests** passing, with integration test stubs for Stripe and fleet
+- **2,617-line YAML** product ontology covering the entire product
+- **43 real MDOT RFPs** analyzed for survey requirements
+- **6 real equipment platforms** with verified specs and pricing
+- **CI pipeline** with ruff (security linting), mypy, and pytest on every push
 
-## Running Tests
+## Construction Survey Focus
 
-```bash
-cd robot-marketplace
-PYTHONPATH=. uv run python -m pytest auction/tests/ -v
-```
+The marketplace targets construction site surveying as its wedge market (scored 4.25/5 across 8 industries). Real equipment on the platform:
 
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [GETTING_STARTED.md](GETTING_STARTED.md) | Step-by-step setup guide with Stripe |
-| [docs/USER_JOURNEY.md](docs/USER_JOURNEY.md) | The product story — what users experience |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Product roadmap v0.1 → v2.0 |
-| [docs/DECISIONS.md](docs/DECISIONS.md) | Every product and technical decision |
-| [docs/SCOPE.md](docs/SCOPE.md) | What's real, stubbed, or cut per version |
-| [docs/DIAGRAM_SYSTEM.md](docs/DIAGRAM_SYSTEM.md) | Architecture and scoring diagrams (Mermaid) |
-| [docs/DIAGRAM_USER_JOURNEY.md](docs/DIAGRAM_USER_JOURNEY.md) | User journey diagrams (Mermaid) |
-
-Full protocol specification: [yakrover-protocols/marketplace](https://github.com/YakRoboticsGarage/yakrover-protocols/tree/main/marketplace)
+| Operator | Equipment | Capability |
+|----------|-----------|-----------|
+| Apex Aerial Surveys | DJI Matrice 350 RTK + Zenmuse L2 | Aerial LiDAR, topo surveys |
+| SiteScan Robotics | Boston Dynamics Spot + Leica BLK ARC | Ground scanning, tunnel survey |
+| Trident Autonomous | Skydio X10 | Visual + thermal inspection |
+| ClearLine Survey | Autel EVO II Pro RTK | Aerial survey (budget entry) |
+| Meridian Geospatial | DJI Matrice 350 RTK + Zenmuse P1 | Photogrammetry |
 
 ## License
 
