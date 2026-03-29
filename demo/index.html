@@ -34,15 +34,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
    Elevation 580-620ft, Rouge River depression S, gentle rise N to Dearborn Heights
    Survey grid at 200ft intervals (major) and 50ft (minor), NAD83 Michigan South Zone
    Source: USGS NED 1/3 arc-second, Wayne County MI (public domain, 17 USC 105) */
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.05;background-image:
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.12;background-image:
   linear-gradient(rgba(27,58,92,0.3) 1px, transparent 1px),
   linear-gradient(90deg, rgba(27,58,92,0.3) 1px, transparent 1px),
   linear-gradient(rgba(27,58,92,0.1) 1px, transparent 1px),
   linear-gradient(90deg, rgba(27,58,92,0.1) 1px, transparent 1px);
 background-size: 200px 200px, 200px 200px, 50px 50px, 50px 50px}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.04;background-image:
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.09;background-image:
   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900' viewBox='0 0 1200 900'%3E%3Cstyle%3Epath%7Bfill:none;stroke:%231B3A5C%7D.idx%7Bstroke-width:1.2%7D.int%7Bstroke-width:0.5%7D.lbl%7Bfont:7px sans-serif;fill:%231B3A5C%7D%3C/style%3E%3Cg%3E%3C!-- 620ft index contour: ridge N of I-94 corridor --%3E%3Cpath class='idx' d='M0,95 C80,88 160,82 280,78 C400,74 520,80 640,92 C760,104 880,98 1000,86 C1080,78 1140,82 1200,88'/%3E%3Ctext class='lbl' x='20' y='90'%3E620%3C/text%3E%3C!-- 618ft --%3E%3Cpath class='int' d='M0,125 C90,116 190,108 310,105 C430,102 540,112 660,128 C780,144 890,134 1010,118 C1090,108 1150,112 1200,120'/%3E%3C!-- 616ft --%3E%3Cpath class='int' d='M0,158 C100,148 200,140 330,138 C460,136 570,148 680,166 C800,184 900,172 1020,154 C1100,142 1160,148 1200,156'/%3E%3C!-- 614ft --%3E%3Cpath class='int' d='M0,195 C110,184 210,176 340,174 C490,172 580,186 700,205 C820,224 910,210 1030,192 C1110,180 1170,186 1200,194'/%3E%3C!-- 612ft --%3E%3Cpath class='int' d='M0,238 C120,225 220,218 350,216 C510,214 600,230 720,250 C840,270 920,254 1040,234 C1120,222 1180,228 1200,236'/%3E%3C!-- 610ft index: I-94 roadway elevation --%3E%3Cpath class='idx' d='M0,285 C130,270 230,264 360,262 C530,260 620,278 740,298 C860,318 930,300 1050,280 C1130,268 1185,274 1200,282'/%3E%3Ctext class='lbl' x='365' y='256'%3E610%3C/text%3E%3C!-- I-94 centerline hint --%3E%3Cpath style='stroke:%231B3A5C;stroke-width:0.3;stroke-dasharray:8,4' d='M0,290 L1200,290'/%3E%3C!-- 608ft --%3E%3Cpath class='int' d='M0,335 C100,325 200,318 360,315 C520,312 640,328 760,348 C880,368 940,350 1060,330 C1140,318 1190,324 1200,332'/%3E%3C!-- 606ft --%3E%3Cpath class='int' d='M0,388 C90,376 190,370 350,368 C510,366 650,382 770,402 C890,422 950,404 1070,384 C1150,372 1195,378 1200,386'/%3E%3C!-- 604ft --%3E%3Cpath class='int' d='M0,445 C80,432 180,426 340,425 C500,424 660,440 780,460 C900,480 960,462 1080,442 C1160,430 1198,436 1200,444'/%3E%3C!-- 602ft --%3E%3Cpath class='int' d='M0,505 C70,492 170,486 330,485 C490,484 670,500 790,520 C910,540 970,524 1090,504 C1170,492 1200,498 1200,504'/%3E%3C!-- 600ft index: Rouge River valley --%3E%3Cpath class='idx' d='M0,570 C60,556 160,550 320,548 C480,546 680,564 800,584 C920,604 980,590 1100,570 C1180,558 1200,564 1200,570'/%3E%3Ctext class='lbl' x='325' y='542'%3E600%3C/text%3E%3C!-- 598ft --%3E%3Cpath class='int' d='M0,640 C50,628 150,622 310,618 C470,614 690,630 810,648 C930,666 990,654 1110,638 C1190,628 1200,634 1200,640'/%3E%3C!-- 596ft --%3E%3Cpath class='int' d='M0,708 C45,698 145,692 300,688 C460,684 700,698 820,714 C940,730 1000,720 1120,706 C1195,698 1200,704 1200,708'/%3E%3C!-- 594ft --%3E%3Cpath class='int' d='M0,772 C40,764 140,758 290,756 C450,754 710,768 830,782 C950,796 1010,786 1130,774 C1198,766 1200,770 1200,772'/%3E%3C!-- 590ft index: river bottom --%3E%3Cpath class='idx' d='M0,840 C35,834 135,828 280,826 C440,824 720,836 840,848 C960,860 1020,852 1140,842 C1200,836 1200,840 1200,840'/%3E%3Ctext class='lbl' x='285' y='820'%3E590%3C/text%3E%3C!-- Control points --%3E%3Ccircle cx='200' cy='200' r='3' fill='none' stroke='%231B3A5C' stroke-width='0.8'/%3E%3Cline x1='194' y1='200' x2='206' y2='200' stroke='%231B3A5C' stroke-width='0.5'/%3E%3Cline x1='200' y1='194' x2='200' y2='206' stroke='%231B3A5C' stroke-width='0.5'/%3E%3Ccircle cx='600' cy='285' r='3' fill='none' stroke='%231B3A5C' stroke-width='0.8'/%3E%3Cline x1='594' y1='285' x2='606' y2='285' stroke='%231B3A5C' stroke-width='0.5'/%3E%3Cline x1='600' y1='279' x2='600' y2='291' stroke='%231B3A5C' stroke-width='0.5'/%3E%3Ccircle cx='1000' cy='400' r='3' fill='none' stroke='%231B3A5C' stroke-width='0.8'/%3E%3Cline x1='994' y1='400' x2='1006' y2='400' stroke='%231B3A5C' stroke-width='0.5'/%3E%3Cline x1='1000' y1='394' x2='1000' y2='406' stroke='%231B3A5C' stroke-width='0.5'/%3E%3C/g%3E%3C/svg%3E");
 background-size:1200px 900px}
+/* Fabric/linen texture — gives the topo a printed-on-cloth feel */
+body .fabric-tex{position:fixed;inset:0;pointer-events:none;z-index:0;
+  opacity:0.35;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Crect width='6' height='6' fill='%23f5f6f8'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23e8e9ec' opacity='0.5'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23e8e9ec' opacity='0.3'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23eaebee' opacity='0.2'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23e8e9ec' opacity='0.4'/%3E%3C/svg%3E");
+  background-size:6px 6px}
 body>*{position:relative;z-index:1}
 h1,h2,h3{font-weight:700;letter-spacing:-0.02em}
 .mono{font-family:'JetBrains Mono',monospace}
@@ -442,6 +447,7 @@ footer a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
+<div class="fabric-tex"></div>
 <div class="container">
 <header>
   <a href="#" class="logo" onclick="resetDemo();return false"><img src="yak-icon.png" alt="Yak" width="28" height="28">YAK ROBOTICS</a>
