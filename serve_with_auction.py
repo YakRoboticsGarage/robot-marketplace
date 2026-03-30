@@ -55,7 +55,7 @@ from fastmcp import FastMCP
 from auction.engine import AuctionEngine
 from auction.wallet import WalletLedger
 from auction.reputation import ReputationTracker
-from auction.mock_fleet import create_demo_fleet
+from auction.mock_fleet import create_full_fleet
 from auction.mcp_tools import register_auction_tools
 from auction.core import log
 
@@ -106,7 +106,7 @@ def build_auction_engine():
 
     # Robot fleet — use mock robots for now
     # TODO: Replace with discover_and_adapt() for on-chain robot discovery
-    fleet = create_demo_fleet()
+    fleet = create_full_fleet()
     log("AUCTION", f"Fleet: {len(fleet)} mock robots ({', '.join(r.robot_id for r in fleet)})")
 
     # Build engine

@@ -23,7 +23,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from auction.core import VALID_TASK_CATEGORIES
+from auction.core import VALID_TASK_CATEGORIES, TaskState
 from auction.engine import AuctionEngine
 
 
@@ -629,3 +629,451 @@ def register_auction_tools(
             error["request_id"] = request_id
             error["failed_at_step"] = current_state
             return error
+
+    # ------------------------------------------------------------------
+    # Phase 2: RFP processing tools
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_process_rfp(
+        rfp_text: str, jurisdiction: str = "MI", site_info: dict = {},
+    ) -> dict:
+        """Process a construction RFP into structured task specs for the auction.
+
+        Takes raw RFP text and extracts survey requirements, decomposing them
+        into independently biddable task specs. Each spec can be passed directly
+        to auction_post_task.
+
+        The agent MUST provide site_info for accurate task generation. Without
+        geographic context, operators cannot plan flights or estimate costs.
+
+        Args:
+            rfp_text: The RFP document text (or relevant excerpt).
+            jurisdiction: State code for standards (default "MI" for Michigan).
+            site_info: Geographic and project context (strongly recommended):
+                - project_name (str): Official project name
+                - location (str): City/county/address
+                - coordinates (dict): {"lat": float, "lon": float}
+                - survey_area (dict): {"type": "corridor", "acres": float,
+                    "length_miles": float, "width_ft": float}
+                - agency (str): Contracting agency (e.g., "MDOT")
+                - project_id (str): Agency project number
+                - letting_date (str): Bid date (ISO format)
+                - terrain (str): "flat"|"corridor"|"urban"|"underground"
+                - access_restrictions (list): e.g., ["highway_traffic"]
+                - airspace_class (str): FAA class (default "G")
+                - reference_standards (list): e.g., ["MDOT Section 104.09"]
+
+        Returns dict with task_specs list, warnings for missing fields, and metadata.
+        """
+        try:
+            from auction.rfp_processor import process_rfp
+            specs = process_rfp(rfp_text, jurisdiction, site_info or None)
+
+            warnings = []
+            if not site_info.get("coordinates"):
+                warnings.append("No coordinates — operators need lat/lon to plan flights. Provide site_info.coordinates.")
+            if not site_info.get("survey_area"):
+                warnings.append("No survey area — budget estimates may be inaccurate. Provide site_info.survey_area.")
+            if not site_info.get("project_name"):
+                warnings.append("No project name — extracted from RFP text, may be inaccurate.")
+
+            return _decimals_to_strings({
+                "jurisdiction": jurisdiction,
+                "task_count": len(specs),
+                "task_specs": specs,
+                "site_info_provided": bool(site_info),
+                "warnings": warnings,
+                "note": (
+                    "Each task_spec can be passed to auction_post_task. "
+                    "Review and adjust budget_ceiling and sla_seconds before posting."
+                ),
+            })
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_validate_task_specs(task_specs: list) -> dict:
+        """Validate an array of task specs against the engine schema.
+
+        Returns per-spec pass/fail with detailed error messages. Use this
+        before calling auction_post_task to catch all issues upfront.
+        """
+        try:
+            from auction.rfp_processor import validate_task_specs
+            return validate_task_specs(task_specs)
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_get_site_recon(rfp_text: str, task_specs: list) -> dict:
+        """Generate a site reconnaissance report from an RFP and task specs.
+
+        Returns execution context: airspace, terrain, weather constraints,
+        and access considerations. Each field is tagged with source confidence
+        (RFP, LOOKUP, INFERRED, UNKNOWN).
+
+        Use after auction_process_rfp to get the operational context for
+        task execution planning.
+        """
+        try:
+            from auction.rfp_processor import get_site_recon
+            return get_site_recon(rfp_text, task_specs)
+        except Exception as exc:
+            return _error_response(exc)
+
+    # ------------------------------------------------------------------
+    # Phase 3: Buyer review and award confirmation tools
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_review_bids(request_id: str) -> dict:
+        """Get a structured bid comparison for buyer review and decision-making.
+
+        Returns all bids with scores, operator info, and a recommended winner.
+        Use this after auction_get_bids to present options to the buyer.
+
+        The response includes:
+        - All bids ranked by composite score
+        - Operator profiles and reputation data
+        - Recommended winner with explanation
+        - Budget comparison
+
+        After review, use auction_award_with_confirmation to lock in the selection.
+        """
+        try:
+            result = engine.review_bids(request_id)
+            return _decimals_to_strings(result)
+        except (ValueError, KeyError) as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_award_with_confirmation(
+        request_id: str, robot_id: str, buyer_notes: str = ""
+    ) -> dict:
+        """Award a task to a specific operator with buyer confirmation.
+
+        Unlike auction_accept_bid which can auto-execute, this tool accepts
+        the bid and waits at bid_accepted state for a separate auction_execute
+        call. This allows the buyer to review the award before work begins.
+
+        Args:
+            request_id: The task request ID.
+            robot_id: The winning operator's robot ID.
+            buyer_notes: Optional notes from the buyer about the award decision.
+
+        After this, call auction_execute to dispatch the task.
+        """
+        try:
+            result = engine.accept_bid(request_id, robot_id)
+            # Record buyer notes
+            record = engine._get_record(request_id)
+            record.buyer_notes = buyer_notes
+            record.awarded_at = __import__("datetime").datetime.now(
+                __import__("datetime").timezone.utc
+            ).isoformat()
+            result["buyer_notes"] = buyer_notes
+            result["awarded_at"] = record.awarded_at
+            result["next_step"] = (
+                "Call auction_execute to dispatch the task, "
+                "or auction_generate_agreement to create the subcontract first."
+            )
+            return _decimals_to_strings(result)
+        except (ValueError, KeyError) as exc:
+            return _error_response(exc)
+
+    # ------------------------------------------------------------------
+    # Phase 4: Compliance verification tools
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_verify_bond(bond_text: str, task_request_ids: list) -> dict:
+        """Verify a payment bond document against task requirements.
+
+        Extracts bond fields (bond number, surety, penal sum, parties, dates)
+        and verifies against Treasury Circular 570 for federal bond standing.
+
+        Returns VERIFIED, PARTIAL, or FAILED with detailed check results.
+        """
+        try:
+            from auction.bond_verifier import verify_bond
+            return verify_bond(bond_text, task_request_ids)
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_verify_operator_compliance(robot_id: str) -> dict:
+        """Check an operator's compliance status across all dimensions.
+
+        Returns a checklist covering:
+        - FAA Part 107 certification
+        - Insurance COI (Certificate of Insurance)
+        - PLS (Professional Land Surveyor) license
+        - SAM.gov registration (federal contracts)
+        - State DOT prequalification
+        - DBE/MBE/WBE certification
+
+        Each item returns VERIFIED, MISSING, EXPIRED, or NOT_REQUIRED.
+        """
+        try:
+            if not hasattr(engine, '_compliance_checker'):
+                from auction.compliance import ComplianceChecker
+                engine._compliance_checker = ComplianceChecker()
+            return engine._compliance_checker.verify_operator(robot_id)
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_upload_compliance_doc(
+        robot_id: str, doc_type: str, content: str
+    ) -> dict:
+        """Upload a compliance document for an operator.
+
+        doc_type must be one of:
+        - faa_part_107: FAA Remote Pilot Certificate
+        - insurance_coi: Certificate of Insurance (ACORD 25)
+        - pls_license: Professional Land Surveyor license
+        - sam_registration: SAM.gov registration
+        - dot_prequalification: State DOT prequalification
+        - dbe_certification: DBE/MBE/WBE certification
+
+        The document is stored and marked as VERIFIED.
+        """
+        try:
+            if not hasattr(engine, '_compliance_checker'):
+                from auction.compliance import ComplianceChecker
+                engine._compliance_checker = ComplianceChecker()
+            record = engine._compliance_checker.upload_document(robot_id, doc_type, content)
+            # After successful upload, update operator registry if it exists
+            if hasattr(engine, '_operator_registry'):
+                try:
+                    op = engine._operator_registry._get(robot_id)
+                    if doc_type not in op.certifications:
+                        op.certifications.append(doc_type)
+                except KeyError:
+                    pass  # Operator not registered via registry (e.g., mock fleet)
+            return {
+                "robot_id": record.robot_id,
+                "doc_type": record.doc_type,
+                "status": record.status,
+                "verified_at": record.verified_at.isoformat(),
+            }
+        except (ValueError, Exception) as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_compare_terms(
+        operator_terms: str, gc_terms: str, project_state: str = "MI"
+    ) -> dict:
+        """Compare operator standard terms vs. GC subcontract terms.
+
+        Analyzes across 12 dimensions: indemnification, limitation of liability,
+        insurance, payment terms, retainage, data ownership, standard of care,
+        consequential damages, dispute resolution, termination, change orders,
+        and PLS responsibility.
+
+        Flags deviations from marketplace baseline (ConsensusDocs 750 aligned)
+        and checks state-specific anti-indemnity statutes.
+
+        Args:
+            operator_terms: Operator's standard terms text.
+            gc_terms: GC's proposed subcontract terms text.
+            project_state: State code for anti-indemnity statute lookup.
+        """
+        try:
+            from auction.terms_comparator import compare_terms
+            return compare_terms(operator_terms, gc_terms, project_state)
+        except Exception as exc:
+            return _error_response(exc)
+
+    # ------------------------------------------------------------------
+    # Operator registration tools
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_register_operator(
+        company_name: str,
+        contact_name: str,
+        contact_email: str,
+        location: str,
+        coverage_states: list | None = None,
+        max_range_miles: int = 200,
+    ) -> dict:
+        """Register a new operator on the marketplace.
+
+        Creates an operator profile. After registration, the operator must:
+        1. Add equipment via auction_add_equipment
+        2. Upload compliance docs via auction_upload_compliance_doc
+        3. Set insurance via auction_register_operator (update)
+        4. Call auction_activate_operator to start bidding
+
+        Args:
+            company_name: Legal business name
+            contact_name: Primary contact person
+            contact_email: Contact email
+            location: Base location (e.g., "Detroit, MI")
+            coverage_states: States where operator can work (e.g., ["MI", "OH"])
+            max_range_miles: Maximum travel distance from base
+        """
+        try:
+            if not hasattr(engine, '_operator_registry'):
+                from auction.operator_registry import OperatorRegistry
+                engine._operator_registry = OperatorRegistry()
+            profile = engine._operator_registry.register(
+                company_name, contact_name, contact_email,
+                location, coverage_states or [], max_range_miles,
+            )
+            return engine._operator_registry.get_profile(profile.operator_id)
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_add_equipment(
+        operator_id: str,
+        equipment_type: str,
+        model: str,
+        accuracy_cm: float = 0,
+    ) -> dict:
+        """Add equipment to an operator's profile.
+
+        equipment_type should match sensor types used in task specs:
+        aerial_lidar, terrestrial_lidar, photogrammetry, gpr, rtk_gps,
+        thermal_camera, robotic_total_station
+
+        Args:
+            operator_id: From auction_register_operator response
+            equipment_type: Sensor/equipment type
+            model: Equipment model (e.g., "DJI Matrice 350 RTK + Zenmuse L2")
+            accuracy_cm: Equipment accuracy in centimeters
+        """
+        try:
+            if not hasattr(engine, '_operator_registry'):
+                from auction.operator_registry import OperatorRegistry
+                engine._operator_registry = OperatorRegistry()
+            return engine._operator_registry.add_equipment(
+                operator_id, equipment_type, model, accuracy_cm=accuracy_cm,
+            )
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_activate_operator(operator_id: str) -> dict:
+        """Activate an operator for bidding on the marketplace.
+
+        Checks that the operator has: at least 1 equipment item,
+        FAA Part 107 certification, and insurance on file.
+        Returns activation status or list of issues to fix.
+        """
+        try:
+            if not hasattr(engine, '_operator_registry'):
+                from auction.operator_registry import OperatorRegistry
+                engine._operator_registry = OperatorRegistry()
+            return engine._operator_registry.activate(operator_id)
+        except Exception as exc:
+            return _error_response(exc)
+
+    # ------------------------------------------------------------------
+    # Phase 5: Agreement generation and project management tools
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_generate_agreement(
+        request_id: str, template: str = "consensusdocs_750"
+    ) -> dict:
+        """Generate a subcontract agreement for an awarded task.
+
+        Creates a structured agreement from the task spec, winning bid,
+        and template. The agreement includes all ConsensusDocs 750 fields:
+        scope, fee, insurance, PLS supervision, limitation of liability,
+        retainage, data ownership, dispute resolution, and governing law.
+
+        Call this after auction_award_with_confirmation and before
+        auction_execute.
+
+        Args:
+            request_id: The task request ID (must be in bid_accepted state).
+            template: Agreement template ("consensusdocs_750" or "aia_a401").
+        """
+        try:
+            from auction.agreement import generate_agreement
+            record = engine._get_record(request_id)
+            if record.state != TaskState.BID_ACCEPTED:
+                raise ValueError(
+                    f"generate_agreement requires state bid_accepted, got {record.state.value}"
+                )
+            if record.winning_bid is None:
+                raise ValueError("No winning bid to generate agreement for")
+
+            agreement = generate_agreement(record, template)
+            return _decimals_to_strings(agreement)
+        except (ValueError, KeyError) as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_track_execution(request_id: str) -> dict:
+        """Get detailed execution tracking for an active task.
+
+        Returns: task state, time elapsed vs SLA, operator info,
+        deliverable status, and progress milestones.
+
+        More detailed than auction_get_status — designed for project
+        management during task execution.
+        """
+        try:
+            from datetime import datetime, timezone
+            record = engine._get_record(request_id)
+
+            elapsed = None
+            sla_remaining = None
+            if record.task.posted_at:
+                now = datetime.now(timezone.utc)
+                elapsed_seconds = (now - record.task.posted_at).total_seconds()
+                elapsed = int(elapsed_seconds)
+                sla_remaining = max(0, record.task.sla_seconds - int(elapsed_seconds))
+
+            delivery_status = "pending"
+            if record.delivery is not None:
+                delivery_status = "delivered"
+            elif record.state == TaskState.IN_PROGRESS:
+                delivery_status = "in_progress"
+            elif record.state in (TaskState.VERIFIED, TaskState.SETTLED):
+                delivery_status = "accepted"
+
+            return _decimals_to_strings({
+                "request_id": request_id,
+                "state": record.state.value,
+                "task_description": record.task.description,
+                "task_category": record.task.task_category,
+                "budget_ceiling": str(record.task.budget_ceiling),
+                "sla_seconds": record.task.sla_seconds,
+                "elapsed_seconds": elapsed,
+                "sla_remaining_seconds": sla_remaining,
+                "sla_met": sla_remaining > 0 if sla_remaining is not None else None,
+                "winning_robot": record.winning_bid.robot_id if record.winning_bid else None,
+                "winning_price": str(record.winning_bid.price) if record.winning_bid else None,
+                "delivery_status": delivery_status,
+                "delivery_data": record.delivery.data if record.delivery else None,
+                "bid_round": record.bid_round,
+                "rfp_id": record.task.task_decomposition.get("rfp_id"),
+                "task_index": record.task.task_decomposition.get("task_index"),
+            })
+        except (ValueError, KeyError) as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_list_tasks(filters: dict = None) -> dict:
+        """List all tasks with optional filters.
+
+        Filters (all optional):
+        - state: Filter by task state (e.g., "bidding", "settled")
+        - rfp_id: Filter by RFP ID (from task_decomposition)
+        - robot_id: Filter by winning robot ID
+        - task_category: Filter by category (e.g., "site_survey")
+
+        Essential for managing multi-task projects from a single RFP.
+        """
+        try:
+            result = engine.list_tasks(filters)
+            return _decimals_to_strings(result)
+        except Exception as exc:
+            return _error_response(exc)

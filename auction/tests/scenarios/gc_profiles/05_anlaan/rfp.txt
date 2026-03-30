@@ -1,0 +1,126 @@
+MICHIGAN DEPARTMENT OF TRANSPORTATION
+REQUEST FOR QUALIFICATIONS — SURVEY SERVICES
+
+Date Issued: March 1, 2026
+SOQ Due: March 28, 2026, 4:00 PM EST
+Contact: MDOT Bureau of Development — Design-Build Unit
+         dbsurvey@michigan.gov
+
+Project: I-94 Modernization — Drainage Tunnel Rehabilitation
+Location: I-94 from Conner Avenue to Cadieux Road, Detroit, Wayne County, MI
+Contract Number: IM-94-23456
+Design-Build Contractor: Anlaan Corporation / C.A. Hull Company JV
+
+BACKGROUND:
+
+The Michigan Department of Transportation is modernizing the I-94 corridor
+in east Detroit as part of the I-94 Modernization Program. This phase
+addresses rehabilitation of the aging drainage tunnel system beneath the
+freeway, originally constructed in the 1940s-1950s. The tunnel system
+collects stormwater from the depressed freeway section and conveys it to
+the Detroit Water and Sewerage Department combined sewer system.
+
+The design-build team (Anlaan/C.A. Hull JV) requires comprehensive survey
+services to support design development, tunnel condition assessment, and
+construction monitoring. Survey services will be contracted through the
+design-build team with MDOT oversight.
+
+SCOPE OF WORK:
+
+TASK 1: PRE-CONSTRUCTION TOPOGRAPHIC SURVEY
+- Aerial LiDAR corridor survey of I-94 mainline and all interchange ramps
+- Corridor width: 200 feet (100 ft each side of centerline)
+- Approximate survey area: 45 acres over 3.2 miles
+- RTK-GPS ground control network: minimum 20 control points
+- Cross-sections at 50-foot intervals along mainline centerline
+- Cross-sections at 25-foot intervals through interchange areas
+- Map all surface features:
+  * Pavement edges, lane lines, shoulders
+  * Drainage inlets, manholes, catch basins, outfall structures
+  * Overhead and underground utility indicators
+  * Signs, signals, lighting, ITS devices
+  * Barriers, guardrail, bridge rails, retaining walls
+  * Sidewalks, curbs, ADA ramps
+- Accuracy: +/-0.05 ft horizontal and vertical (NCHRP 748 Category 1A)
+- Coordinate system: Michigan State Plane South Zone, NAD83(2011), NAVD88 (GEOID18)
+- Deliverables:
+  * LandXML surface model
+  * DXF planimetric map (MDOT CAD standard layer naming)
+  * LAS point cloud (ASPRS classified, Class 2 minimum)
+  * GeoTIFF orthomosaic (2-inch GSD minimum)
+  * Cross-section sheets (PDF and DXF)
+  * Ground control report with network adjustment
+  * FGDC-compliant metadata for all datasets
+
+TASK 2: TUNNEL 3D SCANNING AND AS-BUILT SURVEY
+- Terrestrial LiDAR scanning of the complete drainage tunnel system
+- Approximately 6,000 linear feet of tunnel (multiple branches)
+- Tunnel dimensions vary: 4 ft to 12 ft diameter
+- Point spacing: not greater than 0.05 ft on all structural elements
+- Document and measure:
+  * Wall thickness variations (where accessible)
+  * Joint condition and separation
+  * Invert profile and grade
+  * Lateral connections and junction chambers
+  * Visible deterioration (spalling, cracking, corrosion, root intrusion)
+  * Sediment depth at 25-ft intervals
+  * Cross-sectional geometry at 25-ft intervals
+- Confined space entry required per OSHA 29 CFR 1926.1200
+  * Permit-required confined space program
+  * Atmospheric monitoring (O2, H2S, CO, LEL)
+  * Rescue team or retrieval system
+  * Entry supervisor, attendant, and authorized entrants
+- Coordinate system: tied to Task 1 control network
+- Deliverables:
+  * e57 registered point cloud (full tunnel system)
+  * LAS classified point cloud
+  * DXF cross-sections at 25-ft intervals
+  * Tunnel condition report with photo documentation
+  * Invert profile (LandXML)
+  * Wall thickness measurement log
+  * Confined space entry logs and atmospheric monitoring records
+
+TASK 3: CONTINUOUS TBM ALIGNMENT MONITORING
+- Real-time alignment monitoring during tunnel boring machine operations
+- Robotic total station with automated target tracking
+- Continuous position reporting to TBM guidance system
+- Requires on-site tunnel survey manager with minimum 10 years
+  tunnel survey experience
+- 24/7 coverage during active boring operations (estimated 60 days)
+- NOT ELIGIBLE FOR AUTOMATED ROBOT BIDDING — this task requires a
+  specialized human vendor with tunnel construction survey experience.
+  Include this task in SOQ for informational purposes only.
+
+REQUIREMENTS:
+- Michigan Professional Land Surveyor (PLS) supervision for all tasks
+- FAA Part 107 remote pilot certification (Task 1)
+- Confined space entry certification per OSHA 29 CFR 1926.1200 (Task 2)
+- MDOT prequalification in Survey and Mapping preferred
+- Minimum 5 years experience with transportation corridor surveys
+- Minimum 3 projects involving tunnel or underground structure scanning
+- Professional liability insurance: $2,000,000 minimum
+- Workers' compensation: statutory
+- Commercial general liability: $2,000,000 per occurrence
+
+ESTIMATED BUDGET:
+- Task 1 (Topographic Survey): $85,000
+- Task 2 (Tunnel 3D Scanning): $120,000
+- Task 3 (TBM Monitoring): To Be Determined — proposal requested
+
+COMPLETION SCHEDULE:
+- Task 1: 30 calendar days from NTP
+- Task 2: 45 calendar days from NTP
+- Task 3: Duration of TBM operations (estimated 60 days)
+
+EVALUATION CRITERIA:
+1. Firm qualifications and relevant experience (30%)
+2. Key personnel qualifications (25%)
+3. Technical approach and methodology (20%)
+4. Safety program and confined space procedures (15%)
+5. Schedule and availability (10%)
+
+Note: Price proposals will be requested from shortlisted firms after
+SOQ evaluation. This is a qualifications-based selection per MCL 339.2009.
+
+Submit SOQ to: dbsurvey@michigan.gov
+Subject: "I-94 Drainage Tunnel — Survey SOQ — [Firm Name]"

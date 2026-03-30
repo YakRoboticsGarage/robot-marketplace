@@ -387,6 +387,14 @@ unknowns:
       mitigation: "Start with top 5 sureties (Travelers, Liberty Mutual, CNA, Zurich, Hartford); expand"
       resolve_by: phase:v2.0
       sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+      # [2026-03-30] PARTIALLY RESOLVED: Circular 570 Excel contains 501 surety companies
+      # with state licensing for all 56 US states/territories. Verification scales nationally.
+      # Remaining gap: real-time bond status (active/cancelled) requires surety portal access.
+      # No surety company offers a public REST API. Verification portals are web forms only.
+      # Surety companies with online verification: Merchants Bonding, Intact, Frankenmuth.
+      # Major sureties (Travelers, Liberty Mutual, CNA, Zurich, Hartford): phone/email only.
+      resolution_status: partially_resolved
+      resolution_note: "Circular 570 verification scales nationally (501 companies, all states). Bond-is-active verification requires surety partnerships — no public API exists."
 
     - id: unknown:eu_amlr_interpretation
       question: "EU AMLR Article 79 (July 2027) bans CASPs from handling privacy-preserving digital assets — how broadly interpreted?"
@@ -1209,6 +1217,19 @@ legal:
       threshold_usd: 50000
       sureties: [Travelers, Liberty Mutual, CNA, Zurich, Hartford]
       sources: [{path: docs/research/RESEARCH_CONSTRUCTION_PAYMENT_FLOWS.md}]
+      # [2026-03-30] Implementation status:
+      implementation:
+        circular_570_lookup: real  # 501 companies from fiscal.treasury.gov Excel
+        state_licensing_check: real  # 56 state/territory columns from Circular 570
+        underwriting_limit_check: real  # Dollar limits from Circular 570
+        pdf_bond_extraction: real  # PyMuPDF text extraction
+        surety_name_matching: real  # Exact + fuzzy matching against 501 entries
+        bond_is_active_check: not_possible  # No public API — surety portals are web forms
+        power_of_attorney_auth: not_possible  # Requires surety portal or phone
+        am_best_rating: not_possible  # Paid subscription ($5K+/yr)
+        sam_gov_exclusion: planned  # Free API available, needs API key registration
+      data_source: "auction/data/circular_570.xlsx (real Treasury data, 501 companies)"
+      data_updated: "2026-03-30"
 
     - id: legal:pe_stamped_deliverables
       description: "PLS stamp required on survey plats and deliverables relied upon for construction. All 50 states."
@@ -2182,21 +2203,36 @@ architecture:
     # [v2.2] Built skills from .claude/skills/ + validated by research docs
     - id: skill:bond_verification
       status: implemented
-      version: "1.0"
-      description: "Verify payment bond documents against Treasury Circular 570, surety portals, and project requirements"
-      inputs: [bond_document_pdf, task_value_usd, project_state]
+      version: "2.0"  # Upgraded from regex-only to real Treasury data
+      description: "Verify payment bond documents against real Treasury Circular 570 data (501 companies), check state licensing, validate underwriting limits"
+      inputs: [bond_document_text_or_pdf, task_value_usd, project_state]
       outputs:
-        - surety_verified
+        - surety_verified  # Matched against 501 Circular 570 entries
+        - surety_naic_code
+        - surety_underwriting_limit  # Real dollar limit from Treasury
+        - state_licensed  # Real state licensing from Circular 570 columns
         - penal_sum_adequate
+        - coverage_sufficient  # Penal sum >= required_coverage
         - effective_date_current
-        - state_license_valid
-        - underwriting_limit_check
-        - verification_result  # VERIFIED / FAILED with specific check results
+        - verification_result  # VERIFIED / PARTIAL / FAILED with check details
       verification_sources:
-        - "Treasury Circular 570 (annual Excel, machine-parseable)"
-        - "Surety portals: Merchants Bonding, Intact, Frankenmuth (online), Travelers/Liberty Mutual/CNA (phone/email)"
-        - "AM Best ratings for financial strength"
+        - source: "Treasury Circular 570 Excel"
+          url: "https://fiscal.treasury.gov/surety-bonds/list-certified-companies.html"
+          format: xlsx
+          companies: 501
+          status: real  # Downloaded and parsed — not mocked
+          data_file: "auction/data/circular_570.xlsx"
+        - source: "Surety portals"
+          status: not_available  # No public REST API exists
+          note: "Merchants Bonding, Intact, Frankenmuth have online forms. Major sureties (Travelers, Liberty Mutual, CNA, Zurich, Hartford) require phone/email."
+        - source: "AM Best ratings"
+          status: not_available  # Paid subscription required
+          note: "$5K+/yr subscription. Not integrated."
+        - source: "SAM.gov Exclusions API"
+          url: "https://api.sam.gov/entity-information/v4/exclusions"
+          status: planned  # Free API, needs key registration
       real_examples_found: 6
+      tested_against: "5 end-to-end scenarios with real bond documents, all verified against Circular 570"
       sources: [{path: docs/research/legal/RESEARCH_BOND_VERIFICATION_EXAMPLES.md}]
 
     - id: skill:legal_terms_compare

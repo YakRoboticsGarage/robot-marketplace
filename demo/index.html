@@ -2190,5 +2190,258 @@ function resetDemo(){
   showScreen('s-landing',1);
 }
 </script>
+
+<!-- Chat Widget -->
+<style>
+.chat-fab{position:fixed;bottom:24px;right:24px;z-index:9000;width:52px;height:52px;border-radius:50%;background:var(--navy);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:transform 0.15s,box-shadow 0.15s}
+.chat-fab:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(0,0,0,0.25)}
+.chat-fab svg{width:24px;height:24px}
+.chat-fab.open svg.icon-chat{display:none}
+.chat-fab:not(.open) svg.icon-close{display:none}
+
+.chat-panel{position:fixed;bottom:88px;right:24px;z-index:8999;width:380px;max-width:calc(100vw - 48px);height:520px;max-height:calc(100vh - 120px);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(0,0,0,0.15);display:none;flex-direction:column;overflow:hidden}
+.chat-panel.open{display:flex}
+
+.chat-header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-header-dot{width:8px;height:8px;border-radius:50%;background:#34d399}
+.chat-header-title{font-size:13px;font-weight:600}
+.chat-header-sub{font-size:11px;opacity:0.6;margin-left:auto}
+
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:var(--radius);font-size:13px;line-height:1.5;word-wrap:break-word}
+.chat-msg a{color:var(--link);text-decoration:underline}
+.chat-msg-user{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:2px}
+.chat-msg-assistant{align-self:flex-start;background:var(--bg-subtle);color:var(--text);border-bottom-left-radius:2px}
+.chat-msg-assistant p{margin:0 0 6px}
+.chat-msg-assistant p:last-child{margin-bottom:0}
+.chat-msg-typing{align-self:flex-start;background:var(--bg-subtle);color:var(--text-3);font-style:italic;padding:10px 14px;border-radius:var(--radius);border-bottom-left-radius:2px}
+
+.chat-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg-card);flex-shrink:0}
+.chat-input-row input{flex:1;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:inherit;font-size:13px;color:var(--text);background:var(--bg-card);outline:none}
+.chat-input-row input:focus{border-color:var(--navy)}
+.chat-input-row input::placeholder{color:var(--text-3)}
+.chat-input-row button{background:var(--navy);color:#fff;border:none;border-radius:var(--radius);padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chat-input-row button:hover{background:var(--navy-light)}
+.chat-input-row button:disabled{opacity:0.5;cursor:not-allowed}
+
+@media(max-width:500px){
+  .chat-panel{bottom:0;right:0;width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}
+  .chat-fab{bottom:16px;right:16px}
+}
+</style>
+
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <svg class="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-dot"></div>
+    <div class="chat-header-title">YAK ROBOTICS</div>
+    <div class="chat-header-sub">Ask anything</div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg chat-msg-assistant">How can I help? I can answer questions about the marketplace, pricing, how bidding works, or walk you through the demo step by step.</div>
+    <div style="font-size:10px;color:var(--text-3);text-align:center;padding:4px 14px;">Demo assistant for illustrative purposes only. Responses may not reflect final product features or availability.</div>
+  </div>
+  <div id="chatFeedbackForm" style="display:none;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg-subtle)">
+    <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px">Send feedback</div>
+    <textarea id="chatFeedbackMsg" rows="3" placeholder="What's on your mind? Bug reports, feature requests, or general impressions..." style="width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px;font-family:inherit;font-size:12px;resize:vertical;color:var(--text);background:var(--bg-card)"></textarea>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+      <select id="chatFeedbackRole" style="border:1px solid var(--border);border-radius:var(--radius);padding:4px 8px;font-family:inherit;font-size:11px;color:var(--text);background:var(--bg-card)">
+        <option value="gc">I'm a GC / Estimator</option>
+        <option value="operator">I'm a Drone Operator</option>
+        <option value="investor">I'm an Investor</option>
+        <option value="visitor" selected>Just browsing</option>
+      </select>
+      <button onclick="submitFeedback()" style="margin-left:auto;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">Submit</button>
+      <button onclick="document.getElementById('chatFeedbackForm').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--text-3)">Cancel</button>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Ask about the marketplace..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)sendChat()">
+    <button id="chatSend" onclick="sendChat()">Send</button>
+    <button onclick="document.getElementById('chatFeedbackForm').style.display='block';document.getElementById('chatFeedbackMsg').focus()" title="Send feedback" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px;cursor:pointer;color:var(--text-3);font-size:14px;line-height:1">&#9993;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Configure: change this to your Worker URL after deploy
+  var API_BASE = 'https://yakrobot-chat.rafaeldf2.workers.dev';
+  var CHAT_API = API_BASE + '/api/chat';
+  var FEEDBACK_API = API_BASE + '/api/feedback';
+
+  var messages = [];
+  var sending = false;
+
+  window.toggleChat = function(){
+    var fab = document.getElementById('chatFab');
+    var panel = document.getElementById('chatPanel');
+    fab.classList.toggle('open');
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open')){
+      document.getElementById('chatInput').focus();
+    }
+  };
+
+  window.sendChat = function(){
+    if(sending) return;
+    var input = document.getElementById('chatInput');
+    var text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+
+    // Add user message to UI
+    appendMsg('user', text);
+    messages.push({role:'user', content:text});
+
+    // Show typing indicator
+    var typing = document.createElement('div');
+    typing.className = 'chat-msg chat-msg-typing';
+    typing.id = 'chatTyping';
+    typing.textContent = 'Thinking...';
+    document.getElementById('chatMessages').appendChild(typing);
+    scrollChat();
+
+    sending = true;
+    document.getElementById('chatSend').disabled = true;
+
+    fetch(CHAT_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({messages: messages})
+    }).then(function(res){
+      // Handle rate limit
+      if(res.status === 429){
+        var t=document.getElementById('chatTyping');if(t)t.remove();
+        appendMsg('assistant','You\'ve reached the daily question limit (25 per day). Please come back tomorrow.');
+        sending=false;document.getElementById('chatSend').disabled=false;
+        return;
+      }
+      // Handle blocked injection or non-streaming JSON response
+      var ct = res.headers.get('Content-Type')||'';
+      if(ct.indexOf('application/json')!==-1){
+        return res.json().then(function(data){
+          var t=document.getElementById('chatTyping');if(t)t.remove();
+          if(data.error){appendMsg('assistant',data.error);}
+          else if(data.reply){appendMsg('assistant',data.reply);}
+          sending=false;document.getElementById('chatSend').disabled=false;
+        });
+      }
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      // Read the SSE stream
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+      var fullText = '';
+
+      // Remove typing indicator, add assistant bubble
+      var t = document.getElementById('chatTyping');
+      if(t) t.remove();
+      var msgEl = document.createElement('div');
+      msgEl.className = 'chat-msg chat-msg-assistant';
+      document.getElementById('chatMessages').appendChild(msgEl);
+
+      function read(){
+        reader.read().then(function(result){
+          if(result.done){
+            // Stream finished
+            if(fullText){
+              messages.push({role:'assistant', content:fullText});
+              msgEl.innerHTML = formatMsg(fullText);
+            }
+            sending = false;
+            document.getElementById('chatSend').disabled = false;
+            scrollChat();
+            return;
+          }
+          buffer += decoder.decode(result.value, {stream:true});
+          // Parse SSE events
+          var lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for(var i=0;i<lines.length;i++){
+            var line = lines[i].trim();
+            if(line.startsWith('data: ')){
+              var data = line.slice(6);
+              if(data === '[DONE]') continue;
+              try{
+                var evt = JSON.parse(data);
+                if(evt.type === 'content_block_delta' && evt.delta && evt.delta.text){
+                  fullText += evt.delta.text;
+                  msgEl.innerHTML = formatMsg(fullText);
+                  scrollChat();
+                }
+              }catch(e){}
+            }
+          }
+          read();
+        });
+      }
+      read();
+    }).catch(function(err){
+      console.error('Chat error:', err);
+      var t = document.getElementById('chatTyping');
+      if(t) t.remove();
+      appendMsg('assistant', 'Sorry, I could not connect. Please try again.');
+      sending = false;
+      document.getElementById('chatSend').disabled = false;
+    });
+  };
+
+  function appendMsg(role, text){
+    var el = document.createElement('div');
+    el.className = 'chat-msg chat-msg-' + role;
+    el.innerHTML = role === 'user' ? escChat(text) : formatMsg(text);
+    document.getElementById('chatMessages').appendChild(el);
+    scrollChat();
+  }
+
+  function scrollChat(){
+    var c = document.getElementById('chatMessages');
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function escChat(s){
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function formatMsg(text){
+    // Minimal markdown: bold, links, line breaks, paragraphs
+    var html = escChat(text);
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+    html = '<p>' + html + '</p>';
+    return html;
+  }
+
+  window.submitFeedback = function(){
+    var msg = document.getElementById('chatFeedbackMsg').value.trim();
+    if(!msg) return;
+    var role = document.getElementById('chatFeedbackRole').value;
+    fetch(FEEDBACK_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg,role:role,conversation:messages.slice(-10)})
+    }).then(function(res){return res.json()}).then(function(data){
+      document.getElementById('chatFeedbackForm').style.display='none';
+      document.getElementById('chatFeedbackMsg').value='';
+      if(data.ok){
+        appendMsg('assistant','Thanks for the feedback! It helps us build a better platform.');
+      } else {
+        appendMsg('assistant',data.error||'Could not send feedback. Please try again.');
+      }
+    }).catch(function(){
+      appendMsg('assistant','Could not send feedback. Please try again.');
+    });
+  };
+})();
+</script>
 </body>
 </html>

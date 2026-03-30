@@ -1,0 +1,26 @@
+Station,Offset_ft,Elevation_ft,Code,Description
+0+00,-50.0,278.42,GND,Ground shot
+0+00,-25.0,278.55,GND,Ground shot
+0+00,0.0,279.12,CL,Centerline
+0+00,25.0,278.61,GND,Ground shot
+0+00,50.0,278.38,GND,Ground shot
+0+50,-50.0,278.68,GND,Ground shot
+0+50,-25.0,278.72,GND,Ground shot
+0+50,0.0,279.25,CL,Centerline
+0+50,25.0,278.79,GND,Ground shot
+0+50,50.0,278.59,GND,Ground shot
+1+00,-50.0,278.85,GND,Ground shot
+1+00,-25.0,278.92,GND,Ground shot
+1+00,0.0,279.38,CL,Centerline
+1+00,25.0,278.95,GND,Ground shot
+1+00,50.0,278.71,GND,Ground shot
+1+50,-50.0,279.02,GND,Ground shot
+1+50,-25.0,279.15,GND,Ground shot
+1+50,0.0,279.52,CL,Centerline
+1+50,25.0,279.08,GND,Ground shot
+1+50,50.0,278.88,GND,Ground shot
+2+00,-50.0,279.18,GND,Ground shot
+2+00,-25.0,279.31,GND,Ground shot
+2+00,0.0,279.65,CL,Centerline
+2+00,25.0,279.22,GND,Ground shot
+2+00,50.0,279.05,GND,Ground shot

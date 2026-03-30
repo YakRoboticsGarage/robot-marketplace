@@ -1,0 +1,123 @@
+ANLAAN CORPORATION / C.A. HULL COMPANY JOINT VENTURE
+DESIGN-BUILD SUBCONTRACT TERMS — PROFESSIONAL SURVEY SERVICES
+
+Contract: IM-94-23456
+Form: ANL-DB-SURV-2026-01
+
+These terms govern survey subcontracts issued under the I-94 Modernization
+Design-Build Contract. They incorporate design-build-specific provisions
+that differ from standard hard-bid survey subcontracts.
+
+1. SCOPE AND COMPENSATION
+   1.1. Subcontractor provides professional survey services as specified in
+        individual Task Authorizations issued under this agreement.
+   1.2. Compensation: lump sum per task authorization, with unit-rate
+        provisions for changed conditions or additional scope.
+   1.3. Payment terms: Net 30 from approved invoice.
+   1.4. Retainage: 10% withheld until final deliverable acceptance and
+        MDOT review completion.
+        NOTE: Design-build retainage is higher than standard (5%) due to
+        iterative design review process.
+
+2. DESIGN-BUILD INTEGRATION
+   2.1. Survey data feeds directly into design development — accuracy and
+        timeliness are critical path items.
+   2.2. Subcontractor shall participate in design coordination meetings
+        as requested (typically biweekly).
+   2.3. Subcontractor may be asked to perform supplemental survey based
+        on evolving design requirements. Supplemental work authorized
+        via written Task Authorization amendment only.
+   2.4. Subcontractor shall coordinate with other design-build team members
+        including geotechnical, structural, and environmental subconsultants.
+   2.5. MDOT has direct review and comment authority on all survey
+        deliverables, even though contract is with the JV.
+
+3. INSURANCE REQUIREMENTS
+   3.1. Commercial General Liability: $2,000,000 per occurrence / $4,000,000 aggregate
+   3.2. Professional Liability (E&O): $2,000,000 per claim / $4,000,000 aggregate
+   3.3. Automobile Liability: $1,000,000 combined single limit
+   3.4. Workers' Compensation: Statutory limits with USL&H if applicable
+   3.5. Unmanned Aircraft (if applicable): $5,000,000 per occurrence
+   3.6. Umbrella/Excess: $5,000,000
+   3.7. Both Anlaan Corporation and C.A. Hull Company must be named
+        as Additional Insureds on CGL and umbrella policies.
+   3.8. MDOT must be named as Additional Insured on CGL policy.
+
+4. PROFESSIONAL STANDARDS
+   4.1. All survey work performed under direct supervision of Michigan PLS.
+   4.2. PLS shall stamp and certify all survey deliverables.
+   4.3. Comply with MDOT Survey and Mapping Standards (current edition).
+   4.4. Comply with ASPRS positional accuracy standards for point cloud data.
+   4.5. For tunnel work: comply with OSHA 29 CFR 1926.1200 (Confined Spaces
+        in Construction) and MIOSHA Part 90 (Confined Space Entry).
+
+5. SAFETY — CONFINED SPACE OPERATIONS
+   5.1. Subcontractor shall provide a project-specific Confined Space
+        Entry Program for MDOT and JV review prior to tunnel entry.
+   5.2. All tunnel entry personnel must complete:
+        - 40-hour HAZWOPER training (or 8-hour refresher if current)
+        - Confined space entry training per OSHA 29 CFR 1926.1200
+        - CPR/First Aid certification
+   5.3. Atmospheric monitoring required continuously during tunnel operations.
+   5.4. Rescue plan: Subcontractor shall provide either a trained rescue
+        team or mechanical retrieval system approved by the JV safety manager.
+   5.5. Daily safety briefings required before each tunnel entry.
+
+6. SCHEDULE
+   6.1. Time is of the essence. Design-build schedule is contractually
+        binding with MDOT.
+   6.2. Subcontractor shall mobilize within 3 calendar days of NTP.
+   6.3. Liquidated damages: $1,000/calendar day for late completion.
+        NOTE: Higher than standard due to design-build schedule criticality.
+   6.4. Subcontractor shall provide weekly schedule updates to JV
+        project manager.
+
+7. DELIVERABLE REVIEW
+   7.1. JV reviews deliverables within 7 business days.
+   7.2. MDOT has additional 10 business days for independent review.
+   7.3. Total review cycle: up to 17 business days (longer than standard).
+   7.4. Subcontractor shall address JV and MDOT comments within 5
+        business days of receipt.
+
+8. QUALITY MANAGEMENT
+   8.1. Subcontractor shall maintain a QA/QC plan on file with the JV.
+   8.2. Independent QC checkpoints required per MDOT standards.
+   8.3. JV reserves the right to perform independent accuracy verification.
+
+9. INDEMNIFICATION
+   9.1. Subcontractor shall defend, indemnify, and hold harmless the JV,
+        its member companies, MDOT, and the State of Michigan from any
+        claims arising from Subcontractor's negligent acts or omissions.
+   9.2. Design-build liability: Subcontractor acknowledges that survey
+        errors may have downstream design and construction impacts and
+        accepts professional responsibility accordingly.
+
+10. OWNERSHIP AND LICENSING
+    10.1. All deliverables become property of MDOT upon acceptance.
+    10.2. JV and Subcontractor retain right to use data for project
+          administration and professional portfolio.
+    10.3. Subcontractor grants perpetual license to JV and MDOT for
+          all data, models, and derivative products.
+
+11. DISPUTE RESOLUTION
+    11.1. Step 1: Direct negotiation between project managers (14 days).
+    11.2. Step 2: Escalation to JV principals and Subcontractor principal (14 days).
+    11.3. Step 3: Mediation under AAA Construction Industry rules.
+    11.4. Step 4: Binding arbitration under AAA rules.
+    11.5. Venue: Wayne County, Michigan.
+
+12. TERMINATION
+    12.1. JV may terminate for convenience with 14 days written notice.
+    12.2. JV may terminate for cause with 7 days written notice and
+          opportunity to cure.
+    12.3. Subcontractor compensated for accepted work through termination date.
+    12.4. If MDOT terminates the design-build contract, JV may terminate
+          all subcontracts immediately.
+
+13. FEDERAL REQUIREMENTS (DESIGN-BUILD SPECIFIC)
+    13.1. This project uses federal-aid highway funds.
+    13.2. DBE participation goal: 15% of survey subcontract value.
+    13.3. Buy America provisions apply to permanent materials.
+    13.4. Davis-Bacon wage rates apply to field survey technicians.
+    13.5. E-Verify compliance required.
+    13.6. FHWA has oversight authority on design-build projects.

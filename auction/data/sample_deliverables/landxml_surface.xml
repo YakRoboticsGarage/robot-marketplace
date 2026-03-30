@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML version="1.2" xmlns="http://www.landxml.org/schema/LandXML-1.2"
+  date="2026-03-30" time="14:00:00"
+  readOnly="false" language="English">
+  <Units>
+    <Imperial areaUnit="squareFoot" linearUnit="foot"
+      volumeUnit="cubicYard" temperatureUnit="fahrenheit"
+      pressureUnit="inchHG" diameterUnit="inch"
+      angularUnit="decimal degrees" directionUnit="decimal degrees"/>
+  </Units>
+  <Project name="US-131 Resurfacing — Kalamazoo County"
+    desc="Pre-construction topographic survey"
+    state="MI"/>
+  <CoordinateSystem
+    datum="NAD83(2011)"
+    horizontalDatum="NAD83"
+    verticalDatum="NAVD88"
+    projectedCoordinateZone="MI South State Plane (2113)"/>
+  <Surfaces>
+    <Surface name="ExistingGround" desc="Existing ground surface from aerial LiDAR">
+      <Definition surfType="TIN">
+        <Pnts>
+          <P id="1">42.291700 -85.587200 278.42</P>
+          <P id="2">42.291750 -85.587200 278.55</P>
+          <P id="3">42.291700 -85.587150 278.38</P>
+          <P id="4">42.291750 -85.587150 278.61</P>
+          <P id="5">42.291800 -85.587200 278.72</P>
+          <P id="6">42.291800 -85.587150 278.68</P>
+          <P id="7">42.291700 -85.587100 278.31</P>
+          <P id="8">42.291750 -85.587100 278.45</P>
+          <P id="9">42.291800 -85.587100 278.59</P>
+          <P id="10">42.291850 -85.587200 278.85</P>
+          <P id="11">42.291850 -85.587150 278.79</P>
+          <P id="12">42.291850 -85.587100 278.71</P>
+        </Pnts>
+        <Faces>
+          <F>1 2 3</F>
+          <F>2 4 3</F>
+          <F>2 5 4</F>
+          <F>5 6 4</F>
+          <F>3 4 7</F>
+          <F>4 8 7</F>
+          <F>4 6 8</F>
+          <F>6 9 8</F>
+          <F>5 10 6</F>
+          <F>10 11 6</F>
+          <F>6 11 9</F>
+          <F>11 12 9</F>
+        </Faces>
+      </Definition>
+    </Surface>
+  </Surfaces>
+</LandXML>

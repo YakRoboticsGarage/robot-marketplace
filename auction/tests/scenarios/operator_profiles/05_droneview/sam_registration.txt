@@ -1,0 +1,33 @@
+System for Award Management (SAM.gov) Registration
+
+Entity Name: DroneView Technologies, Inc.
+UEI: KL4F2NMRX8B7
+CAGE Code: 8L4F2
+Registration Status: Active
+Activation Date: 2025-11-15
+Expiration Date: 2026-11-15
+
+Entity Address:
+1500 Woodward Avenue, Suite 200
+Bloomfield Hills, MI 48302
+
+NAICS Codes:
+  541370 — Surveying and Mapping (except Geophysical) Services
+  541360 — Geophysical Surveying and Mapping Services
+  561990 — All Other Support Services (Drone Services)
+
+Small Business Status:
+  SBA Size Standard: Small (under $16.5M annual revenue for NAICS 541370)
+  Self-Certified Small Business: Yes
+  8(a): No
+  HUBZone: No
+  SDVOSB: No
+  WOSB: No
+
+Representations and Certifications: Complete
+Core Data: Complete
+Points of Contact: Complete
+
+This registration qualifies the entity to bid on federal contracts
+and subcontracts with federal fund flow-through (e.g., FHWA, USACE,
+DOE projects).

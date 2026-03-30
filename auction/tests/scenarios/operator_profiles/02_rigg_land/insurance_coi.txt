@@ -1,0 +1,54 @@
+ACORD 25 — CERTIFICATE OF LIABILITY INSURANCE
+DATE: 02/01/2026
+
+PRODUCER:
+Northern Michigan Insurance Agency
+201 Newman Street
+East Tawas, MI 48730
+
+INSURED:
+Rigg Land Surveying, LLC
+412 Lake Street
+Tawas City, MI 48763
+
+COVERAGES:
+
+A. COMMERCIAL GENERAL LIABILITY
+   Carrier: Auto-Owners Insurance Company (NAIC: 18988)
+   Policy Number: AO-CGL-2026-71834
+   Effective: 02/01/2026 — 02/01/2027
+   Each Occurrence:           $1,000,000
+   General Aggregate:         $2,000,000
+   Products/Completed Ops:    $1,000,000
+   Personal & Adv Injury:     $1,000,000
+
+B. PROFESSIONAL LIABILITY (ERRORS & OMISSIONS)
+   Carrier: Victor O. Schinnerer & Company
+   Policy Number: VOS-PL-2026-29381
+   Effective: 02/01/2026 — 02/01/2027
+   Each Claim:                $1,000,000
+   Aggregate:                 $2,000,000
+   Deductible:                $5,000
+
+C. AUTOMOBILE LIABILITY
+   Carrier: Auto-Owners Insurance Company (NAIC: 18988)
+   Policy Number: AO-AUTO-2026-71835
+   Effective: 02/01/2026 — 02/01/2027
+   Combined Single Limit:     $1,000,000
+
+D. WORKERS COMPENSATION
+   Carrier: Auto-Owners Insurance Company (NAIC: 18988)
+   Policy Number: AO-WC-2026-71836
+   Effective: 02/01/2026 — 02/01/2027
+   WC Statutory Limits
+   EL Each Accident:          $500,000
+
+E. UNMANNED AIRCRAFT LIABILITY
+   Carrier: Thimble (SkyWatch.AI)
+   Policy Number: TH-UAS-2026-8472
+   Effective: 02/01/2026 — 02/01/2027
+   Each Occurrence:           $1,000,000
+   Aggregate:                 $1,000,000
+
+CERTIFICATE HOLDER:
+[As Required Per Contract]

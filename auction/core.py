@@ -106,9 +106,13 @@ def verify_commitment(request_id: str, salt: str, commitment_hash: str) -> bool:
 # DM-1: Task categories
 # ---------------------------------------------------------------------------
 
-VALID_TASK_CATEGORIES = frozenset(
-    ["env_sensing", "visual_inspection", "mapping", "delivery_ground", "aerial_survey"]
-)
+VALID_TASK_CATEGORIES = frozenset([
+    # Original sensor-reading categories
+    "env_sensing", "visual_inspection", "mapping", "delivery_ground", "aerial_survey",
+    # Construction survey categories
+    "site_survey", "bridge_inspection", "progress_monitoring", "as_built",
+    "subsurface_scan", "environmental_survey", "control_survey",
+])
 
 
 def infer_task_category(capability_requirements: dict) -> str:
@@ -130,7 +134,18 @@ def infer_task_category(capability_requirements: dict) -> str:
         return "env_sensing"
     sensors_lower = [s.lower() for s in sensors if isinstance(s, str)]
     if any(s in sensors_lower for s in ("rgb_camera", "thermal_camera")):
+        # thermal_camera + aerial_lidar → bridge_inspection
+        if "thermal_camera" in sensors_lower and "aerial_lidar" in sensors_lower:
+            return "bridge_inspection"
         return "visual_inspection"
+    if any(s in sensors_lower for s in ("aerial_lidar", "terrestrial_lidar")):
+        return "site_survey"
+    if any(s in sensors_lower for s in ("gpr", "ground_penetrating_radar")):
+        return "subsurface_scan"
+    if "photogrammetry" in sensors_lower:
+        return "aerial_survey"
+    if any(s in sensors_lower for s in ("total_station", "robotic_total_station")):
+        return "control_survey"
     if "lidar" in sensors_lower:
         return "mapping"
     if any(s in sensors_lower for s in ("temperature", "humidity")):
@@ -180,7 +195,12 @@ def validate_task_spec(task_spec: dict) -> list[str]:
         )
     else:
         # Warn if none of the expected top-level keys are present
-        _expected_cap_keys = {"hard", "soft", "payload", "tool"}
+        _expected_cap_keys = {
+            "hard", "soft", "payload", "tool",
+            "deliverables", "certifications_required", "accuracy_required",
+            "area_acres", "terrain", "standards_compliance",
+            "preferred_deliverables", "preferred_coordinate_system", "preferred_datum",
+        }
         if not _expected_cap_keys.intersection(cap_req.keys()):
             errors.append(
                 f"capability_requirements has no recognised keys (found: {sorted(cap_req.keys())}). "
@@ -247,6 +267,9 @@ class Task:
     commitment_hash: str = ""
     # v1.1.1: F-4 payment method selection
     payment_method: str = "auto"  # "stripe" | "usdc" | "auto"
+    # Construction task extensions
+    task_decomposition: dict = field(default_factory=dict)
+    project_metadata: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.budget_ceiling < Decimal("0.50"):
@@ -564,3 +587,34 @@ class ReputationRecord:
     outcome: str  # "completed" | "rejected" | "abandoned" | "cancelled"
     sla_met: bool
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+# ---------------------------------------------------------------------------
+# ComplianceRecord — compliance document for operator verification
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ComplianceRecord:
+    """Compliance document for an operator. Used by compliance.py."""
+    robot_id: str
+    doc_type: str  # faa_part_107, insurance_coi, pls_license, sam_registration, dot_prequalification, dbe_certification
+    status: str  # VERIFIED, MISSING, EXPIRED, NOT_REQUIRED
+    verified_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime | None = None
+    details: dict = field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Agreement — subcontract agreement between buyer and operator
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Agreement:
+    """Generated subcontract agreement between buyer and operator."""
+    request_id: str
+    template: str = "consensusdocs_750"
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    buyer_signed: bool = False
+    operator_signed: bool = False
+    terms: dict = field(default_factory=dict)
+    status: str = "draft"  # draft, buyer_signed, countersigned, executed

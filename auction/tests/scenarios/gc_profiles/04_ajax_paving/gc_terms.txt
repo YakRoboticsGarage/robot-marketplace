@@ -1,0 +1,78 @@
+AJAX PAVING INDUSTRIES, INC.
+STANDARD TERMS AND CONDITIONS FOR SURVEY SUBCONTRACTORS
+
+Effective: January 1, 2026
+Form: AJX-SURV-2026-01 (Intermediate)
+
+1. SCOPE AND COMPENSATION
+   1.1. Subcontractor shall perform survey services as described in the
+        Purchase Order / Task Authorization issued under these terms.
+   1.2. Compensation is lump sum unless specified as T&M with a not-to-exceed cap.
+   1.3. Payment terms: Net 30 from approved invoice date.
+   1.4. Retainage: 5% withheld until final deliverable acceptance.
+
+2. INSURANCE REQUIREMENTS
+   2.1. Commercial General Liability: $1,000,000 per occurrence / $2,000,000 aggregate
+   2.2. Professional Liability (E&O): $1,000,000 per claim / $2,000,000 aggregate
+   2.3. Automobile Liability: $1,000,000 combined single limit
+   2.4. Workers' Compensation: Statutory limits
+   2.5. Unmanned Aircraft (if applicable): $1,000,000 per occurrence
+   2.6. Ajax Paving must be named as Additional Insured on CGL policy.
+   2.7. Certificates of Insurance due prior to mobilization.
+
+3. PROFESSIONAL STANDARDS
+   3.1. All survey work shall be performed under the supervision of a
+        Professional Land Surveyor licensed in the State of Michigan.
+   3.2. Subcontractor shall comply with all applicable MDOT standards
+        and specifications referenced in the task authorization.
+   3.3. Data shall be delivered in coordinate systems and formats specified
+        in the scope of work.
+
+4. SCHEDULE AND DELAYS
+   4.1. Time is of the essence.
+   4.2. Subcontractor shall commence within 5 calendar days of NTP.
+   4.3. Liquidated damages: $500/calendar day for late completion.
+   4.4. Force majeure: Weather days exceeding 3 consecutive days of
+        precipitation extend schedule day-for-day.
+
+5. DELIVERABLE REVIEW AND ACCEPTANCE
+   5.1. Ajax shall review deliverables within 10 business days of submission.
+   5.2. Subcontractor shall correct deficiencies within 5 business days
+        of written notice at no additional cost.
+   5.3. Final acceptance constitutes approval for payment of retainage.
+
+6. SAFETY AND SITE ACCESS
+   6.1. Subcontractor shall comply with Ajax safety program and MDOT
+        work zone safety requirements.
+   6.2. All field personnel must complete Ajax site orientation.
+   6.3. High-visibility apparel required at all times on active roadway.
+   6.4. Maintenance of Traffic (MOT) plans subject to Ajax approval.
+
+7. INDEMNIFICATION
+   7.1. Subcontractor shall indemnify and hold harmless Ajax Paving,
+        its officers, employees, and agents from claims arising from
+        Subcontractor's negligent acts or omissions.
+
+8. OWNERSHIP OF WORK PRODUCT
+   8.1. All deliverables become property of Ajax Paving upon payment.
+   8.2. Ajax grants Subcontractor right to retain copies for professional
+        records and portfolio use.
+
+9. DISPUTE RESOLUTION
+   9.1. Disputes shall first be addressed through direct negotiation
+        between project managers (14 calendar days).
+   9.2. Unresolved disputes escalate to mediation under AAA rules.
+   9.3. Venue: Oakland County, Michigan.
+
+10. CONFIDENTIALITY
+    10.1. Subcontractor shall not disclose project-specific data, pricing,
+          or Ajax proprietary information without written consent.
+
+11. TERMINATION
+    11.1. Ajax may terminate for convenience with 7 days written notice.
+    11.2. Subcontractor compensated for work completed to termination date.
+
+12. COMPLIANCE
+    12.1. Subcontractor shall comply with all federal, state, and local laws.
+    12.2. DBE/SBE participation goals apply if specified in task authorization.
+    12.3. E-Verify compliance required.

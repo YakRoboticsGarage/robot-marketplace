@@ -137,21 +137,26 @@ Marco's assistant posts a construction survey task with structured specs -- accu
 - `reference_data`: optional baseline terrain model for progress comparison
 - Validation: reject tasks where accuracy requirement exceeds sensor capability
 
-**Payment bond verification (NEW — from payment flow research):**
-- Bond verification API: GC uploads payment bond certificate (PDF), marketplace extracts bond number, surety name, principal, penal sum, project
-- Cross-reference against surety verification portals (Travelers, Liberty Mutual, CNA, Zurich, Hartford)
-- Treasury Dept Circular 570 check for surety standing on federal bonds
+**Payment bond verification (BUILT — real Treasury data):**
+- Bond verification against real Treasury Circular 570 data (501 surety companies, downloaded from fiscal.treasury.gov)
+- Checks: surety on Circular 570, state licensing, underwriting limit, penal sum extraction, coverage sufficiency
+- PDF bond extraction via PyMuPDF
+- Fuzzy surety name matching (exact + substring + word overlap)
 - Tasks marked **"Payment Bonded"** (public projects) or **"Escrow Funded"** (private projects) -- visible to operators before bidding
 - Supports three commitment mechanisms: (a) payment bond upload, (b) ACH-funded milestone escrow via Plaid, (c) prepaid credit bundle
-- Replaces credit card as default payment for construction tasks over $5K
+- **Not available (no public API):** real-time bond-is-active check (surety portals are web forms, not REST APIs), Power of Attorney authentication, AM Best ratings ($5K+/yr subscription)
+- **Planned:** SAM.gov Exclusions API integration (free, needs API key registration)
+- Tested: 5 end-to-end scenarios with realistic bonds, all verified against Circular 570
 
-**Basic insurance and license verification (NEW — from legal framework research):**
-- COI intake: operator uploads ACORD 25 certificate of insurance
-- Basic field extraction: coverage types, limits, policy expiration, additional insured status
-- PLS license number capture and expiration tracking per state
-- FAA Part 107 certificate number capture
-- Hard constraint filter: operators below account-level insurance minimums are excluded from bidding
-- Expiration alerts: yellow at 30 days, red at 7 days
+**Basic insurance and license verification (BUILT — compliance checker):**
+- ComplianceChecker stores and verifies 6 document types: FAA Part 107, insurance COI, PLS license, SAM.gov registration, DOT prequalification, DBE certification
+- Each document returns VERIFIED / MISSING / EXPIRED / NOT_REQUIRED
+- Upload via `auction_upload_compliance_doc` MCP tool
+- Verify via `auction_verify_operator_compliance` MCP tool
+- PLS gap detection: flags operators without PLS license, recommends PLS-as-a-service
+- **Not yet automated:** ACORD 25 PDF parsing (field extraction from COI documents), state licensing board API lookups, FAA Part 107 database verification
+- Hard constraint filter: operators below account-level insurance minimums excluded from bidding
+- Expiration alerts: yellow at 30 days, red at 7 days (planned)
 
 **ERC-8004 extensions (F-8):**
 - Agent card: `min_price`, `accepted_currencies`, `reputation_score`
@@ -238,17 +243,32 @@ Diane posts an inspection with `privacy: true`. Her task spec is encrypted, matc
 - Digital execution via ESIGN/UETA-compliant e-signature
 - Both parties must sign before work is authorized
 
-**COI parsing and verification (NEW — ACORD 25 automated):**
+**COI parsing and verification (v2.0 — requires external service):**
 - Automated parsing of ACORD 25 certificates: producer, insurer names + NAIC numbers, policy numbers, dates, coverage types, limits, additional insured (ADDL INSD), waiver of subrogation (SUBR WVD)
 - Verification: policy current, limits meet task-specific minimums, additional insured endorsement present
 - Integration path: myCOI or Jones for real-time certificate tracking
 - CGL professional services exclusion flagging (E&O required separately for survey work)
+- **Dependency:** myCOI/Jones partnership or PDF parsing library (no free API exists for COI verification)
 
-**PLS license verification (NEW):**
+**PLS license verification (v2.0 — requires state board access):**
 - Validation against state licensing board databases (starting with AZ, NV, NM, MI)
 - Firm Certificate of Authorization check (required in Michigan per MCL 339.2007)
 - Multi-state license tracking for operators covering multiple geographies
 - Continuing education compliance monitoring (30 hrs/biennium in Michigan)
+- **Dependency:** State licensing boards publish searchable databases but not REST APIs. MI LARA has online search at michigan.gov. Scraping or partnership required.
+
+**External service dependencies (v2.0+):**
+
+| Service | Status | Blocker | Path Forward |
+|---------|--------|---------|-------------|
+| Treasury Circular 570 | LIVE (Excel download) | None | Refresh weekly from fiscal.treasury.gov |
+| SAM.gov Exclusions API | Planned | API key registration | Free — register at api.data.gov |
+| Surety portal (bond active?) | Not available | No public REST API | Partnership agreements with top 5 sureties, or accept manual verification |
+| AM Best ratings | Not available | Paid subscription ($5K+/yr) | Defer until revenue supports cost |
+| ACORD 25 COI parsing | Not available | No free API | myCOI/Jones partnership ($500-2K/mo) or build with PDF extraction |
+| State PLS board lookup | Not available | No REST API | Web scraping per state or manual verification |
+| DocuSign e-seal (PLS stamp) | Not available | API subscription | DocuSign or DocuSeal (open source) |
+| FAA Part 107 database | Not available | No public API | Manual verification via FAADroneZone |
 
 **DBE tracking (NEW — required for federally-funded projects):**
 - DBE/MBE/WBE certification capture and verification
@@ -550,3 +570,92 @@ The auction engine, scoring function, state machine, wallet ledger, and MCP tool
 - **Feature references** (F-1 through F-12) point to `docs/FEATURE_REQUIREMENTS_v15.md`.
 - **User journey:** `docs/USER_JOURNEY_CONSTRUCTION_v01.md` details Marco's full experience.
 - **Research:** `research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md` is the analytical foundation for the construction wedge choice.
+
+---
+
+## Implementation Status — Real vs. Mocked (as of 2026-03-30)
+
+### Production-Ready (Real Data, Verified Logic)
+
+| Component | What's Real | Source |
+|-----------|------------|--------|
+| Bond verification | 501 surety companies from Treasury Circular 570 | fiscal.treasury.gov Excel |
+| State licensing check | Surety licensed-in-state from Circular 570 columns | fiscal.treasury.gov |
+| Underwriting limit check | Per-surety dollar limits from Circular 570 | fiscal.treasury.gov |
+| Scoring algorithm | 4-factor weighted (price 40%, SLA 25%, confidence 20%, reputation 15%) | NCHRP/FHWA procurement standards |
+| Task categories | 12 categories (5 sensor + 7 construction) | MDOT/AASHTO classifications |
+| Bid signing | HMAC-SHA256 + Ed25519 cryptographic verification | Standard crypto |
+| Anti-indemnity statutes | MI (MCL 691.991), OH, AZ, TX | State law |
+| ConsensusDocs 750 baseline | 12-dimension terms comparison | Industry standard |
+| Equipment specs | DJI M350 RTK, Leica BLK ARC, GSSI, Skydio X10, Trimble | Manufacturer specs |
+| Survey accuracy specs | 2-5 cm horizontal, 1-5 cm vertical | MDOT Chapter 9 |
+| Budget ranges | $1.5K-$120K by survey type | Industry pricing |
+
+### Simulated (Plausible, Not Yet Connected to Real Systems)
+
+| Component | What's Simulated | Path to Real |
+|-----------|-----------------|-------------|
+| RFP parsing | Keyword matching, not semantic NLP | Call Claude API with skill prompt |
+| Mock fleet | 7 fictional MI operators with real equipment specs | Replace with real operator database |
+| Operator profiles | Fabricated names, license numbers, reputation | Real operator onboarding |
+| Bid pricing | Deterministic % of budget (70-90%) | Real operators set own prices |
+| Task execution | Returns mock deliverable metadata | Real operator uploads real files |
+| Agreement generation | Hardcoded template, not licensed ConsensusDocs | License ConsensusDocs 750 ($) |
+| Terms comparison | Keyword spotting for clause detection | Claude API for semantic analysis |
+| Wallet/ledger | In-memory balance tracking | Stripe + SQLite persistence |
+| Reputation scores | Fabricated completion rates (94-99.7%) | Computed from real task history |
+
+### Mocked (Placeholder — Blocks Real Deployment)
+
+| Component | What's Mocked | Dependency |
+|-----------|--------------|-----------|
+| Compliance verification | Marks VERIFIED on upload, no API validation | FAA, state PLS boards, insurance carriers |
+| Payment settlement | In-memory wallet, no real money | Stripe Connect + Plaid |
+| Escrow | MockEscrowAccount (in-memory) | Stripe escrow or smart contract |
+| Operator payout | MockOperatorPayout (returns fake IDs) | Stripe Connect Express |
+| Mediation | MockMediationService (instant resolution) | AAA Construction Rules integration |
+| File delivery | String file paths, no actual files | S3/blob storage + upload pipeline |
+| PLS e-seal | Not implemented | DocuSign or DocuSeal API |
+
+### External Services — No Public API Available
+
+| Service | Why No API | Workaround | Cost |
+|---------|-----------|-----------|------|
+| Surety bond active status | Each surety has web forms, not REST APIs | Partnership agreements with top 5 sureties | Business development |
+| AM Best ratings | Paid data subscription | Defer until revenue covers cost | $5K+/yr |
+| ACORD 25 COI parsing | No free extraction API | myCOI or Jones partnership | $500-2K/mo |
+| State PLS board lookup | State websites, no REST API | Per-state web scraping | Engineering time |
+| FAA Part 107 database | FAADroneZone has no public API | Manual verification or scraping | Engineering time |
+| DocuSign PLS e-seal | API subscription required | DocuSeal (open source alternative) | $0-500/mo |
+| ConsensusDocs templates | Licensed content, not freely distributable | License agreement with ConsensusDocs | ~$500/yr |
+
+### External Services — Free API Available (Not Yet Integrated)
+
+| Service | API | Status | What It Does |
+|---------|-----|--------|-------------|
+| SAM.gov Exclusions | api.sam.gov/entity-information/v4/exclusions | Planned | Check if operator/surety is debarred |
+| SAM.gov Entity | api.sam.gov/entity-information/v4/entities | Planned | Verify federal registration |
+| NOAA Weather | api.weather.gov | Planned | Flight weather constraints |
+| FAA LAANC | via Aloft/AirHub SDK | Planned | Controlled airspace authorization |
+| Geocoding | Nominatim or Google Maps API | Planned | RFP location to coordinates |
+
+### MCP Tool Count: 27 (as of 2026-03-30)
+
+| Phase | Tools | Category |
+|-------|-------|----------|
+| v1.0 | 15 | Core auction lifecycle (post, bid, accept, execute, confirm, cancel, status, schema, wallet, operator) |
+| Phase 2 | 3 | RFP processing (process_rfp, validate_specs, site_recon) |
+| Phase 3 | 2 | Buyer review (review_bids, award_with_confirmation) |
+| Phase 4 | 4 | Compliance (verify_bond, verify_compliance, upload_doc, compare_terms) |
+| Phase 5 | 3 | Agreements + project mgmt (generate_agreement, track_execution, list_tasks) |
+
+### Test Coverage
+
+| Suite | Count | Status |
+|-------|-------|--------|
+| Unit tests | 180 passing | 4 pre-existing fakerover failures (require running fleet server) |
+| Scenario 1: Dan's Excavating | 16 steps, 0 gaps | Multi-task highway RFP, full lifecycle |
+| Scenario 2: C.A. Hull | 13 steps, 0 gaps | Bridge inspection, compliance-heavy |
+| Scenario 3: Kamminga | 11 steps, 0 gaps | Progress monitoring, budget tier |
+| Scenario 4: Ajax Paving | 14 steps, 0 gaps | Dual-task, PLS-as-a-service gap |
+| Scenario 5: Anlaan | 16 steps, 0 gaps | I-94 tunnel + topo, most complex |

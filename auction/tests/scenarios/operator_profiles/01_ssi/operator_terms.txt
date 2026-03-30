@@ -1,0 +1,67 @@
+SURVEYING SOLUTIONS INC.
+STANDARD OPERATOR TERMS — ROBOT TASK MARKETPLACE
+
+Effective: January 1, 2026
+
+These terms govern SSI's participation as an operator on the robot task
+marketplace. They cover 12 dimensions of the operator-platform relationship.
+
+1. SERVICE COMMITMENT
+   SSI commits to completing accepted tasks within the agreed timeline.
+   Mobilization within 48 hours of task acceptance for standard tasks.
+   Emergency mobilization (24 hours) available at 1.5x standard rate.
+
+2. QUALITY STANDARDS
+   All deliverables meet or exceed accuracy specifications in the task order.
+   Independent QC check performed before submission.
+   PLS review and stamp on all survey deliverables per Michigan law.
+
+3. EQUIPMENT STANDARDS
+   All equipment calibrated and maintained per manufacturer specifications.
+   Backup equipment available for critical missions.
+   Equipment list and calibration records provided on request.
+
+4. INSURANCE MAINTENANCE
+   SSI maintains insurance coverage meeting or exceeding platform minimums.
+   Updated COI provided within 5 business days of policy renewal.
+   Platform notified within 24 hours of any coverage lapse or cancellation.
+
+5. LICENSING AND CERTIFICATION
+   All applicable licenses and certifications kept current.
+   Platform notified 60 days before any license expiration.
+   Recertification documentation uploaded within 5 days of renewal.
+
+6. DATA HANDLING
+   All project data transmitted via encrypted channels.
+   Raw data retained for 3 years per Michigan retention requirements.
+   Client data deleted from field equipment within 30 days of delivery.
+
+7. SAFETY PROTOCOLS
+   OSHA compliance on all field operations.
+   Site-specific safety plans for confined space, traffic, aerial work.
+   Incident reporting within 4 hours of any safety event.
+
+8. COMMUNICATION
+   Task status updates at minimum daily during active field work.
+   Response to platform/client inquiries within 4 business hours.
+   Final deliverable status notification within 2 hours of upload.
+
+9. PRICING AND PAYMENT
+   Bid prices are firm for 30 days from submission.
+   Payment accepted via platform escrow (ACH or Stripe).
+   No additional charges without written task order amendment.
+
+10. DISPUTE RESOLUTION
+    Good-faith direct negotiation (14 days).
+    Platform mediation service if direct negotiation fails.
+    Binding arbitration per AAA rules as last resort.
+
+11. PLATFORM CONDUCT
+    Accurate representation of qualifications and experience.
+    No bid manipulation, shill bidding, or market gaming.
+    Compliance with platform terms of service and code of conduct.
+
+12. SUBCONTRACTING
+    SSI may use approved subcontractors with platform notification.
+    SSI remains responsible for all deliverables and quality.
+    Subcontractor compliance documents uploaded before field deployment.

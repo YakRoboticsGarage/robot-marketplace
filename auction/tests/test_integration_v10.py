@@ -499,6 +499,26 @@ class TestMCPToolsRegistered:
             # Convenience tools (REC-16b, REC-19)
             "auction_accept_and_execute",
             "auction_quick_hire",
+            # Phase 2: RFP processing tools
+            "auction_process_rfp",
+            "auction_validate_task_specs",
+            "auction_get_site_recon",
+            # Phase 3: Buyer review and award confirmation
+            "auction_review_bids",
+            "auction_award_with_confirmation",
+            # Phase 4: Compliance verification tools
+            "auction_verify_bond",
+            "auction_verify_operator_compliance",
+            "auction_upload_compliance_doc",
+            "auction_compare_terms",
+            # Operator registration
+            "auction_register_operator",
+            "auction_add_equipment",
+            "auction_activate_operator",
+            # Phase 5: Agreement generation and project management
+            "auction_generate_agreement",
+            "auction_track_execution",
+            "auction_list_tasks",
         ])
 
         assert tool_names == expected, f"Expected {expected}, got {tool_names}"

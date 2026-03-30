@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 .hypothesis/
 *.db
+chatbot/node_modules/
+chatbot/.dev.vars
+.herenow/

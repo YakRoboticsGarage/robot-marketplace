@@ -1,0 +1,48 @@
+ACORD 25 — CERTIFICATE OF LIABILITY INSURANCE
+DATE: 06/15/2025
+
+PRODUCER:
+State Farm Insurance
+1847 Mitchell Street
+Petoskey, MI 49770
+
+INSURED:
+Kurtis Damerow dba Emmet Drones
+2204 Standish Avenue
+Petoskey, MI 49770
+
+COVERAGES:
+
+A. COMMERCIAL GENERAL LIABILITY
+   Carrier: State Farm Fire and Casualty (NAIC: 25143)
+   Policy Number: SF-CGL-2025-44829
+   Effective: 06/15/2025 — 06/15/2026
+   Each Occurrence:           $1,000,000
+   General Aggregate:         $2,000,000
+   Products/Completed Ops:    $1,000,000
+   Personal & Adv Injury:     $1,000,000
+
+B. PROFESSIONAL LIABILITY (ERRORS & OMISSIONS)
+   *** NOT CARRIED ***
+
+C. AUTOMOBILE LIABILITY
+   Carrier: State Farm Mutual (NAIC: 25178)
+   Policy Number: SF-AUTO-2025-44830
+   Effective: 06/15/2025 — 06/15/2026
+   Combined Single Limit:     $500,000
+
+D. WORKERS COMPENSATION
+   *** EXEMPT — Sole Proprietor, no employees ***
+
+E. UNMANNED AIRCRAFT LIABILITY
+   Carrier: Thimble (SkyWatch.AI)
+   Policy Number: TH-UAS-2025-12847
+   Effective: 06/15/2025 — 06/15/2026
+   Each Occurrence:           $1,000,000
+   Aggregate:                 $1,000,000
+
+CERTIFICATE HOLDER:
+[As Required Per Contract]
+
+NOTE: No Professional Liability (E&O) coverage carried.
+Sole proprietor — Workers' Compensation exempt per MCL 418.115.

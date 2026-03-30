@@ -1,0 +1,36 @@
+{
+  "report_type": "NSSDA_accuracy_statement",
+  "project": "US-131 Resurfacing — Kalamazoo County",
+  "operator": "Petoskey Drone Works LLC",
+  "pls": {"name": "Sarah Lightfoot", "license": "MI #45201"},
+  "date": "2026-03-30",
+  "standard": "ASPRS Positional Accuracy Standards for Digital Geospatial Data (2014)",
+  "horizontal_accuracy": {
+    "rmse_cm": 1.8,
+    "accuracy_95pct_cm": 3.5,
+    "checkpoints_tested": 25,
+    "method": "RTK-GPS independent checkpoints"
+  },
+  "vertical_accuracy": {
+    "rmse_cm": 4.2,
+    "accuracy_95pct_cm": 8.2,
+    "checkpoints_tested": 25,
+    "method": "RTK-GPS independent checkpoints"
+  },
+  "point_cloud": {
+    "total_points": 12450000,
+    "density_pts_per_sqm": 45.2,
+    "classification": "ASPRS Class 2 (Ground)",
+    "format": "LAS 1.4",
+    "coordinate_system": "MI South State Plane (EPSG:2113)",
+    "datum": "NAD83(2011) / NAVD88"
+  },
+  "equipment": {
+    "aircraft": "DJI Matrice 350 RTK",
+    "sensor": "Zenmuse L2 (LiDAR)",
+    "gps_base": "Trimble R12i",
+    "processing": "Pix4Dmatic 1.62"
+  },
+  "certification": "I hereby certify that this survey was conducted under my direct supervision and meets the accuracy requirements specified in the contract.",
+  "signature": "[PENDING PLS REVIEW — Jennifer Chen, MI #42871]"
+}

@@ -1,0 +1,51 @@
+ACORD 25 — CERTIFICATE OF LIABILITY INSURANCE
+DATE: 09/01/2025
+
+PRODUCER:
+West Michigan Insurance Group
+44 Monroe Center NW
+Grand Rapids, MI 49503
+
+INSURED:
+Jeek Productions, LLC
+1128 Wealthy Street SE
+Grand Rapids, MI 49506
+
+COVERAGES:
+
+A. COMMERCIAL GENERAL LIABILITY
+   Carrier: USLI (United States Liability Insurance Group) (NAIC: 25895)
+   Policy Number: USLI-CGL-2025-38291
+   Effective: 09/01/2025 — 09/01/2026
+   Each Occurrence:           $1,000,000
+   General Aggregate:         $2,000,000
+   Products/Completed Ops:    $1,000,000
+   Personal & Adv Injury:     $1,000,000
+
+B. PROFESSIONAL LIABILITY (ERRORS & OMISSIONS)
+   *** NOT CARRIED ***
+
+C. AUTOMOBILE LIABILITY
+   Carrier: USLI (NAIC: 25895)
+   Policy Number: USLI-AUTO-2025-38292
+   Effective: 09/01/2025 — 09/01/2026
+   Combined Single Limit:     $500,000
+
+D. WORKERS COMPENSATION
+   Carrier: USLI (NAIC: 25895)
+   Policy Number: USLI-WC-2025-38293
+   Effective: 09/01/2025 — 09/01/2026
+   WC Statutory Limits
+   EL Each Accident:          $500,000
+
+E. UNMANNED AIRCRAFT LIABILITY
+   Carrier: Thimble (SkyWatch.AI)
+   Policy Number: TH-UAS-2025-19284
+   Effective: 09/01/2025 — 09/01/2026
+   Each Occurrence:           $1,000,000
+   Aggregate:                 $1,000,000
+
+CERTIFICATE HOLDER:
+[As Required Per Contract]
+
+NOTE: No Professional Liability (E&O) coverage carried.

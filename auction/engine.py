@@ -115,6 +115,8 @@ class TaskRecord:
     # v0.5 additions
     bid_round: int = 1
     previous_winners: list[str] = field(default_factory=list)
+    buyer_notes: str = ""
+    awarded_at: str = ""
     auto_accept_handle: asyncio.Task | None = field(default=None, repr=False)
 
 
@@ -173,6 +175,8 @@ class AuctionEngine:
                 sla_seconds=task_data["sla_seconds"],
                 request_id=task_data.get("request_id", row["request_id"]),
                 auto_accept_seconds=task_data.get("auto_accept_seconds", 3600),
+                task_decomposition=task_data.get("task_decomposition", {}),
+                project_metadata=task_data.get("project_metadata", {}),
             )
 
             # Reconstruct winning bid if present
@@ -261,6 +265,8 @@ class AuctionEngine:
             "payment_method": task.payment_method,
             "auto_accept_seconds": task.auto_accept_seconds,
             "posted_at": task.posted_at.isoformat(),
+            "task_decomposition": task.task_decomposition,
+            "project_metadata": task.project_metadata,
         }
 
         # Serialize winning bid
@@ -520,6 +526,8 @@ class AuctionEngine:
             sla_seconds=task_spec["sla_seconds"],
             auto_accept_seconds=task_spec.get("auto_accept_seconds", 3600),
             payment_method=task_spec.get("payment_method", "auto"),
+            task_decomposition=task_spec.get("task_decomposition", {}),
+            project_metadata=task_spec.get("project_metadata", {}),
         )
 
         record = TaskRecord(
@@ -888,11 +896,12 @@ class AuctionEngine:
                 f"Payload verification failed: missing fields {missing}"
             )
 
-        # Verify: format is JSON (always true in v0.1) — default to "json" when not provided
+        # Verify: format is JSON or multi_file — default to "json" when not provided
         payload_format = payload_spec.get("format", "json")
-        if payload_format != "json":
+        valid_formats = {"json", "multi_file"}
+        if payload_format not in valid_formats:
             raise ValueError(
-                f"Payload format must be 'json', got '{payload_format}'"
+                f"Payload format must be one of {sorted(valid_formats)}, got '{payload_format}'"
             )
 
         # Plausibility checks (AHT20 sensor spec)
@@ -1301,3 +1310,111 @@ class AuctionEngine:
             result["auto_accept_deadline"] = auto_accept_deadline
 
         return result
+
+    # ------------------------------------------------------------------
+    # review_bids — structured bid comparison for buyer review (Phase 3)
+    # ------------------------------------------------------------------
+
+    def review_bids(self, request_id: str) -> dict:
+        """Return a structured bid comparison for buyer review.
+
+        Enriches bid data with operator info and recommends a winner.
+        """
+        record = self._get_record(request_id)
+        if record.state != TaskState.BIDDING:
+            raise ValueError(f"review_bids requires state BIDDING, got {record.state.value}")
+
+        if not record.bids:
+            return {
+                "request_id": request_id,
+                "state": record.state.value,
+                "bid_count": 0,
+                "bids": [],
+                "recommendation": None,
+                "message": "No bids received yet. Call auction_get_bids first to collect bids.",
+            }
+
+        scored = score_bids(record.task, record.bids)
+
+        bid_comparisons = []
+        for bid, score in scored:
+            robot = self._robots_by_id.get(bid.robot_id)
+            operator_info = {}
+            if robot is not None:
+                operator_info = {
+                    "robot_id": robot.robot_id,
+                    "name": getattr(robot, "name", robot.robot_id),
+                    "capability_metadata": getattr(robot, "capability_metadata", {}),
+                }
+
+            bid_comparisons.append({
+                "robot_id": bid.robot_id,
+                "price": str(bid.price),
+                "sla_commitment_seconds": bid.sla_commitment_seconds,
+                "ai_confidence": bid.ai_confidence,
+                "score": score,
+                "eligible": bid.price <= record.task.budget_ceiling,
+                "reputation": bid.reputation_metadata,
+                "operator": operator_info,
+            })
+
+        recommended = scored[0][0].robot_id if scored else None
+
+        return {
+            "request_id": request_id,
+            "state": record.state.value,
+            "task_description": record.task.description,
+            "budget_ceiling": str(record.task.budget_ceiling),
+            "bid_count": len(bid_comparisons),
+            "bids": bid_comparisons,
+            "recommendation": {
+                "robot_id": recommended,
+                "reason": f"Highest composite score ({scored[0][1]}) across price, SLA, confidence, and reputation" if scored else None,
+            } if recommended else None,
+        }
+
+    # ------------------------------------------------------------------
+    # list_tasks — list all tasks with optional filters
+    # ------------------------------------------------------------------
+
+    def list_tasks(self, filters: dict | None = None) -> dict:
+        """List all tasks with optional filters.
+
+        Filters: state, rfp_id, robot_id, task_category.
+        """
+        filters = filters or {}
+        results = []
+
+        for rid, record in self._tasks.items():
+            # Apply filters
+            if "state" in filters and record.state.value != filters["state"]:
+                continue
+            if "rfp_id" in filters:
+                rfp_id = record.task.task_decomposition.get("rfp_id", "")
+                if rfp_id != filters["rfp_id"]:
+                    continue
+            if "robot_id" in filters and (
+                record.winning_bid is None or record.winning_bid.robot_id != filters["robot_id"]
+            ):
+                continue
+            if "task_category" in filters and record.task.task_category != filters["task_category"]:
+                continue
+
+            results.append({
+                "request_id": rid,
+                "description": record.task.description,
+                "task_category": record.task.task_category,
+                "state": record.state.value,
+                "budget_ceiling": str(record.task.budget_ceiling),
+                "bid_count": len(record.bids),
+                "winning_robot": record.winning_bid.robot_id if record.winning_bid else None,
+                "rfp_id": record.task.task_decomposition.get("rfp_id"),
+                "task_index": record.task.task_decomposition.get("task_index"),
+                "posted_at": record.task.posted_at.isoformat(),
+            })
+
+        return {
+            "total": len(results),
+            "filters_applied": filters,
+            "tasks": results,
+        }

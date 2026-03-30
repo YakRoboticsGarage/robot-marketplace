@@ -1,0 +1,28 @@
+{
+  "report_type": "gpr_utility_detection",
+  "project": "I-96 Rehabilitation — Oakland County",
+  "operator": "Midwest GPR Services LLC",
+  "date": "2026-03-30",
+  "standard": "ASCE 38-22 Standard Guideline for Investigating and Documenting Existing Utilities",
+  "quality_level": "B",
+  "survey_length_ft": 20064,
+  "utilities_detected": [
+    {"type": "water_main", "depth_ft": 4.2, "diameter_in": 12, "material": "ductile_iron", "station": "12+50", "offset_ft": -15.0, "confidence": 0.92},
+    {"type": "sanitary_sewer", "depth_ft": 8.5, "diameter_in": 18, "material": "concrete", "station": "15+00", "offset_ft": 22.0, "confidence": 0.88},
+    {"type": "gas_main", "depth_ft": 3.0, "diameter_in": 6, "material": "steel", "station": "18+75", "offset_ft": -8.0, "confidence": 0.95},
+    {"type": "electric_conduit", "depth_ft": 2.5, "diameter_in": 4, "material": "pvc", "station": "22+00", "offset_ft": 30.0, "confidence": 0.85},
+    {"type": "telecom", "depth_ft": 2.0, "diameter_in": 2, "material": "pvc", "station": "25+50", "offset_ft": -25.0, "confidence": 0.78},
+    {"type": "storm_drain", "depth_ft": 6.0, "diameter_in": 36, "material": "rcp", "station": "30+00", "offset_ft": 0.0, "confidence": 0.94}
+  ],
+  "equipment": {
+    "gpr_unit": "GSSI StructureScan Mini XT",
+    "antenna_freq_mhz": 1600,
+    "gps": "Leica GS18",
+    "processing": "GSSI RADAN 7"
+  },
+  "deliverable_files": [
+    {"name": "utility_map.dxf", "size_mb": 12, "format": "DXF R2018"},
+    {"name": "gpr_report.pdf", "size_mb": 8, "format": "PDF"},
+    {"name": "utility_coordinates.csv", "size_mb": 0.2, "format": "CSV"}
+  ]
+}

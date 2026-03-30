@@ -1,0 +1,30 @@
+WAYNE COUNTY ROAD COMMISSION
+SUBCONTRACT TERMS — PROFESSIONAL SERVICES
+
+1. INDEMNIFICATION
+Subcontractor shall indemnify, defend, and hold harmless the County
+and Contractor from and against ALL claims, damages, losses, and
+expenses, including attorney fees, arising out of or resulting from
+the performance of the Work, WHETHER OR NOT caused in part by the
+negligence of the County or Contractor. (Broad form indemnification)
+
+2. LIMITATION OF LIABILITY
+No limitation of liability. Subcontractor bears full liability.
+
+3. INSURANCE
+- CGL: $2,000,000/$4,000,000
+- Professional E&O: $2,000,000/$4,000,000
+- Aviation: $10,000,000
+
+4. PAYMENT TERMS
+Net 60 from invoice approval. Pay-when-paid clause applies.
+
+5. RETAINAGE
+15% retained until project completion.
+
+6. DATA OWNERSHIP
+All data, including raw sensor data, methodology, and processing
+parameters, become property of the County upon delivery.
+
+7. DISPUTE RESOLUTION
+Litigation in Wayne County Circuit Court. Michigan law applies.

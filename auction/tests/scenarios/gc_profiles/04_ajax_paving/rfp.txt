@@ -1,0 +1,91 @@
+AJAX PAVING INDUSTRIES, INC.
+REQUEST FOR SURVEY SERVICES
+
+Date Issued: March 15, 2026
+Proposal Due: April 4, 2026, 2:00 PM EST
+Contact: David Cowper, VP Estimating — dcowper@ajaxpaving.com
+
+Project: I-96 Rehabilitation — Mill & Overlay with Drainage Improvements
+Location: I-96 from Novi Road (Exit 162) to Beck Road (Exit 160), Oakland County, MI
+MDOT Job Number: CS-96-34521
+Length: 3.8 miles (both directions)
+
+BACKGROUND:
+
+Ajax Paving Industries has been awarded the MDOT contract for rehabilitation
+of the I-96 corridor in western Oakland County. The project involves milling
+and resurfacing of all travel lanes, shoulder reconstruction, drainage structure
+replacement, and ADA-compliant sidewalk ramp upgrades at interchange areas.
+
+Pre-construction survey data is required to support design and utility
+coordination. This RFP seeks proposals for two distinct survey tasks that
+may be awarded separately to different firms.
+
+SCOPE OF WORK:
+
+TASK A: TOPOGRAPHIC SURVEY
+- Full corridor topographic survey, 50-foot offsets each side of pavement edge
+- Aerial LiDAR acquisition at USGS Quality Level 2 minimum (2 pts/m²)
+- RTK-GPS ground control network with minimum 15 control points
+- Cross-sections at 25-foot intervals along centerline
+- Map all drainage structures (catch basins, manholes, culverts, outlets)
+- Map all above-ground utilities (poles, cabinets, vaults, hydrants)
+- Map all signs, signals, barriers, guardrail termini
+- Pavement condition documentation (visible distress, patching, joint condition)
+- Accuracy: +/-0.05 ft horizontal, +/-0.05 ft vertical (NSSDA 95%)
+- Coordinate system: Michigan State Plane South Zone, NAD83(2011), NAVD88 (GEOID18)
+- Deliverables:
+  * LandXML surface model
+  * DXF planimetric map (MDOT CAD standard layers)
+  * LAS point cloud (ASPRS classified, Class 2/6/9 minimum)
+  * GeoTIFF orthomosaic (2-inch GSD minimum)
+  * Cross-section sheets (PDF) at 25-ft stations
+  * FGDC-compliant metadata
+
+TASK B: SUBSURFACE UTILITY DETECTION
+- Ground-penetrating radar (GPR) survey of full corridor
+- Survey limits: pavement edge to 25-foot offset each side
+- Locate all underground utilities to Quality Level B per ASCE 38-22
+- Identify utility type, approximate depth, and horizontal position
+- Target utilities: water, sanitary, storm, gas, electric, telecom, fiber
+- Special attention to drainage crossings at all interchange ramp areas
+- Equipment: 400 MHz + 900 MHz antenna array minimum
+- Accuracy: +/-0.5 ft horizontal, +/-1.0 ft vertical for depth estimates
+- Coordinate system: Michigan State Plane South Zone, NAD83(2011)
+- Deliverables:
+  * DXF utility map with ASCE 38 quality level designations
+  * PDF summary report with utility conflict matrix
+  * CSV coordinate file of all identified utility crossings
+  * Raw GPR data files for independent review
+
+REQUIREMENTS:
+- Task A: Michigan Professional Land Surveyor (PLS) supervision required
+- Task A: FAA Part 107 remote pilot certification for aerial operations
+- Task A: Minimum $2M professional liability insurance
+- Task B: GPR operator with minimum 5 years utility detection experience
+- Both Tasks: MDOT Section 104.09 compliance (survey on state trunklines)
+- Both Tasks: MOT (Maintenance of Traffic) plan required
+- Provide proof of insurance per Ajax standard requirements
+
+SCHEDULE:
+- Task A: Complete within 21 calendar days of NTP
+- Task B: Complete within 14 calendar days of NTP
+- Tasks may proceed concurrently
+
+BUDGET:
+- Task A (Topographic Survey): $65,000 maximum
+- Task B (GPR Utility Detection): $18,000 maximum
+- Proposals exceeding budget caps will not be considered
+
+PROPOSAL DEADLINE: April 4, 2026, 2:00 PM EST
+ANTICIPATED NTP: April 21, 2026
+PROJECT COMPLETION DEADLINE: May 15, 2026
+
+EVALUATION CRITERIA:
+1. Technical qualifications and relevant experience (40%)
+2. Equipment and methodology (25%)
+3. Schedule and availability (20%)
+4. Price (15%)
+
+Submit proposals to: dcowper@ajaxpaving.com
+Subject line: "I-96 Survey Proposal — [Firm Name]"

@@ -1,0 +1,39 @@
+{
+  "report_type": "tunnel_3d_scan",
+  "project": "I-94 Drainage Tunnel Rehabilitation",
+  "operator": "Wolverine Survey Technologies Inc.",
+  "pls": {"name": "David Okonkwo", "license": "MI #38902"},
+  "date": "2026-03-30",
+  "tunnel_metrics": {
+    "length_ft": 6000,
+    "sections_scanned": 240,
+    "scan_spacing_ft": 25,
+    "point_spacing_ft": 0.04,
+    "total_points": 89200000,
+    "registration_rmse_ft": 0.008
+  },
+  "structural_findings": {
+    "wall_thickness_avg_in": 14.2,
+    "wall_thickness_min_in": 11.8,
+    "wall_thickness_min_location": "Station 23+50, 10 o'clock",
+    "joint_condition": "42 joints inspected, 3 showing >0.25in separation",
+    "invert_profile_deviation_max_in": 1.8
+  },
+  "deliverable_files": [
+    {"name": "tunnel_pointcloud.e57", "size_mb": 2840, "format": "e57"},
+    {"name": "tunnel_pointcloud.las", "size_mb": 1920, "format": "LAS 1.4"},
+    {"name": "tunnel_cross_sections.dxf", "size_mb": 45, "format": "DXF R2018"}
+  ],
+  "equipment": {
+    "platform": "Boston Dynamics Spot",
+    "scanner": "Leica BLK ARC",
+    "processing": "Leica Cyclone REGISTER 360"
+  },
+  "confined_space": {
+    "entry_permit": "CSP-2026-0342",
+    "safety_officer": "Mike Rodriguez",
+    "atmospheric_monitoring": "continuous — O2, LEL, CO, H2S"
+  },
+  "certification": "Survey conducted under PLS supervision per MCL 339.2007.",
+  "signature": "[PENDING PLS REVIEW — David Okonkwo, MI #38902]"
+}
