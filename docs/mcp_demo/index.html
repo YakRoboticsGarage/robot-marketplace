@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAK ROBOTICS — Live Auction Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f172a;
+    --navy-light: #1e293b;
+    --navy-mid: #334155;
+    --orange: #f97316;
+    --orange-hover: #ea580c;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --slate: #94a3b8;
+    --slate-light: #cbd5e1;
+    --white: #f8fafc;
+    --radius: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Topo watermark */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 200 Q100 150 200 200 T400 200' fill='none' stroke='%231e293b' stroke-width='1'/%3E%3Cpath d='M0 220 Q120 170 200 220 T400 220' fill='none' stroke='%231e293b' stroke-width='0.8'/%3E%3Cpath d='M0 180 Q80 130 200 180 T400 180' fill='none' stroke='%231e293b' stroke-width='0.8'/%3E%3Cpath d='M0 240 Q140 190 200 240 T400 240' fill='none' stroke='%231e293b' stroke-width='0.6'/%3E%3Cpath d='M0 160 Q60 110 200 160 T400 160' fill='none' stroke='%231e293b' stroke-width='0.6'/%3E%3Cpath d='M0 260 Q160 210 200 260 T400 260' fill='none' stroke='%231e293b' stroke-width='0.5'/%3E%3Cpath d='M0 140 Q40 90 200 140 T400 140' fill='none' stroke='%231e293b' stroke-width='0.5'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--slate);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    background: var(--navy-light);
+    border-radius: var(--radius);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--slate);
+    display: none;
+  }
+
+  .progress-bar.visible { display: flex; }
+
+  .progress-fill {
+    height: 4px;
+    background: var(--orange);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .progress-track {
+    flex: 0 0 120px;
+    height: 4px;
+    background: var(--navy-mid);
+    border-radius: 2px;
+    margin-right: 12px;
+    overflow: hidden;
+  }
+
+  .progress-text { white-space: nowrap; }
+
+  /* Form */
+  .form-section {
+    background: var(--navy-light);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .form-section label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    background: var(--navy);
+    border: 1px solid var(--navy-mid);
+    border-radius: var(--radius);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 12px;
+    resize: vertical;
+  }
+
+  textarea:focus { outline: none; border-color: var(--orange); }
+
+  .site-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .site-info-grid input {
+    width: 100%;
+    background: var(--navy);
+    border: 1px solid var(--navy-mid);
+    border-radius: var(--radius);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .site-info-grid input:focus { outline: none; border-color: var(--orange); }
+
+  .site-info-grid .field-label {
+    font-size: 11px;
+    color: var(--slate);
+    margin-bottom: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  /* Button */
+  .run-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--orange);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 24px;
+    transition: background 0.15s;
+  }
+
+  .run-btn:hover { background: var(--orange-hover); }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Step feed */
+  .step-feed { display: flex; flex-direction: column; gap: 12px; }
+
+  .step-card {
+    background: var(--navy-light);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: stepIn 0.4s ease forwards;
+  }
+
+  @keyframes stepIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .step-dot.processing { background: var(--blue); animation: pulse 1s infinite; }
+  .step-dot.done { background: var(--green); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .step-body { flex: 1; min-width: 0; }
+
+  .step-badge {
+    display: inline-block;
+    background: var(--navy-mid);
+    color: var(--orange);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    margin-bottom: 6px;
+  }
+
+  .step-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--slate-light);
+  }
+
+  .step-json-toggle {
+    font-size: 11px;
+    color: var(--slate);
+    cursor: pointer;
+    margin-top: 8px;
+    user-select: none;
+  }
+
+  .step-json-toggle:hover { color: var(--orange); }
+
+  .step-json {
+    display: none;
+    margin-top: 8px;
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--slate);
+    max-height: 300px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .step-json.expanded { display: block; }
+
+  /* Summary card */
+  .summary-card {
+    background: linear-gradient(135deg, var(--navy-light) 0%, #1a2744 100%);
+    border: 1px solid var(--orange);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 24px;
+    opacity: 0;
+    animation: stepIn 0.5s ease 0.3s forwards;
+  }
+
+  .summary-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--orange);
+  }
+
+  .summary-card .summary-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--slate-light);
+    white-space: pre-wrap;
+  }
+
+  .summary-card .cta-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--orange);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .summary-card .cta-link:hover { text-decoration: underline; }
+
+  /* Error */
+  .error-msg {
+    background: #7f1d1d;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #fca5a5;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px 32px; }
+    .header h1 { font-size: 22px; }
+    .site-info-grid { grid-template-columns: 1fr; }
+    textarea { min-height: 140px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo">YAK ROBOTICS</div>
+    <h1>Live Auction Demo</h1>
+    <p>Watch Claude orchestrate a real construction survey auction</p>
+  </div>
+
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    <span class="progress-text" id="progressText">Initializing...</span>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="form-section">
+    <label>RFP Document</label>
+    <textarea id="rfpText">MICHIGAN DEPARTMENT OF TRANSPORTATION
+REQUEST FOR PROPOSAL — SURVEY SERVICES
+
+Project: US-131 Resurfacing, Kalamazoo County
+Control Section: 39042
+
+SCOPE: Topographic survey of US-131 from mile marker 36.2 to 42.8
+(6.6 miles of divided highway). Cross-sections at 50-foot intervals,
+aerial LiDAR with RTK-GPS ground control, all drainage structures
+and utilities mapped. Deliverables: LandXML, DXF, LAS point cloud,
+GeoTIFF orthomosaic. Michigan PLS required. FAA Part 107 required.
+Budget: $45,000. Deadline: 14 days.</textarea>
+
+    <label style="margin-top: 16px;">Site Info</label>
+    <div class="site-info-grid">
+      <div>
+        <div class="field-label">Project</div>
+        <input type="text" id="siteProject" value="US-131 Resurfacing">
+      </div>
+      <div>
+        <div class="field-label">Location</div>
+        <input type="text" id="siteLocation" value="Kalamazoo County, MI">
+      </div>
+      <div>
+        <div class="field-label">Agency</div>
+        <input type="text" id="siteAgency" value="MDOT">
+      </div>
+      <div>
+        <div class="field-label">Terrain</div>
+        <input type="text" id="siteTerrain" value="Highway corridor">
+      </div>
+    </div>
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="runDemo()">Run Live Demo</button>
+
+  <div class="step-feed" id="stepFeed"></div>
+
+  <div class="footer">
+    Powered by Claude Haiku 4.5 + YAK ROBOTICS auction engine (32 MCP tools)
+  </div>
+
+</div>
+
+<script>
+const API_URL = 'https://yakrobot-chat.rafaeldf2.workers.dev/api/demo';
+
+async function runDemo() {
+  const btn = document.getElementById('runBtn');
+  const feed = document.getElementById('stepFeed');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const errorMsg = document.getElementById('errorMsg');
+
+  // Reset
+  feed.innerHTML = '';
+  errorMsg.classList.remove('visible');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  progressBar.classList.add('visible');
+  progressFill.style.width = '0%';
+  progressText.textContent = 'Sending RFP to auction engine...';
+
+  // Remove any existing summary
+  const oldSummary = document.querySelector('.summary-card');
+  if (oldSummary) oldSummary.remove();
+
+  // Build prompt
+  const rfpText = document.getElementById('rfpText').value.trim();
+  const siteInfo = {
+    project_name: document.getElementById('siteProject').value.trim(),
+    location: document.getElementById('siteLocation').value.trim(),
+    agency: document.getElementById('siteAgency').value.trim(),
+    terrain: document.getElementById('siteTerrain').value.trim()
+  };
+
+  const prompt = rfpText + '\n\nSite Info: ' + JSON.stringify(siteInfo);
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (response.status === 429) {
+      showError('Demo limit reached (5/day). Try again tomorrow.');
+      resetBtn();
+      return;
+    }
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Unknown error' }));
+      showError(err.error || 'Something went wrong. Please try again.');
+      resetBtn();
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.error) {
+      showError(data.error);
+      resetBtn();
+      return;
+    }
+
+    // Play back steps with animation
+    const steps = data.steps || [];
+    const toolSteps = steps.filter(s => s.type === 'tool_call');
+    const totalToolSteps = toolSteps.length || 1;
+    let toolIndex = 0;
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      await delay(800);
+
+      if (step.type === 'tool_call') {
+        toolIndex++;
+        const pct = Math.round((toolIndex / totalToolSteps) * 100);
+        progressFill.style.width = pct + '%';
+        progressText.textContent = 'Step ' + toolIndex + ' of ' + totalToolSteps + ' — ' + formatToolName(step.tool_name);
+      }
+
+      appendStep(step, i);
+    }
+
+    // Show summary
+    progressFill.style.width = '100%';
+    progressText.textContent = 'Complete';
+
+    await delay(500);
+    showSummary(data.final_text);
+
+  } catch (err) {
+    showError('Network error. Check your connection and try again.');
+  }
+
+  resetBtn();
+}
+
+function appendStep(step, index) {
+  const feed = document.getElementById('stepFeed');
+  const card = document.createElement('div');
+  card.className = 'step-card';
+
+  if (step.type === 'tool_call') {
+    const resultJson = JSON.stringify(step.result, null, 2);
+    const inputJson = JSON.stringify(step.input, null, 2);
+    const toggleId = 'json-' + index;
+
+    card.innerHTML =
+      '<div class="step-dot done"></div>' +
+      '<div class="step-body">' +
+        '<div class="step-badge">' + escapeHtml(step.tool_name) + '</div>' +
+        (step.claude_text ? '<div class="step-text">' + escapeHtml(step.claude_text) + '</div>' : '') +
+        '<div class="step-json-toggle" onclick="toggleJson(\'' + toggleId + '\')">Show result JSON</div>' +
+        '<div class="step-json" id="' + toggleId + '">' +
+          '// Input\n' + escapeHtml(inputJson) + '\n\n// Result\n' + escapeHtml(resultJson) +
+        '</div>' +
+      '</div>';
+  } else {
+    card.innerHTML =
+      '<div class="step-dot done"></div>' +
+      '<div class="step-body">' +
+        '<div class="step-text">' + escapeHtml(step.claude_text || '') + '</div>' +
+      '</div>';
+  }
+
+  feed.appendChild(card);
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function toggleJson(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('expanded');
+}
+
+function showSummary(text) {
+  const container = document.querySelector('.container');
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+  card.innerHTML =
+    '<h3>Auction Complete</h3>' +
+    '<div class="summary-text">' + escapeHtml(text || 'Demo run completed.') + '</div>' +
+    '<a class="cta-link" href="https://yakrobot.bid" target="_blank">View on yakrobot.bid &rarr;</a>';
+  container.insertBefore(card, document.querySelector('.footer'));
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+  const bar = document.getElementById('progressBar');
+  bar.classList.remove('visible');
+}
+
+function resetBtn() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = false;
+  btn.textContent = 'Run Live Demo';
+}
+
+function formatToolName(name) {
+  const map = {
+    'auction_process_rfp': 'Processing RFP...',
+    'auction_post_task': 'Posting task...',
+    'auction_get_bids': 'Collecting bids...',
+    'auction_review_bids': 'Reviewing bids...',
+    'auction_verify_bond': 'Verifying bond...',
+    'auction_award_with_confirmation': 'Awarding task...',
+    'auction_generate_agreement': 'Generating agreement...',
+    'auction_execute': 'Executing task...',
+    'auction_confirm_delivery': 'Confirming delivery...',
+    'auction_list_tasks': 'Listing tasks...'
+  };
+  return map[name] || name;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+</script>
+
+</body>
+</html>

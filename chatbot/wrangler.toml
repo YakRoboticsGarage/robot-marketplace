@@ -6,6 +6,7 @@ compatibility_date = "2024-12-01"
 ALLOWED_ORIGIN = "https://yakrobot.bid"
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 1024
+MCP_SERVER_URL = "https://mcp.yakrobot.bid"
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"

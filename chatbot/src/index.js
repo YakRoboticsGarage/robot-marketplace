@@ -232,6 +232,10 @@ export default {
       return handleFeedback(request, env, cors);
     }
 
+    if (url.pathname === "/api/demo" && request.method === "POST") {
+      return handleDemo(request, env, cors);
+    }
+
     return new Response("Not found", { status: 404, headers: cors });
   },
 };
@@ -376,6 +380,336 @@ async function handleChat(request, env, cors) {
       "X-RateLimit-Remaining": String(rl.remaining - 1),
     },
   });
+}
+
+// --- Demo handler (tool_use loop) ---
+
+const DEMO_DAILY_LIMIT = 5;
+
+const DEMO_TOOLS = [
+  {
+    name: "auction_process_rfp",
+    description: "Process a construction RFP into structured task specs. Returns tasks with sensor requirements, budgets, and SLAs.",
+    input_schema: {
+      type: "object",
+      properties: {
+        rfp_text: { type: "string", description: "The RFP document text" },
+        jurisdiction: { type: "string", description: "State code (default MI)" },
+        site_info: { type: "object", description: "Geographic context: project_name, location, coordinates, survey_area, agency, terrain" }
+      },
+      required: ["rfp_text"]
+    }
+  },
+  {
+    name: "auction_post_task",
+    description: "Post a survey task to the marketplace. Returns eligible operators and request_id.",
+    input_schema: {
+      type: "object",
+      properties: {
+        task_spec: { type: "object", description: "Task spec with description, task_category, capability_requirements, budget_ceiling, sla_seconds" }
+      },
+      required: ["task_spec"]
+    }
+  },
+  {
+    name: "auction_get_bids",
+    description: "Collect and score bids from eligible operators. Returns scored bids with recommended winner.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string", description: "Task request ID from post_task" }
+      },
+      required: ["request_id"]
+    }
+  },
+  {
+    name: "auction_review_bids",
+    description: "Get structured bid comparison for buyer review with operator profiles and recommendation.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string", description: "Task request ID" }
+      },
+      required: ["request_id"]
+    }
+  },
+  {
+    name: "auction_verify_bond",
+    description: "Verify a payment bond against real Treasury Circular 570 data (501 surety companies). Checks surety listing, state licensing, underwriting limits.",
+    input_schema: {
+      type: "object",
+      properties: {
+        bond_text: { type: "string", description: "Bond document text" },
+        task_request_ids: { type: "array", items: { type: "string" }, description: "Task IDs this bond covers" },
+        project_state: { type: "string", description: "State code for licensing check" }
+      },
+      required: ["bond_text", "task_request_ids"]
+    }
+  },
+  {
+    name: "auction_award_with_confirmation",
+    description: "Award a task to a specific operator. Accepts the bid and waits for execution.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string" },
+        robot_id: { type: "string", description: "Winning operator's robot ID" },
+        buyer_notes: { type: "string", description: "Optional notes" }
+      },
+      required: ["request_id", "robot_id"]
+    }
+  },
+  {
+    name: "auction_generate_agreement",
+    description: "Generate a ConsensusDocs 750 subcontract agreement from the task spec and winning bid.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string" },
+        template: { type: "string", description: "Template name (default: consensusdocs_750)" }
+      },
+      required: ["request_id"]
+    }
+  },
+  {
+    name: "auction_execute",
+    description: "Dispatch the task to the winning operator for execution. Returns delivery payload.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string" }
+      },
+      required: ["request_id"]
+    }
+  },
+  {
+    name: "auction_confirm_delivery",
+    description: "Confirm delivered survey data is satisfactory. Triggers payment settlement.",
+    input_schema: {
+      type: "object",
+      properties: {
+        request_id: { type: "string" }
+      },
+      required: ["request_id"]
+    }
+  },
+  {
+    name: "auction_list_tasks",
+    description: "List all tasks with optional filters. Essential for multi-task project management.",
+    input_schema: {
+      type: "object",
+      properties: {
+        filters: { type: "object", description: "Optional: state, rfp_id, robot_id, task_category" }
+      }
+    }
+  }
+];
+
+const DEMO_SYSTEM = `You are demonstrating the YAK ROBOTICS construction survey marketplace.
+
+A GC has submitted an RFP. Your job is to run the full auction lifecycle:
+1. Process the RFP to extract survey tasks (auction_process_rfp)
+2. Post each task to the marketplace (auction_post_task for each)
+3. Collect bids from operators (auction_get_bids for each)
+4. Review bids and identify winners (auction_review_bids)
+5. Award tasks to recommended operators (auction_award_with_confirmation)
+6. Generate agreements (auction_generate_agreement)
+7. Execute tasks (auction_execute)
+8. Confirm deliveries (auction_confirm_delivery)
+
+After each tool call, briefly explain what happened in 1-2 sentences. Be concise.
+Use the site_info provided. This is a real auction engine with 7 Michigan operators.`;
+
+function demoRateLimitKey(ip) {
+  const date = new Date().toISOString().slice(0, 10);
+  return `demo:${ip}:${date}`;
+}
+
+async function checkDemoRateLimit(env, ip) {
+  if (!env.RATE_LIMIT_KV) return { allowed: true, remaining: DEMO_DAILY_LIMIT };
+  const key = demoRateLimitKey(ip);
+  const val = await env.RATE_LIMIT_KV.get(key);
+  const count = val ? parseInt(val, 10) : 0;
+  return { allowed: count < DEMO_DAILY_LIMIT, remaining: DEMO_DAILY_LIMIT - count, count };
+}
+
+async function incrementDemoRateLimit(env, ip) {
+  if (!env.RATE_LIMIT_KV) return;
+  const key = demoRateLimitKey(ip);
+  const val = await env.RATE_LIMIT_KV.get(key);
+  const count = val ? parseInt(val, 10) : 0;
+  await env.RATE_LIMIT_KV.put(key, String(count + 1), { expirationTtl: 86400 });
+}
+
+async function callMcpTool(env, toolName, toolInput) {
+  const mcpUrl = env.MCP_SERVER_URL || "https://mcp.yakrobot.bid";
+  const response = await fetch(`${mcpUrl}/api/tool/${toolName}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(toolInput),
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    return { error: true, status: response.status, message: errText };
+  }
+  return await response.json();
+}
+
+async function handleDemo(request, env, cors) {
+  if (!env.ANTHROPIC_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: "API key not configured" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Rate limit by IP — 5 demo runs per day
+  const ip =
+    request.headers.get("CF-Connecting-IP") ||
+    request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() ||
+    "unknown";
+
+  const rl = await checkDemoRateLimit(env, ip);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: "Demo limit reached (5/day). Try again tomorrow.",
+        limit: DEMO_DAILY_LIMIT,
+        remaining: 0,
+      }),
+      {
+        status: 429,
+        headers: { ...cors, "Content-Type": "application/json", "Retry-After": "86400" },
+      }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  const { prompt } = body;
+  if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+    return new Response(
+      JSON.stringify({ error: "prompt is required" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  if (prompt.length > 5000) {
+    return new Response(
+      JSON.stringify({ error: "Prompt too long (max 5000 characters)" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Increment rate limit
+  await incrementDemoRateLimit(env, ip);
+
+  const steps = [];
+  const messages = [{ role: "user", content: prompt }];
+  const MAX_ITERATIONS = 8;
+
+  try {
+    for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+      // Call Anthropic Messages API (non-streaming)
+      const anthropicResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: env.MODEL || "claude-haiku-4-5-20251001",
+          max_tokens: 4096,
+          system: DEMO_SYSTEM,
+          messages,
+          tools: DEMO_TOOLS,
+        }),
+      });
+
+      if (!anthropicResponse.ok) {
+        const errText = await anthropicResponse.text();
+        console.error("Anthropic API error:", anthropicResponse.status, errText);
+        return new Response(
+          JSON.stringify({ error: "AI service unavailable", steps }),
+          { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
+        );
+      }
+
+      const result = await anthropicResponse.json();
+
+      // Extract text blocks from the response
+      const textBlocks = result.content
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("\n");
+
+      // If stop reason is not tool_use, we're done
+      if (result.stop_reason !== "tool_use") {
+        if (textBlocks) {
+          steps.push({ type: "text", claude_text: textBlocks });
+        }
+        break;
+      }
+
+      // Process tool_use blocks
+      const toolUseBlocks = result.content.filter((b) => b.type === "tool_use");
+      const toolResults = [];
+
+      // Add any text before tool calls as a step
+      if (textBlocks) {
+        steps.push({ type: "text", claude_text: textBlocks });
+      }
+
+      for (const toolBlock of toolUseBlocks) {
+        const { id, name, input } = toolBlock;
+
+        // Call the MCP server
+        const mcpResult = await callMcpTool(env, name, input);
+
+        steps.push({
+          type: "tool_call",
+          tool_name: name,
+          input,
+          result: mcpResult,
+          claude_text: null, // Will be filled by Claude's next response
+        });
+
+        toolResults.push({
+          type: "tool_result",
+          tool_use_id: id,
+          content: JSON.stringify(mcpResult),
+        });
+      }
+
+      // Append assistant message and tool results, then loop
+      messages.push({ role: "assistant", content: result.content });
+      messages.push({ role: "user", content: toolResults });
+    }
+
+    // Build final text from the last text step
+    const lastTextStep = [...steps].reverse().find((s) => s.type === "text");
+    const finalText = lastTextStep ? lastTextStep.claude_text : "";
+
+    return new Response(
+      JSON.stringify({ steps, final_text: finalText }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Demo handler error:", err);
+    return new Response(
+      JSON.stringify({ error: "Internal error during demo execution", steps }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
 }
 
 // --- Feedback handler ---
