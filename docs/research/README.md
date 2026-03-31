@@ -37,6 +37,7 @@
 | [Execution Gaps](technical/ANALYSIS_AUTONOMOUS_EXECUTION_GAPS.md) | 7 gaps between task spec and robot execution |
 | [Privacy Chains](technical/RESEARCH_PRIVACY_CHAINS.md) | ZKsync Prividium, Horizen L3, Aztec — chain comparison |
 | [Task Spec Standards](technical/STANDARDS_ROBOT_TASK_SPECIFICATIONS.md) | 14 standards evaluated for RFP → robot task conversion (ASPRS, USGS LBS, IEEE 1872, A2A, ROS 2, SensorML) |
+| [Tracking Dashboards](ANALYSIS_TRACKING_DASHBOARDS.md) | Three observability surfaces: buyer tracking, operator dashboard, admin console. Event log schema, progress model, 5-phase implementation plan |
 
 ## Operator & Equipment
 
