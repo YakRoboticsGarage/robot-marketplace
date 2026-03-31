@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-03-31 | **Modules:** 28 | **Built:** 20 | **Designed/Planned:** 8
+**Updated:** 2026-03-31 | **Modules:** 34 | **Built:** 20 | **Building:** 2 | **Planned:** 12
 
 ---
 
@@ -159,6 +159,26 @@ yakrobot.bid/mcp-demo --> [M28: MCP Demo]
 
 ---
 
+## 9. TRACKING & OBSERVABILITY
+
+```
+Engine events --> [M30: Event Log] --> [M31: Task Feed API]
+                       |
+         +-------------+-------------+
+         |             |             |
+  [M32: Buyer View] [M33: Operator View] [M34: Admin Console]
+```
+
+| # | Module | Status | Key Files | Description |
+|---|--------|--------|-----------|-------------|
+| M30 | **Event Log** | Building | `auction/events.py`, `auction/store.py` (events table) | Structured event stream: every state change, payment, progress update persisted with timestamp, actor, and context. Foundation for all dashboards. |
+| M31 | **Task Feed API** | Building | `auction/mcp_tools.py` (auction_get_task_feed, auction_update_progress) | MCP tools for querying event timeline per task/actor and pushing execution progress updates. |
+| M32 | **Buyer Dashboard** | Planned | — | "Where's my survey?" Task timeline, SLA countdown, project rollup, payment status. UberEats-style tracking. |
+| M33 | **Operator Dashboard** | Planned | — | "What's on my plate?" Task discovery, active jobs, progress reporting, earnings, compliance alerts. |
+| M34 | **Admin Console** | Planned | — | "How's the platform?" GMV, task volume, SLA rates, operator health, dispute queue, financials. |
+
+---
+
 ## Module Dependency Graph
 
 ```
@@ -194,11 +214,14 @@ yakrobot.bid/mcp-demo --> [M28: MCP Demo]
 ### v1.0 (Complete) -- 20 modules
 M1-M15, M19-M20, M22-M28 -- core auction, payments, compliance, frontend
 
-### v1.5 (Next) -- 4 modules
-M16 (Settlement Router), M17 (Escrow Contract), M18 (x402 Middleware), M23 (Commitment Hash on-chain integration)
+### v1.0.2 (In Progress) -- 2 modules
+M30 (Event Log), M31 (Task Feed API) -- tracking infrastructure
+
+### v1.5 (Next) -- 7 modules
+M16 (Settlement Router), M17 (Escrow Contract), M18 (x402 Middleware), M23 (Commitment Hash on-chain), M32 (Buyer Dashboard), M33 (Operator Dashboard), M34 (Admin Console)
 
 ### v2.0+ (Future) -- 4 modules
-M21 (BBS+ Credentials), ERC-8004 agent card extensions, operator dashboard, compound task decomposition
+M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposition
 
 ---
 
@@ -235,3 +258,8 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, operator dashboard, comp
 | M27 Demo Site | `demo/index.html` |
 | M28 MCP Demo | `docs/mcp_demo/index.html` |
 | M29 Chatbot Worker | `chatbot/src/index.js` |
+| M30 Event Log | `auction/events.py` |
+| M31 Task Feed API | `auction/mcp_tools.py` |
+| M32 Buyer Dashboard | (planned) |
+| M33 Operator Dashboard | (planned) |
+| M34 Admin Console | (planned) |

@@ -521,6 +521,9 @@ class TestMCPToolsRegistered:
             "auction_generate_agreement",
             "auction_track_execution",
             "auction_list_tasks",
+            # Phase 6: Tracking and observability (v1.0.2)
+            "auction_update_progress",
+            "auction_get_task_feed",
         ])
 
         assert tool_names == expected, f"Expected {expected}, got {tool_names}"

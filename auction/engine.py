@@ -144,6 +144,7 @@ class AuctionEngine:
         reputation: ReputationTracker | None = None,
         store: object | None = None,
         stripe_service: object | None = None,
+        events: object | None = None,
     ) -> None:
         self.robots = robots
         self._robots_by_id: dict[str, object] = {r.robot_id: r for r in robots}
@@ -153,6 +154,7 @@ class AuctionEngine:
         self.store = store  # SyncTaskStore | None
         self.stripe_service = stripe_service  # StripeService | None
         self._last_stripe_transfer: dict | None = None  # v1.0: last Stripe transfer result
+        self.events = events  # EventEmitter | None
 
         # v1.0: Load active tasks from store on startup (restart recovery)
         if self.store is not None:
@@ -342,6 +344,34 @@ class AuctionEngine:
         from_label = from_state.value if from_state else "(none)"
         log("STATE", f"{record.request_id} | {from_label} -> {to_state.value} | {detail}")
         record.state = to_state
+
+        # v1.0.2: Emit event for every state transition
+        if self.events is not None:
+            # Map task states to event types
+            _state_event_map = {
+                "posted": "task.posted",
+                "bidding": "task.bidding_opened",
+                "bid_accepted": "task.awarded",
+                "in_progress": "task.execution_started",
+                "delivered": "task.delivered",
+                "verified": "task.accepted",
+                "settled": "task.settled",
+                "withdrawn": "task.withdrawn",
+                "rejected": "task.rejected",
+                "abandoned": "task.expired",
+                "re_pooled": "task.re_pooled",
+            }
+            event_type = _state_event_map.get(to_state.value, f"task.{to_state.value}")
+            self.events.emit(
+                event_type,
+                request_id=record.request_id,
+                actor_role="system",
+                data={
+                    "from_state": from_label,
+                    "to_state": to_state.value,
+                    "detail": detail,
+                },
+            )
 
         # v1.0: Persist to SQLite after every state change
         self._persist_record(record)

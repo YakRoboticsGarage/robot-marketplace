@@ -177,6 +177,26 @@ class TaskStore:
                 ON ledger_entries(request_id);
             CREATE INDEX IF NOT EXISTS idx_reputation_robot
                 ON reputation_records(robot_id);
+
+            CREATE TABLE IF NOT EXISTS events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_id TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                request_id TEXT,
+                actor_id TEXT,
+                actor_role TEXT DEFAULT 'system',
+                data_json TEXT DEFAULT '{}',
+                timestamp TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_events_request
+                ON events(request_id);
+            CREATE INDEX IF NOT EXISTS idx_events_type
+                ON events(event_type);
+            CREATE INDEX IF NOT EXISTS idx_events_actor
+                ON events(actor_id);
+            CREATE INDEX IF NOT EXISTS idx_events_ts
+                ON events(timestamp);
         """)
 
         await db.commit()
@@ -539,6 +559,26 @@ _SCHEMA_DDL = """
         ON ledger_entries(request_id);
     CREATE INDEX IF NOT EXISTS idx_reputation_robot
         ON reputation_records(robot_id);
+
+    CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        request_id TEXT,
+        actor_id TEXT,
+        actor_role TEXT DEFAULT 'system',
+        data_json TEXT DEFAULT '{}',
+        timestamp TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_events_request
+        ON events(request_id);
+    CREATE INDEX IF NOT EXISTS idx_events_type
+        ON events(event_type);
+    CREATE INDEX IF NOT EXISTS idx_events_actor
+        ON events(actor_id);
+    CREATE INDEX IF NOT EXISTS idx_events_ts
+        ON events(timestamp);
 """
 
 
@@ -664,3 +704,76 @@ class SyncTaskStore:
         )
         rows = cursor.fetchall()
         return [_row_to_task_dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # Event log
+    # ------------------------------------------------------------------
+
+    def save_event(self, event: dict) -> None:
+        """Persist a structured event to the events table."""
+        import json as _json
+
+        db = self._conn()
+        db.execute(
+            """INSERT INTO events
+               (event_id, event_type, request_id, actor_id, actor_role, data_json, timestamp)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                event["event_id"],
+                event["event_type"],
+                event.get("request_id"),
+                event.get("actor_id"),
+                event.get("actor_role", "system"),
+                _json.dumps(event.get("data", {})),
+                event["timestamp"],
+            ),
+        )
+        db.commit()
+
+    def query_events(
+        self,
+        *,
+        request_id: str | None = None,
+        actor_id: str | None = None,
+        event_type: str | None = None,
+        since: str | None = None,
+        limit: int = 50,
+    ) -> list[dict]:
+        """Query events with optional filters."""
+        import json as _json
+
+        db = self._conn()
+        clauses: list[str] = []
+        params: list[str] = []
+
+        if request_id:
+            clauses.append("request_id = ?")
+            params.append(request_id)
+        if actor_id:
+            clauses.append("actor_id = ?")
+            params.append(actor_id)
+        if event_type:
+            clauses.append("event_type = ?")
+            params.append(event_type)
+        if since:
+            clauses.append("timestamp > ?")
+            params.append(since)
+
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        cursor = db.execute(
+            f"SELECT * FROM events {where} ORDER BY timestamp ASC LIMIT ?",
+            (*params, limit),
+        )
+        rows = cursor.fetchall()
+        return [
+            {
+                "event_id": r["event_id"],
+                "event_type": r["event_type"],
+                "request_id": r["request_id"],
+                "actor_id": r["actor_id"],
+                "actor_role": r["actor_role"],
+                "data": _json.loads(r["data_json"]),
+                "timestamp": r["timestamp"],
+            }
+            for r in rows
+        ]

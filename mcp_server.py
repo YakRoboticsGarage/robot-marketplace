@@ -96,6 +96,11 @@ def build_engine():
         sensor_str = ", ".join(sensors[:3])
         log("FLEET", f"  {name} ({r.robot_id}) — {sensor_str}")
 
+    # Event tracking
+    from auction.events import EventEmitter
+    events = EventEmitter(store=store)
+    log("SERVER", "Event tracking enabled")
+
     # Engine
     engine = AuctionEngine(
         fleet,
@@ -103,6 +108,7 @@ def build_engine():
         reputation=reputation,
         store=store,
         stripe_service=stripe_service,
+        events=events,
     )
 
     return engine, wallet, stripe_service

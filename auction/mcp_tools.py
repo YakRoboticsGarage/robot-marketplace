@@ -1119,3 +1119,122 @@ def register_auction_tools(
             return _decimals_to_strings(result)
         except Exception as exc:
             return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_update_progress(
+        request_id: str,
+        progress_state: str,
+        percent_complete: int = 0,
+        status_text: str = "",
+        location: dict = {},
+    ) -> dict:
+        """Report execution progress on an active task.
+
+        Operators call this to push status updates visible to buyers.
+        Progress states: mobilizing, en_route, on_site, capturing,
+        processing, uploading.
+
+        Args:
+            request_id: Task request ID.
+            progress_state: One of: mobilizing, en_route, on_site,
+                capturing, processing, uploading.
+            percent_complete: 0-100 (optional).
+            status_text: Free-text status update (optional).
+            location: {lat, lng} GPS coordinates (optional).
+        """
+        try:
+            from auction.events import VALID_PROGRESS_STATES
+
+            if progress_state not in VALID_PROGRESS_STATES:
+                return {
+                    "error": True,
+                    "error_code": "INVALID_PROGRESS_STATE",
+                    "message": f"progress_state must be one of {sorted(VALID_PROGRESS_STATES)}",
+                }
+
+            if percent_complete < 0 or percent_complete > 100:
+                return {
+                    "error": True,
+                    "error_code": "INVALID_PERCENT",
+                    "message": "percent_complete must be 0-100",
+                }
+
+            # Verify the task exists and is in a valid state
+            record = engine._get_record(request_id)
+            if record.state.value not in ("bid_accepted", "in_progress"):
+                return {
+                    "error": True,
+                    "error_code": "TASK_NOT_IN_PROGRESS",
+                    "message": f"Task is in state '{record.state.value}', progress updates only valid for bid_accepted or in_progress",
+                }
+
+            robot_id = record.winning_bid.robot_id if record.winning_bid else None
+
+            # Emit progress event
+            if engine.events is not None:
+                engine.events.emit(
+                    "task.progress_update",
+                    request_id=request_id,
+                    actor_id=robot_id,
+                    actor_role="operator",
+                    data={
+                        "progress_state": progress_state,
+                        "percent_complete": percent_complete,
+                        "status_text": status_text,
+                        "location": location if location else None,
+                    },
+                )
+
+            return {
+                "request_id": request_id,
+                "progress_state": progress_state,
+                "percent_complete": percent_complete,
+                "status_text": status_text,
+                "recorded": True,
+            }
+        except Exception as exc:
+            return _error_response(exc)
+
+    @mcp.tool()
+    async def auction_get_task_feed(
+        request_id: str = "",
+        actor_id: str = "",
+        event_type: str = "",
+        since: str = "",
+        limit: int = 50,
+    ) -> dict:
+        """Get the event feed for a task or actor.
+
+        Returns a chronological list of events (state changes, progress
+        updates, payments) for real-time tracking dashboards.
+
+        Args:
+            request_id: Filter by task (optional).
+            actor_id: Filter by buyer wallet_id or robot_id (optional).
+            event_type: Filter by event type, e.g. "task.progress_update" (optional).
+            since: ISO timestamp — only return events after this time (optional).
+            limit: Max events to return (default 50).
+        """
+        try:
+            if engine.events is None:
+                return {
+                    "events": [],
+                    "total": 0,
+                    "note": "Event tracking not enabled. Initialize engine with events=EventEmitter().",
+                }
+
+            events = engine.events.get_events(
+                request_id=request_id or None,
+                actor_id=actor_id or None,
+                event_type=event_type or None,
+                since=since or None,
+                limit=limit,
+            )
+
+            return {
+                "events": events,
+                "total": len(events),
+                "has_more": len(events) >= limit,
+            }
+        except Exception as exc:
+            return _error_response(exc)

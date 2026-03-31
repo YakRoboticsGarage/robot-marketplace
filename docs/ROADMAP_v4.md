@@ -3,7 +3,7 @@
 **Project:** yakrover-auction-explorer
 **Owner:** Product
 **Last updated:** 2026-03-28 (rev 4.1, payment bonds + award confirmation + legal framework)
-**Status:** v1.0 built (151 tests, 15 MCP tools). v1.5 next. This roadmap is built around construction site surveying as the wedge market.
+**Status:** v1.0 built (216 tests, 32 MCP tools). v1.5 next. This roadmap is built around construction site surveying as the wedge market.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -89,9 +89,43 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - Internal wallet ledger with debit/credit log (per TC-2)
 - Stripe wallet onboarding + Connect Express payouts (per TC-2, TC-3)
 - Persistent state via SQLite `SyncTaskStore`
-- 15 MCP tools including `auction_quick_hire`
+- 32 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation
 - Structured error responses, `available_actions`, `next_action` patterns (per AD-13, AD-14, AD-15)
-- 151 passing tests, ~11,400 LOC
+- Standards-aligned task specs: ASPRS accuracy classes, USGS quality levels, EPSG CRS codes, structured deliverables
+- 216 passing tests, ~14,500 LOC
+- Live demo at yakrobot.bid, yakrobot.bid/mcp-demo (Claude tool_use), yakrobot.bid/yaml (ontology explorer)
+- Chatbot worker on Cloudflare, MCP server with Cloudflare Tunnel
+
+---
+
+## v1.0.2 — Tracking & Observability (IN PROGRESS)
+
+| | |
+|---|---|
+| **Timeline** | 1-2 weeks |
+| **Serves** | All personas — buyer tracking, operator progress, admin metrics |
+| **Goal** | Event infrastructure + execution progress model. Foundation for buyer/operator/admin dashboards. |
+
+> **Detailed requirements:** `docs/research/ANALYSIS_TRACKING_DASHBOARDS.md`
+
+### Key deliverables
+
+**Event log infrastructure:**
+- `events` table in SQLite: event_type, request_id, actor_id, actor_role, data_json, timestamp
+- `EventEmitter` class wired into AuctionEngine — all state transitions emit events
+- Wallet operations emit payment events
+- Queryable via new MCP tools
+
+**Execution progress model:**
+- 6 operator-reported soft states: mobilizing → en_route → on_site → capturing → processing → uploading
+- `auction_update_progress` MCP tool (operator pushes updates)
+- `auction_get_task_feed` MCP tool (query event timeline per task or actor)
+- Progress data included in `auction_track_execution` response
+
+**Dashboard surfaces (planned, not this sprint):**
+- Buyer dashboard: "Where's my survey?" — task timeline, SLA countdown, project rollup
+- Operator dashboard: "What's on my plate?" — task discovery, active jobs, earnings
+- Admin console: "How's the platform?" — GMV, SLA rates, operator health, compliance alerts
 
 ---
 
