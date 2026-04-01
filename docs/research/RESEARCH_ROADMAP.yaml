@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-01"
+  last_updated: "2026-04-01"  # R-006 complete; R-006b/c/d spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -82,10 +82,41 @@ topics:
     title: "State PLS board API availability (all 50 states)"
     module: M36_pls_review
     hypothesis: "Some state PLS boards may have public APIs or databases for license verification — automate what we can"
-    status: queued
+    status: complete
     priority: critical
     estimated_sessions: 2
+    completed_date: "2026-04-01"
     depends_on: []
+    output_file: "docs/research/automated/R-006_pls_board_apis.md"
+    improvement_proposals: [IMP-001, IMP-002, IMP-003]
+    spawned: [R-006b, R-006c, R-006d]
+
+  - id: R-006b
+    title: "Checkr vs. MeshVerify PLS verification — API schema, cost, and coverage"
+    module: M36_pls_review
+    hypothesis: "One of Checkr or MeshVerify is clearly better for PLS verification at our volume — per-check cost and state coverage will differentiate them"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-006]
+
+  - id: R-006c
+    title: "California DCA search.dca.ca.gov undocumented JSON endpoint investigation"
+    module: M36_pls_review
+    hypothesis: "The California DCA license search may expose a JSON API endpoint discoverable via browser DevTools — this would unlock the largest state market"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-006]
+
+  - id: R-006d
+    title: "Michigan LARA bulk license data download format and freshness"
+    module: M36_pls_review
+    hypothesis: "Michigan LARA's License Lists and Reports page may provide a downloadable bulk CSV — enabling free nightly sync for our primary market"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-006]
 
   - id: R-007
     title: "Electronic survey seal/stamp regulations by state"

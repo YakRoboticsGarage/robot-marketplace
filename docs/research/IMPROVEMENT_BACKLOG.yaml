@@ -12,7 +12,59 @@ meta:
 # Priority: critical | high | medium | low (set during prioritization review)
 # Each entry links back to the research that generated it
 
-proposals: []
+proposals:
+
+  - id: IMP-001
+    title: "Integrate external PLS license verification API (Checkr or MeshVerify)"
+    description: >
+      Add a check_pls_license() function to compliance.py following the existing
+      check_sam_exclusion() pattern. When PLS_VERIFY_API_KEY is set, call Checkr
+      or MeshVerify to verify active status, good standing, and name match.
+      Without a key, return WARN indicating manual review needed. Trigger from
+      upload_document() when doc_type == "pls_license".
+    module: M36_pls_review
+    research_source: R-006
+    evidence: "docs/research/automated/R-006_pls_board_apis.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-01"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-002
+    title: "Free-tier Colorado PLS verification via Socrata open-data API"
+    description: >
+      For Colorado-licensed operators, query the free Colorado Information
+      Marketplace Socrata API (data.colorado.gov dataset 7s5z-vewr) to verify
+      PLS license status at zero cost. This provides a no-cost verification
+      path for CO-licensed surveyors before requiring a commercial API key.
+    module: M36_pls_review
+    research_source: R-006
+    evidence: "docs/research/automated/R-006_pls_board_apis.md"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-01"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-003
+    title: "State-tiered PLS verification routing table in compliance module"
+    description: >
+      Build a state routing table that directs PLS verification to the appropriate
+      tier: Tier 1 (free API — CO, IN, MA), Tier 2 (commercial API via
+      Checkr/MeshVerify), Tier 3 (manual review flag with WARN status).
+      Allows incremental rollout and cost optimization as we expand to new states.
+    module: M36_pls_review
+    research_source: R-006
+    evidence: "docs/research/automated/R-006_pls_board_apis.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-01"
+    decision_date: null
+    decision_notes: null
 
 # Example entry format:
 # - id: IMP-001
