@@ -1,0 +1,29 @@
+# =============================================================
+# Improvement Backlog — Research-Driven Product Proposals
+# Populated by automated research agent, prioritized in separate review
+# =============================================================
+
+meta:
+  created: "2026-04-01"
+  last_updated: "2026-04-01"
+  source: "Automated daily research agent + weekly synthesis"
+
+# Status values: proposed | accepted | rejected | implemented | deferred
+# Priority: critical | high | medium | low (set during prioritization review)
+# Each entry links back to the research that generated it
+
+proposals: []
+
+# Example entry format:
+# - id: IMP-001
+#   title: "Add certification check to hard constraint filter"
+#   description: "check_hard_constraints() should validate certifications_required against operator compliance records"
+#   module: M10_compliance
+#   research_source: R-006
+#   evidence: "docs/research/automated/R-006_pls_board_apis.md"
+#   effort: small  # small | medium | large
+#   priority: null  # set during prioritization
+#   status: proposed
+#   proposed_date: "2026-04-02"
+#   decision_date: null
+#   decision_notes: null

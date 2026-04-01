@@ -1,0 +1,255 @@
+# =============================================================
+# Research Roadmap — Robot Task Auction Marketplace
+# Maintained by automated daily research agent + weekly synthesis
+# =============================================================
+
+meta:
+  created: "2026-04-01"
+  last_updated: "2026-04-01"
+  schedule: "Daily at 09:00 UTC"
+  output_dir: "docs/research/automated/"
+  backlog_file: "docs/research/IMPROVEMENT_BACKLOG.yaml"
+
+# How this works:
+# 1. Daily agent picks the highest-priority QUEUED topic
+# 2. Agent does web research + codebase analysis
+# 3. Writes structured output to docs/research/automated/
+# 4. Updates this file (status, completion date, spawned topics)
+# 5. Appends improvement proposals to IMPROVEMENT_BACKLOG.yaml
+# 6. Sends Telegram summary to owner
+# 7. Weekly: agent reviews all research, critiques, identifies gaps
+
+# Status values: queued | in_progress | complete | stale | blocked
+# Priority: critical | high | medium | low
+# Each topic targets 1 research session (~30-60 min)
+
+topics:
+
+  # ===== TASK INTAKE (M1-M4) =====
+
+  - id: R-001
+    title: "Multi-state DOT survey manual comparison"
+    module: M1_rfp_processor
+    hypothesis: "MI, OH, TX, CA DOTs have different accuracy/deliverable standards — a multi-state reference table would improve RFP parsing accuracy for non-MI projects"
+    status: queued
+    priority: high
+    estimated_sessions: 2
+    depends_on: []
+    output_file: null
+
+  - id: R-002
+    title: "LLM RFP extraction accuracy benchmarks"
+    module: M1_rfp_processor
+    hypothesis: "Different RFP structures (narrative vs tabular vs checklist) have different extraction error rates — we need an eval framework"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-003
+    title: "GeoJSON survey area standards and boundary formats"
+    module: M4_site_recon
+    hypothesis: "There may be established standards for representing survey corridors and boundaries beyond raw GeoJSON polygons"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== AUCTION ENGINE (M5-M9) =====
+
+  - id: R-004
+    title: "Auction mechanism design for physical service markets"
+    module: M5_auction_engine
+    hypothesis: "Academic literature on combinatorial auctions and service procurement may reveal better scoring mechanisms than our 4-factor weighted approach"
+    status: queued
+    priority: medium
+    estimated_sessions: 2
+    depends_on: []
+
+  - id: R-005
+    title: "Construction bid evaluation practices (real GC workflows)"
+    module: M7_bid_scorer
+    hypothesis: "Real GCs evaluate survey bids differently than our 40/25/20/15 weighting — field interviews or published procurement guides could inform better weights"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== COMPLIANCE & PLS (M10-M13, M35-M36) =====
+
+  - id: R-006
+    title: "State PLS board API availability (all 50 states)"
+    module: M36_pls_review
+    hypothesis: "Some state PLS boards may have public APIs or databases for license verification — automate what we can"
+    status: queued
+    priority: critical
+    estimated_sessions: 2
+    depends_on: []
+
+  - id: R-007
+    title: "Electronic survey seal/stamp regulations by state"
+    module: M36_pls_review
+    hypothesis: "Michigan and other states may have specific regulations on electronic vs physical PLS seals — DocuSign approach may not be legal everywhere"
+    status: queued
+    priority: critical
+    estimated_sessions: 1
+    depends_on: [R-006]
+
+  - id: R-008
+    title: "ACORD 25 COI PDF field extraction methods"
+    module: M10_compliance
+    hypothesis: "Insurance COI PDFs follow ACORD 25 standard format — there may be libraries or services that parse them reliably"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== DELIVERABLE QA (M35) =====
+
+  - id: R-009
+    title: "LAS/LAZ point cloud validation tools and libraries"
+    module: M35_deliverable_qa
+    hypothesis: "Open-source tools (PDAL, lastools, CloudCompare) may provide automated QA checks we can integrate for point density, classification, accuracy"
+    status: queued
+    priority: critical
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-010
+    title: "Survey deliverable QA checklists from state DOTs"
+    module: M35_deliverable_qa
+    hypothesis: "State DOTs publish acceptance criteria for LiDAR deliverables — these can be encoded as automated checks"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-009]
+
+  - id: R-011
+    title: "Orthomosaic and DEM quality metrics"
+    module: M35_deliverable_qa
+    hypothesis: "GSD, RMSE, completeness, and artifact detection can be automated for GeoTIFF deliverables"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-009]
+
+  # ===== PAYMENT & SETTLEMENT (M14-M18) =====
+
+  - id: R-012
+    title: "Construction escrow platforms and mechanics"
+    module: M14_wallet
+    hypothesis: "Existing construction escrow services (e.g., Procore Pay, Levelset) may reveal UX patterns and legal requirements we're missing"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-013
+    title: "Retainage and progress billing in survey contracts"
+    module: M14_wallet
+    hypothesis: "Construction survey contracts typically have retainage (5-10%) — our 25/75 split may not match industry norms"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-012]
+
+  - id: R-014
+    title: "USDC stablecoin adoption in construction payments"
+    module: M18_x402
+    hypothesis: "Crypto adoption in construction is near-zero — need to understand if any GCs or subs actually want USDC, or if it's operator-side only"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== TRACKING & DASHBOARDS (M30-M34) =====
+
+  - id: R-015
+    title: "Real-time drone telemetry standards (MAVLink, DJI SDK)"
+    module: M30_event_log
+    hypothesis: "DJI and MAVLink expose real-time position/battery/status — we could auto-populate progress updates instead of relying on operator self-reporting"
+    status: queued
+    priority: medium
+    estimated_sessions: 2
+    depends_on: []
+
+  - id: R-016
+    title: "Construction project tracking UX patterns"
+    module: M32_buyer_dashboard
+    hypothesis: "Procore, PlanGrid, Fieldwire have established UX patterns for tracking survey/inspection work — learn from their design"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== IDENTITY & REPUTATION (M19-M21) =====
+
+  - id: R-017
+    title: "Drone operator reputation systems in existing platforms"
+    module: M20_reputation
+    hypothesis: "DroneBase, Zeitview, Skydio Cloud may have reputation/rating systems we can learn from — what signals matter?"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-018
+    title: "W3C Verifiable Credentials for operator certifications"
+    module: M21_bbs_credentials
+    hypothesis: "VCs could replace our manual compliance checker — FAA, state boards, and insurers could issue cryptographic credentials"
+    status: queued
+    priority: low
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== MARKET & COMPETITIVE =====
+
+  - id: R-019
+    title: "Competitive landscape update: DroneBase, Zeitview, Skydio, DroneDeploy"
+    module: system
+    hypothesis: "Competitors may have launched new features or pricing since our last analysis — need current positioning"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-020
+    title: "Michigan construction survey market sizing (2026)"
+    module: system
+    hypothesis: "MDOT budget, letting schedule, and survey spend data should be publicly available — refine our TAM"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-021
+    title: "Part 107 operator density by metro area"
+    module: system
+    hypothesis: "FAA publishes Part 107 holder data — map density to our target markets (Detroit, Kalamazoo, Grand Rapids) to validate supply-side"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== AGENT EXPERIENCE =====
+
+  - id: R-022
+    title: "A2A protocol adoption and implementation examples"
+    module: M24_mcp_tools
+    hypothesis: "Google A2A protocol may have real implementations we can learn from for agent-to-marketplace interop"
+    status: queued
+    priority: low
+    estimated_sessions: 1
+    depends_on: []
+
+  - id: R-023
+    title: "MCP server discovery and registry patterns"
+    module: M26_mcp_server
+    hypothesis: "MCP ecosystem may have emerging patterns for tool discovery, versioning, and capability negotiation"
+    status: queued
+    priority: low
+    estimated_sessions: 1
+    depends_on: []
+
+  # ===== SPAWNED BY DEVELOPMENT =====
+  # (New topics added here when code changes raise new questions)
