@@ -6,7 +6,8 @@
 meta:
   created: "2026-04-01"
   last_updated: "2026-04-01"
-  schedule: "Daily at 09:00 UTC"
+  schedule: "Daily at 09:00 Berlin (07:00 UTC)"
+  synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
   backlog_file: "docs/research/IMPROVEMENT_BACKLOG.yaml"
 
@@ -251,5 +252,19 @@ topics:
     estimated_sessions: 1
     depends_on: []
 
+  # ===== META: RESEARCH PIPELINE SELF-CRITIQUE =====
+
+  - id: R-META-001
+    title: "Weekly research synthesis and pipeline review"
+    module: system
+    hypothesis: "After 5-7 completed topics, the agent should review all findings to date, identify contradictions, cross-module patterns, coverage gaps, and re-prioritize the remaining queue"
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+    recurrence: "Re-queue every 7 completed topics"
+    notes: "This is a recurring meta-topic. After completing, the agent should: (1) critique quality of prior research, (2) identify topics that are stale or superseded, (3) re-rank remaining topics by new evidence, (4) add newly discovered topics, (5) flag improvement proposals that should be bundled together"
+
   # ===== SPAWNED BY DEVELOPMENT =====
   # (New topics added here when code changes raise new questions)
+  # The daily agent also checks git log and adds topics when new code ships
