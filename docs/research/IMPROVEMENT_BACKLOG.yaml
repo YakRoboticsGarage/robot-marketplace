@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-01"
+  last_updated: "2026-04-02"
   source: "Automated daily research agent + weekly synthesis"
 
 # Status values: proposed | accepted | rejected | implemented | deferred
@@ -63,6 +63,63 @@ proposals:
     priority: null
     status: proposed
     proposed_date: "2026-04-01"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-004
+    title: "Add check_las_deliverable() to compliance module using laspy"
+    description: >
+      Implement a pure-Python LAS/LAZ validation function in auction/compliance.py
+      (or new auction/deliverable_qa.py) using laspy 2.x. Checks: LAS 1.4 header,
+      point count > 0, CRS present (horizontal + vertical), Class 0 percentage
+      below threshold, bounding box sanity against task site GeoJSON. Gate
+      AuctionEngine.confirm_delivery() on PASS or WARN result — block escrow
+      settlement on FAIL. Follow the (status, issues) pattern of check_sam_exclusion().
+    module: M35_deliverable_qa
+    research_source: R-009
+    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-02"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-005
+    title: "Add PDAL-based point density check for QL-gated tasks"
+    description: >
+      For tasks specifying usgs_quality_level in hard constraints, run a PDAL
+      hexbin density check at delivery time using filters.hexbin. Verify >=2 pts/m2
+      for QL2, >=8 pts/m2 for QL1. Return FAIL if density is below threshold.
+      Can run async post-delivery with a configurable timeout window before payment
+      settlement. Install via conda-forge python-pdal; consider subprocess pdal CLI
+      as fallback for environments where conda is unavailable.
+    module: M35_deliverable_qa
+    research_source: R-009
+    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
+    effort: large
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-02"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-006
+    title: "Add deliverable_qa_result field to DeliveryPayload"
+    description: >
+      Extend DeliveryPayload dataclass to carry structured QA results: status
+      (PASS|WARN|FAIL), issues list, point_count, density_pts_per_m2,
+      crs_detected (bool), class_0_pct (float). Store in SQLite audit trail
+      alongside existing delivery data. Surface in buyer dashboard and include
+      in GC-facing project reports. ASPRS Edition 2 (2024) accuracy form should
+      appear when checkpoint RMSE data is provided by the operator.
+    module: M35_deliverable_qa
+    research_source: R-009
+    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-02"
     decision_date: null
     decision_notes: null
 

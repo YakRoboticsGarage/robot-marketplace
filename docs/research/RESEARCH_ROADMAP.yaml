@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-01"  # R-006 complete; R-006b/c/d spawned
+  last_updated: "2026-04-02"  # R-009 complete; R-009a spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -142,10 +142,14 @@ topics:
     title: "LAS/LAZ point cloud validation tools and libraries"
     module: M35_deliverable_qa
     hypothesis: "Open-source tools (PDAL, lastools, CloudCompare) may provide automated QA checks we can integrate for point density, classification, accuracy"
-    status: in_progress
+    status: complete
     priority: critical
     estimated_sessions: 1
+    completed_date: "2026-04-02"
     depends_on: []
+    output_file: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
+    improvement_proposals: [IMP-004, IMP-005, IMP-006]
+    spawned: [R-009a]
 
   - id: R-010
     title: "Survey deliverable QA checklists from state DOTs"
@@ -320,3 +324,29 @@ topics:
   # ===== SPAWNED BY DEVELOPMENT =====
   # (New topics added here when code changes raise new questions)
   # The daily agent also checks git log and adds topics when new code ships
+
+  - id: R-009a
+    title: "PDAL packaging strategy for production deployment (conda vs Docker sidecar vs CLI subprocess)"
+    module: M35_deliverable_qa
+    hypothesis: "PDAL cannot be pip-installed without its C++ base library — the right packaging strategy for Railway/Cloudflare Worker deployment may be a Docker sidecar, subprocess CLI call, or conda environment. This determines the feasibility timeline for IMP-005."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-009]
+    spawned_from: R-009
+    spawned_date: "2026-04-02"
+
+  # ===== SPAWNED BY FEEDBACK LOOP (recent commits) =====
+  # Onboarding commit (ac9be52) added auction_submit_feedback MCP tool and
+  # GitHub issue creation for buyer/operator ratings. New research question:
+
+  - id: R-026
+    title: "Feedback signal quality — what rating data actually predicts repeat buyer behavior"
+    module: M20_reputation
+    hypothesis: "Raw star ratings are noisy. Delivery-linked feedback (with IPFS hash + payment proof) may be more predictive of operator quality than unverified ratings. Literature on reputation systems in gig marketplaces may reveal better signal design."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: []
+    spawned_from: "git:ac9be52 (feedback loop commit)"
+    spawned_date: "2026-04-02"
