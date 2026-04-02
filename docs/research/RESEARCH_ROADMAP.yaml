@@ -283,6 +283,27 @@ topics:
     estimated_sessions: 1
     depends_on: []
 
+  # ===== PAYMENT INFRASTRUCTURE =====
+
+  - id: R-024
+    title: "Fiat-to-USDC checkout services (pay with card, receive USDC)"
+    module: M37_splits_distribution
+    hypothesis: "Services like Coinbase Onramp, MoonPay, Ramp Network, Stripe crypto payouts, or Transak may allow a buyer to pay with a credit card while the operator/platform receives USDC on Base or Ethereum. This would unify the fiat and crypto rails into one buyer UX."
+    status: queued
+    priority: critical
+    estimated_sessions: 2
+    depends_on: []
+    notes: "Key questions: (1) Which services support card-in/USDC-out to a specific wallet? (2) Minimum amounts and fees at $0.50-$5 scale? (3) KYC requirements for the buyer? (4) Can the USDC go directly to a Splits.org contract address? (5) Regulatory implications — does the platform become an MSB? (6) Stripe's own crypto payout product — does it work for Connect Express operators?"
+
+  - id: R-025
+    title: "Stripe crypto payouts to Connect accounts"
+    module: M15_stripe_service
+    hypothesis: "Stripe may support paying out Connect Express operators in USDC instead of fiat. If so, buyer pays card → Stripe → operator gets USDC, with no separate crypto rail needed."
+    status: queued
+    priority: critical
+    estimated_sessions: 1
+    depends_on: [R-024]
+
   # ===== META: RESEARCH PIPELINE SELF-CRITIQUE =====
 
   - id: R-META-001
