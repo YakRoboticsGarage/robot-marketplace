@@ -623,8 +623,10 @@ var SUBGRAPH_URLS = {
   84532:    'https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u',  // Base Sepolia
 };
 
-// Production: Base mainnet only
-var DISCOVERY_CHAINS = [8453];
+// Production: Base mainnet. Fallback: Sepolia (testnet) to show the pipeline.
+var DISCOVERY_CHAINS = [8453, 11155111];
+// fleet_provider: "yakrover" in hex
+var YAKROVER_HEX = '0x79616b726f766572';
 
 // ===== ROBOT DISCOVERY (direct subgraph query — no server needed) =====
 
@@ -632,7 +634,7 @@ async function discoverRobots() {
   var status = document.getElementById('discoveryStatus');
   var cards = document.getElementById('robotCards');
 
-  status.textContent = 'Querying ERC-8004 registry on Base...';
+  status.textContent = 'Querying ERC-8004 registry for YAK fleet robots...';
   status.style.color = 'var(--slate-light)';
   cards.innerHTML = '';
   discoveredRobots = [];
@@ -652,17 +654,26 @@ async function discoverRobots() {
     }
   }
 
-  if (allRobots.length > 0) {
-    discoveredRobots = allRobots;
-    renderDiscoveredRobots(allRobots);
+  discoveredRobots = allRobots;
+
+  // Separate Base mainnet from testnet
+  var baseRobots = allRobots.filter(function(r) { return r.chain_id === 8453; });
+  var testnetRobots = allRobots.filter(function(r) { return r.chain_id !== 8453; });
+
+  if (baseRobots.length > 0) {
+    // Production robots found — show them
+    renderDiscoveredRobots(baseRobots);
+  } else if (testnetRobots.length > 0) {
+    // Only testnet robots — show them with context, then empty state
+    renderDiscoveredRobots(testnetRobots);
   } else {
     showNoRobots();
   }
 }
 
 async function querySubgraph(url, chainId) {
-  // Step 1: Query for agents with category="robot" metadata (hex-encoded: 0x726f626f74)
-  var robotMetaQuery = '{ agentMetadata_collection(where: {key: "category", value: "0x726f626f74"}, first: 50) { agent { id agentId registrationFile { name description active mcpEndpoint mcpTools } } } }';
+  // Query for agents with fleet_provider="yakrover" (hex: 0x79616b726f766572)
+  var robotMetaQuery = '{ agentMetadata_collection(where: {key: "fleet_provider", value: "' + YAKROVER_HEX + '"}, first: 50) { agent { id agentId registrationFile { name description active mcpEndpoint mcpTools } } } }';
 
   var chainName = chainId === 8453 ? 'Base' : chainId === 11155111 ? 'Sepolia' : chainId === 1 ? 'Ethereum' : 'Chain ' + chainId;
 
@@ -777,16 +788,28 @@ function renderDiscoveredRobots(robots) {
 
 function showNoRobots() {
   var status = document.getElementById('discoveryStatus');
-  status.innerHTML = '<span style="color:var(--slate)">0 robots found on Base</span>';
+  status.innerHTML = '<span style="color:var(--slate)">0 YAK fleet robots found</span>';
   var cards = document.getElementById('robotCards');
+
+  // Check if any were found on Sepolia (testnet) for context
+  var sepoliaNote = '';
+  if (discoveredRobots.length > 0) {
+    var sepoliaCount = discoveredRobots.filter(function(r) { return r.chain_id === 11155111; }).length;
+    var baseCount = discoveredRobots.filter(function(r) { return r.chain_id === 8453; }).length;
+    if (sepoliaCount > 0 && baseCount === 0) {
+      sepoliaNote = '<p style="margin-top:8px;color:#fcd34d">' + sepoliaCount + ' robot' + (sepoliaCount > 1 ? 's' : '') + ' found on Sepolia (testnet) — waiting for Base mainnet registration.</p>';
+    }
+  }
+
   cards.innerHTML =
     '<div class="discovery-empty">' +
-      '<h4>No robots registered on Base</h4>' +
-      '<p>The marketplace discovers robots via <a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank">ERC-8004</a> on-chain identity on Base. ' +
-      'Only agents with <code style="font-size:11px;background:var(--navy-mid);padding:1px 4px;border-radius:2px">category: robot</code> metadata are shown.</p>' +
-      '<p style="margin-top:8px">The demo auction will use <strong>simulated operators</strong> (7 Michigan construction fleet) until real robots register on Base. ' +
-      'To register a robot, see <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank">yakrover-8004-mcp</a>.</p>' +
-      '<p style="margin-top:8px;font-size:11px;color:var(--slate)">Live payment requires at least one robot with a Stripe Connect account or USDC wallet address in its on-chain agent card.</p>' +
+      '<h4>No YAK fleet robots on Base mainnet</h4>' +
+      '<p>The marketplace discovers robots via <a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank">ERC-8004</a> on-chain identity. ' +
+      'Searching for agents with <code style="font-size:11px;background:var(--navy-mid);padding:1px 4px;border-radius:2px">fleet_provider: yakrover</code> on Base.</p>' +
+      sepoliaNote +
+      '<p style="margin-top:8px">The demo auction will use <strong>simulated operators</strong> (7 Michigan construction fleet) until robots register on Base. ' +
+      'To register, see <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank">yakrover-8004-mcp</a>.</p>' +
+      '<p style="margin-top:8px;font-size:11px;color:var(--slate)">Live payment requires at least one robot with a Stripe Connect account or USDC wallet in its agent card.</p>' +
     '</div>';
 }
 
