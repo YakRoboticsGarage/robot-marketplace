@@ -621,6 +621,8 @@ var auctionComplete = false;
 // ERC-8004 contract addresses & RPC
 var IDENTITY_REGISTRY = '0x8004A818BFB912233c491871b3d84c89A494BD9e';
 var GET_AGENT_WALLET_SELECTOR = '0x00339509'; // keccak256("getAgentWallet(uint256)")[:4]
+var PLATFORM_WALLET = '0xe33356d0d16c107eac7da1fc7263350cbdb548e5'; // YAK platform USDC receiving address
+var PLATFORM_COMMISSION = 0.12; // 12%
 var RPC_URLS = {
   8453:     'https://mainnet.base.org',
   11155111: 'https://ethereum-sepolia-rpc.publicnode.com',
@@ -1179,8 +1181,16 @@ function showPaymentCard(container) {
         'Once an operator adds a Stripe Connect account or USDC wallet to their ERC-8004 agent card, these buttons activate.' +
       '</div>';
   } else {
-    var walletDisplay = usdcWallet ? '<div style="font-size:11px;color:var(--slate);margin-top:12px">Operator wallet: <a href="https://sepolia.etherscan.io/address/' + escapeHtml(usdcWallet) + '" target="_blank" style="color:var(--orange);text-decoration:none;font-family:monospace">' + escapeHtml(usdcWallet.slice(0,6) + '...' + usdcWallet.slice(-4)) + '</a> (on-chain via getAgentWallet)</div>' : '';
-    card.innerHTML += walletDisplay + '<div style="font-size:11px;color:var(--slate);margin-top:4px">Production payment. Real money.</div>';
+    var walletInfo = '';
+    if (usdcWallet) {
+      var explorerDomain = (discoveredRobots[0] && discoveredRobots[0].chain_id === 8453) ? 'basescan.org' : 'sepolia.etherscan.io';
+      walletInfo =
+        '<div style="font-size:11px;color:var(--slate);margin-top:12px;text-align:left;max-width:320px;margin-left:auto;margin-right:auto">' +
+          '<div>Operator: <a href="https://' + explorerDomain + '/address/' + escapeHtml(usdcWallet) + '" target="_blank" style="color:var(--orange);text-decoration:none;font-family:monospace">' + escapeHtml(usdcWallet.slice(0,6) + '...' + usdcWallet.slice(-4)) + '</a> <span style="color:var(--slate)">(on-chain getAgentWallet)</span></div>' +
+          '<div style="margin-top:2px">Platform: <a href="https://' + explorerDomain + '/address/' + PLATFORM_WALLET + '" target="_blank" style="color:var(--orange);text-decoration:none;font-family:monospace">' + PLATFORM_WALLET.slice(0,6) + '...' + PLATFORM_WALLET.slice(-4) + '</a></div>' +
+        '</div>';
+    }
+    card.innerHTML += walletInfo + '<div style="font-size:11px;color:var(--slate);margin-top:8px">Production payment. Real money.</div>';
   }
 
   container.insertBefore(card, document.querySelector('.footer'));
