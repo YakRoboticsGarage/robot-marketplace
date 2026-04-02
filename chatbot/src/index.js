@@ -248,6 +248,10 @@ export default {
       return handleStripeWebhook(request, env, cors);
     }
 
+    if (url.pathname === "/api/upload-delivery" && request.method === "POST") {
+      return handleUploadDelivery(request, env, cors);
+    }
+
     return new Response("Not found", { status: 404, headers: cors });
   },
 };
@@ -1046,4 +1050,95 @@ async function handleStripeWebhook(request, env, cors) {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+// --- IPFS delivery upload (via Pinata) ---
+
+async function handleUploadDelivery(request, env, cors) {
+  if (!env.PINATA_JWT) {
+    return new Response(
+      JSON.stringify({ error: "IPFS upload not configured (PINATA_JWT missing)" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  const { request_id, robot_id, robot_name, delivery_data } = body;
+
+  if (!delivery_data || !request_id) {
+    return new Response(
+      JSON.stringify({ error: "request_id and delivery_data required" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Package the delivery with metadata
+  const deliveryPackage = {
+    schema: "yak-robotics/delivery/v1",
+    request_id,
+    robot_id: robot_id || "unknown",
+    robot_name: robot_name || "Unknown Robot",
+    delivered_at: new Date().toISOString(),
+    data: delivery_data,
+  };
+
+  try {
+    // Upload to Pinata
+    const pinataRes = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.PINATA_JWT}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pinataContent: deliveryPackage,
+        pinataMetadata: {
+          name: `delivery-${request_id}`,
+          keyvalues: {
+            request_id,
+            robot_id: robot_id || "",
+            type: "task_delivery",
+          },
+        },
+      }),
+    });
+
+    if (!pinataRes.ok) {
+      const err = await pinataRes.text();
+      console.error("Pinata error:", err);
+      return new Response(
+        JSON.stringify({ error: "IPFS upload failed" }),
+        { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    const pinataData = await pinataRes.json();
+    const cid = pinataData.IpfsHash;
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        ipfs_cid: cid,
+        ipfs_url: `https://gateway.pinata.cloud/ipfs/${cid}`,
+        ipfs_public_url: `https://ipfs.io/ipfs/${cid}`,
+        delivery: deliveryPackage,
+      }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Upload error:", err);
+    return new Response(
+      JSON.stringify({ error: "Failed to upload to IPFS" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
 }

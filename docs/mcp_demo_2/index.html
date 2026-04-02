@@ -519,6 +519,7 @@
     textarea { min-height: 140px; font-size: 12px; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 </head>
 <body>
 
@@ -1057,19 +1058,51 @@ function showDeliveryCard(container) {
   var hasIpfs = false; // Will be true when real robots deliver via IPFS
   var sampleCid = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi'; // placeholder
 
+  // Try to upload delivery data to IPFS via worker
+  var ipfsCid = null;
+  var ipfsUrl = null;
+  try {
+    var uploadRes = await fetch(WORKER_BASE + '/api/upload-delivery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_id: 'demo_' + Date.now(),
+        robot_id: discoveredRobots.length > 0 ? discoveredRobots[0].agent_id : 'mock',
+        robot_name: discoveredRobots.length > 0 ? discoveredRobots[0].name : 'Simulated Operator',
+        delivery_data: {
+          task: 'Environmental monitoring — server room climate assessment',
+          readings: [
+            { waypoint: 1, temperature_c: 22.4, humidity_pct: 45.2, timestamp: new Date().toISOString() },
+            { waypoint: 2, temperature_c: 23.1, humidity_pct: 43.8, timestamp: new Date().toISOString() },
+            { waypoint: 3, temperature_c: 21.9, humidity_pct: 46.5, timestamp: new Date().toISOString() },
+          ],
+          summary: 'All readings within spec. Temperature range: 21.9-23.1°C. Humidity range: 43.8-46.5% RH.',
+        },
+      }),
+    });
+    if (uploadRes.ok) {
+      var uploadData = await uploadRes.json();
+      if (uploadData.ipfs_cid) {
+        ipfsCid = uploadData.ipfs_cid;
+        ipfsUrl = uploadData.ipfs_url;
+        hasIpfs = true;
+      }
+    }
+  } catch (e) { console.warn('IPFS upload failed:', e.message); }
+
   if (hasIpfs) {
     card.innerHTML =
       '<h3>Step 3 — Verify Delivery</h3>' +
-      '<div style="font-size:13px;color:var(--slate-light);margin-bottom:12px">The operator uploaded survey deliverables to IPFS. Verify the data before releasing payment.</div>' +
+      '<div style="font-size:13px;color:var(--slate-light);margin-bottom:12px">The operator uploaded deliverables to IPFS. Verify the data before releasing payment.</div>' +
       '<div class="file-manifest">' +
-        '<div class="file-row"><span class="file-name">point_cloud.las</span><span class="file-size">4.2 MB &middot; LAS 1.4</span></div>' +
-        '<div class="file-row"><span class="file-name">orthomosaic.tiff</span><span class="file-size">12.0 MB &middot; GeoTIFF</span></div>' +
-        '<div class="file-row"><span class="file-name">topo_surface.xml</span><span class="file-size">98 KB &middot; LandXML 1.2</span></div>' +
-        '<div class="file-row"><span class="file-name">survey_report.pdf</span><span class="file-size">210 KB &middot; PDF</span></div>' +
+        '<div class="file-row"><span class="file-name">delivery.json</span><span class="file-size">Sensor readings (3 waypoints)</span></div>' +
+        '<div class="file-row"><span class="file-name">temperature</span><span class="file-size">21.9 - 23.1°C</span></div>' +
+        '<div class="file-row"><span class="file-name">humidity</span><span class="file-size">43.8 - 46.5% RH</span></div>' +
       '</div>' +
       '<div style="font-size:12px;margin-top:8px">' +
         '<span style="color:var(--slate)">IPFS CID:</span> ' +
-        '<a href="https://ipfs.io/ipfs/' + sampleCid + '" target="_blank" style="color:var(--orange);font-family:monospace;font-size:11px;text-decoration:none">' + sampleCid.substring(0, 20) + '...</a>' +
+        '<a href="' + (ipfsUrl || 'https://ipfs.io/ipfs/' + ipfsCid) + '" target="_blank" style="color:var(--orange);font-family:monospace;font-size:11px;text-decoration:none">' + ipfsCid + '</a>' +
+        ' <a href="https://ipfs.io/ipfs/' + ipfsCid + '" target="_blank" style="color:var(--slate);font-size:10px;text-decoration:none">[public gateway]</a>' +
       '</div>' +
       '<div style="margin-top:16px">' +
         '<button class="pay-btn" style="background:var(--green);font-size:12px;padding:8px 16px" onclick="acceptDelivery()">Accept Delivery &amp; Proceed to Payment</button>' +
@@ -1244,9 +1277,151 @@ async function payWithStripe(amountCents, operatorAccountId) {
   }
 }
 
-function payWithUSDC(walletAddress) {
-  // Phase 2: wallet connect + USDC transfer to Splits contract on Base
-  alert('USDC payment to ' + (walletAddress || 'operator') + ' coming in Phase 2. Use card payment for now.');
+async function payWithUSDC(operatorWallet) {
+  var btn = document.querySelector('.pay-btn-usdc');
+  btn.disabled = true;
+  btn.textContent = 'Connecting wallet...';
+
+  if (!operatorWallet) {
+    btn.textContent = 'No operator wallet';
+    return;
+  }
+
+  // Determine chain from discovered robot
+  var chainId = discoveredRobots.length > 0 ? discoveredRobots[0].chain_id : 11155111;
+  var chainName = chainId === 8453 ? 'Base' : chainId === 11155111 ? 'Sepolia' : 'Chain ' + chainId;
+
+  // USDC contract addresses by chain
+  var USDC_ADDRESSES = {
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',     // Base mainnet
+    84532: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',    // Base Sepolia
+    11155111: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // Eth Sepolia USDC
+  };
+
+  var usdcAddr = USDC_ADDRESSES[chainId];
+  if (!usdcAddr) {
+    btn.textContent = 'USDC not available on ' + chainName;
+    btn.disabled = false;
+    return;
+  }
+
+  try {
+    // Connect wallet via MetaMask / Coinbase Wallet
+    if (!window.ethereum) {
+      btn.textContent = 'No wallet found';
+      alert('Please install MetaMask or Coinbase Wallet to pay with USDC.');
+      btn.disabled = false;
+      return;
+    }
+
+    btn.textContent = 'Requesting accounts...';
+    var provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    var signer = await provider.getSigner();
+    var buyerAddr = await signer.getAddress();
+
+    // Check chain — request switch if wrong
+    var network = await provider.getNetwork();
+    if (Number(network.chainId) !== chainId) {
+      btn.textContent = 'Switching to ' + chainName + '...';
+      try {
+        await provider.send('wallet_switchEthereumChain', [{ chainId: '0x' + chainId.toString(16) }]);
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+      } catch (switchErr) {
+        btn.textContent = 'Please switch to ' + chainName;
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    // Calculate amounts (USDC has 6 decimals)
+    var totalCents = 1; // $0.01
+    var operatorAmount = Math.floor(totalCents * (1 - PLATFORM_COMMISSION)); // 88% = 0.0088
+    var platformAmount = totalCents - operatorAmount; // 12% = 0.0012
+    // In USDC units: $0.01 = 10000 (6 decimals), but we're working in cents
+    var operatorUnits = BigInt(operatorAmount) * 100n; // cents to USDC units (6 dec)
+    var platformUnits = BigInt(platformAmount) * 100n;
+
+    // ERC-20 transfer ABI
+    var usdcAbi = ['function transfer(address to, uint256 amount) returns (bool)', 'function balanceOf(address) view returns (uint256)'];
+    var usdc = new ethers.Contract(usdcAddr, usdcAbi, signer);
+
+    // Check balance
+    btn.textContent = 'Checking USDC balance...';
+    var balance = await usdc.balanceOf(buyerAddr);
+    var totalUnits = operatorUnits + platformUnits;
+    if (balance < totalUnits) {
+      btn.textContent = 'Insufficient USDC';
+      alert('You need at least $0.01 USDC on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(4));
+      btn.disabled = false;
+      return;
+    }
+
+    // Transfer to operator (88%)
+    btn.textContent = 'Sending to operator (' + (100 - PLATFORM_COMMISSION * 100) + '%)...';
+    var tx1 = await usdc.transfer(operatorWallet, operatorUnits);
+    btn.textContent = 'Confirming operator payment...';
+    var receipt1 = await tx1.wait();
+
+    // Transfer to platform (12%)
+    btn.textContent = 'Sending to platform (' + (PLATFORM_COMMISSION * 100) + '%)...';
+    var tx2 = await usdc.transfer(PLATFORM_WALLET, platformUnits);
+    btn.textContent = 'Confirming platform payment...';
+    var receipt2 = await tx2.wait();
+
+    // Determine explorer
+    var explorerBase = chainId === 8453 ? 'https://basescan.org' : chainId === 11155111 ? 'https://sepolia.etherscan.io' : 'https://etherscan.io';
+
+    // Show success
+    showUsdcSuccess({
+      operator_tx: receipt1.hash,
+      platform_tx: receipt2.hash,
+      operator_wallet: operatorWallet,
+      platform_wallet: PLATFORM_WALLET,
+      operator_amount: Number(operatorUnits) / 1000000,
+      platform_amount: Number(platformUnits) / 1000000,
+      explorer: explorerBase,
+      chain_name: chainName,
+    });
+
+  } catch (err) {
+    console.error('USDC payment error:', err);
+    btn.textContent = 'Payment failed — try again';
+    if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
+      btn.textContent = 'Transaction rejected';
+    }
+    btn.disabled = false;
+  }
+}
+
+function showUsdcSuccess(data) {
+  var container = document.querySelector('.container');
+  // Remove payment card
+  var pc = document.getElementById('paymentCard');
+  if (pc) pc.remove();
+
+  var card = document.createElement('div');
+  card.className = 'payment-success';
+  card.innerHTML =
+    '<h3>USDC Payment Complete</h3>' +
+    '<div style="font-size:14px;color:var(--slate-light);margin-bottom:16px">' +
+      'Real USDC moved through a real robot auction on ' + escapeHtml(data.chain_name) + '.' +
+    '</div>' +
+    '<div style="max-width:360px;margin:0 auto 16px;text-align:left">' +
+      '<div class="payment-row"><span class="payment-label">Operator received</span><span class="payment-value" style="color:var(--green)">$' + data.operator_amount.toFixed(4) + ' USDC</span></div>' +
+      '<div class="payment-row"><span class="payment-label">Platform received</span><span class="payment-value">$' + data.platform_amount.toFixed(4) + ' USDC</span></div>' +
+    '</div>' +
+    '<div style="font-size:12px;margin-bottom:8px">' +
+      '<a class="receipt-link" href="' + data.explorer + '/tx/' + data.operator_tx + '" target="_blank">Operator tx: ' + data.operator_tx.slice(0, 10) + '...</a>' +
+    '</div>' +
+    '<div style="font-size:12px">' +
+      '<a class="receipt-link" href="' + data.explorer + '/tx/' + data.platform_tx + '" target="_blank">Platform tx: ' + data.platform_tx.slice(0, 10) + '...</a>' +
+    '</div>' +
+    '<div style="margin-top:16px;font-size:11px;color:var(--slate)">Both transactions verifiable on ' + escapeHtml(data.chain_name) + ' block explorer.</div>';
+
+  container.insertBefore(card, document.querySelector('.footer'));
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Check for payment return on page load
