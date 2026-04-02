@@ -106,11 +106,14 @@ Card payments are not made per-task. Buyers purchase credit bundles upfront (e.g
 
 ---
 
-### TC-4 · Crypto Stack: x402 + USDC on Base
-- **Library:** `pip install "x402[fastapi]"` (Coinbase official Python SDK, v2, production-ready)
-- **Middleware:** `PaymentMiddlewareASGI` — one line on `accept_bid()` endpoint
-- **Escrow:** `RobotTaskEscrow.sol` on Base (operator-controlled release) — to be written in Phase 2
-- **Network:** USDC on Base Sepolia (testnet), Base mainnet in Phase 4
+### TC-4 · Crypto Stack: x402 + USDC on Base (updated 2026-04-02)
+- **Library:** `pip install "x402[fastapi]"` (Coinbase official Python SDK, v2, production-ready, 75M+ tx settled)
+- **Middleware:** `PaymentMiddlewareASGI` on payment-required MCP endpoints
+- **Escrow:** `RobotTaskEscrow.sol` on Base — v1.1 Phase 3
+- **Distribution:** Splits.org (88% operator / 12% platform) — audited, zero fees, deployed on Base + Ethereum mainnet
+- **Demo chain:** Base mainnet (gas ~$0.007/tx, practical for $0.01+ demo tasks)
+- **Production chain:** Ethereum mainnet (swap RPC URL + chain ID when task values justify gas costs)
+- **Decision:** Chain is a config value. Architecture is chain-agnostic. Robot identity (ERC-8004) and payment chain are independent.
 
 ---
 

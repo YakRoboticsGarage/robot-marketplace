@@ -391,14 +391,12 @@ Robots are currently registered on **Ethereum Sepolia** via ERC-8004 (`yakrover-
 
 ---
 
-## Revised Decision Points
+## Decisions (Resolved 2026-04-02)
 
-1. **Stripe: test mode or production?** Test mode is instant. Production requires Stripe review (~1-3 days). For a real $0.50 charge, need production.
-
-2. **Crypto chain: Base (cheap) or Ethereum mainnet (credible)?** Base for demo, mainnet architecture for production. Both supported by Splits + x402.
-
-3. **Payment split: Splits.org or custom?** Splits — audited, free, deployed, SDK available. No reason to build our own.
-
-4. **Robot identity chain: move to mainnet?** Not for demo. Optional for investor pitch.
-
-5. **Escrow: Splits + x402, or custom contract?** Start with x402 (payment) + Splits (distribution). Add custom escrow (hold/release) as Phase 3 if needed.
+| # | Decision | Resolution | Rationale |
+|---|----------|-----------|-----------|
+| 1 | **Stripe mode** | Production (`sk_live_...`) | Goal is real money. Build against test mode while Stripe review runs, swap key on approval. |
+| 2 | **Crypto chain** | Base for demo, Ethereum mainnet for production | Gas makes micro-tx impractical on mainnet. Architecture is chain-agnostic (RPC URL + chain ID config). Swap when moving to investor demo. |
+| 3 | **Payment split** | Splits.org | Audited, zero fees, deployed on Base + mainnet. 88% operator / 12% platform. No reason to build custom. |
+| 4 | **Robot identity** | Keep on Sepolia for now. Robot owners registering on Base production in parallel. | Robot identity chain and payment chain are independent. One migration when ready for mainnet. |
+| 5 | **Escrow approach** | x402 (payment) + Splits (distribution) first. Custom escrow contract as Phase 3. | Ship the value flow piping first, add on-chain escrow hold/release when needed. |

@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-01 | **Modules:** 36 | **Built:** 25 | **Building:** 2 | **Gaps:** 2 | **Planned:** 7
+**Updated:** 2026-04-02 | **Modules:** 37 | **Built:** 25 | **Building:** 2 | **Gaps:** 2 | **Planned:** 8
 
 ---
 
@@ -117,16 +117,19 @@ Buyer --> [M14: Wallet Ledger] --> [M15: Stripe Service]
                 |                         |
                 v                         v
          [M16: Settlement Router] --> [M17: Escrow Contract]
-                                      [M18: x402 Middleware]
+                |                     [M18: x402 Middleware]
+                v
+         [M37: Splits Distribution]
 ```
 
 | # | Module | Status | Key Files | Description |
 |---|--------|--------|-----------|-------------|
 | M14 | **Wallet Ledger** | Built | `auction/wallet.py` | Internal accounting: debit/credit with entry types (reservation_25, delivery_75, refund, credit). Thread-safe. Source of truth for balances. |
-| M15 | **Stripe Service** | Built | `auction/stripe_service.py` | Stripe Connect Express: wallet top-ups (PaymentIntent), operator payouts (Transfer), webhook validation. Live/stub dual mode. EUR/USD. |
+| M15 | **Stripe Service** | Built | `auction/stripe_service.py` | Stripe Connect Express: wallet top-ups (PaymentIntent), operator payouts (Transfer), webhook validation. Live/stub dual mode. EUR/USD. Bug: currency hardcoded to USD — fix in v1.1 Phase 1. |
 | M16 | **Settlement Router** | Designed | `auction/settlement.py` | 4-mode interface (FD-1): immediate_transparent (Base x402), immediate_private (Horizen L3), batched_transparent (DTN), batched_private. Routes by payment_method. |
-| M17 | **On-Chain Escrow** | Planned | `contracts/RobotTaskEscrow.sol` (not yet created) | Base USDC escrow: hold on acceptance, release on delivery, refund on timeout. Commitment hash memos (FD-4). |
-| M18 | **x402 Middleware** | Planned | — | Coinbase x402 v2 integration on accept_bid() endpoint. USDC micropayments on Base. |
+| M17 | **On-Chain Escrow** | Planned (v1.1 Phase 3) | `contracts/RobotTaskEscrow.sol` (not yet created) | Base USDC escrow: hold on acceptance, release on delivery, refund on timeout. Commitment hash memos (FD-4). |
+| M18 | **x402 Middleware** | Planned (v1.1 Phase 2) | — | Coinbase x402 v2 integration on MCP server. Agent pays USDC on Base to access payment-required endpoints. SDK: `pip install "x402[fastapi]"`. |
+| M37 | **Splits Distribution** | Planned (v1.1 Phase 2) | — | Splits.org audited contracts for 88/12 operator/platform revenue split. Deployed on Base + Ethereum mainnet. Zero fees. Auto-distributes on withdrawal. |
 
 ---
 
@@ -253,8 +256,11 @@ M1-M15, M19-M20, M22-M28 -- core auction, payments, compliance, frontend
 ### v1.0.2 (In Progress) -- 2 modules
 M30 (Event Log), M31 (Task Feed API) -- tracking infrastructure
 
-### v1.5 (Next) -- 7 modules
-M16 (Settlement Router), M17 (Escrow Contract), M18 (x402 Middleware), M23 (Commitment Hash on-chain), M32 (Buyer Dashboard), M33 (Operator Dashboard), M34 (Admin Console)
+### v1.1 (Planned) -- 4 modules
+M17 (Escrow Contract), M18 (x402 Middleware), M37 (Splits Distribution) -- live payment settlement on Base. Stripe production + crypto rail.
+
+### v1.5 (Next) -- 4 modules
+M16 (Settlement Router), M23 (Commitment Hash on-chain), M32 (Buyer Dashboard), M33 (Operator Dashboard), M34 (Admin Console)
 
 ### v2.0+ (Future) -- 4 modules
 M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposition
@@ -301,3 +307,4 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposit
 | M34 Admin Console | (planned) |
 | M35 Deliverable QA | (gap — pitch claims it, no module exists) |
 | M36 PLS Review & Stamp | (gap — PLS-as-a-service routing + electronic seal) |
+| M37 Splits Distribution | (planned — splits.org 88/12 operator/platform split) |

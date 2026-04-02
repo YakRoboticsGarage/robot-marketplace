@@ -2008,13 +2008,15 @@ architecture:
       - id: settlement:immediate_transparent
         timing: immediate
         privacy: transparent
-        chain: base
+        chain: base  # Demo on Base (gas-efficient). Production on Ethereum mainnet. Chain is config value.
         protocol: x402
         currency: usdc
-        version_implemented: "v1.5"
+        distribution: "splits.org (88% operator / 12% platform, audited, zero fees)"
+        version_implemented: "v1.1"
         escrow_contract: component:escrow_contract
         commitment_hash: "H(request_id || salt)"
         decisions: [decision:FD-1, decision:FD-4, decision:TC-4]
+        notes: "Decided 2026-04-02: Base for demo, Ethereum mainnet for production. Splits.org for revenue distribution."
       - id: settlement:immediate_private
         timing: immediate
         privacy: shielded
