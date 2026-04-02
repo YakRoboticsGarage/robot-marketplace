@@ -108,6 +108,7 @@ Start here, in this order:
 |-----|-----------|
 | **[yakrobot.bid](https://yakrobot.bid)** | Interactive demo — MDOT I-94 RFQ walkthrough |
 | **[yakrobot.bid/mcp-demo](https://yakrobot.bid/mcp-demo/)** | Live auction demo — Claude orchestrates real MCP tools |
+| **[yakrobot.bid/mcp-demo-2](https://yakrobot.bid/mcp-demo-2/)** | Payment demo — real robot discovery, IPFS delivery, Stripe + USDC settlement |
 | **[yakrobot.bid/yaml](https://yakrobot.bid/yaml)** | YAML ontology explorer — browse PRODUCT_DSL_v2 live |
 | **[yakrobot.bid/pitch](https://yakrobot.bid/pitch)** | Pitch deck — investor/partner presentation |
 
@@ -134,8 +135,10 @@ All four follow the [skill-creator-springett](https://github.com/bglek/skill-cre
 
 ## Key Numbers
 
-- **34 MCP tools** — auction lifecycle, RFP parsing, bond verification, operator compliance, agreement generation
+- **35 MCP tools** — auction lifecycle, RFP parsing, bond verification, operator compliance, agreement generation, event tracking, feedback
 - **238 tests** passing, with integration test stubs for Stripe and fleet
+- **140 commits** across the project
+- **29 research topics** in automated research roadmap (1 completed, 4 improvement proposals)
 - **3,241 line YAML** product ontology covering the entire product
 - **43 real MDOT RFPs** analyzed for survey requirements
 - **6 real equipment platforms** with verified specs and pricing

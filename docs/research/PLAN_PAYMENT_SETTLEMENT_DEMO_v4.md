@@ -1,7 +1,7 @@
 # Plan: Live Payment Settlement Demo (v4 — Implementation Status)
 
-**Date:** 2026-04-02
-**Status:** Partially built, partially blocked
+**Date:** 2026-04-02 (updated end-of-day)
+**Status:** Core demo built. Blocked on: Stripe production keys, operator Connect onboarding, robot Base registration.
 **Supersedes:** v3
 **Demo:** https://yakrobot.bid/mcp-demo-2/
 **Goal:** Real money through a real robot auction. Buyer pays, operator and platform both get paid.
@@ -66,11 +66,12 @@ This simplifies the payment flow significantly:
 5. [ ] Redeploy worker (`wrangler deploy`)
 
 ### For USDC path ($0.01):
-1. [ ] Add ethers.js/viem to demo page for wallet connect
-2. [ ] USDC transfer call: `USDC.transfer(robotWallet, 10000)` (6 decimals)
-3. [ ] Show Basescan/Etherscan tx link after transfer
-4. [ ] Platform commission: either send 88% to robot + 12% to platform wallet, or use Splits
+1. [x] ~~Add ethers.js to demo page for wallet connect~~ — DONE
+2. [x] ~~USDC transfer call~~ — DONE (two transfers: 88% to robot, 12% to platform)
+3. [x] ~~Show block explorer tx links~~ — DONE
+4. [x] ~~Platform wallet configured~~ — DONE (0xe33356d0d16c107eac7da1fc7263350cbdb548e5)
 5. [ ] Robot wallet needs USDC on the same chain it's registered on (currently Sepolia — testnet USDC only)
+6. [ ] Buyer needs Sepolia USDC + ETH for gas (get from faucet.circle.com)
 
 ### For real production:
 1. [ ] Robot registered on Base mainnet (not Sepolia) with `fleet_provider: yakrover`
@@ -118,6 +119,46 @@ Browser (yakrobot.bid/mcp-demo-2)
 | 7 | x402 | Not used for marketplace settlement. Reserved for agent-to-robot control. | 2026-04-02 |
 | 8 | Discovery method | Direct subgraph + RPC from browser. No server dependency. | 2026-04-02 |
 | 9 | Fiat-to-USDC bridge | Research topic R-024. Not built — keep rails separate. | 2026-04-02 |
+
+---
+
+## What Else Was Built (2026-04-02)
+
+### IPFS Delivery (Step 3)
+- Worker endpoint `POST /api/upload-delivery` uploads JSON to Pinata, returns IPFS CID
+- Demo auto-uploads sample sensor data (3 waypoints, temp/humidity) after auction
+- Buyer sees real IPFS link to verify data before releasing payment
+- **Needs:** `PINATA_JWT` worker secret
+
+### USDC Payment (Step 4)
+- ethers.js wallet connect (MetaMask / Coinbase Wallet)
+- Auto-detects chain, prompts switch if wrong
+- Two USDC transfers: 88% to operator wallet, 12% to platform wallet
+- Both tx hashes shown with block explorer links
+- USDC addresses configured per chain (Base mainnet, Base Sepolia, Eth Sepolia)
+- Platform wallet: `0xe33356d0d16c107eac7da1fc7263350cbdb548e5`
+
+### Feedback Loop (Step 5)
+- Star rating + comment after payment (both Stripe and USDC flows)
+- Worker endpoint `POST /api/auction-feedback` stores in KV + creates GitHub issue
+- MCP tool `auction_submit_feedback` for agent-submitted feedback
+- GitHub issues labeled `feedback` + `auction` + role
+- Daily research agent reads feedback issues, creates improvement proposals, closes processed issues
+- **Needs:** `GITHUB_TOKEN` worker secret for issue creation
+
+### Robot Operator Onboarding
+- Complete guide at `docs/onboarding/ROBOT_OPERATOR_ONBOARDING.md`
+- 3 MCP tools spec: `robot_submit_bid`, `robot_execute_task`, `robot_get_pricing`
+- On-chain metadata additions, wallet verification, Stripe Connect setup
+- Testing instructions with curl examples
+- Sent to 8004 team for implementation
+
+### Automated Research + Docs Sync
+- Daily research agent (9am Berlin): picks topics, does web research, writes findings, spawns new topics
+- Now reads GitHub feedback issues and incorporates into research/proposals
+- Weekly self-critique (R-META-001) reviews all research + feedback
+- Daily docs-sync agent (7pm Berlin): updates stats across all admin docs
+- Both send Telegram notifications via GitHub Action pipeline
 
 ---
 

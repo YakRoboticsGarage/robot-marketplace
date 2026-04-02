@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-02 | **Modules:** 38 | **Built:** 25 | **Building:** 2 | **Gaps:** 2 | **Planned:** 5 | **Deferred:** 4
+**Updated:** 2026-04-02 | **Modules:** 38 | **Built:** 27 | **Building:** 2 | **Gaps:** 2 | **Planned:** 3 | **Deferred:** 4
 
 ---
 
