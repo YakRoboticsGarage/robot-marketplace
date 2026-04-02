@@ -144,7 +144,7 @@ Browser (yakrobot.bid/mcp-demo-2)
 - MCP tool `auction_submit_feedback` for agent-submitted feedback
 - GitHub issues labeled `feedback` + `auction` + role
 - Daily research agent reads feedback issues, creates improvement proposals, closes processed issues
-- **Needs:** `GITHUB_TOKEN` worker secret for issue creation
+- `GITHUB_TOKEN` worker secret: CONFIGURED ✓ (issue #2 created successfully)
 
 ### Robot Operator Onboarding
 - Complete guide at `docs/onboarding/ROBOT_OPERATOR_ONBOARDING.md`
@@ -162,13 +162,34 @@ Browser (yakrobot.bid/mcp-demo-2)
 
 ---
 
-## Remaining Work
+## What's Done vs What's Remaining
 
-| Phase | What | Days | Status |
-|-------|------|------|--------|
-| **Stripe activation** | Add production keys, webhook, deploy worker | 0.5 | Blocked on Stripe account |
-| **Operator Connect onboarding** | One operator completes Stripe Express | 0.5 | Blocked on operator |
-| **USDC wallet connect** | Add ethers.js, USDC transfer call | 1-2 | Ready to build |
-| **IPFS delivery** | Robot uploads data, demo shows CID | 2-3 | Needs robot-side work |
-| **Base mainnet registration** | Register robot on Base with yakrover metadata | 0.5 | 8004 team |
-| **Escrow contract** | On-chain hold/release for larger tasks | 5-7 | Future (v1.1 Phase 3) |
+### Done
+| What | Status |
+|------|--------|
+| Browser robot discovery (subgraph + getAgentWallet RPC) | ✅ Live |
+| Auction via MCP server + Claude tool_use | ✅ Live (needs tunnel) |
+| IPFS delivery upload (Pinata via worker) | ✅ Built (needs PINATA_JWT secret) |
+| USDC wallet connect + two-transfer settlement | ✅ Built |
+| Stripe Checkout endpoint with 12% application_fee | ✅ Built |
+| Platform USDC wallet configured | ✅ 0xe333...8e5 |
+| Feedback loop (demo → KV + GitHub issue → research agent) | ✅ Live (issue #2 verified) |
+| Worker deployed with GITHUB_TOKEN | ✅ Done |
+| Robot operator onboarding guide | ✅ Published |
+
+### Remaining (blocked on external parties)
+| Phase | What | Days | Blocker |
+|-------|------|------|---------|
+| **Stripe production keys** | Add `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` to worker | 0.5 | Need production Stripe account |
+| **Operator Stripe Connect** | One operator completes Express onboarding | 0.5 | Need operator action |
+| **PINATA_JWT** | Add Pinata API key to worker for IPFS uploads | 0.5 | Need Pinata account |
+| **Robot bid/execute tools** | 8004 team adds `robot_submit_bid`, `robot_execute_task` | 2-3 | Onboarding guide sent |
+| **Base mainnet registration** | Register robot on Base with `fleet_provider: yakrover` | 0.5 | 8004 team |
+| **Worker redeploy** | Deploy with all secrets configured | 0.5 | After above secrets added |
+
+### Future (not blocking demo)
+| Phase | What | Days |
+|-------|------|------|
+| Escrow contract on Base | On-chain hold/release for $50+ tasks | 5-7 |
+| Fiat-to-USDC checkout | Research topic R-024 | TBD |
+| Splits.org integration | Production-scale multi-operator distribution | 2-3 |

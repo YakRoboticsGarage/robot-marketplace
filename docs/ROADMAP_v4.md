@@ -149,18 +149,27 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 
 ### Decisions (resolved 2026-04-02)
 - **Stripe:** Production mode (`sk_live_...`). Real cards, real charges.
-- **Crypto:** Direct USDC transfer to robot wallet (read from on-chain `getAgentWallet`). No x402 for settlement. No Splits needed for demo.
+- **Crypto:** Direct USDC transfer to robot wallet (read from on-chain `getAgentWallet`). No x402 for settlement.
 - **Robot discovery:** Subgraph + RPC from browser. `fleet_provider: yakrover` filter.
 - **Robot wallet:** Already set on ERC-8004 contract. `getAgentWallet(989)` returns `0x99a5...E136`.
-- **Delivery:** IPFS upload planned. Placeholder UI in demo now.
+- **Delivery:** IPFS upload via Pinata worker endpoint. Real CID shown to buyer.
 - **Chain:** Base for production. Sepolia for current demo (Tumbller registered there).
+- **Feedback:** Demo → Cloudflare KV + GitHub issue → research agent processes → improvement proposals.
+
+### What's done
+- [x] Browser robot discovery (subgraph + getAgentWallet RPC)
+- [x] USDC wallet connect + two-transfer settlement (ethers.js)
+- [x] Stripe Checkout endpoint with 12% application_fee
+- [x] IPFS delivery upload (Pinata via worker)
+- [x] Feedback loop (demo → GitHub issues → research agent)
+- [x] Worker deployed with GITHUB_TOKEN
+- [x] Robot operator onboarding guide published
 
 ### What's blocking
-- [ ] Production Stripe account + keys in worker secrets
+- [ ] Production Stripe account + `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`
 - [ ] One operator completes Stripe Connect Express onboarding
-- [ ] Webhook registered in Stripe dashboard
-- [ ] Worker redeployed with secrets (`wrangler deploy`)
-- [ ] USDC wallet connect code (ethers.js, ~1-2 days)
+- [ ] `PINATA_JWT` worker secret for IPFS uploads
+- [ ] 8004 team: `robot_submit_bid` + `robot_execute_task` MCP tools
 - [ ] Robot registered on Base mainnet (8004 team, in parallel)
 
 ### Dropped from earlier plans
