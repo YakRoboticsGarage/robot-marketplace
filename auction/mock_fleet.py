@@ -13,6 +13,7 @@ import json as _json_mod
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import httpx
 
@@ -433,7 +434,7 @@ class ConstructionMockRobot(MockRobot):
         payload_spec = task.capability_requirements.get("payload", {})
         expected_fields = payload_spec.get("fields", [])
 
-        data = {}
+        data: dict[str, Any] = {}
         for field_name in expected_fields:
             data[field_name] = f"{field_name.lower().replace(' ', '_')}_output.{field_name.lower()}"
 
@@ -446,7 +447,7 @@ class ConstructionMockRobot(MockRobot):
             _load_sample(data, _samples_dir / "accuracy_report.json", "accuracy_report")
             _load_sample(data, _samples_dir / "cross_sections.csv", "cross_sections_sample")
             _load_sample(data, _samples_dir / "survey_control.csv", "control_points_sample")
-            data["deliverable_files"] = [  # type: ignore[assignment]
+            data["deliverable_files"] = [
                 {"name": "surface.xml", "format": "LandXML 1.2", "sample": str(_samples_dir / "landxml_surface.xml")},
                 {"name": "cross_sections.csv", "format": "CSV", "rows": 25},
                 {"name": "point_cloud.las", "format": "LAS 1.4", "points": 12_450_000},
@@ -455,7 +456,7 @@ class ConstructionMockRobot(MockRobot):
         elif category == "as_built":
             # Tunnel scan — include tunnel report
             _load_sample(data, _samples_dir / "tunnel_scan_report.json", "tunnel_report")
-            data["deliverable_files"] = [  # type: ignore[assignment]
+            data["deliverable_files"] = [
                 {"name": "tunnel_pointcloud.e57", "format": "e57", "points": 89_200_000},
                 {"name": "tunnel_pointcloud.las", "format": "LAS 1.4", "points": 89_200_000},
                 {"name": "tunnel_cross_sections.dxf", "format": "DXF R2018", "sections": 240},
@@ -463,14 +464,14 @@ class ConstructionMockRobot(MockRobot):
         elif category == "subsurface_scan":
             # GPR survey — include utility report
             _load_sample(data, _samples_dir / "gpr_utility_report.json", "gpr_report")
-            data["deliverable_files"] = [  # type: ignore[assignment]
+            data["deliverable_files"] = [
                 {"name": "utility_map.dxf", "format": "DXF R2018"},
                 {"name": "gpr_report.pdf", "format": "PDF"},
                 {"name": "utility_coordinates.csv", "format": "CSV"},
             ]
         elif category == "bridge_inspection":
             _load_sample(data, _samples_dir / "accuracy_report.json", "accuracy_report")
-            data["deliverable_files"] = [  # type: ignore[assignment]
+            data["deliverable_files"] = [
                 {"name": "bridge_model.las", "format": "LAS 1.4", "points": 45_000_000},
                 {"name": "thermal_overlay.tif", "format": "GeoTIFF"},
                 {"name": "inspection_report.pdf", "format": "PDF"},
@@ -478,7 +479,7 @@ class ConstructionMockRobot(MockRobot):
         else:
             # Control survey or other
             _load_sample(data, _samples_dir / "survey_control.csv", "control_points_sample")
-            data["deliverable_files"] = [  # type: ignore[assignment]
+            data["deliverable_files"] = [
                 {"name": "control_points.csv", "format": "CSV"},
                 {"name": "control_network.dxf", "format": "DXF R2018"},
             ]

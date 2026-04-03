@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 import uuid
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from auction.engine import AuctionEngine
@@ -32,7 +32,7 @@ except ImportError:
     _HAS_FASTAPI = False
 
 
-def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-arg]
+def create_api_router(engine: AuctionEngine) -> APIRouter:
     """Create a FastAPI router with REST endpoints wrapping the auction engine.
 
     Args:
@@ -128,7 +128,7 @@ def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-
     async def get_task_status(request_id: str) -> dict:
         """Get full status of a task."""
         try:
-            return engine.get_status(request_id)  # type: ignore[attr-defined]
+            return engine.get_task_status(request_id)
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=404, detail=str(e)) from None
 
@@ -142,15 +142,15 @@ def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-
 
     @router.post("/tasks/{request_id}/accept")
     async def accept_bid(request_id: str, request: Request) -> dict:
-        """Accept the best bid (or a specific robot's bid)."""
+        """Accept the best bid. Requires robot_id in request body."""
         body = await request.json() if request.headers.get("content-type") else {}
         robot_id = body.get("robot_id")
 
+        if not robot_id:
+            raise HTTPException(status_code=400, detail="robot_id is required in request body")
+
         try:
-            if robot_id:
-                return engine.accept_bid(request_id, robot_id)
-            else:
-                return engine.accept_bid(request_id)  # type: ignore[call-arg]
+            return engine.accept_bid(request_id, robot_id)
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=400, detail=str(e)) from None
 
@@ -158,7 +158,7 @@ def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-
     async def execute_task(request_id: str) -> dict:
         """Dispatch the task to the winning robot."""
         try:
-            return engine.execute(request_id)  # type: ignore[return-value]
+            return await engine.execute(request_id)
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=400, detail=str(e)) from None
 
@@ -228,11 +228,11 @@ def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-
     return router
 
 
-def add_cors(app: object) -> None:
+def add_cors(app: Any) -> None:
     """Add CORS middleware to a FastAPI app for browser access."""
     if not _HAS_FASTAPI:
         return
-    app.add_middleware(  # type: ignore[attr-defined]
+    app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # Tighten in production
         allow_credentials=True,

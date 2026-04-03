@@ -113,8 +113,8 @@ def register_auction_tools(
     mcp: FastMCP,
     engine: AuctionEngine,
     *,
-    stripe_wallet_service: object | None = None,
-    stripe_service: object | None = None,
+    stripe_wallet_service: Any = None,
+    stripe_service: Any = None,
 ) -> None:
     """Register auction MCP tools on a FastMCP server instance.
 
@@ -463,7 +463,7 @@ def register_auction_tools(
                 "Ensure the auction engine is initialized with a WalletLedger.",
             )
         try:
-            result = stripe_wallet_service.fund_wallet(wallet_id, Decimal(str(amount)), payment_method)  # type: ignore[attr-defined]
+            result = stripe_wallet_service.fund_wallet(wallet_id, Decimal(str(amount)), payment_method)
             return _decimals_to_strings(result)
         except (ValueError, KeyError) as exc:
             return _error_response(exc)
@@ -492,7 +492,7 @@ def register_auction_tools(
                 "Ensure the auction engine is initialized with a WalletLedger.",
             )
         try:
-            balance = stripe_wallet_service.get_balance(wallet_id)  # type: ignore[attr-defined]
+            balance = stripe_wallet_service.get_balance(wallet_id)
             return {"wallet_id": wallet_id, "balance": str(balance)}
         except KeyError:
             return _error_response_structured(
@@ -514,7 +514,7 @@ def register_auction_tools(
         if stripe_service is None:
             return {"error": "Stripe service not configured", "error_type": "ConfigError"}
         try:
-            result = stripe_service.create_connect_account(email=email, country=country)  # type: ignore[attr-defined]
+            result = stripe_service.create_connect_account(email=email, country=country)
             result["robot_id"] = robot_id
             return _decimals_to_strings(result)
         except Exception as exc:
@@ -530,7 +530,7 @@ def register_auction_tools(
             return {"error": "Stripe service not configured", "error_type": "ConfigError"}
         try:
             account_id = f"acct_{robot_id}"
-            result = stripe_service.get_account(account_id)  # type: ignore[attr-defined]
+            result = stripe_service.get_account(account_id)
             result["robot_id"] = robot_id
             return _decimals_to_strings(result)
         except Exception as exc:

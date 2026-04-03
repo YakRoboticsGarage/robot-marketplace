@@ -26,7 +26,9 @@ def _to_dict(stripe_obj: object) -> dict:
     """
     if hasattr(stripe_obj, "to_dict_recursive"):
         return stripe_obj.to_dict_recursive()
-    return dict(stripe_obj)  # type: ignore[call-overload]
+    if hasattr(stripe_obj, "to_dict"):
+        return stripe_obj.to_dict()
+    return dict(stripe_obj)  # type: ignore[call-overload]  # fallback for plain mappings
 
 
 class StripeService:

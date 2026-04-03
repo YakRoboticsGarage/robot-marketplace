@@ -14,6 +14,7 @@ import threading
 import uuid
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Try to import LedgerEntry from core; fall back to dict-based entries.
@@ -79,7 +80,7 @@ def _make_entry(
 
         _le_fields = {f.name for f in __import__("dataclasses").fields(LedgerEntry)}
         filtered = {k: v for k, v in entry.items() if k in _le_fields}
-        return LedgerEntry(**filtered)  # type: ignore[arg-type, return-value]
+        return LedgerEntry(**filtered)  # type: ignore[arg-type, return-value]  # dynamic dataclass construction from filtered dict
 
     return entry
 
@@ -241,7 +242,7 @@ class StripeWalletService:
     mode (no real Stripe calls) — the internal ledger is always updated.
     """
 
-    def __init__(self, ledger: WalletLedger, stripe_service: object) -> None:
+    def __init__(self, ledger: WalletLedger, stripe_service: Any) -> None:
         self.ledger = ledger
         self.stripe = stripe_service
 
@@ -263,7 +264,7 @@ class StripeWalletService:
         amount = Decimal(str(amount))
         amount_cents = int(amount * 100)
 
-        pi_result = self.stripe.create_wallet_topup(  # type: ignore[attr-defined]
+        pi_result = self.stripe.create_wallet_topup(
             amount_cents=amount_cents,
             metadata={"wallet_id": wallet_id, "payment_method": payment_method},
         )
