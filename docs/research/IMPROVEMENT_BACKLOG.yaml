@@ -279,6 +279,42 @@ proposals:
     decision_date: null
     decision_notes: null
 
+  - id: IMP-015
+    title: "Fix 143 mypy type errors to make type-check CI blocking"
+    description: >-
+      Mypy currently finds 143 errors across 14 files. Most common: 37 no-any-return
+      (loosely typed dict returns), 16 union-attr (optional fields accessed without
+      None checks), 7 attr-defined (dynamically attached attributes on AuctionEngine).
+      Fix by: adding return type annotations to MCP tool handlers, narrowing Optional
+      types with guards before access, typing engine attributes properly. Currently
+      CI runs mypy with continue-on-error. Goal: make it blocking.
+    module: system
+    research_source: "code-review"
+    evidence: "CI type-check job — 143 errors in 14 files"
+    effort: large
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-016
+    title: "Unskip fakerover bid tests after 8004 PR #4 merge"
+    description: >-
+      4 tests in test_fakerover_bid.py are skipped because the FakeRover bid()
+      interface changed in yakrover-8004-mcp PR #4. After that PR merges: update
+      the mock client to return the new bid format, unskip the tests, and re-add
+      test_fakerover_bid.py to the CI pytest command.
+    module: M9_mock_fleet
+    research_source: "code-review"
+    evidence: "auction/tests/test_fakerover_bid.py — 4 skip markers"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
 # Example entry format:
 # - id: IMP-001
 #   title: "Add certification check to hard constraint filter"
