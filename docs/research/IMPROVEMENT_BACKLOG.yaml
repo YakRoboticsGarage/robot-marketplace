@@ -218,6 +218,67 @@ proposals:
     decision_date: null
     decision_notes: null
 
+  - id: IMP-012
+    title: "Enable Stripe Connect USDC payouts for sole-proprietor operators"
+    description: >-
+      Extend StripeService to support USDC payout currency selection for Connect
+      Express operators. Add an operator onboarding step that guides the operator
+      to link a crypto wallet and set USDC as their default payout currency via
+      the Express Dashboard. Guard with entity_type == "individual" check — return
+      a clear error for LLC operators with a note that fiat payout remains
+      available. Leverages existing Stripe Connect integration; no new vendor
+      required. Supports USDC on Base and Polygon.
+    module: M15_stripe_service
+    research_source: R-024
+    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-013
+    title: "Integrate Coinbase Onramp for USDC credit bundle purchases"
+    description: >-
+      Add a "Buy credits with card" flow using the Coinbase Onramp widget or
+      headless API. Buyer completes the onramp (0% fee on USDC on Base, guest
+      checkout — no Coinbase account required), USDC is sent to their wallet,
+      then they top up their platform credit balance via x402 transfer. This
+      enables card-funded USDC accounts without YAK touching fiat-to-crypto
+      conversion or becoming an MSB. Suitable for the prepaid credit bundle
+      pattern ($5,000 typical). Application for zero-fee access required.
+    module: M37_splits_distribution
+    research_source: R-024
+    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-014
+    title: "Pilot PayRam for direct card-to-Splits USDC settlement"
+    description: >-
+      Conduct a technical pilot of PayRam's card-onramp API (launched 2026-03-30):
+      (1) verify USDC routing to a 0xSplits contract address on Base,
+      (2) confirm fee structure at $1K–$10K construction survey transaction sizes,
+      (3) assess production reliability (very new service — track uptime and error rates),
+      (4) compare total cost against Stripe stablecoin payout path.
+      Decision gate: if PayRam supports Splits contract destinations and fees < 2%,
+      prioritize for v2 payment architecture as the single-step card-in / USDC-to-splits-out
+      solution. This would unify buyer fiat entry and operator distribution in one checkout.
+    module: M37_splits_distribution
+    research_source: R-024
+    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
 # Example entry format:
 # - id: IMP-001
 #   title: "Add certification check to hard constraint filter"

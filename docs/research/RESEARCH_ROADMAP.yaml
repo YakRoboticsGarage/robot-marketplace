@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-02"  # R-009 complete; R-009a spawned
+  last_updated: "2026-04-03"  # R-024 complete; IMP-012/013/014 added; R-027/R-028 spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -293,20 +293,27 @@ topics:
     title: "Fiat-to-USDC checkout services (pay with card, receive USDC)"
     module: M37_splits_distribution
     hypothesis: "Services like Coinbase Onramp, MoonPay, Ramp Network, Stripe crypto payouts, or Transak may allow a buyer to pay with a credit card while the operator/platform receives USDC on Base or Ethereum. This would unify the fiat and crypto rails into one buyer UX."
-    status: queued
+    status: complete
     priority: critical
     estimated_sessions: 2
+    completed_date: "2026-04-03"
     depends_on: []
-    notes: "Key questions: (1) Which services support card-in/USDC-out to a specific wallet? (2) Minimum amounts and fees at $0.50-$5 scale? (3) KYC requirements for the buyer? (4) Can the USDC go directly to a Splits.org contract address? (5) Regulatory implications — does the platform become an MSB? (6) Stripe's own crypto payout product — does it work for Connect Express operators?"
+    output_file: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
+    improvement_proposals: [IMP-012, IMP-013, IMP-014]
+    spawned: [R-027, R-028]
+    notes: "Key findings: Stripe Connect USDC payouts is highest-fit near-term (sole proprietors only). PayRam (launched 2026-03-30) potentially highest architectural fit for card→Splits. Coinbase Onramp zero-fee USDC for buyer credit bundles. x402 confirmed crypto-only — not a fiat bridge. R-025 substantially answered by this research."
 
   - id: R-025
     title: "Stripe crypto payouts to Connect accounts"
     module: M15_stripe_service
     hypothesis: "Stripe may support paying out Connect Express operators in USDC instead of fiat. If so, buyer pays card → Stripe → operator gets USDC, with no separate crypto rail needed."
-    status: queued
+    status: complete
     priority: critical
     estimated_sessions: 1
+    completed_date: "2026-04-03"
     depends_on: [R-024]
+    output_file: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
+    notes: "Answered by R-024. Stripe Connect USDC payouts are live for US platforms. Sole proprietors and individuals only (not LLCs). Operator links crypto wallet in Express Dashboard. USDC on Base and Polygon. Flat 1.5% fee. See Section 1 of R-024 output."
 
   # ===== COMPETITIVE / ADJACENT PRODUCTS =====
 
@@ -348,6 +355,31 @@ topics:
     depends_on: [R-009]
     spawned_from: R-009
     spawned_date: "2026-04-02"
+
+  # ===== SPAWNED BY R-024 =====
+
+  - id: R-027
+    title: "PayRam production reliability audit and fee structure confirmation"
+    module: M37_splits_distribution
+    hypothesis: "PayRam launched 2026-03-30 with architecture that matches our card-in/USDC-to-Splits use case. A 30-60 day follow-up should assess uptime, API documentation quality, fee transparency, and whether contract addresses (0xSplits) are supported as USDC destinations."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-024]
+    spawned_from: R-024
+    spawned_date: "2026-04-03"
+    notes: "Do not conduct before 2026-05-01 — give service time to stabilize. Check: fee structure at $1K-$10K, Splits contract address support, production uptime report, API documentation depth."
+
+  - id: R-028
+    title: "Operator entity-type distribution — sole proprietors vs. LLCs in drone survey market"
+    module: M37_splits_distribution
+    hypothesis: "Stripe USDC payouts are limited to individuals/sole proprietors. If most drone operators operate as LLCs, this is a material blocker for the Stripe USDC payout path. FAA Part 107 data or industry surveys may reveal the distribution."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-024]
+    spawned_from: R-024
+    spawned_date: "2026-04-03"
 
   # ===== SPAWNED BY FEEDBACK LOOP (recent commits) =====
   # Onboarding commit (ac9be52) added auction_submit_feedback MCP tool and
