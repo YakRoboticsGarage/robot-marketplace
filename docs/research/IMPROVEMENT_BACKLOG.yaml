@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-02"
+  last_updated: "2026-04-03"
   source: "Automated daily research agent + weekly synthesis"
 
 # Status values: proposed | accepted | rejected | implemented | deferred
@@ -119,6 +119,104 @@ proposals:
     proposed_date: "2026-04-02"
     decision_date: "2026-04-03"
     decision_notes: "QAResult dataclass implemented in deliverable_qa.py. Wiring into engine confirm_delivery is next step."
+
+  - id: IMP-007
+    title: "Move inline deliverable_qa import to module level in engine.py"
+    description: >-
+      auction/engine.py line 923 contains `from auction.deliverable_qa import
+      check_delivery as qa_check` inside the confirm_delivery() method body. This
+      defers import errors until runtime and obscures the dependency graph. Move to
+      the top-level imports alongside other optional dependencies (lines 44-66).
+      Pattern matches existing optional imports (wallet, reputation, stripe_service).
+    module: M5_auction_engine
+    research_source: "code-review"
+    evidence: "auction/engine.py:923 — inline import inside confirm_delivery()"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-008
+    title: "Extract _calculate_reservation() helper in engine.py"
+    description: >-
+      The 25% reservation calculation `(price * Decimal("0.25")).quantize(Decimal("0.01"))`
+      appears 7 times in auction/engine.py (lines 405, 764, 847, 1051, 1107, 1147, 1201).
+      Extract as a private method `_calculate_reservation(price: Decimal) -> Decimal`.
+      Reduces duplication, centralizes the rounding rule, and makes the 25% constant
+      easy to find and change. No behavior change — pure refactor.
+    module: M5_auction_engine
+    research_source: "code-review"
+    evidence: "auction/engine.py:405,764,847,1051,1107,1147,1201 — 7 identical reservation calculations"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-009
+    title: "Strip historical version comments from engine.py"
+    description: >-
+      auction/engine.py contains 44 inline version markers (v0.1, v0.5, v1.0, v1.1)
+      that tracked feature additions during incremental development. These comments
+      describe when code was added, not why — the git log preserves that history more
+      accurately. Strip comments of the form `# v0.x:` and `# v1.x:` that precede
+      code blocks, keeping only substantive design rationale comments (e.g. AD-X
+      references, security notes). Reduces noise for new developers trying to understand
+      the engine's current logic.
+    module: M5_auction_engine
+    research_source: "code-review"
+    evidence: "auction/engine.py — grep 'v0\\.|v1\\.' returns 44 matches"
+    effort: small
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-010
+    title: "Split engine.py (1,442 lines) into focused sub-modules"
+    description: >-
+      auction/engine.py has grown to 1,442 lines containing three distinct concerns:
+      (1) state machine + task lifecycle (post_task, accept_bid, execute: ~600 lines),
+      (2) payment + settlement logic (reservation, delivery_payment, Stripe transfer:
+      ~350 lines), and (3) query/reporting methods (get_task_status, list_tasks,
+      review_bids: ~300 lines). Proposed split: engine.py keeps the AuctionEngine class
+      and state machine; engine_payment.py extracts the payment helpers; or alternatively
+      a mixin approach. Any split must preserve the existing public API — all 35 MCP
+      tools and all 264 tests must pass unchanged. Evaluate whether the added indirection
+      is worth the navigation improvement before committing.
+    module: M5_auction_engine
+    research_source: "code-review"
+    evidence: "auction/engine.py:1442 lines — post_task L516-636 (120 lines), confirm_delivery L904-1023 (120 lines)"
+    effort: large
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
+
+  - id: IMP-011
+    title: "Split store.py: separate async and sync implementations"
+    description: >-
+      auction/store.py (779 lines) contains two complete storage implementations:
+      AsyncTaskStore (aiosqlite, lines 88-600) and SyncTaskStore (sqlite3, lines
+      603-779). The sync implementation is what the production engine uses; the async
+      version exists for forward compatibility. Splitting into store_async.py and
+      store_sync.py would make each file ~400 lines, with shared helpers (_json_serializer,
+      _json_object_hook, _dumps, _loads, _row_to_task_dict) in store_shared.py or
+      inlined. Import alias in store.py can preserve existing import paths.
+    module: M22_sqlite_store
+    research_source: "code-review"
+    evidence: "auction/store.py:779 lines — AsyncTaskStore L88-600, SyncTaskStore L603-779"
+    effort: medium
+    priority: null
+    status: proposed
+    proposed_date: "2026-04-03"
+    decision_date: null
+    decision_notes: null
 
 # Example entry format:
 # - id: IMP-001

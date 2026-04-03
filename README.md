@@ -31,7 +31,7 @@ robot-marketplace/
 │   ├── stripe_service.py        # Stripe SDK with idempotency keys
 │   ├── store.py                 # SQLite persistence
 │   ├── reputation.py            # ReputationTracker
-│   └── tests/                   # 238 tests + integration stubs
+│   └── tests/                   # 264 tests + integration stubs
 │
 ├── demo/                        ← Live website (yakrobot.bid)
 │   └── index.html               # Full interactive demo

@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-02 | **Modules:** 38 | **Built:** 27 | **Building:** 2 | **Gaps:** 2 | **Planned:** 3 | **Deferred:** 4
+**Updated:** 2026-04-03 | **Modules:** 38 | **Built:** 28 | **Building:** 2 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
 
 ---
 
@@ -87,7 +87,7 @@ Delivered Data --> [M35: Deliverable QA] --> [M36: PLS Review & Stamp]
 
 | # | Module | Status | Key Files | Description |
 |---|--------|--------|-----------|-------------|
-| M35 | **Deliverable QA** | Gap | — | Automated pre-screening of delivered survey data: point density, accuracy, coordinate system, file format, coverage completeness. Reduces PLS review time by 30-50%. Referenced in pitch as core value prop. |
+| M35 | **Deliverable QA** | Built | `auction/deliverable_qa.py` | 4-level buyer-configurable QA: Level 0 (none), Level 1 (basic: data exists, fields, plausibility), Level 2 (standards: CRS, ASPRS accuracy, USGS density), Level 3 (PLS stamp required). Wired into engine.confirm_delivery(). 26 tests. |
 | M36 | **PLS Review & Stamp** | Gap | — | PLS-as-a-service routing: task completion triggers routing to available PLS in jurisdiction. PLS reviews via dashboard, applies electronic seal (DocuSign API). Two modes: operator-has-PLS (self-stamp) and marketplace-routes-PLS (external review). |
 
 **PLS lifecycle (current vs needed):**
@@ -306,7 +306,7 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposit
 | M32 Buyer Dashboard | (planned) |
 | M33 Operator Dashboard | (planned) |
 | M34 Admin Console | (planned) |
-| M35 Deliverable QA | (gap — pitch claims it, no module exists) |
+| M35 Deliverable QA | `auction/deliverable_qa.py` |
 | M36 PLS Review & Stamp | (gap — PLS-as-a-service routing + electronic seal) |
 | M37 Splits Distribution | (deferred — direct transfer for demo, Splits for production scale) |
 | M38 Browser Wallet Connect | (planned — ethers.js USDC transfer to robot wallet) |

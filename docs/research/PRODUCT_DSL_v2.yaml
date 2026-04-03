@@ -54,7 +54,7 @@ meta:
   name: "Robot Task Auction Marketplace"
   project: yakrover-auction-explorer
   schema_version: "2.3"
-  updated: "2026-04-02"
+  updated: "2026-04-03"
   provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
   license: "Proprietary — YAK Robotics Garage"
 
@@ -2544,7 +2544,7 @@ roadmap:
       label: "Auction Engine (Warehouse + Fiat)"
       status: built
       personas: [persona:sarah, persona:claude_agent]
-      stats: {tests: 238, mcp_tools: 35, loc: 15431}
+      stats: {tests: 264, mcp_tools: 35, loc: 15977}
       resolves: []
       capabilities_unlocked:
         - "Auction core: Task, Bid, AuctionResult, score_bids()"
