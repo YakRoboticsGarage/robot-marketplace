@@ -1090,10 +1090,31 @@ function showDeliveryCard(container) {
     }
   } catch (e) { console.warn('IPFS upload failed:', e.message); }
 
+  // QA level selector (buyer override)
+  var qaSelector =
+    '<div style="margin:16px 0;padding:12px;background:var(--navy);border-radius:4px">' +
+      '<div style="font-size:12px;font-weight:600;color:var(--slate-light);margin-bottom:8px">Quality Assurance Level</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--slate-light);cursor:pointer;padding:4px 8px;border:1px solid var(--navy-mid);border-radius:3px" title="Accept as-is, no checks">' +
+          '<input type="radio" name="qaLevel" value="0" style="accent-color:var(--orange)"> None' +
+        '</label>' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--slate-light);cursor:pointer;padding:4px 8px;border:1px solid var(--orange);border-radius:3px;background:var(--navy-mid)" title="Data exists, format valid, fields present, plausibility">' +
+          '<input type="radio" name="qaLevel" value="1" checked style="accent-color:var(--orange)"> Basic' +
+        '</label>' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--slate-light);cursor:pointer;padding:4px 8px;border:1px solid var(--navy-mid);border-radius:3px" title="CRS, ASPRS accuracy, USGS point density, deliverable list">' +
+          '<input type="radio" name="qaLevel" value="2" style="accent-color:var(--orange)"> Standards' +
+        '</label>' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--slate-light);cursor:pointer;padding:4px 8px;border:1px solid var(--navy-mid);border-radius:3px" title="All checks + PLS stamp required">' +
+          '<input type="radio" name="qaLevel" value="3" style="accent-color:var(--orange)"> PLS Required' +
+        '</label>' +
+      '</div>' +
+      '<div style="font-size:10px;color:var(--slate);margin-top:6px" id="qaLevelDesc">Checks: data exists, format valid, required fields present, sensor plausibility.</div>' +
+    '</div>';
+
   if (hasIpfs) {
     card.innerHTML =
       '<h3>Step 3 — Verify Delivery</h3>' +
-      '<div style="font-size:13px;color:var(--slate-light);margin-bottom:12px">The operator uploaded deliverables to IPFS. Verify the data before releasing payment.</div>' +
+      '<div style="font-size:13px;color:var(--slate-light);margin-bottom:12px">The operator uploaded deliverables to IPFS. Review the data and select your QA level before releasing payment.</div>' +
       '<div class="file-manifest">' +
         '<div class="file-row"><span class="file-name">delivery.json</span><span class="file-size">Sensor readings (3 waypoints)</span></div>' +
         '<div class="file-row"><span class="file-name">temperature</span><span class="file-size">21.9 - 23.1°C</span></div>' +
@@ -1104,7 +1125,8 @@ function showDeliveryCard(container) {
         '<a href="' + (ipfsUrl || 'https://ipfs.io/ipfs/' + ipfsCid) + '" target="_blank" style="color:var(--orange);font-family:monospace;font-size:11px;text-decoration:none">' + ipfsCid + '</a>' +
         ' <a href="https://ipfs.io/ipfs/' + ipfsCid + '" target="_blank" style="color:var(--slate);font-size:10px;text-decoration:none">[public gateway]</a>' +
       '</div>' +
-      '<div style="margin-top:16px">' +
+      qaSelector +
+      '<div style="margin-top:12px">' +
         '<button class="pay-btn" style="background:var(--green);font-size:12px;padding:8px 16px" onclick="acceptDelivery()">Accept Delivery &amp; Proceed to Payment</button>' +
         '<button class="pay-btn" style="background:#7f1d1d;font-size:12px;padding:8px 16px;margin-left:8px" onclick="rejectDelivery()">Reject</button>' +
       '</div>';
@@ -1121,7 +1143,8 @@ function showDeliveryCard(container) {
         '2. IPFS CID recorded on-chain (immutable proof of delivery)<br>' +
         '3. You download and verify data quality before paying<br>' +
         '4. Payment release is gated on your verification' +
-      '</div>';
+      '</div>' +
+      qaSelector;
 
     // Check if payment is possible
     var paymentReady = discoveredRobots.some(function(r) {
@@ -1146,7 +1169,38 @@ function showDeliveryCard(container) {
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// QA level radio button handler
+document.addEventListener('change', function(e) {
+  if (e.target.name === 'qaLevel') {
+    var desc = document.getElementById('qaLevelDesc');
+    var labels = {
+      '0': 'No checks. Buyer trusts the vendor. Payment releases immediately.',
+      '1': 'Checks: data exists, format valid, required fields present, sensor plausibility.',
+      '2': 'Checks: all of Basic + coordinate system, ASPRS accuracy reporting, USGS point density, deliverable files.',
+      '3': 'Checks: all of Standards + Professional Licensed Surveyor (PLS) stamp required on deliverables.',
+    };
+    if (desc) desc.textContent = labels[e.target.value] || '';
+    // Update radio button styling
+    e.target.closest('.delivery-card, .step-card').querySelectorAll('label[style]').forEach(function(l) {
+      var input = l.querySelector('input');
+      if (input && input.checked) {
+        l.style.borderColor = 'var(--orange)';
+        l.style.background = 'var(--navy-mid)';
+      } else {
+        l.style.borderColor = 'var(--navy-mid)';
+        l.style.background = '';
+      }
+    });
+  }
+});
+
+var selectedQALevel = 1; // default
+
 function acceptDelivery() {
+  // Read selected QA level
+  var selected = document.querySelector('input[name="qaLevel"]:checked');
+  selectedQALevel = selected ? parseInt(selected.value) : 1;
+
   var container = document.querySelector('.container');
   showPaymentCard(container);
   document.getElementById('paymentCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });

@@ -9,8 +9,8 @@ class TestQALevelSelection:
         spec = {"capability_requirements": {"qa_level": 0}, "task_category": "site_survey"}
         assert get_qa_level(spec) == 0
 
-    def test_env_sensing_defaults_to_0(self):
-        assert get_qa_level({"task_category": "env_sensing"}) == 0
+    def test_env_sensing_defaults_to_1(self):
+        assert get_qa_level({"task_category": "env_sensing"}) == 1
 
     def test_site_survey_defaults_to_2(self):
         assert get_qa_level({"task_category": "site_survey"}) == 2
@@ -32,8 +32,8 @@ class TestLevel0:
         assert result.status == "PASS"
         assert result.level == 0
 
-    def test_empty_data_passes(self):
-        result = check_delivery({}, {"task_category": "env_sensing"})
+    def test_level_0_empty_data_passes(self):
+        result = check_delivery({}, {}, qa_level=0)
         assert result.status == "PASS"
 
 
@@ -190,9 +190,9 @@ class TestLevel3:
 class TestServerRoomDemo:
     """Verify the Tumbller server room demo passes QA at the right level."""
 
-    def test_env_sensing_auto_selects_level_0(self):
+    def test_env_sensing_auto_selects_level_1(self):
         spec = {"task_category": "env_sensing", "capability_requirements": {}}
-        assert get_qa_level(spec) == 0
+        assert get_qa_level(spec) == 1
 
     def test_tumbller_delivery_passes(self):
         data = {
@@ -214,7 +214,7 @@ class TestServerRoomDemo:
         }
         result = check_delivery(data, spec)
         assert result.passed
-        assert result.level == 0  # env_sensing defaults to no QA
+        assert result.level == 1  # env_sensing defaults to basic QA
 
 
 class TestQAResult:

@@ -118,6 +118,8 @@ class TaskRecord:
     buyer_notes: str = ""
     awarded_at: str = ""
     auto_accept_handle: asyncio.Task | None = field(default=None, repr=False)
+    # v1.1: Deliverable QA result
+    qa_result: dict | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -916,39 +918,28 @@ class AuctionEngine:
 
         delivery = record.delivery
         task = record.task
-        payload_spec = task.capability_requirements.get("payload", {})
-        required_fields = payload_spec.get("fields", [])
 
-        # Verify: all required fields present
-        missing = [f for f in required_fields if f not in delivery.data]
-        if missing:
+        # v1.1: Run deliverable QA at the buyer-configured level
+        from auction.deliverable_qa import check_delivery as qa_check
+        task_spec = {
+            "task_category": task.task_category,
+            "capability_requirements": task.capability_requirements,
+        }
+        qa_result = qa_check(delivery.data, task_spec)
+
+        if qa_result.status == "FAIL":
+            log("VERIFY", f"{request_id} | QA FAILED (level {qa_result.level}): {qa_result.issues}")
             raise ValueError(
-                f"Payload verification failed: missing fields {missing}"
+                f"Delivery QA failed (level {qa_result.level}): {qa_result.issues}"
             )
 
-        # Verify: format is JSON or multi_file — default to "json" when not provided
-        payload_format = payload_spec.get("format", "json")
-        valid_formats = {"json", "multi_file"}
-        if payload_format not in valid_formats:
-            raise ValueError(
-                f"Payload format must be one of {sorted(valid_formats)}, got '{payload_format}'"
-            )
+        if qa_result.status == "WARN":
+            log("VERIFY", f"{request_id} | QA WARN (level {qa_result.level}): {qa_result.issues}")
 
-        # Plausibility checks (AHT20 sensor spec)
-        # v1.0.1: explicit None check — None from a sensor is invalid data, not absent data
-        temp = delivery.data.get("temperature_celsius")
-        humidity = delivery.data.get("humidity_percent")
-        required_fields = payload_spec.get("fields", [])
-        if "temperature_celsius" in required_fields and temp is None:
-            raise ValueError("temperature_celsius is required but was None")
-        if "humidity_percent" in required_fields and humidity is None:
-            raise ValueError("humidity_percent is required but was None")
-        if temp is not None and not (-40 <= temp <= 85):
-            raise ValueError(f"Temperature {temp}C outside plausible range [-40, 85]")
-        if humidity is not None and not (0 <= humidity <= 100):
-            raise ValueError(f"Humidity {humidity}% outside plausible range [0, 100]")
+        log("VERIFY", f"{request_id} | QA {qa_result.status} (level {qa_result.level}, {len(qa_result.checks_run)} checks)")
 
-        log("VERIFY", f"{request_id} | payload verified against spec: ACCEPTED")
+        # Store QA result on the record for downstream access
+        record.qa_result = qa_result.to_dict()
 
         # DELIVERED -> VERIFIED
         self._transition(record, TaskState.VERIFIED, "agent confirmed")
@@ -1015,6 +1006,7 @@ class AuctionEngine:
                 "sla_met": delivery.sla_met,
                 "delivered_at": delivery.delivered_at.isoformat(),
             },
+            "qa": record.qa_result,
             "settlement": {
                 "delivery_payment": str(delivery_payment),
                 "operator_transfer": str(agreed_price),

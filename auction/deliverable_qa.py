@@ -59,10 +59,10 @@ QA_LEVEL_NAMES = {
 
 # Default QA level by task category
 DEFAULT_QA_LEVELS = {
-    "env_sensing": 0,
+    "env_sensing": 1,
     "visual_inspection": 1,
     "mapping": 1,
-    "delivery_ground": 0,
+    "delivery_ground": 1,
     "aerial_survey": 2,
     "site_survey": 2,
     "bridge_inspection": 2,

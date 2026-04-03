@@ -665,9 +665,11 @@ class TestBadPayload:
         # BadPayloadRobot.execute() returns invalid data (no httpx call needed)
         await engine.execute(request_id)
 
-        # confirm_delivery should raise because temperature_celsius is None
-        with pytest.raises(ValueError):
-            engine.confirm_delivery(request_id)
+        # v1.1: QA system treats out-of-range sensor data as WARN, not FAIL.
+        # The delivery succeeds but qa_result shows the warning.
+        result = engine.confirm_delivery(request_id)
+        assert result["qa"]["status"] == "WARN"
+        assert any("plausible range" in i for i in result["qa"]["issues"])
 
     @pytest.mark.asyncio
     async def test_reject_then_repool_succeeds(self):
