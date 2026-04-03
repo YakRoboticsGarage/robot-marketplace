@@ -68,9 +68,14 @@ try:
 except ImportError:  # pragma: no cover
     StripeService = None  # type: ignore[assignment, misc]
 
+try:
+    from auction.deliverable_qa import check_delivery as qa_check
+except ImportError:  # pragma: no cover
+    qa_check = None  # type: ignore[assignment, misc]
+
 
 # ---------------------------------------------------------------------------
-# Rate limits and input size limits (v1.0.1 — Security M-1, M-4)
+# Rate limits and input size limits (Security M-1, M-4)
 # ---------------------------------------------------------------------------
 
 MAX_ACTIVE_TASKS_PER_WALLET = 20  # Prevent task-flooding
@@ -90,9 +95,9 @@ VALID_TRANSITIONS: dict[TaskState | None, list[TaskState]] = {
     TaskState.IN_PROGRESS: [TaskState.DELIVERED, TaskState.ABANDONED, TaskState.WITHDRAWN],
     TaskState.DELIVERED: [TaskState.VERIFIED, TaskState.REJECTED, TaskState.WITHDRAWN],
     TaskState.VERIFIED: [TaskState.SETTLED],
-    TaskState.REJECTED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from rejected
-    TaskState.ABANDONED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from abandoned
-    TaskState.PROVIDER_CANCELLED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # v1.0.1: allow cancel from cancelled
+    TaskState.REJECTED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # allow cancel from rejected
+    TaskState.ABANDONED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # allow cancel from abandoned
+    TaskState.PROVIDER_CANCELLED: [TaskState.RE_POOLED, TaskState.WITHDRAWN],  # allow cancel from cancelled
     TaskState.RE_POOLED: [TaskState.BIDDING, TaskState.WITHDRAWN],
     # Terminal states
     TaskState.SETTLED: [],
@@ -117,7 +122,6 @@ class TaskRecord:
     delivery: DeliveryPayload | None = None
     eligible_robots: list = field(default_factory=list)
     filter_reasons: dict[str, list[str]] = field(default_factory=dict)
-    # v0.5 additions
     bid_round: int = 1
     previous_winners: list[str] = field(default_factory=list)
     buyer_notes: str = ""
@@ -172,12 +176,12 @@ class AuctionEngine:
         self._operator_registry: Any = None
         self._compliance_checker: Any = None
 
-        # v1.0: Load active tasks from store on startup (restart recovery)
+        # Load active tasks from store on startup (restart recovery)
         if self.store is not None:
             self._load_from_store()
 
     # ------------------------------------------------------------------
-    # v1.0: Store persistence helpers
+    # Store persistence helpers
     # ------------------------------------------------------------------
 
     def _load_from_store(self) -> None:
@@ -364,7 +368,7 @@ class AuctionEngine:
         log("STATE", f"{record.request_id} | {from_label} -> {to_state.value} | {detail}")
         record.state = to_state
 
-        # v1.0.2: Emit event for every state transition
+        # Emit event for every state transition
         if self.events is not None:
             # Map task states to event types
             _state_event_map = {
@@ -392,7 +396,7 @@ class AuctionEngine:
                 },
             )
 
-        # v1.0: Persist to SQLite after every state change
+        # Persist to SQLite after every state change
         self._persist_record(record)
 
     def _get_record(self, request_id: str) -> TaskRecord:
@@ -400,6 +404,11 @@ class AuctionEngine:
         if request_id not in self._tasks:
             raise KeyError(f"Unknown request_id: {request_id}")
         return self._tasks[request_id]
+
+    @staticmethod
+    def _reservation(price: Decimal) -> Decimal:
+        """Calculate 25% reservation amount with standard rounding."""
+        return (price * Decimal("0.25")).quantize(Decimal("0.01"))
 
     # ------------------------------------------------------------------
     # Re-pooling helpers (v0.5)
@@ -412,13 +421,13 @@ class AuctionEngine:
         winner, and transitions RE_POOLED -> BIDDING (or WITHDRAWN if no
         eligible robots remain).
         """
-        # v1.0.1: Enforce max re-pool rounds (Security M-1)
+        # Enforce max re-pool rounds (Security M-1)
         if record.bid_round >= MAX_REPOOL_ROUNDS:
             self._transition(record, TaskState.WITHDRAWN, f"max re-pool rounds ({MAX_REPOOL_ROUNDS}) exceeded")
             # Refund any reservation
             if self.wallet is not None:
                 try:
-                    reservation = (record.task.budget_ceiling * Decimal("0.25")).quantize(Decimal("0.01"))
+                    reservation = self._reservation(record.task.budget_ceiling)
                     self.wallet.credit(
                         "buyer", reservation, record.request_id, "refund", note="Refund: max re-pool rounds exceeded"
                     )
@@ -538,7 +547,7 @@ class AuctionEngine:
 
         State transitions: (none) -> POSTED -> BIDDING  (or WITHDRAWN if 0 eligible).
         """
-        # v1.0.1: Input size limits (Security M-4)
+        # Input size limits (Security M-4)
         desc = task_spec.get("description", "")
         if len(desc) > MAX_DESCRIPTION_LENGTH:
             raise ValueError(f"Description exceeds maximum length ({len(desc)} > {MAX_DESCRIPTION_LENGTH})")
@@ -549,7 +558,7 @@ class AuctionEngine:
         ):
             raise ValueError(f"capability_requirements exceeds maximum size ({MAX_CAPABILITY_REQUIREMENTS_SIZE} keys)")
 
-        # v1.0.1: Rate limit — max active tasks per wallet (Security M-1)
+        # Rate limit — max active tasks per wallet (Security M-1)
         active_count = sum(1 for r in self._tasks.values() if r.state not in (TaskState.SETTLED, TaskState.WITHDRAWN))
         if active_count >= MAX_ACTIVE_TASKS_PER_WALLET:
             raise ValueError(
@@ -770,8 +779,8 @@ class AuctionEngine:
         if not verify_bid(bid, robot.signing_key):
             raise ValueError(f"Bid signature verification failed for {robot_id}")
 
-        # v0.5: Wallet balance check and 25% reservation
-        reservation = (bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+        # Wallet balance check and 25% reservation
+        reservation = self._reservation(bid.price)
         if self.wallet is not None:
             if not self.wallet.check_balance("buyer", reservation):
                 raise InsufficientBalance("buyer", reservation, self.wallet.get_balance("buyer"))
@@ -791,10 +800,10 @@ class AuctionEngine:
             f"winner: {robot_id} @ ${bid.price}",
         )
 
-        # v0.5: Notify losing bidders
+        # Notify losing bidders
         self._notify_losing_bidders(record)
 
-        # v0.5: Start auto-accept timer
+        # Start auto-accept timer
         self._start_auto_accept_timer(record)
 
         payment_status = "debited" if self.wallet is not None else "stub_logged"
@@ -839,7 +848,7 @@ class AuctionEngine:
         )
 
         try:
-            # v0.5: Enforce SLA timeout
+            # Enforce SLA timeout
             delivery: DeliveryPayload = await asyncio.wait_for(
                 robot.execute(record.task),
                 timeout=record.task.sla_seconds,
@@ -854,7 +863,7 @@ class AuctionEngine:
             self._transition(record, TaskState.ABANDONED, f"SLA timeout ({record.task.sla_seconds}s)")
 
             # Refund 25% reservation
-            reservation = (winning_bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+            reservation = self._reservation(winning_bid.price)
             if self.wallet is not None:
                 self.wallet.credit(
                     "buyer", reservation, request_id, "refund", note=f"25% refund after {winning_bid.robot_id} timeout"
@@ -922,16 +931,14 @@ class AuctionEngine:
         if record.state != TaskState.DELIVERED:
             raise ValueError(f"confirm_delivery requires state DELIVERED, got {record.state.value}")
 
-        # v0.5: Cancel auto-accept timer
+        # Cancel auto-accept timer
         self._cancel_auto_accept_timer(record)
 
         delivery = record.delivery
         assert delivery is not None
         task = record.task
 
-        # v1.1: Run deliverable QA at the buyer-configured level
-        from auction.deliverable_qa import check_delivery as qa_check
-
+        # Run deliverable QA at the buyer-configured level
         task_spec = {
             "task_category": task.task_category,
             "capability_requirements": task.capability_requirements,
@@ -956,7 +963,7 @@ class AuctionEngine:
         # DELIVERED -> VERIFIED
         self._transition(record, TaskState.VERIFIED, "agent confirmed")
 
-        # v0.5: Payment — 75% delivery debit + operator credit
+        # Payment — 75% delivery debit + operator credit
         agreed_price = record.winner.price
         delivery_payment = (agreed_price * Decimal("0.75")).quantize(Decimal("0.01"))
 
@@ -987,7 +994,7 @@ class AuctionEngine:
             log("PAYMENT", f"(stub) Would debit ${delivery_payment} (75% delivery) from buyer wallet")
             log("PAYMENT", f"(stub) Would transfer ${agreed_price} to operator via Stripe Connect")
 
-        # v0.5: Record reputation
+        # Record reputation
         if self.reputation is not None:
             self.reputation.record_outcome(
                 robot_id=record.winner.robot_id,
@@ -996,7 +1003,7 @@ class AuctionEngine:
                 sla_met=delivery.sla_met,
             )
 
-        # v1.0: Stripe transfer to operator (if stripe_service configured)
+        # Stripe transfer to operator (if stripe_service configured)
         stripe_transfer_result = None
         if self.stripe_service is not None:
             amount_cents = int(agreed_price * 100)
@@ -1035,7 +1042,7 @@ class AuctionEngine:
             },
         }
 
-        # v1.0: Include Stripe transfer ID in response if available
+        # Include Stripe transfer ID in response if available
         if stripe_transfer_result is not None:
             transfer_id = stripe_transfer_result.get("id") or stripe_transfer_result.get("action", "stub")
             result["settlement"]["stripe_transfer_id"] = transfer_id  # type: ignore[index]
@@ -1057,7 +1064,7 @@ class AuctionEngine:
         if record.state != TaskState.DELIVERED:
             raise ValueError(f"reject_delivery requires state DELIVERED, got {record.state.value}")
 
-        # v0.5: Cancel auto-accept timer
+        # Cancel auto-accept timer
         self._cancel_auto_accept_timer(record)
 
         rejected_robot_id = record.winner.robot_id
@@ -1066,8 +1073,8 @@ class AuctionEngine:
         self._transition(record, TaskState.REJECTED, f"reason: {reason}")
         log("REJECT", f"{rejected_robot_id} | payload rejected: {reason}")
 
-        # v0.5: Refund 25% reservation
-        reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
+        # Refund 25% reservation
+        reservation = self._reservation(record.winner.price)
         if self.wallet is not None:
             self.wallet.credit(
                 "buyer", reservation, request_id, "refund", note=f"25% refund after rejection of {rejected_robot_id}"
@@ -1076,7 +1083,7 @@ class AuctionEngine:
         else:
             log("PAYMENT", f"(stub) Would refund ${reservation} (25% reservation) to buyer wallet")
 
-        # v0.5: Record reputation
+        # Record reputation
         if self.reputation is not None:
             self.reputation.record_outcome(
                 robot_id=rejected_robot_id,
@@ -1121,7 +1128,7 @@ class AuctionEngine:
             self._transition(record, TaskState.PROVIDER_CANCELLED, f"provider cancelled ({cancelled_robot_id})")
 
             # Refund 25% reservation
-            reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
+            reservation = self._reservation(record.winner.price)
             if self.wallet is not None:
                 self.wallet.credit(
                     "buyer",
@@ -1163,7 +1170,7 @@ class AuctionEngine:
         self._transition(record, TaskState.ABANDONED, f"manually abandoned ({abandoned_robot_id} unresponsive)")
 
         # Refund 25% reservation
-        reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
+        reservation = self._reservation(record.winner.price)
         if self.wallet is not None:
             self.wallet.credit(
                 "buyer", reservation, request_id, "refund", note=f"25% refund after abandonment of {abandoned_robot_id}"
@@ -1216,7 +1223,7 @@ class AuctionEngine:
         refunded = False
         refund_amount = Decimal("0")
         if record.winning_bid is not None and self.wallet is not None:
-            reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
+            reservation = self._reservation(record.winner.price)
             try:
                 self.wallet.credit("buyer", reservation, request_id, "refund", note=f"Cancellation refund: {reason}")
                 refund_amount = reservation

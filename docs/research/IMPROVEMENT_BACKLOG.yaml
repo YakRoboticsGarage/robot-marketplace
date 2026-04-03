@@ -1,330 +1,265 @@
-# =============================================================
-# Improvement Backlog — Research-Driven Product Proposals
-# Populated by automated research agent, prioritized in separate review
-# =============================================================
-
 meta:
-  created: "2026-04-01"
-  last_updated: "2026-04-03"
-  source: "Automated daily research agent + weekly synthesis"
-
-# Status values: proposed | accepted | rejected | implemented | deferred
-# Priority: critical | high | medium | low (set during prioritization review)
-# Each entry links back to the research that generated it
-
+  created: '2026-04-01'
+  last_updated: '2026-04-03'
+  source: Automated daily research agent + weekly synthesis
 proposals:
+- id: IMP-001
+  title: Integrate external PLS license verification API (Checkr or MeshVerify)
+  description: 'Add a check_pls_license() function to compliance.py following the existing check_sam_exclusion() pattern.
+    When PLS_VERIFY_API_KEY is set, call Checkr or MeshVerify to verify active status, good standing, and name match. Without
+    a key, return WARN indicating manual review needed. Trigger from upload_document() when doc_type == "pls_license".
 
-  - id: IMP-001
-    title: "Integrate external PLS license verification API (Checkr or MeshVerify)"
-    description: >
-      Add a check_pls_license() function to compliance.py following the existing
-      check_sam_exclusion() pattern. When PLS_VERIFY_API_KEY is set, call Checkr
-      or MeshVerify to verify active status, good standing, and name match.
-      Without a key, return WARN indicating manual review needed. Trigger from
-      upload_document() when doc_type == "pls_license".
-    module: M36_pls_review
-    research_source: R-006
-    evidence: "docs/research/automated/R-006_pls_board_apis.md"
-    effort: medium
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-01"
-    decision_date: null
-    decision_notes: null
+    '
+  module: M36_pls_review
+  research_source: R-006
+  evidence: docs/research/automated/R-006_pls_board_apis.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-01'
+  decision_date: null
+  decision_notes: null
+- id: IMP-002
+  title: Free-tier Colorado PLS verification via Socrata open-data API
+  description: 'For Colorado-licensed operators, query the free Colorado Information Marketplace Socrata API (data.colorado.gov
+    dataset 7s5z-vewr) to verify PLS license status at zero cost. This provides a no-cost verification path for CO-licensed
+    surveyors before requiring a commercial API key.
 
-  - id: IMP-002
-    title: "Free-tier Colorado PLS verification via Socrata open-data API"
-    description: >
-      For Colorado-licensed operators, query the free Colorado Information
-      Marketplace Socrata API (data.colorado.gov dataset 7s5z-vewr) to verify
-      PLS license status at zero cost. This provides a no-cost verification
-      path for CO-licensed surveyors before requiring a commercial API key.
-    module: M36_pls_review
-    research_source: R-006
-    evidence: "docs/research/automated/R-006_pls_board_apis.md"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-01"
-    decision_date: null
-    decision_notes: null
+    '
+  module: M36_pls_review
+  research_source: R-006
+  evidence: docs/research/automated/R-006_pls_board_apis.md
+  effort: small
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-01'
+  decision_date: null
+  decision_notes: null
+- id: IMP-003
+  title: State-tiered PLS verification routing table in compliance module
+  description: 'Build a state routing table that directs PLS verification to the appropriate tier: Tier 1 (free API — CO,
+    IN, MA), Tier 2 (commercial API via Checkr/MeshVerify), Tier 3 (manual review flag with WARN status). Allows incremental
+    rollout and cost optimization as we expand to new states.
 
-  - id: IMP-003
-    title: "State-tiered PLS verification routing table in compliance module"
-    description: >
-      Build a state routing table that directs PLS verification to the appropriate
-      tier: Tier 1 (free API — CO, IN, MA), Tier 2 (commercial API via
-      Checkr/MeshVerify), Tier 3 (manual review flag with WARN status).
-      Allows incremental rollout and cost optimization as we expand to new states.
-    module: M36_pls_review
-    research_source: R-006
-    evidence: "docs/research/automated/R-006_pls_board_apis.md"
-    effort: medium
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-01"
-    decision_date: null
-    decision_notes: null
+    '
+  module: M36_pls_review
+  research_source: R-006
+  evidence: docs/research/automated/R-006_pls_board_apis.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-01'
+  decision_date: null
+  decision_notes: null
+- id: IMP-004
+  title: Deliverable QA system — 4-level buyer-configurable quality checks
+  description: 'Implemented as auction/deliverable_qa.py with 4 levels: Level 0 (none, buyer trusts vendor), Level 1 (basic:
+    data exists, fields, plausibility), Level 2 (standards: CRS, ASPRS accuracy, USGS density), Level 3 (PLS stamp required).
+    Buyer sets qa_level in task spec or defaults by category. LAS-specific laspy checks available as Level 2 enhancement when
+    LAS files are delivered.
 
-  - id: IMP-004
-    title: "Deliverable QA system — 4-level buyer-configurable quality checks"
-    description: >
-      Implemented as auction/deliverable_qa.py with 4 levels: Level 0 (none, buyer
-      trusts vendor), Level 1 (basic: data exists, fields, plausibility), Level 2
-      (standards: CRS, ASPRS accuracy, USGS density), Level 3 (PLS stamp required).
-      Buyer sets qa_level in task spec or defaults by category. LAS-specific laspy
-      checks available as Level 2 enhancement when LAS files are delivered.
-    module: M35_deliverable_qa
-    research_source: R-009
-    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
-    effort: medium
-    priority: high
-    status: implemented
-    proposed_date: "2026-04-02"
-    decision_date: "2026-04-03"
-    decision_notes: "Implemented in auction/deliverable_qa.py. 26 tests. Broader than original — 4-level system covering simple sensor tasks through PLS-stamped surveys."
+    '
+  module: M35_deliverable_qa
+  research_source: R-009
+  evidence: docs/research/automated/R-009_las_laz_point_cloud_validation.md
+  effort: medium
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-02'
+  decision_date: '2026-04-03'
+  decision_notes: Implemented in auction/deliverable_qa.py. 26 tests. Broader than original — 4-level system covering simple
+    sensor tasks through PLS-stamped surveys.
+- id: IMP-005
+  title: Add PDAL-based point density check for QL-gated tasks
+  description: 'For tasks specifying usgs_quality_level in hard constraints, run a PDAL hexbin density check at delivery time
+    using filters.hexbin. Verify >=2 pts/m2 for QL2, >=8 pts/m2 for QL1. Return FAIL if density is below threshold. Can run
+    async post-delivery with a configurable timeout window before payment settlement. Install via conda-forge python-pdal;
+    consider subprocess pdal CLI as fallback for environments where conda is unavailable.
 
-  - id: IMP-005
-    title: "Add PDAL-based point density check for QL-gated tasks"
-    description: >
-      For tasks specifying usgs_quality_level in hard constraints, run a PDAL
-      hexbin density check at delivery time using filters.hexbin. Verify >=2 pts/m2
-      for QL2, >=8 pts/m2 for QL1. Return FAIL if density is below threshold.
-      Can run async post-delivery with a configurable timeout window before payment
-      settlement. Install via conda-forge python-pdal; consider subprocess pdal CLI
-      as fallback for environments where conda is unavailable.
-    module: M35_deliverable_qa
-    research_source: R-009
-    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
-    effort: large
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-02"
-    decision_date: null
-    decision_notes: null
+    '
+  module: M35_deliverable_qa
+  research_source: R-009
+  evidence: docs/research/automated/R-009_las_laz_point_cloud_validation.md
+  effort: large
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-02'
+  decision_date: null
+  decision_notes: null
+- id: IMP-006
+  title: Structured QA results in delivery flow
+  description: 'QAResult dataclass implemented with: status (PASS/WARN/FAIL), level (0-3), issues list, checks_run list, details
+    dict. .to_dict() for serialization. Next step: wire check_delivery() into AuctionEngine.confirm_delivery() and persist
+    QAResult in SQLite alongside delivery data.
 
-  - id: IMP-006
-    title: "Structured QA results in delivery flow"
-    description: >
-      QAResult dataclass implemented with: status (PASS/WARN/FAIL), level (0-3),
-      issues list, checks_run list, details dict. .to_dict() for serialization.
-      Next step: wire check_delivery() into AuctionEngine.confirm_delivery()
-      and persist QAResult in SQLite alongside delivery data.
-    module: M35_deliverable_qa
-    research_source: R-009
-    evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
-    effort: medium
-    priority: high
-    status: implemented
-    proposed_date: "2026-04-02"
-    decision_date: "2026-04-03"
-    decision_notes: "QAResult dataclass implemented in deliverable_qa.py. Wiring into engine confirm_delivery is next step."
-
-  - id: IMP-007
-    title: "Move inline deliverable_qa import to module level in engine.py"
-    description: >-
-      auction/engine.py line 923 contains `from auction.deliverable_qa import
-      check_delivery as qa_check` inside the confirm_delivery() method body. This
-      defers import errors until runtime and obscures the dependency graph. Move to
-      the top-level imports alongside other optional dependencies (lines 44-66).
-      Pattern matches existing optional imports (wallet, reputation, stripe_service).
-    module: M5_auction_engine
-    research_source: "code-review"
-    evidence: "auction/engine.py:923 — inline import inside confirm_delivery()"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-008
-    title: "Extract _calculate_reservation() helper in engine.py"
-    description: >-
-      The 25% reservation calculation `(price * Decimal("0.25")).quantize(Decimal("0.01"))`
-      appears 7 times in auction/engine.py (lines 405, 764, 847, 1051, 1107, 1147, 1201).
-      Extract as a private method `_calculate_reservation(price: Decimal) -> Decimal`.
-      Reduces duplication, centralizes the rounding rule, and makes the 25% constant
-      easy to find and change. No behavior change — pure refactor.
-    module: M5_auction_engine
-    research_source: "code-review"
-    evidence: "auction/engine.py:405,764,847,1051,1107,1147,1201 — 7 identical reservation calculations"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-009
-    title: "Strip historical version comments from engine.py"
-    description: >-
-      auction/engine.py contains 44 inline version markers (v0.1, v0.5, v1.0, v1.1)
-      that tracked feature additions during incremental development. These comments
-      describe when code was added, not why — the git log preserves that history more
-      accurately. Strip comments of the form `# v0.x:` and `# v1.x:` that precede
-      code blocks, keeping only substantive design rationale comments (e.g. AD-X
-      references, security notes). Reduces noise for new developers trying to understand
-      the engine's current logic.
-    module: M5_auction_engine
-    research_source: "code-review"
-    evidence: "auction/engine.py — grep 'v0\\.|v1\\.' returns 44 matches"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-010
-    title: "Split engine.py (1,442 lines) into focused sub-modules"
-    description: >-
-      auction/engine.py has grown to 1,442 lines containing three distinct concerns:
-      (1) state machine + task lifecycle (post_task, accept_bid, execute: ~600 lines),
-      (2) payment + settlement logic (reservation, delivery_payment, Stripe transfer:
-      ~350 lines), and (3) query/reporting methods (get_task_status, list_tasks,
-      review_bids: ~300 lines). Proposed split: engine.py keeps the AuctionEngine class
-      and state machine; engine_payment.py extracts the payment helpers; or alternatively
-      a mixin approach. Any split must preserve the existing public API — all 35 MCP
-      tools and all 264 tests must pass unchanged. Evaluate whether the added indirection
-      is worth the navigation improvement before committing.
-    module: M5_auction_engine
-    research_source: "code-review"
-    evidence: "auction/engine.py:1442 lines — post_task L516-636 (120 lines), confirm_delivery L904-1023 (120 lines)"
-    effort: large
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-011
-    title: "Split store.py: separate async and sync implementations"
-    description: >-
-      auction/store.py (779 lines) contains two complete storage implementations:
-      AsyncTaskStore (aiosqlite, lines 88-600) and SyncTaskStore (sqlite3, lines
-      603-779). The sync implementation is what the production engine uses; the async
-      version exists for forward compatibility. Splitting into store_async.py and
-      store_sync.py would make each file ~400 lines, with shared helpers (_json_serializer,
-      _json_object_hook, _dumps, _loads, _row_to_task_dict) in store_shared.py or
-      inlined. Import alias in store.py can preserve existing import paths.
-    module: M22_sqlite_store
-    research_source: "code-review"
-    evidence: "auction/store.py:779 lines — AsyncTaskStore L88-600, SyncTaskStore L603-779"
-    effort: medium
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-012
-    title: "Enable Stripe Connect USDC payouts for sole-proprietor operators"
-    description: >-
-      Extend StripeService to support USDC payout currency selection for Connect
-      Express operators. Add an operator onboarding step that guides the operator
-      to link a crypto wallet and set USDC as their default payout currency via
-      the Express Dashboard. Guard with entity_type == "individual" check — return
-      a clear error for LLC operators with a note that fiat payout remains
-      available. Leverages existing Stripe Connect integration; no new vendor
-      required. Supports USDC on Base and Polygon.
-    module: M15_stripe_service
-    research_source: R-024
-    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-013
-    title: "Integrate Coinbase Onramp for USDC credit bundle purchases"
-    description: >-
-      Add a "Buy credits with card" flow using the Coinbase Onramp widget or
-      headless API. Buyer completes the onramp (0% fee on USDC on Base, guest
-      checkout — no Coinbase account required), USDC is sent to their wallet,
-      then they top up their platform credit balance via x402 transfer. This
-      enables card-funded USDC accounts without YAK touching fiat-to-crypto
-      conversion or becoming an MSB. Suitable for the prepaid credit bundle
-      pattern ($5,000 typical). Application for zero-fee access required.
-    module: M37_splits_distribution
-    research_source: R-024
-    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
-    effort: medium
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-014
-    title: "Pilot PayRam for direct card-to-Splits USDC settlement"
-    description: >-
-      Conduct a technical pilot of PayRam's card-onramp API (launched 2026-03-30):
-      (1) verify USDC routing to a 0xSplits contract address on Base,
-      (2) confirm fee structure at $1K–$10K construction survey transaction sizes,
-      (3) assess production reliability (very new service — track uptime and error rates),
-      (4) compare total cost against Stripe stablecoin payout path.
-      Decision gate: if PayRam supports Splits contract destinations and fees < 2%,
-      prioritize for v2 payment architecture as the single-step card-in / USDC-to-splits-out
-      solution. This would unify buyer fiat entry and operator distribution in one checkout.
-    module: M37_splits_distribution
-    research_source: R-024
-    evidence: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
-    effort: medium
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-  - id: IMP-015
-    title: "Fix 143 mypy type errors to make type-check CI blocking"
-    description: >-
-      Mypy currently finds 143 errors across 14 files. Most common: 37 no-any-return
-      (loosely typed dict returns), 16 union-attr (optional fields accessed without
-      None checks), 7 attr-defined (dynamically attached attributes on AuctionEngine).
-      Fix by: adding return type annotations to MCP tool handlers, narrowing Optional
-      types with guards before access, typing engine attributes properly. Currently
-      CI runs mypy with continue-on-error. Goal: make it blocking.
-    module: system
-    research_source: "code-review"
-    evidence: "CI type-check job — 143 errors in 14 files"
-    effort: large
-    priority: high
-    status: implemented
-    proposed_date: "2026-04-03"
-    decision_date: "2026-04-03"
-    decision_notes: "All 143 errors fixed. TYPE_CHECKING imports, TaskRecord.winner property, typed helpers, targeted type: ignore for dynamic patterns. Mypy CI is now blocking."
-
-  - id: IMP-016
-    title: "Unskip fakerover bid tests after 8004 PR #4 merge"
-    description: >-
-      4 tests in test_fakerover_bid.py are skipped because the FakeRover bid()
-      interface changed in yakrover-8004-mcp PR #4. After that PR merges: update
-      the mock client to return the new bid format, unskip the tests, and re-add
-      test_fakerover_bid.py to the CI pytest command.
-    module: M9_mock_fleet
-    research_source: "code-review"
-    evidence: "auction/tests/test_fakerover_bid.py — 4 skip markers"
-    effort: small
-    priority: null
-    status: proposed
-    proposed_date: "2026-04-03"
-    decision_date: null
-    decision_notes: null
-
-# Example entry format:
-# - id: IMP-001
-#   title: "Add certification check to hard constraint filter"
-#   description: "check_hard_constraints() should validate certifications_required against operator compliance records"
-#   module: M10_compliance
-#   research_source: R-006
-#   evidence: "docs/research/automated/R-006_pls_board_apis.md"
-#   effort: small  # small | medium | large
-#   priority: null  # set during prioritization
-#   status: proposed
-#   proposed_date: "2026-04-02"
-#   decision_date: null
-#   decision_notes: null
+    '
+  module: M35_deliverable_qa
+  research_source: R-009
+  evidence: docs/research/automated/R-009_las_laz_point_cloud_validation.md
+  effort: medium
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-02'
+  decision_date: '2026-04-03'
+  decision_notes: QAResult dataclass implemented in deliverable_qa.py. Wiring into engine confirm_delivery is next step.
+- id: IMP-007
+  title: Move inline deliverable_qa import to module level in engine.py
+  description: auction/engine.py line 923 contains `from auction.deliverable_qa import check_delivery as qa_check` inside
+    the confirm_delivery() method body. This defers import errors until runtime and obscures the dependency graph. Move to
+    the top-level imports alongside other optional dependencies (lines 44-66). Pattern matches existing optional imports (wallet,
+    reputation, stripe_service).
+  module: M5_auction_engine
+  research_source: code-review
+  evidence: auction/engine.py:923 — inline import inside confirm_delivery()
+  effort: small
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: Moved to module-level optional import. Matches existing pattern for wallet/reputation/stripe.
+- id: IMP-008
+  title: Extract _calculate_reservation() helper in engine.py
+  description: 'The 25% reservation calculation `(price * Decimal("0.25")).quantize(Decimal("0.01"))` appears 7 times in auction/engine.py
+    (lines 405, 764, 847, 1051, 1107, 1147, 1201). Extract as a private method `_calculate_reservation(price: Decimal) ->
+    Decimal`. Reduces duplication, centralizes the rounding rule, and makes the 25% constant easy to find and change. No behavior
+    change — pure refactor.'
+  module: M5_auction_engine
+  research_source: code-review
+  evidence: auction/engine.py:405,764,847,1051,1107,1147,1201 — 7 identical reservation calculations
+  effort: small
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: Added _reservation() staticmethod on AuctionEngine. Replaced 7 identical calculations.
+- id: IMP-009
+  title: Strip historical version comments from engine.py
+  description: auction/engine.py contains 44 inline version markers (v0.1, v0.5, v1.0, v1.1) that tracked feature additions
+    during incremental development. These comments describe when code was added, not why — the git log preserves that history
+    more accurately. Strip comments of the form `# v0.x:` and `# v1.x:` that precede code blocks, keeping only substantive
+    design rationale comments (e.g. AD-X references, security notes). Reduces noise for new developers trying to understand
+    the engine's current logic.
+  module: M5_auction_engine
+  research_source: code-review
+  evidence: auction/engine.py — grep 'v0\.|v1\.' returns 44 matches
+  effort: small
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: Stripped version prefixes from 23 comments. Kept decision ID references (Security M-1, etc). Pure metadata
+    removed.
+- id: IMP-010
+  title: Split engine.py (1,442 lines) into focused sub-modules
+  description: 'auction/engine.py has grown to 1,442 lines containing three distinct concerns: (1) state machine + task lifecycle
+    (post_task, accept_bid, execute: ~600 lines), (2) payment + settlement logic (reservation, delivery_payment, Stripe transfer:
+    ~350 lines), and (3) query/reporting methods (get_task_status, list_tasks, review_bids: ~300 lines). Proposed split: engine.py
+    keeps the AuctionEngine class and state machine; engine_payment.py extracts the payment helpers; or alternatively a mixin
+    approach. Any split must preserve the existing public API — all 35 MCP tools and all 264 tests must pass unchanged. Evaluate
+    whether the added indirection is worth the navigation improvement before committing.'
+  module: M5_auction_engine
+  research_source: code-review
+  evidence: auction/engine.py:1442 lines — post_task L516-636 (120 lines), confirm_delivery L904-1023 (120 lines)
+  effort: large
+  priority: low
+  status: rejected
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: Risk outweighs reward. 1,464 lines is manageable. Splitting risks breaking state machine atomicity. Payment
+    logic must stay adjacent to state transitions.
+- id: IMP-011
+  title: 'Split store.py: separate async and sync implementations'
+  description: 'auction/store.py (779 lines) contains two complete storage implementations: AsyncTaskStore (aiosqlite, lines
+    88-600) and SyncTaskStore (sqlite3, lines 603-779). The sync implementation is what the production engine uses; the async
+    version exists for forward compatibility. Splitting into store_async.py and store_sync.py would make each file ~400 lines,
+    with shared helpers (_json_serializer, _json_object_hook, _dumps, _loads, _row_to_task_dict) in store_shared.py or inlined.
+    Import alias in store.py can preserve existing import paths.'
+  module: M22_sqlite_store
+  research_source: code-review
+  evidence: auction/store.py:779 lines — AsyncTaskStore L88-600, SyncTaskStore L603-779
+  effort: medium
+  priority: null
+  status: deferred
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: Async store not used in production. Splitting creates 3 files for no user-facing gain. Revisit in v2.0 if
+    async framework adopted.
+- id: IMP-012
+  title: Enable Stripe Connect USDC payouts for sole-proprietor operators
+  description: Extend StripeService to support USDC payout currency selection for Connect Express operators. Add an operator
+    onboarding step that guides the operator to link a crypto wallet and set USDC as their default payout currency via the
+    Express Dashboard. Guard with entity_type == "individual" check — return a clear error for LLC operators with a note that
+    fiat payout remains available. Leverages existing Stripe Connect integration; no new vendor required. Supports USDC on
+    Base and Polygon.
+  module: M15_stripe_service
+  research_source: R-024
+  evidence: docs/research/automated/R-024_fiat_to_usdc_checkout_services.md
+  effort: small
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-03'
+  decision_date: null
+  decision_notes: null
+- id: IMP-013
+  title: Integrate Coinbase Onramp for USDC credit bundle purchases
+  description: Add a "Buy credits with card" flow using the Coinbase Onramp widget or headless API. Buyer completes the onramp
+    (0% fee on USDC on Base, guest checkout — no Coinbase account required), USDC is sent to their wallet, then they top up
+    their platform credit balance via x402 transfer. This enables card-funded USDC accounts without YAK touching fiat-to-crypto
+    conversion or becoming an MSB. Suitable for the prepaid credit bundle pattern ($5,000 typical). Application for zero-fee
+    access required.
+  module: M37_splits_distribution
+  research_source: R-024
+  evidence: docs/research/automated/R-024_fiat_to_usdc_checkout_services.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-03'
+  decision_date: null
+  decision_notes: null
+- id: IMP-014
+  title: Pilot PayRam for direct card-to-Splits USDC settlement
+  description: 'Conduct a technical pilot of PayRam''s card-onramp API (launched 2026-03-30): (1) verify USDC routing to a
+    0xSplits contract address on Base, (2) confirm fee structure at $1K–$10K construction survey transaction sizes, (3) assess
+    production reliability (very new service — track uptime and error rates), (4) compare total cost against Stripe stablecoin
+    payout path. Decision gate: if PayRam supports Splits contract destinations and fees < 2%, prioritize for v2 payment architecture
+    as the single-step card-in / USDC-to-splits-out solution. This would unify buyer fiat entry and operator distribution
+    in one checkout.'
+  module: M37_splits_distribution
+  research_source: R-024
+  evidence: docs/research/automated/R-024_fiat_to_usdc_checkout_services.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-03'
+  decision_date: null
+  decision_notes: null
+- id: IMP-015
+  title: Fix 143 mypy type errors to make type-check CI blocking
+  description: 'Mypy currently finds 143 errors across 14 files. Most common: 37 no-any-return (loosely typed dict returns),
+    16 union-attr (optional fields accessed without None checks), 7 attr-defined (dynamically attached attributes on AuctionEngine).
+    Fix by: adding return type annotations to MCP tool handlers, narrowing Optional types with guards before access, typing
+    engine attributes properly. Currently CI runs mypy with continue-on-error. Goal: make it blocking.'
+  module: system
+  research_source: code-review
+  evidence: CI type-check job — 143 errors in 14 files
+  effort: large
+  priority: high
+  status: implemented
+  proposed_date: '2026-04-03'
+  decision_date: '2026-04-03'
+  decision_notes: 'All 143 errors fixed. TYPE_CHECKING imports, TaskRecord.winner property, typed helpers, targeted type:
+    ignore for dynamic patterns. Mypy CI is now blocking.'
+- id: IMP-016
+  title: 'Unskip fakerover bid tests after 8004 PR #4 merge'
+  description: '4 tests in test_fakerover_bid.py are skipped because the FakeRover bid() interface changed in yakrover-8004-mcp
+    PR #4. After that PR merges: update the mock client to return the new bid format, unskip the tests, and re-add test_fakerover_bid.py
+    to the CI pytest command.'
+  module: M9_mock_fleet
+  research_source: code-review
+  evidence: auction/tests/test_fakerover_bid.py — 4 skip markers
+  effort: small
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-03'
+  decision_date: null
+  decision_notes: null
