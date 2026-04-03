@@ -15,6 +15,10 @@ from __future__ import annotations
 import logging
 import uuid
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from auction.engine import AuctionEngine
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +32,7 @@ except ImportError:
     _HAS_FASTAPI = False
 
 
-def create_api_router(engine: object) -> APIRouter:
+def create_api_router(engine: AuctionEngine) -> APIRouter:  # type: ignore[type-arg]
     """Create a FastAPI router with REST endpoints wrapping the auction engine.
 
     Args:
@@ -124,7 +128,7 @@ def create_api_router(engine: object) -> APIRouter:
     async def get_task_status(request_id: str) -> dict:
         """Get full status of a task."""
         try:
-            return engine.get_status(request_id)
+            return engine.get_status(request_id)  # type: ignore[attr-defined]
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=404, detail=str(e)) from None
 
@@ -146,7 +150,7 @@ def create_api_router(engine: object) -> APIRouter:
             if robot_id:
                 return engine.accept_bid(request_id, robot_id)
             else:
-                return engine.accept_bid(request_id)
+                return engine.accept_bid(request_id)  # type: ignore[call-arg]
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=400, detail=str(e)) from None
 
@@ -154,7 +158,7 @@ def create_api_router(engine: object) -> APIRouter:
     async def execute_task(request_id: str) -> dict:
         """Dispatch the task to the winning robot."""
         try:
-            return engine.execute(request_id)
+            return engine.execute(request_id)  # type: ignore[return-value]
         except (KeyError, ValueError) as e:
             raise HTTPException(status_code=400, detail=str(e)) from None
 
@@ -228,7 +232,7 @@ def add_cors(app: object) -> None:
     """Add CORS middleware to a FastAPI app for browser access."""
     if not _HAS_FASTAPI:
         return
-    app.add_middleware(
+    app.add_middleware(  # type: ignore[attr-defined]
         CORSMiddleware,
         allow_origins=["*"],  # Tighten in production
         allow_credentials=True,

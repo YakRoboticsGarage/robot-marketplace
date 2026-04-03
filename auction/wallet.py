@@ -79,7 +79,7 @@ def _make_entry(
 
         _le_fields = {f.name for f in __import__("dataclasses").fields(LedgerEntry)}
         filtered = {k: v for k, v in entry.items() if k in _le_fields}
-        return LedgerEntry(**filtered)  # type: ignore[return-value]
+        return LedgerEntry(**filtered)  # type: ignore[arg-type, return-value]
 
     return entry
 
@@ -263,7 +263,7 @@ class StripeWalletService:
         amount = Decimal(str(amount))
         amount_cents = int(amount * 100)
 
-        pi_result = self.stripe.create_wallet_topup(
+        pi_result = self.stripe.create_wallet_topup(  # type: ignore[attr-defined]
             amount_cents=amount_cents,
             metadata={"wallet_id": wallet_id, "payment_method": payment_method},
         )

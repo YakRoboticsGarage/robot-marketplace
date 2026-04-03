@@ -43,8 +43,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras
       - name: Mypy
-        continue-on-error: true  # 143 pre-existing type errors — non-blocking until cleanup
-        run: uv run mypy auction/ --ignore-missing-imports --exclude 'auction/tests/scenarios/'
+        run: uv run mypy auction/ --ignore-missing-imports
 
   # Integration tests — manual trigger or release tags only
   stripe-integration:

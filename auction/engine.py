@@ -22,6 +22,12 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import UTC
 from decimal import Decimal
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from auction.events import EventEmitter
+    from auction.store import SyncTaskStore
+    from auction.stripe_service import StripeService
 
 from auction.core import (
     WEIGHT_CONFIDENCE,
@@ -43,24 +49,24 @@ from auction.core import (
 try:
     from auction.wallet import InsufficientBalance, WalletLedger
 except ImportError:  # pragma: no cover
-    WalletLedger = None  # type: ignore[assignment,misc]
-    InsufficientBalance = None  # type: ignore[assignment,misc]
+    WalletLedger = None  # type: ignore[assignment, misc]
+    InsufficientBalance = None  # type: ignore[assignment, misc]
 
 try:
     from auction.reputation import ReputationTracker
 except ImportError:  # pragma: no cover
-    ReputationTracker = None  # type: ignore[assignment,misc]
+    ReputationTracker = None  # type: ignore[assignment, misc]
 
 # Optional v1.0 dependencies — engine works without them (backward compat)
 try:
     from auction.store import SyncTaskStore
 except ImportError:  # pragma: no cover
-    SyncTaskStore = None  # type: ignore[assignment,misc]
+    SyncTaskStore = None  # type: ignore[assignment, misc]
 
 try:
     from auction.stripe_service import StripeService
 except ImportError:  # pragma: no cover
-    StripeService = None  # type: ignore[assignment,misc]
+    StripeService = None  # type: ignore[assignment, misc]
 
 
 # ---------------------------------------------------------------------------
@@ -117,8 +123,13 @@ class TaskRecord:
     buyer_notes: str = ""
     awarded_at: str = ""
     auto_accept_handle: asyncio.Task | None = field(default=None, repr=False)
-    # v1.1: Deliverable QA result
-    qa_result: dict | None = None
+    qa_result: dict[str, Any] | None = None
+
+    @property
+    def winner(self) -> Bid:
+        """Return the winning bid, asserting it exists (state machine guarantees this)."""
+        assert self.winning_bid is not None, f"No winning bid for {self.request_id}"
+        return self.winning_bid
 
 
 # ---------------------------------------------------------------------------
@@ -144,19 +155,22 @@ class AuctionEngine:
         *,
         wallet: WalletLedger | None = None,
         reputation: ReputationTracker | None = None,
-        store: object | None = None,
-        stripe_service: object | None = None,
-        events: object | None = None,
+        store: SyncTaskStore | None = None,
+        stripe_service: StripeService | None = None,
+        events: EventEmitter | None = None,
     ) -> None:
         self.robots = robots
-        self._robots_by_id: dict[str, object] = {r.robot_id: r for r in robots}
+        self._robots_by_id: dict[str, Any] = {r.robot_id: r for r in robots}
         self._tasks: dict[str, TaskRecord] = {}
         self.wallet = wallet
         self.reputation = reputation
-        self.store = store  # SyncTaskStore | None
-        self.stripe_service = stripe_service  # StripeService | None
-        self._last_stripe_transfer: dict | None = None  # v1.0: last Stripe transfer result
-        self.events = events  # EventEmitter | None
+        self.store: SyncTaskStore | None = store
+        self.stripe_service: StripeService | None = stripe_service
+        self._last_stripe_transfer: dict[str, Any] | None = None
+        self.events: EventEmitter | None = events
+        # Lazily attached by mcp_tools.py
+        self._operator_registry: Any = None
+        self._compliance_checker: Any = None
 
         # v1.0: Load active tasks from store on startup (restart recovery)
         if self.store is not None:
@@ -168,6 +182,7 @@ class AuctionEngine:
 
     def _load_from_store(self) -> None:
         """Rebuild in-memory _tasks from SQLite store (restart recovery)."""
+        assert self.store is not None
         active = self.store.load_active_tasks()
         for row in active:
             task_data = row["task"]
@@ -417,7 +432,7 @@ class AuctionEngine:
 
         # Record the previous winner for exclusion
         if record.winning_bid is not None:
-            record.previous_winners.append(record.winning_bid.robot_id)
+            record.previous_winners.append(record.winner.robot_id)
 
         # Transition to RE_POOLED
         self._transition(record, TaskState.RE_POOLED, f"re-pool reason: {reason}")
@@ -477,10 +492,10 @@ class AuctionEngine:
         if record.winning_bid is None:
             return
         for bid in record.bids:
-            if bid.robot_id != record.winning_bid.robot_id:
+            if bid.robot_id != record.winner.robot_id:
                 log(
                     "NOTIFY",
-                    f"{bid.robot_id} | not selected for {record.request_id} | winner: {record.winning_bid.robot_id}",
+                    f"{bid.robot_id} | not selected for {record.request_id} | winner: {record.winner.robot_id}",
                 )
 
     # ------------------------------------------------------------------
@@ -565,7 +580,7 @@ class AuctionEngine:
         record = TaskRecord(
             request_id=task.request_id,
             task=task,
-            state=None,  # type: ignore[arg-type]  — pre-POSTED sentinel
+            state=None,  # type: ignore[arg-type]
         )
 
         # (none) -> POSTED
@@ -813,7 +828,7 @@ class AuctionEngine:
         if record.state != TaskState.BID_ACCEPTED:
             raise ValueError(f"execute requires state BID_ACCEPTED, got {record.state.value}")
 
-        winning_bid = record.winning_bid
+        winning_bid = record.winner
         robot = self._robots_by_id[winning_bid.robot_id]
 
         # BID_ACCEPTED -> IN_PROGRESS
@@ -911,6 +926,7 @@ class AuctionEngine:
         self._cancel_auto_accept_timer(record)
 
         delivery = record.delivery
+        assert delivery is not None
         task = record.task
 
         # v1.1: Run deliverable QA at the buyer-configured level
@@ -941,7 +957,7 @@ class AuctionEngine:
         self._transition(record, TaskState.VERIFIED, "agent confirmed")
 
         # v0.5: Payment — 75% delivery debit + operator credit
-        agreed_price = record.winning_bid.price
+        agreed_price = record.winner.price
         delivery_payment = (agreed_price * Decimal("0.75")).quantize(Decimal("0.01"))
 
         if self.wallet is not None:
@@ -950,7 +966,7 @@ class AuctionEngine:
             # Credit full amount to robot operator
             try:
                 self.wallet.credit(
-                    record.winning_bid.robot_id,
+                    record.winner.robot_id,
                     agreed_price,
                     request_id,
                     "credit",
@@ -958,15 +974,15 @@ class AuctionEngine:
                 )
             except KeyError:
                 # Operator wallet may not exist yet — create it
-                self.wallet.create_wallet(record.winning_bid.robot_id)
+                self.wallet.create_wallet(record.winner.robot_id)
                 self.wallet.credit(
-                    record.winning_bid.robot_id,
+                    record.winner.robot_id,
                     agreed_price,
                     request_id,
                     "credit",
                     note=f"Operator payment for {request_id}",
                 )
-            log("PAYMENT", f"${agreed_price} credited to {record.winning_bid.robot_id} operator wallet")
+            log("PAYMENT", f"${agreed_price} credited to {record.winner.robot_id} operator wallet")
         else:
             log("PAYMENT", f"(stub) Would debit ${delivery_payment} (75% delivery) from buyer wallet")
             log("PAYMENT", f"(stub) Would transfer ${agreed_price} to operator via Stripe Connect")
@@ -974,7 +990,7 @@ class AuctionEngine:
         # v0.5: Record reputation
         if self.reputation is not None:
             self.reputation.record_outcome(
-                robot_id=record.winning_bid.robot_id,
+                robot_id=record.winner.robot_id,
                 request_id=request_id,
                 outcome="completed",
                 sla_met=delivery.sla_met,
@@ -984,7 +1000,7 @@ class AuctionEngine:
         stripe_transfer_result = None
         if self.stripe_service is not None:
             amount_cents = int(agreed_price * 100)
-            robot_id = record.winning_bid.robot_id
+            robot_id = record.winner.robot_id
             stripe_transfer_result = self.stripe_service.create_transfer(
                 amount_cents=amount_cents,
                 destination_account_id=f"acct_{robot_id}",
@@ -1022,8 +1038,8 @@ class AuctionEngine:
         # v1.0: Include Stripe transfer ID in response if available
         if stripe_transfer_result is not None:
             transfer_id = stripe_transfer_result.get("id") or stripe_transfer_result.get("action", "stub")
-            result["settlement"]["stripe_transfer_id"] = transfer_id
-            result["settlement"]["stripe_transfer"] = stripe_transfer_result
+            result["settlement"]["stripe_transfer_id"] = transfer_id  # type: ignore[index]
+            result["settlement"]["stripe_transfer"] = stripe_transfer_result  # type: ignore[index]
 
         return result
 
@@ -1044,14 +1060,14 @@ class AuctionEngine:
         # v0.5: Cancel auto-accept timer
         self._cancel_auto_accept_timer(record)
 
-        rejected_robot_id = record.winning_bid.robot_id
+        rejected_robot_id = record.winner.robot_id
 
         # DELIVERED -> REJECTED
         self._transition(record, TaskState.REJECTED, f"reason: {reason}")
         log("REJECT", f"{rejected_robot_id} | payload rejected: {reason}")
 
         # v0.5: Refund 25% reservation
-        reservation = (record.winning_bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+        reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
         if self.wallet is not None:
             self.wallet.credit(
                 "buyer", reservation, request_id, "refund", note=f"25% refund after rejection of {rejected_robot_id}"
@@ -1099,13 +1115,13 @@ class AuctionEngine:
         if reason == "provider_cancelled":
             if record.state != TaskState.BID_ACCEPTED:
                 raise ValueError(f"provider_cancelled requires state BID_ACCEPTED, got {record.state.value}")
-            cancelled_robot_id = record.winning_bid.robot_id
+            cancelled_robot_id = record.winner.robot_id
 
             # BID_ACCEPTED -> PROVIDER_CANCELLED
             self._transition(record, TaskState.PROVIDER_CANCELLED, f"provider cancelled ({cancelled_robot_id})")
 
             # Refund 25% reservation
-            reservation = (record.winning_bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+            reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
             if self.wallet is not None:
                 self.wallet.credit(
                     "buyer",
@@ -1141,13 +1157,13 @@ class AuctionEngine:
         if record.state != TaskState.IN_PROGRESS:
             raise ValueError(f"abandon_task requires state IN_PROGRESS, got {record.state.value}")
 
-        abandoned_robot_id = record.winning_bid.robot_id
+        abandoned_robot_id = record.winner.robot_id
 
         # IN_PROGRESS -> ABANDONED
         self._transition(record, TaskState.ABANDONED, f"manually abandoned ({abandoned_robot_id} unresponsive)")
 
         # Refund 25% reservation
-        reservation = (record.winning_bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+        reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
         if self.wallet is not None:
             self.wallet.credit(
                 "buyer", reservation, request_id, "refund", note=f"25% refund after abandonment of {abandoned_robot_id}"
@@ -1200,7 +1216,7 @@ class AuctionEngine:
         refunded = False
         refund_amount = Decimal("0")
         if record.winning_bid is not None and self.wallet is not None:
-            reservation = (record.winning_bid.price * Decimal("0.25")).quantize(Decimal("0.01"))
+            reservation = (record.winner.price * Decimal("0.25")).quantize(Decimal("0.01"))
             try:
                 self.wallet.credit("buyer", reservation, request_id, "refund", note=f"Cancellation refund: {reason}")
                 refund_amount = reservation
@@ -1234,9 +1250,9 @@ class AuctionEngine:
         winning_bid_info = None
         if record.winning_bid is not None:
             winning_bid_info = {
-                "robot_id": record.winning_bid.robot_id,
-                "price": str(record.winning_bid.price),
-                "sla_commitment_seconds": record.winning_bid.sla_commitment_seconds,
+                "robot_id": record.winner.robot_id,
+                "price": str(record.winner.price),
+                "sla_commitment_seconds": record.winner.sla_commitment_seconds,
             }
 
         delivery_info = None
@@ -1421,9 +1437,7 @@ class AuctionEngine:
                 rfp_id = record.task.task_decomposition.get("rfp_id", "")
                 if rfp_id != filters["rfp_id"]:
                     continue
-            if "robot_id" in filters and (
-                record.winning_bid is None or record.winning_bid.robot_id != filters["robot_id"]
-            ):
+            if "robot_id" in filters and (record.winning_bid is None or record.winner.robot_id != filters["robot_id"]):
                 continue
             if "task_category" in filters and record.task.task_category != filters["task_category"]:
                 continue
@@ -1436,7 +1450,7 @@ class AuctionEngine:
                     "state": record.state.value,
                     "budget_ceiling": str(record.task.budget_ceiling),
                     "bid_count": len(record.bids),
-                    "winning_robot": record.winning_bid.robot_id if record.winning_bid else None,
+                    "winning_robot": record.winner.robot_id if record.winning_bid else None,
                     "rfp_id": record.task.task_decomposition.get("rfp_id"),
                     "task_index": record.task.task_decomposition.get("task_index"),
                     "posted_at": record.task.posted_at.isoformat(),

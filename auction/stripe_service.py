@@ -26,7 +26,7 @@ def _to_dict(stripe_obj: object) -> dict:
     """
     if hasattr(stripe_obj, "to_dict_recursive"):
         return stripe_obj.to_dict_recursive()
-    return dict(stripe_obj)  # type: ignore[arg-type]
+    return dict(stripe_obj)  # type: ignore[call-overload]
 
 
 class StripeService:

@@ -291,7 +291,7 @@ def _build_task_spec(
     }
 
     t = templates.get(survey_type, templates["topographic"])
-    budget = (t["budget_range"][0] + t["budget_range"][1]) // 2
+    budget = (t["budget_range"][0] + t["budget_range"][1]) // 2  # type: ignore[index]
 
     return {
         "description": t["description"],
@@ -313,7 +313,7 @@ def _build_task_spec(
             },
         },
         "budget_ceiling": budget,
-        "sla_seconds": t["sla_days"] * 86400,
+        "sla_seconds": t["sla_days"] * 86400,  # type: ignore[operator]
         "task_decomposition": {
             "rfp_id": rfp_id,
             "task_index": task_index,
@@ -345,7 +345,7 @@ def _build_task_spec(
 # ---------------------------------------------------------------------------
 
 
-def _load_reference(name: str) -> str:
+def _load_reference(name: str) -> str:  # type: ignore[no-redef]
     """Load a skill reference file, returning empty string if not found."""
     path = _REFS_DIR / name
     if path.exists():

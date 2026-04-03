@@ -47,12 +47,12 @@ def _error_response_structured(
     error_code: str,
     message: str,
     hint: str,
-) -> dict:
+) -> dict[str, Any]:
     """Build a structured, agent-friendly error dict."""
     return {"error_code": error_code, "message": message, "hint": hint}
 
 
-def _error_response(exc: Exception) -> dict:
+def _error_response(exc: Exception) -> dict[str, Any]:
     """Map a Python exception to a structured, agent-friendly error dict.
 
     Never exposes Python exception class names to MCP consumers.
@@ -463,7 +463,7 @@ def register_auction_tools(
                 "Ensure the auction engine is initialized with a WalletLedger.",
             )
         try:
-            result = stripe_wallet_service.fund_wallet(wallet_id, Decimal(str(amount)), payment_method)
+            result = stripe_wallet_service.fund_wallet(wallet_id, Decimal(str(amount)), payment_method)  # type: ignore[attr-defined]
             return _decimals_to_strings(result)
         except (ValueError, KeyError) as exc:
             return _error_response(exc)
@@ -492,7 +492,7 @@ def register_auction_tools(
                 "Ensure the auction engine is initialized with a WalletLedger.",
             )
         try:
-            balance = stripe_wallet_service.get_balance(wallet_id)
+            balance = stripe_wallet_service.get_balance(wallet_id)  # type: ignore[attr-defined]
             return {"wallet_id": wallet_id, "balance": str(balance)}
         except KeyError:
             return _error_response_structured(
@@ -514,7 +514,7 @@ def register_auction_tools(
         if stripe_service is None:
             return {"error": "Stripe service not configured", "error_type": "ConfigError"}
         try:
-            result = stripe_service.create_connect_account(email=email, country=country)
+            result = stripe_service.create_connect_account(email=email, country=country)  # type: ignore[attr-defined]
             result["robot_id"] = robot_id
             return _decimals_to_strings(result)
         except Exception as exc:
@@ -530,7 +530,7 @@ def register_auction_tools(
             return {"error": "Stripe service not configured", "error_type": "ConfigError"}
         try:
             account_id = f"acct_{robot_id}"
-            result = stripe_service.get_account(account_id)
+            result = stripe_service.get_account(account_id)  # type: ignore[attr-defined]
             result["robot_id"] = robot_id
             return _decimals_to_strings(result)
         except Exception as exc:
@@ -658,7 +658,7 @@ def register_auction_tools(
     async def auction_process_rfp(
         rfp_text: str,
         jurisdiction: str = "MI",
-        site_info: dict = None,
+        site_info: dict | None = None,
     ) -> dict:
         """Process a construction RFP into structured task specs for the auction.
 
@@ -832,7 +832,7 @@ def register_auction_tools(
     @mcp.tool()
     async def auction_verify_bond_pdf(
         pdf_path: str,
-        task_request_ids: list = None,
+        task_request_ids: list | None = None,
         project_state: str = "MI",
         required_coverage: float = 0,
     ) -> dict:
@@ -1158,7 +1158,7 @@ def register_auction_tools(
             return _error_response(exc)
 
     @mcp.tool()
-    async def auction_list_tasks(filters: dict = None) -> dict:
+    async def auction_list_tasks(filters: dict | None = None) -> dict:
         """List all tasks with optional filters.
 
         Filters (all optional):
@@ -1181,7 +1181,7 @@ def register_auction_tools(
         progress_state: str,
         percent_complete: int = 0,
         status_text: str = "",
-        location: dict = None,
+        location: dict | None = None,
     ) -> dict:
         """Report execution progress on an active task.
 

@@ -8,9 +8,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 
 
-def generate_agreement(record: object, template: str = "consensusdocs_750") -> dict:
+def generate_agreement(record: Any, template: str = "consensusdocs_750") -> dict[str, Any]:
     """Generate a subcontract agreement from a task record.
 
     Args:

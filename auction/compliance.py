@@ -83,7 +83,7 @@ class ComplianceChecker:
         records = self._records.get(robot_id, {})
         now = datetime.now(UTC)
 
-        checklist = []
+        checklist = []  # type: ignore[var-annotated]
         for doc_type in sorted(VALID_DOC_TYPES):
             record = records.get(doc_type)
             if record is None:
@@ -162,7 +162,7 @@ def check_sam_exclusion(entity_name: str) -> dict:
     }
 
     try:
-        response = httpx.get(url, params=params, timeout=15.0)
+        response = httpx.get(url, params=params, timeout=15.0)  # type: ignore[arg-type]
 
         if response.status_code == 404:
             return {

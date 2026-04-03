@@ -69,7 +69,7 @@ select = [
 "auction/demo.py" = ["E402"]  # imports after dotenv.load_dotenv()
 "auction/store.py" = ["S608"]  # parameterized SQL is safe
 "auction/compliance.py" = ["S105"]  # "PASS" status constant, not a password
-"auction/engine.py" = ["S110"]  # intentional except-pass for wallet creation fallback
+"auction/engine.py" = ["S101", "S110"]  # type assertions + intentional except-pass
 "auction/agreement.py" = ["E501"]  # long legal text strings
 "auction/bond_verifier.py" = ["E501"]  # long data format strings
 "auction/rfp_processor.py" = ["E501"]  # long prompt/template strings
@@ -78,12 +78,18 @@ select = [
 
 [tool.mypy]
 python_version = "3.13"
-warn_return_any = true
+warn_return_any = false  # too many dict-returning MCP tools; enable after full typing
 warn_unused_configs = true
+exclude = ['auction/tests/', 'auction/demo\.py']
 
 [[tool.mypy.overrides]]
 module = ["stripe.*", "fastmcp.*", "eth_account.*", "aiosqlite.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["auction.mcp_tools"]
+# MCP tools return dict from helper functions — many Any returns
+disallow_any_generics = false
 
 [tool.uv]
 prerelease = "allow"

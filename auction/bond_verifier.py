@@ -368,7 +368,7 @@ def verify_bond(
         {
             "check": "parties_identified",
             "status": "PASS" if principal != "Unknown" and obligee != "Unknown" else "WARN",
-            "value": f"Principal: {principal.strip()}, Obligee: {obligee.strip()}",
+            "value": f"Principal: {principal.strip()}, Obligee: {obligee.strip()}",  # type: ignore[union-attr]
             "note": "Both parties identified"
             if principal != "Unknown" and obligee != "Unknown"
             else "One or both parties not extracted",
