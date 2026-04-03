@@ -122,7 +122,7 @@ topics:
     title: "Electronic survey seal/stamp regulations by state"
     module: M36_pls_review
     hypothesis: "Michigan and other states may have specific regulations on electronic vs physical PLS seals — DocuSign approach may not be legal everywhere"
-    status: queued
+    status: in_progress
     priority: critical
     estimated_sessions: 1
     depends_on: [R-006]
