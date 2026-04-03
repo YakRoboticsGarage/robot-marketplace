@@ -171,6 +171,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [ ] `PINATA_JWT` worker secret for IPFS uploads
 - [ ] 8004 team: `robot_submit_bid` + `robot_execute_task` MCP tools
 - [ ] Robot registered on Base mainnet (8004 team, in parallel)
+- [ ] After 8004 PR #4 merges: unskip 4 fakerover bid tests + update mocks to match new `bid()` interface
 
 ### Dropped from earlier plans
 - ~~x402 middleware~~ — wrong tool for marketplace settlement (pay-to-access, not escrow)
