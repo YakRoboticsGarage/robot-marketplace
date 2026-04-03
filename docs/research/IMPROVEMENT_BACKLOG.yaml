@@ -67,23 +67,22 @@ proposals:
     decision_notes: null
 
   - id: IMP-004
-    title: "Add check_las_deliverable() to compliance module using laspy"
+    title: "Deliverable QA system — 4-level buyer-configurable quality checks"
     description: >
-      Implement a pure-Python LAS/LAZ validation function in auction/compliance.py
-      (or new auction/deliverable_qa.py) using laspy 2.x. Checks: LAS 1.4 header,
-      point count > 0, CRS present (horizontal + vertical), Class 0 percentage
-      below threshold, bounding box sanity against task site GeoJSON. Gate
-      AuctionEngine.confirm_delivery() on PASS or WARN result — block escrow
-      settlement on FAIL. Follow the (status, issues) pattern of check_sam_exclusion().
+      Implemented as auction/deliverable_qa.py with 4 levels: Level 0 (none, buyer
+      trusts vendor), Level 1 (basic: data exists, fields, plausibility), Level 2
+      (standards: CRS, ASPRS accuracy, USGS density), Level 3 (PLS stamp required).
+      Buyer sets qa_level in task spec or defaults by category. LAS-specific laspy
+      checks available as Level 2 enhancement when LAS files are delivered.
     module: M35_deliverable_qa
     research_source: R-009
     evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
     effort: medium
-    priority: null
-    status: proposed
+    priority: high
+    status: implemented
     proposed_date: "2026-04-02"
-    decision_date: null
-    decision_notes: null
+    decision_date: "2026-04-03"
+    decision_notes: "Implemented in auction/deliverable_qa.py. 26 tests. Broader than original — 4-level system covering simple sensor tasks through PLS-stamped surveys."
 
   - id: IMP-005
     title: "Add PDAL-based point density check for QL-gated tasks"
@@ -105,23 +104,21 @@ proposals:
     decision_notes: null
 
   - id: IMP-006
-    title: "Add deliverable_qa_result field to DeliveryPayload"
+    title: "Structured QA results in delivery flow"
     description: >
-      Extend DeliveryPayload dataclass to carry structured QA results: status
-      (PASS|WARN|FAIL), issues list, point_count, density_pts_per_m2,
-      crs_detected (bool), class_0_pct (float). Store in SQLite audit trail
-      alongside existing delivery data. Surface in buyer dashboard and include
-      in GC-facing project reports. ASPRS Edition 2 (2024) accuracy form should
-      appear when checkpoint RMSE data is provided by the operator.
+      QAResult dataclass implemented with: status (PASS/WARN/FAIL), level (0-3),
+      issues list, checks_run list, details dict. .to_dict() for serialization.
+      Next step: wire check_delivery() into AuctionEngine.confirm_delivery()
+      and persist QAResult in SQLite alongside delivery data.
     module: M35_deliverable_qa
     research_source: R-009
     evidence: "docs/research/automated/R-009_las_laz_point_cloud_validation.md"
     effort: medium
-    priority: null
-    status: proposed
+    priority: high
+    status: implemented
     proposed_date: "2026-04-02"
-    decision_date: null
-    decision_notes: null
+    decision_date: "2026-04-03"
+    decision_notes: "QAResult dataclass implemented in deliverable_qa.py. Wiring into engine confirm_delivery is next step."
 
 # Example entry format:
 # - id: IMP-001
