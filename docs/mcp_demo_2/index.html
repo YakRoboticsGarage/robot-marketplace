@@ -649,6 +649,7 @@ var PLATFORM_WALLET = '0xe33356d0d16c107eac7da1fc7263350cbdb548e5'; // YAK platf
 var RELAY_WALLET = '0x4b5974229f96ac5987d6e31065d73d6fd8e130d9'; // Gasless relay (pays gas, spender in permit)
 var PLATFORM_COMMISSION = 0.12; // 12%
 var RPC_URLS = {
+  1:        'https://ethereum-rpc.publicnode.com',
   8453:     'https://mainnet.base.org',
   11155111: 'https://ethereum-sepolia-rpc.publicnode.com',
 };
@@ -662,7 +663,7 @@ var SUBGRAPH_URLS = {
 };
 
 // Production: Base mainnet. Fallback: Sepolia (testnet) to show the pipeline.
-var DISCOVERY_CHAINS = [8453, 11155111];
+var DISCOVERY_CHAINS = [1, 8453, 11155111];
 // fleet_provider: "yakrover" in hex
 var YAKROVER_HEX = '0x79616b726f766572';
 
