@@ -135,7 +135,13 @@ def _check_level_0(data: dict, spec: dict) -> QAResult:
 
 
 def _check_level_1(data: dict, spec: dict) -> QAResult:
-    """Level 1: Basic checks — data exists, format valid, fields present."""
+    """Level 1: Schema-driven validation.
+
+    If the task spec includes a `delivery_schema`, validate against it.
+    Otherwise fall back to basic existence + plausibility checks.
+    The delivery_schema is the same spec the robot receives when bidding,
+    so there are no surprises — the robot can self-check before submitting.
+    """
     issues: list[str] = []
     checks: list[str] = []
     details: dict[str, Any] = {}
@@ -148,44 +154,130 @@ def _check_level_1(data: dict, spec: dict) -> QAResult:
 
     details["field_count"] = len(data)
 
-    # Check required fields from payload spec
-    payload_spec = spec.get("capability_requirements", {}).get("payload", {})
-    required_fields = payload_spec.get("fields", [])
+    # Schema-driven validation (preferred path)
+    schema = spec.get("capability_requirements", {}).get("delivery_schema")
+    if schema:
+        checks.append("schema_validation")
+        schema_issues = validate_delivery_schema(data, schema)
+        issues.extend(schema_issues)
+        details["schema_checks"] = len(schema.get("required", []))
+        details["schema_issues"] = len(schema_issues)
+    else:
+        # Fallback: basic field checks from payload spec
+        payload_spec = spec.get("capability_requirements", {}).get("payload", {})
+        required_fields = payload_spec.get("fields", [])
 
-    if required_fields:
-        checks.append("required_fields")
-        missing = [f for f in required_fields if f not in data]
-        if missing:
-            issues.append(f"Missing required fields: {missing}")
-        details["required_fields"] = required_fields
-        details["missing_fields"] = missing if required_fields else []
+        if required_fields:
+            checks.append("required_fields")
+            missing = [f for f in required_fields if f not in data]
+            if missing:
+                issues.append(f"Missing required fields: {missing}")
+            details["required_fields"] = required_fields
+            details["missing_fields"] = missing if required_fields else []
 
-    # Check format
-    payload_format = payload_spec.get("format", "json")
-    checks.append("format_valid")
-    if payload_format == "json" and not isinstance(data, dict):
-        issues.append(f"Expected JSON dict, got {type(data).__name__}")
+        payload_format = payload_spec.get("format", "json")
+        checks.append("format_valid")
+        if payload_format == "json" and not isinstance(data, dict):
+            issues.append(f"Expected JSON dict, got {type(data).__name__}")
 
-    # Plausibility checks for known sensor types
-    checks.append("plausibility")
-    _check_sensor_plausibility(data, issues, details)
-
-    # Check for readings array (common delivery pattern)
-    readings = data.get("readings")
-    if readings is not None:
-        checks.append("readings_present")
-        if isinstance(readings, list):
-            details["reading_count"] = len(readings)
-            if len(readings) == 0:
-                issues.append("Readings array is empty")
-        else:
-            issues.append(f"Readings should be a list, got {type(readings).__name__}")
+        # Plausibility checks (only when no schema — schema has its own ranges)
+        checks.append("plausibility")
+        _check_sensor_plausibility(data, issues, details)
 
     status = (
-        "FAIL" if any("Missing required" in i or "empty" in i.lower() for i in issues) else "WARN" if issues else "PASS"
+        "FAIL"
+        if any("Missing required" in i or "empty" in i.lower() or "below minimum" in i.lower() for i in issues)
+        else "WARN"
+        if issues
+        else "PASS"
     )
 
     return QAResult(status=status, level=1, issues=issues, checks_run=checks, details=details)
+
+
+# ---------------------------------------------------------------------------
+# Schema validator — the robot sees the same spec, no surprises
+# ---------------------------------------------------------------------------
+
+
+def validate_delivery_schema(
+    data: Any,
+    schema: dict,
+    path: str = "",
+) -> list[str]:
+    """Validate data against a delivery schema. Returns list of issues.
+
+    Supports a practical subset of JSON Schema:
+      required, type, minimum, maximum, minItems, maxItems,
+      minLength, properties, items (for arrays).
+
+    The robot receives this same schema in the task spec and can
+    self-validate before submitting — same rules, same results.
+    """
+    issues: list[str] = []
+    prefix = f"{path}: " if path else ""
+
+    if not isinstance(schema, dict):
+        return issues
+
+    # Type check
+    expected_type = schema.get("type")
+    if expected_type:
+        type_map = {
+            "object": dict,
+            "array": list,
+            "string": str,
+            "number": (int, float),
+            "integer": int,
+            "boolean": bool,
+        }
+        expected_cls = type_map.get(expected_type)
+        if expected_cls and not isinstance(data, expected_cls):
+            issues.append(f"{prefix}Expected {expected_type}, got {type(data).__name__}")
+            return issues  # Wrong type — skip further checks
+
+    # Required fields (for objects)
+    if isinstance(data, dict):
+        for field_name in schema.get("required", []):
+            if field_name not in data:
+                issues.append(f"{prefix}Missing required field: {field_name}")
+
+    # Properties (for objects) — recurse into each declared property
+    if isinstance(data, dict) and "properties" in schema:
+        for prop_name, prop_schema in schema["properties"].items():
+            if prop_name in data:
+                child_issues = validate_delivery_schema(
+                    data[prop_name], prop_schema, path=f"{path}.{prop_name}" if path else prop_name
+                )
+                issues.extend(child_issues)
+
+    # Numeric range checks
+    if isinstance(data, (int, float)):
+        if "minimum" in schema and data < schema["minimum"]:
+            issues.append(f"{prefix}Value {data} below minimum {schema['minimum']}")
+        if "maximum" in schema and data > schema["maximum"]:
+            issues.append(f"{prefix}Value {data} above maximum {schema['maximum']}")
+
+    # String length checks
+    if isinstance(data, str):
+        if "minLength" in schema and len(data) < schema["minLength"]:
+            issues.append(f"{prefix}String too short (length {len(data)}, minimum {schema['minLength']})")
+
+    # Array checks
+    if isinstance(data, list):
+        if "minItems" in schema and len(data) < schema["minItems"]:
+            issues.append(f"{prefix}Array has {len(data)} items, minimum {schema['minItems']}")
+        if "maxItems" in schema and len(data) > schema["maxItems"]:
+            issues.append(f"{prefix}Array has {len(data)} items, maximum {schema['maxItems']}")
+        # Validate each item against items schema
+        if "items" in schema:
+            for i, item in enumerate(data):
+                child_issues = validate_delivery_schema(
+                    item, schema["items"], path=f"{path}[{i}]" if path else f"[{i}]"
+                )
+                issues.extend(child_issues)
+
+    return issues
 
 
 def _check_level_2(data: dict, spec: dict) -> QAResult:

@@ -1,6 +1,6 @@
 """Tests for deliverable QA system (IMP-004, IMP-006)."""
 
-from auction.deliverable_qa import QAResult, check_delivery, get_qa_level
+from auction.deliverable_qa import QAResult, check_delivery, get_qa_level, validate_delivery_schema
 
 
 class TestQALevelSelection:
@@ -76,7 +76,6 @@ class TestLevel1:
         spec = {"capability_requirements": {"qa_level": 1, "payload": {"fields": ["readings"]}}}
         result = check_delivery(data, spec)
         assert result.status == "PASS"
-        assert result.details["reading_count"] == 2
 
     def test_temperature_out_of_range_warns(self):
         data = {"temperature_c": 200.0}
@@ -227,3 +226,183 @@ class TestQAResult:
     def test_warn_is_passed(self):
         r = QAResult(status="WARN", level=1, issues=["minor concern"])
         assert r.passed
+
+
+class TestSchemaValidator:
+    """Test the generic schema-driven delivery validation."""
+
+    TUMBLLER_SCHEMA = {
+        "description": "3 waypoint readings with temperature and humidity",
+        "required": ["readings", "summary", "duration_seconds"],
+        "properties": {
+            "readings": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                    "required": ["waypoint", "temperature_c", "humidity_pct", "timestamp"],
+                    "properties": {
+                        "temperature_c": {"type": "number", "minimum": -40, "maximum": 85},
+                        "humidity_pct": {"type": "number", "minimum": 0, "maximum": 100},
+                        "waypoint": {"type": "integer", "minimum": 1},
+                        "timestamp": {"type": "string"},
+                    },
+                },
+            },
+            "summary": {"type": "string", "minLength": 1},
+            "duration_seconds": {"type": "number", "minimum": 0},
+        },
+    }
+
+    TUMBLLER_GOOD_DATA = {
+        "readings": [
+            {"waypoint": 1, "temperature_c": 22.4, "humidity_pct": 45.2, "timestamp": "2026-04-05T10:00:00Z"},
+            {"waypoint": 2, "temperature_c": 23.1, "humidity_pct": 43.8, "timestamp": "2026-04-05T10:02:00Z"},
+            {"waypoint": 3, "temperature_c": 21.9, "humidity_pct": 46.5, "timestamp": "2026-04-05T10:04:00Z"},
+        ],
+        "summary": "All readings within spec.",
+        "duration_seconds": 240,
+    }
+
+    def test_valid_delivery_passes(self):
+        issues = validate_delivery_schema(self.TUMBLLER_GOOD_DATA, self.TUMBLLER_SCHEMA)
+        assert issues == []
+
+    def test_missing_required_field(self):
+        data = {**self.TUMBLLER_GOOD_DATA}
+        del data["summary"]
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("Missing required field: summary" in i for i in issues)
+
+    def test_too_few_readings(self):
+        data = {
+            **self.TUMBLLER_GOOD_DATA,
+            "readings": self.TUMBLLER_GOOD_DATA["readings"][:2],  # only 2 of 3
+        }
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("minimum 3" in i for i in issues)
+
+    def test_temperature_out_of_range(self):
+        bad_readings = [
+            {"waypoint": 1, "temperature_c": 200, "humidity_pct": 45, "timestamp": "t1"},
+            {"waypoint": 2, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t2"},
+            {"waypoint": 3, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t3"},
+        ]
+        data = {**self.TUMBLLER_GOOD_DATA, "readings": bad_readings}
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("above maximum" in i for i in issues)
+
+    def test_humidity_negative(self):
+        bad_readings = [
+            {"waypoint": 1, "temperature_c": 22, "humidity_pct": -5, "timestamp": "t1"},
+            {"waypoint": 2, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t2"},
+            {"waypoint": 3, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t3"},
+        ]
+        data = {**self.TUMBLLER_GOOD_DATA, "readings": bad_readings}
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("below minimum" in i for i in issues)
+
+    def test_missing_field_in_reading(self):
+        bad_readings = [
+            {"waypoint": 1, "temperature_c": 22, "timestamp": "t1"},  # missing humidity_pct
+            {"waypoint": 2, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t2"},
+            {"waypoint": 3, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t3"},
+        ]
+        data = {**self.TUMBLLER_GOOD_DATA, "readings": bad_readings}
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("humidity_pct" in i for i in issues)
+
+    def test_wrong_type(self):
+        data = {**self.TUMBLLER_GOOD_DATA, "duration_seconds": "not a number"}
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("Expected number" in i for i in issues)
+
+    def test_empty_summary(self):
+        data = {**self.TUMBLLER_GOOD_DATA, "summary": ""}
+        issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
+        assert any("too short" in i for i in issues)
+
+    def test_robot_self_check_matches_qa(self):
+        """Robot running self-check gets same result as marketplace QA."""
+        # Self-check (what the robot does before submitting)
+        self_issues = validate_delivery_schema(self.TUMBLLER_GOOD_DATA, self.TUMBLLER_SCHEMA)
+
+        # Marketplace QA (what runs after submission)
+        spec = {
+            "task_category": "env_sensing",
+            "capability_requirements": {"delivery_schema": self.TUMBLLER_SCHEMA},
+        }
+        qa_result = check_delivery(self.TUMBLLER_GOOD_DATA, spec, qa_level=1)
+
+        # Both should pass with no issues
+        assert self_issues == []
+        assert qa_result.status == "PASS"
+
+    def test_schema_driven_qa_catches_bad_delivery(self):
+        """Full QA flow with schema catches incomplete delivery."""
+        bad_data = {"readings": [], "summary": ""}  # missing duration_seconds, empty readings + summary
+        spec = {
+            "task_category": "env_sensing",
+            "capability_requirements": {"delivery_schema": self.TUMBLLER_SCHEMA},
+        }
+        result = check_delivery(bad_data, spec, qa_level=1)
+        assert result.status == "FAIL"
+        assert len(result.issues) >= 2  # missing field + empty array + empty string
+
+    def test_no_schema_falls_back_to_legacy(self):
+        """Without delivery_schema, Level 1 uses legacy field checks."""
+        data = {"temperature_c": 22.5, "humidity_pct": 45.0}
+        spec = {
+            "task_category": "env_sensing",
+            "capability_requirements": {
+                "payload": {"format": "json", "fields": ["temperature_c", "humidity_pct"]},
+            },
+        }
+        result = check_delivery(data, spec, qa_level=1)
+        assert result.status == "PASS"
+        assert "required_fields" in result.checks_run  # legacy path
+
+
+class TestSurveySchema:
+    """Test schema validation for construction survey deliverables."""
+
+    SURVEY_SCHEMA = {
+        "required": ["coordinate_system", "files"],
+        "properties": {
+            "coordinate_system": {"type": "string", "minLength": 1},
+            "files": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "required": ["name", "format"],
+                    "properties": {
+                        "name": {"type": "string", "minLength": 1},
+                        "format": {"type": "string", "minLength": 1},
+                    },
+                },
+            },
+        },
+    }
+
+    def test_valid_survey_delivery(self):
+        data = {
+            "coordinate_system": "EPSG:2113",
+            "files": [
+                {"name": "point_cloud.las", "format": "LAS 1.4"},
+                {"name": "ortho.tiff", "format": "GeoTIFF"},
+            ],
+        }
+        issues = validate_delivery_schema(data, self.SURVEY_SCHEMA)
+        assert issues == []
+
+    def test_missing_files(self):
+        data = {"coordinate_system": "EPSG:2113", "files": []}
+        issues = validate_delivery_schema(data, self.SURVEY_SCHEMA)
+        assert any("minimum 1" in i for i in issues)
+
+    def test_file_missing_format(self):
+        data = {
+            "coordinate_system": "EPSG:2113",
+            "files": [{"name": "scan.las"}],  # missing format
+        }
+        issues = validate_delivery_schema(data, self.SURVEY_SCHEMA)
+        assert any("format" in i for i in issues)
