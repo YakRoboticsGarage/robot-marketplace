@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-03"  # R-024 complete; IMP-012/013/014 added; R-027/R-028 spawned
+  last_updated: "2026-04-05"  # R-001 complete; IMP-017/018/019/020 added; R-029/R-030/R-031 spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -32,11 +32,15 @@ topics:
     title: "Multi-state DOT survey manual comparison"
     module: M1_rfp_processor
     hypothesis: "MI, OH, TX, CA DOTs have different accuracy/deliverable standards — a multi-state reference table would improve RFP parsing accuracy for non-MI projects"
-    status: queued
+    status: complete
     priority: high
     estimated_sessions: 2
+    completed_date: "2026-04-05"
     depends_on: []
-    output_file: null
+    output_file: "docs/research/automated/R-001_multi_state_dot_survey_standards.md"
+    improvement_proposals: [IMP-017, IMP-018, IMP-019, IMP-020]
+    spawned: [R-029, R-030, R-031]
+    notes: "Key findings: ODOT requires 40 pts/m² (5× QL1) and .dgn deliverables — material operator filter. TxDOT has dedicated UAS spec + March 2025 manual update. Caltrans Type A/B ≠ USGS QL — mapping needed. All 4 states use different State Plane zones."
 
   - id: R-002
     title: "LLM RFP extraction accuracy benchmarks"
@@ -395,3 +399,38 @@ topics:
     depends_on: []
     spawned_from: "git:ac9be52 (feedback loop commit)"
     spawned_date: "2026-04-02"
+
+  # ===== SPAWNED BY R-001 =====
+
+  - id: R-029
+    title: "ODOT operator capability survey — who can deliver .dgn terrain models?"
+    module: M1_rfp_processor
+    hypothesis: "ODOT requires Bentley OpenRoads Designer .dgn deliverables (~$5,000/seat). Most drone operators use AutoCAD/DXF. Research whether this is a market gap (underserved Ohio DOT work) or a deal-breaker requiring a different operator tier. Check how many Ohio-based survey firms actually hold OpenRoads licenses."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-001]
+    spawned_from: R-001
+    spawned_date: "2026-04-05"
+
+  - id: R-030
+    title: "TxDOT UAS operator pre-approval requirements"
+    module: M1_rfp_processor
+    hypothesis: "TxDOT has a dedicated UAS Flight Operations and User's Manual that operators must comply with. Research whether this requires pre-approval or vetting by TxDOT beyond FAA Part 107, and what insurance/bonding requirements apply to TxDOT-contracted drone survey work."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-001]
+    spawned_from: R-001
+    spawned_date: "2026-04-05"
+
+  - id: R-031
+    title: "State Plane zone auto-detection from project address or coordinates"
+    module: M1_rfp_processor
+    hypothesis: "The RFP processor must assign the correct EPSG code for each project. With 5 TX zones and 6 CA zones, manual mapping is error-prone. Research whether pyproj, the us-pygeojson library, or an open API can reliably convert a project address/county/coordinates to the correct State Plane EPSG code."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-001]
+    spawned_from: R-001
+    spawned_date: "2026-04-05"

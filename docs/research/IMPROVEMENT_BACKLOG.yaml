@@ -263,3 +263,74 @@ proposals:
   proposed_date: '2026-04-03'
   decision_date: null
   decision_notes: null
+- id: IMP-017
+  title: Add state-detection logic to rfp_processor.py for multi-state DOT standards
+  description: 'Extract the issuing DOT/state from the RFP header text (e.g., "Ohio Department of Transportation", "TxDOT",
+    "Caltrans", "ODOT"). Use detected state to load the appropriate state standards reference instead of defaulting to Michigan.
+    Decision tree: MI/MDOT → michigan-standards.md; TX/TxDOT → txdot-standards.md (IMP-018); CA/Caltrans → Caltrans Type A/B
+    mapping (IMP-020); OH/ODOT → ODOT constraints (IMP-019); all others → aashto-federal-standards.md defaults. Prevents incorrect
+    ASPRS class, cross-section interval, and coordinate system defaults for non-Michigan work.
+
+    '
+  module: M1_rfp_processor
+  research_source: R-001
+  evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-018
+  title: Create txdot-standards.md reference file for rfp-to-robot-spec skill
+  description: 'Create .claude/skills/rfp-to-robot-spec/references/txdot-standards.md mirroring michigan-standards.md structure.
+    Cover: TxDOT accuracy levels (ASPRS Class 1 for design-grade), UAS spec (5cm GSD, 20-25 pts/m², Level 3 GCPs), State Plane
+    zones (5 TX zones, EPSG 4201-4205), NAVD88 via GEOID18, CAD format (DGN/DWG per TxDOT CAD Standards), cross-section intervals
+    (25 ft manmade, 50 ft natural), and the TxDOT UAS Flight Operations Manual requirement. Texas is a high-TAM market and has
+    the most current state survey manual (March 2025).
+
+    '
+  module: M1_rfp_processor
+  research_source: R-001
+  evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
+  effort: small
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-019
+  title: Add ODOT-specific operator capability constraints to compliance module
+  description: 'ODOT January 2024 specs require 40 pts/m² minimum point density (5× USGS QL1) and deliverables in Bentley
+    OpenRoads Designer .dgn format. Add compliance flags: (1) odot_density_required=True for Ohio DOT tasks, requiring operator
+    to declare high-density LiDAR capability; (2) dgn_deliverable_required=True, checking operator equipment list for OpenRoads
+    Designer license declaration. Prevents Ohio work from being assigned to operators who cannot fulfill the spec. Most drone
+    operators deliver DXF/DWG — this is a genuine market filter.
+
+    '
+  module: M10_compliance
+  research_source: R-001
+  evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
+  effort: medium
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-020
+  title: Add Caltrans Type A/B accuracy mapping to standards-reference.md and RFP processor
+  description: 'Caltrans uses Type A (Hz ≤ 0.03 ft, Z ≤ 0.02 ft) and Type B (lower-accuracy) terminology instead of USGS
+    Quality Levels. Add to standards-reference.md: Caltrans Type A → ASPRS Class 2.5cm equivalent; Type B → ASPRS Class 10cm–15cm.
+    Update keyword extractor to recognize "Type A survey", "Type A MTLS", "Type B" patterns. Without this mapping, California
+    RFPs produce incorrect task specs and wrong bid pricing.
+
+    '
+  module: M1_rfp_processor
+  research_source: R-001
+  evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
+  effort: small
+  priority: null
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
