@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-05"  # R-001 complete; IMP-017/018/019/020 added; R-029/R-030/R-031 spawned
+  last_updated: "2026-04-05"  # R-031 complete; IMP-021/022/023 added; R-032/R-033 spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -325,7 +325,7 @@ topics:
     title: "Robot operator identity verification — individuals and businesses"
     module: M10_compliance
     hypothesis: "The platform should verify the operator entity (individual or business), not chase individual PLS license numbers. Business registry checks, KYC/KYB services (Middesk, Berbix, Stripe Identity, Persona), and existing compliance data (insurance COI, SAM.gov) may be sufficient to establish operator trust without per-credential verification."
-    status: queued
+    status: in_progress
     priority: critical
     estimated_sessions: 2
     depends_on: []
@@ -449,9 +449,52 @@ topics:
     title: "State Plane zone auto-detection from project address or coordinates"
     module: M1_rfp_processor
     hypothesis: "The RFP processor must assign the correct EPSG code for each project. With 5 TX zones and 6 CA zones, manual mapping is error-prone. Research whether pyproj, the us-pygeojson library, or an open API can reliably convert a project address/county/coordinates to the correct State Plane EPSG code."
-    status: queued
+    status: complete
     priority: high
     estimated_sessions: 1
+    completed_date: "2026-04-05"
     depends_on: [R-001]
     spawned_from: R-001
     spawned_date: "2026-04-05"
+    output_file: "docs/research/automated/R-031_state_plane_zone_autodetect.md"
+    improvement_proposals: [IMP-021, IMP-022, IMP-023]
+    spawned: [R-032, R-033]
+    notes: "Key findings: stateplane.identify(lon,lat) is the right tool (pip, no C++ deps, 50-state). CRITICAL: standards-reference.md has wrong EPSG codes for MI (2111/2112/2113 → 2251/2252/2253) and OH (3401/3402 → 3734/3735). Full pipeline: censusgeocode (address→FIPS) + stateplane (lat/lon→EPSG) + FCC API fallback. rfp_processor.py emits string label not EPSG int — needs fix."
+
+  # ===== SPAWNED BY R-031 =====
+
+  - id: R-032
+    title: "Route-based geocoding for DOT corridor RFPs (SR-89A, I-94, US-131)"
+    module: M1_rfp_processor
+    hypothesis: "Construction RFPs frequently describe project location as a state route segment (e.g., 'SR-89A between Petoskey and Cheboygan') rather than a postal address. Standard address geocoders fail on route descriptions. Research whether TIGER/Line road network APIs, OpenStreetMap Nominatim, or state DOT GIS REST services can resolve route+county to lat/lon reliably enough for State Plane zone assignment."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-031]
+    spawned_from: R-031
+    spawned_date: "2026-04-05"
+
+  - id: R-033
+    title: "GEOID18 vs NAVD88 vertical datum selection for TxDOT and Caltrans projects"
+    module: M1_rfp_processor
+    hypothesis: "TxDOT March 2025 manual specifies GEOID18 for vertical datum via NGS OPUS workflows, differing from our default NAVD88 (EPSG 5703). Research: (1) Is GEOID18 a separate EPSG vertical datum or an adjustment applied within NAVD88? (2) What EPSG code represents GEOID18-realized orthometric heights? (3) Should the rfp_processor select vertical_datum_epsg based on project state and letting date, and if so what is the decision rule?"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-031]
+    spawned_from: R-031
+    spawned_date: "2026-04-05"
+
+  # ===== SPAWNED BY NEW CODE: gasless USDC relay (commits 44ae91f, 2e6bfe9) =====
+
+  - id: R-034
+    title: "ERC-2612 permit relay security: MEV risk, replay attacks, and relay wallet custody"
+    module: M18_x402
+    hypothesis: "The new /api/relay-usdc Cloudflare Worker (commit 44ae91f) submits permit + transferFrom on behalf of the buyer, paying gas from RELAY_PRIVATE_KEY. This design has known risks: (1) permit signature replay on other chains if deadline is not enforced, (2) MEV sandwich attacks on the transferFrom tx, (3) relay wallet as a hot wallet custody risk holding gas funds. Research best practices for permit relay design: deadline validation, nonce checks, fee estimation, and whether a paymaster pattern (ERC-4337) is safer at construction-scale ($10K-$45K) payments."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: []
+    spawned_from: "git:44ae91f (ERC-2612 permit relay)"
+    spawned_date: "2026-04-05"
+    notes: "New code shipped 2026-04-05. Relay wallet 0x4b59...0d9 is funded EOA paying gas for permit+transferFrom. Validate: chain ID binding in permit domain separator, deadline enforced server-side, transferFrom reverts handled, relay wallet replenishment strategy."

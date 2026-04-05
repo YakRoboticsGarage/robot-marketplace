@@ -340,3 +340,56 @@ proposals:
   proposed_date: '2026-04-05'
   decision_date: null
   decision_notes: null
+- id: IMP-021
+  title: Fix incorrect EPSG codes in standards-reference.md (MI and OH zones)
+  description: 'The EPSG table in .claude/skills/rfp-to-robot-spec/references/standards-reference.md
+    contains wrong codes: Michigan (listed 2111/2112/2113, correct 2251/2252/2253) and
+    Ohio (listed 3401/3402, correct 3734/3735). These codes are read by the LLM during
+    RFP parsing and embedded in task specs sent to operators. Replace with correct values.
+    Also expand the table to cover all 5 TX zones (currently only 2 listed) and all 6 CA
+    zones (currently only 1 listed). Add NAD83(2011) EPSG column and key county examples.
+    See R-031 for the verified reference table.'
+  module: M1_rfp_processor
+  research_source: R-031
+  evidence: docs/research/automated/R-031_state_plane_zone_autodetect.md
+  effort: small
+  priority: critical
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-022
+  title: Add stateplane library + _infer_state_plane_epsg() helper to rfp_processor.py
+  description: 'Add pip install stateplane (pyproj wrapper, no C++ deps) to pyproject.toml
+    optional extras. Implement _infer_state_plane_epsg(jurisdiction, site_info) -> int
+    that: (1) if site_info["coordinates"] present, calls stateplane.identify(lon, lat) for
+    correct zone EPSG; (2) falls back to a static jurisdiction->default-zone dict when no
+    coordinates available. In _build_task_spec(), replace "preferred_coordinate_system":
+    "State Plane"/"UTM" string fields with "crs_epsg": <int>. This makes task specs
+    machine-readable for CRS-aware operators and deliverable QA. GPLv3 note: if license
+    is a concern, inline the static county-FIPS table instead.'
+  module: M1_rfp_processor
+  research_source: R-031
+  evidence: docs/research/automated/R-031_state_plane_zone_autodetect.md
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-023
+  title: Complete EPSG zone table for 4-state target markets in standards-reference.md
+  description: 'Expand the EPSG table in standards-reference.md to cover all 16 zones across
+    MI (3), OH (2), TX (5), CA (6) with: correct EPSG ftUS codes, NAD83(2011) EPSG codes,
+    key county examples per zone, and a multi-zone state routing rule. This supersedes
+    IMP-021 (which is just the fix) with a complete table overhaul. See R-031 findings
+    section 2 for the full verified table ready to copy in.'
+  module: M1_rfp_processor
+  research_source: R-031
+  evidence: docs/research/automated/R-031_state_plane_zone_autodetect.md
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
