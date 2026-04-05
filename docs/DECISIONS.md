@@ -106,8 +106,8 @@ Card payments are not made per-task. Buyers purchase credit bundles upfront (e.g
 
 ---
 
-### TC-4 · Crypto Stack: Gasless USDC via ERC-2612 Permit Relay (updated 2026-04-05)
-- **Settlement:** Gasless USDC payment via ERC-2612 permit relay. Buyer signs EIP-712 permit (no gas needed), Worker submits `permit()` + `transferFrom()` on-chain, paying gas from platform relay wallet.
+### TC-4 · Crypto Stack: Commit-on-Hire Gasless USDC (updated 2026-04-05)
+- **Settlement:** Two-phase gasless USDC. (1) Buyer signs ERC-2612 permit on task award — payment committed, no money moves. (2) After delivery + QA validation, buyer clicks Release — Worker submits `permit()` + `transferFrom()` on-chain.
 - **Relay wallet:** `0x4b5974229f96ac5987d6e31065d73d6fd8e130d9` — funded on Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia.
 - **Platform wallet:** `0xe33356d0d16c107eac7da1fc7263350cbdb548e5` — receives 12% commission.
 - **Wallets supported:** Rabby, MetaMask, Coinbase Wallet (any EIP-1193 + EIP-712 wallet).

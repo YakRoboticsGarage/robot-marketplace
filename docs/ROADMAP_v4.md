@@ -159,6 +159,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 ### What's done
 - [x] Browser robot discovery (subgraph + getAgentWallet RPC)
 - [x] Gasless USDC payment (ERC-2612 permit + relay, platform pays gas)
+- [x] Commit-on-hire: buyer signs permit on award, money moves on delivery acceptance
 - [x] Multi-wallet: Rabby, MetaMask, Coinbase Wallet
 - [x] Multi-chain: Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia
 - [x] Relay wallet funded (0x4b59...0d9) on all 4 chains

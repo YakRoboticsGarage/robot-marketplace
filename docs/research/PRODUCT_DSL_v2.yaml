@@ -2864,7 +2864,7 @@ constitutional:
       sources: [{path: docs/DECISIONS.md}]
 
     - id: pol:payment_split
-      rule: "25% on acceptance, 75% on delivery"
+      rule: "100% on delivery (commit-on-hire: permit signed on award, executed on delivery acceptance)"
       adjustable_by: platform_admin
       canonical_location: architecture.settlement.payment_split
       decisions: [decision:PD-4]

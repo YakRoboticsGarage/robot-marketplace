@@ -130,8 +130,8 @@ Buyer --> [M14: Wallet Ledger] --> [M15: Stripe Service]
 | M17 | **On-Chain Escrow** | Planned (v1.1 Phase 3) | `contracts/RobotTaskEscrow.sol` (not yet created) | Base USDC escrow: hold on acceptance, release on delivery, refund on timeout. Commitment hash memos (FD-4). |
 | M18 | **x402 Middleware** | Deferred | — | Reserved for agent-to-robot control sessions (Tumbller). NOT used for marketplace settlement (critique found wrong abstraction). |
 | M37 | **Splits Distribution** | Deferred | — | Splits.org for production-scale multi-operator distribution. Not needed for demo (direct USDC transfer to robot wallet is simpler). |
-| M38 | **Browser Wallet Connect** | Built | `docs/mcp_demo_2/` | Gasless USDC via ERC-2612 permit + relay. Supports Rabby, MetaMask, Coinbase Wallet. Base + Ethereum mainnet. |
-| M39 | **Permit Relay** | Built | `chatbot/src/index.js` (`/api/relay-usdc`) | Worker-side permit submission + transferFrom. Platform pays gas from funded relay wallet (`0x4b59...0d9`). |
+| M38 | **Browser Wallet Connect** | Built | `docs/mcp_demo_2/` | Commit-on-hire gasless USDC. Buyer signs permit on award (no money moves), payment executes on delivery acceptance. Rabby, MetaMask, Coinbase Wallet. Base + Ethereum mainnet. |
+| M39 | **Permit Relay** | Built | `chatbot/src/index.js` (`/api/commit-payment`, `/api/execute-payment`) | Two-phase: stores signed permit in KV on commit, submits on-chain on execute. Balance checks, expiry handling, double-execution prevention. Relay wallet `0x4b59...0d9`. |
 
 ---
 
