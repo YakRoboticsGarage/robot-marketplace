@@ -120,10 +120,13 @@ Browser (yakrobot.bid/mcp-demo-2)
 | 3 | Revenue split | Stripe `application_fee_amount` for fiat. Direct transfer for crypto demo (Splits.org for production scale). | 2026-04-02 |
 | 4 | Robot identity | Read from ERC-8004 on-chain. `fleet_provider: yakrover` filter. | 2026-04-02 |
 | 5 | Robot wallet | Read via `getAgentWallet()` on-chain RPC. No separate registry. | 2026-04-02 |
-| 6 | Delivery verification | IPFS upload + CID. Not built yet — placeholder UI in demo. | 2026-04-02 |
+| 6 | Delivery verification | IPFS upload + CID + schema-driven QA. Built. | 2026-04-02 |
 | 7 | x402 | Not used for marketplace settlement. Reserved for agent-to-robot control. | 2026-04-02 |
-| 8 | Discovery method | Direct subgraph + RPC from browser. No server dependency. | 2026-04-02 |
+| 8 | Discovery method | Direct subgraph + RPC fallback from browser. No server dependency. | 2026-04-02 |
 | 9 | Fiat-to-USDC bridge | Research topic R-024. Not built — keep rails separate. | 2026-04-02 |
+| 10 | Delivery QA | Schema-driven: task spec includes `delivery_schema`, robot self-checks, QA validates same schema. No surprises. | 2026-04-05 |
+| 11 | Payment timing | Commit-on-hire: permit signed on award, executed on delivery acceptance. No upfront charge. | 2026-04-05 |
+| 12 | 25/75 split | Removed. Full payment on delivery only. Escrow deferred to high-value tasks. | 2026-04-05 |
 
 ---
 

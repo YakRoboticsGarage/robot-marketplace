@@ -165,7 +165,8 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [x] Relay wallet funded (0x4b59...0d9) on all 4 chains
 - [x] Stripe Checkout endpoint with 12% application_fee
 - [x] IPFS delivery upload (Pinata via worker)
-- [x] 4-level deliverable QA (buyer-configurable: none → basic → standards → PLS)
+- [x] Schema-driven delivery QA: task spec includes delivery_schema, robot self-checks, QA validates same schema
+- [x] 4-level QA (buyer-configurable: none → basic/schema → standards → PLS)
 - [x] Feedback loop (demo → GitHub issues → research agent)
 - [x] Worker deployed with GITHUB_TOKEN + RELAY_PRIVATE_KEY
 - [x] Robot operator onboarding guide published

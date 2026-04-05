@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-05 | **Modules:** 39 | **Built:** 29 | **Building:** 2 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
+**Updated:** 2026-04-05 | **Modules:** 39 | **Built:** 30 | **Building:** 1 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
 
 ---
 
@@ -87,7 +87,7 @@ Delivered Data --> [M35: Deliverable QA] --> [M36: PLS Review & Stamp]
 
 | # | Module | Status | Key Files | Description |
 |---|--------|--------|-----------|-------------|
-| M35 | **Deliverable QA** | Built | `auction/deliverable_qa.py` | 4-level buyer-configurable QA: Level 0 (none), Level 1 (basic: data exists, fields, plausibility), Level 2 (standards: CRS, ASPRS accuracy, USGS density), Level 3 (PLS stamp required). Wired into engine.confirm_delivery(). 26 tests. |
+| M35 | **Deliverable QA** | Built | `auction/deliverable_qa.py` | Schema-driven validation: task spec includes `delivery_schema`, robot self-checks before submitting, QA validates same schema. 4 levels (none → schema → standards → PLS). Generic validator supports required, type, ranges, array counts, nested objects. No task-type-specific code. 40 tests. |
 | M36 | **PLS Review & Stamp** | Gap | — | PLS-as-a-service routing: task completion triggers routing to available PLS in jurisdiction. PLS reviews via dashboard, applies electronic seal (DocuSign API). Two modes: operator-has-PLS (self-stamp) and marketplace-routes-PLS (external review). |
 
 **PLS lifecycle (current vs needed):**

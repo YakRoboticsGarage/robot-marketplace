@@ -33,18 +33,24 @@ Every bid is signed with the robot's ERC-8004 signer key. The `bid_hash` field i
 
 ---
 
-### PD-4 · Payment Split: 25% Reservation + 75% On Delivery
-- **25%** is charged on bid acceptance. Non-refundable. Compensates operator for committing capacity.
-- **75%** is charged on confirmed delivery. Retained by buyer if delivery is rejected.
+### PD-4 · Payment: Full Amount on Delivery (updated 2026-04-05)
+- **No upfront reservation.** Full payment on delivery confirmation only.
+- **Commit-on-hire:** Buyer signs ERC-2612 permit on award (commits to pay, no money moves). Money moves when buyer accepts delivery.
+- **Escrow:** Deferred to later version for high-value tasks (>$10K). See roadmap.
 
-**Implementation note:** This split is **internal ledger accounting only** — not a Stripe capture mechanic. See TC-2.
+**Why:** Simplified from the original 25%/75% split. Permit-based commitment gives the operator confidence without moving money upfront.
 
 ---
 
-### PD-5 · Delivery Verification: Agent Self-Verifies
-The buying Agent verifies the payload against its own task spec. No third-party oracle in v1.
+### PD-5 · Delivery QA: Schema-Driven, No Surprises (updated 2026-04-05)
+The task spec includes a `delivery_schema` that serves three purposes:
+1. **Robot reads it** before starting work — knows exactly what to return
+2. **Robot self-validates** before submitting — same validation function as the marketplace
+3. **QA engine validates** delivery against it — same schema, same rules
 
-**Why:** Sufficient for a high-trust seed network. Oracles add complexity and latency.
+The schema supports: `required`, `type`, `minimum`/`maximum`, `minItems`/`maxItems`, `minLength`, nested `properties` and `items`. No task-type-specific code in the QA engine.
+
+**Why:** The robot should never be surprised by a QA check. Same contract for both sides. Adding new task types means adding schema templates, not changing QA code.
 
 ---
 
