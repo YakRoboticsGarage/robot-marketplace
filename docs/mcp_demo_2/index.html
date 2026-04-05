@@ -534,7 +534,7 @@
   <!-- Step 1: Robot Discovery -->
   <div class="form-section" id="discoverySection">
     <label style="display:flex;justify-content:space-between;align-items:center">
-      Step 1 — Discover Robots on Base
+      Step 1 — Discover Robots
       <button onclick="discoverRobots()" style="background:var(--navy-mid);color:var(--slate-light);border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0">Refresh</button>
     </label>
     <div id="discoveryStatus" style="font-size:13px;color:var(--slate-light);padding:8px 0">
@@ -663,30 +663,39 @@ async function discoverRobots() {
   var status = document.getElementById('discoveryStatus');
   var cards = document.getElementById('robotCards');
 
-  status.textContent = 'Querying ERC-8004 registry for YAK fleet robots...';
+  status.textContent = 'Searching for available robots...';
   status.style.color = 'var(--slate-light)';
   cards.innerHTML = '';
   discoveredRobots = [];
 
   var allRobots = [];
 
-  // Primary: subgraph query
-  for (var i = 0; i < DISCOVERY_CHAINS.length; i++) {
-    var chainId = DISCOVERY_CHAINS[i];
+  // Primary: subgraph queries (run ALL in parallel with 5s timeout each)
+  var subgraphPromises = DISCOVERY_CHAINS.map(function(chainId) {
     var url = SUBGRAPH_URLS[chainId];
-    if (!url) continue;
+    if (!url) return Promise.resolve([]);
+    return querySubgraph(url, chainId).catch(function(e) {
+      console.warn('Subgraph failed for chain ' + chainId + ':', e.message);
+      return [];
+    });
+  });
 
-    try {
-      var robots = await querySubgraph(url, chainId);
-      allRobots = allRobots.concat(robots);
-    } catch (e) {
-      console.warn('Subgraph query failed for chain ' + chainId + ':', e.message);
+  // Race: all subgraph queries vs 5-second overall timeout
+  try {
+    var results = await Promise.race([
+      Promise.all(subgraphPromises),
+      new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')); }, 5000); }),
+    ]);
+    for (var i = 0; i < results.length; i++) {
+      allRobots = allRobots.concat(results[i]);
     }
+  } catch (e) {
+    console.warn('Subgraph discovery timed out, using fallback');
   }
 
   // Fallback: if subgraph returned nothing, check known robots via direct RPC
   if (allRobots.length === 0) {
-    status.textContent = 'Subgraph unavailable — checking known robots via RPC...';
+    status.textContent = 'Verifying robots on-chain...';
     for (var k = 0; k < KNOWN_ROBOTS.length; k++) {
       var known = KNOWN_ROBOTS[k];
       try {
@@ -713,9 +722,6 @@ async function discoverRobots() {
       } catch (e) {
         console.warn('RPC fallback failed for agent ' + known.agent_id + ':', e.message);
       }
-    }
-    if (allRobots.length > 0) {
-      status.textContent = 'Found via RPC fallback (subgraph down)';
     }
   }
 
@@ -817,9 +823,7 @@ function renderDiscoveredRobots(robots) {
   robots.forEach(function(r) {
     chainCounts[r.chain_name] = (chainCounts[r.chain_name] || 0) + 1;
   });
-  var chainSummary = Object.entries(chainCounts).map(function(e) { return e[1] + ' on ' + e[0]; }).join(', ');
-
-  status.innerHTML = '<span style="color:var(--green)">' + robots.length + ' agent' + (robots.length > 1 ? 's' : '') + ' found</span> <span style="color:var(--slate);font-size:12px">(' + chainSummary + ')</span>';
+  status.innerHTML = '<span style="color:var(--green)">' + robots.length + ' robot' + (robots.length > 1 ? 's' : '') + ' available</span>';
 
   robots.forEach(function(robot) {
     var hasPayment = robot.payment && (robot.payment.stripe_connect_id || robot.payment.usdc_wallet);
@@ -864,35 +868,23 @@ function renderDiscoveredRobots(robots) {
   if (!paymentReady) {
     var notice = document.createElement('div');
     notice.style.cssText = 'font-size:11px;color:#fcd34d;margin-top:8px;padding:8px;background:#78350f22;border-radius:4px';
-    notice.textContent = 'Agents found but none have payment wallet addresses. Auction will run but payment settlement requires operators to register a Stripe Connect account or USDC wallet in their agent card.';
+    notice.textContent = 'Robots found but none have payment wallets configured. Auction will run but payment requires operators to set up a wallet.';
     cards.appendChild(notice);
   }
 }
 
 function showNoRobots() {
   var status = document.getElementById('discoveryStatus');
-  status.innerHTML = '<span style="color:var(--slate)">0 YAK fleet robots found</span>';
+  status.innerHTML = '<span style="color:var(--slate)">No robots found</span>';
   var cards = document.getElementById('robotCards');
-
-  // Check if any were found on Sepolia (testnet) for context
-  var sepoliaNote = '';
-  if (discoveredRobots.length > 0) {
-    var sepoliaCount = discoveredRobots.filter(function(r) { return r.chain_id === 11155111; }).length;
-    var baseCount = discoveredRobots.filter(function(r) { return r.chain_id === 8453; }).length;
-    if (sepoliaCount > 0 && baseCount === 0) {
-      sepoliaNote = '<p style="margin-top:8px;color:#fcd34d">' + sepoliaCount + ' robot' + (sepoliaCount > 1 ? 's' : '') + ' found on Sepolia (testnet) — waiting for Base mainnet registration.</p>';
-    }
-  }
 
   cards.innerHTML =
     '<div class="discovery-empty">' +
-      '<h4>No YAK fleet robots on Base mainnet</h4>' +
-      '<p>The marketplace discovers robots via <a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank">ERC-8004</a> on-chain identity. ' +
-      'Searching for agents with <code style="font-size:11px;background:var(--navy-mid);padding:1px 4px;border-radius:2px">fleet_provider: yakrover</code> on Base.</p>' +
-      sepoliaNote +
-      '<p style="margin-top:8px">The demo auction will use <strong>simulated operators</strong> (7 Michigan construction fleet) until robots register on Base. ' +
-      'To register, see <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank">yakrover-8004-mcp</a>.</p>' +
-      '<p style="margin-top:8px;font-size:11px;color:var(--slate)">Live payment requires at least one robot with a Stripe Connect account or USDC wallet in its agent card.</p>' +
+      '<h4>No robots currently registered</h4>' +
+      '<p>The marketplace discovers real robots registered on-chain via <a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank">ERC-8004</a> identity.</p>' +
+      '<p style="margin-top:8px">The demo auction will use <strong>simulated operators</strong> (7 Michigan construction fleet). ' +
+      'Robot operators can register at <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank">yakrover-8004-mcp</a>.</p>' +
+      '<p style="margin-top:8px;font-size:11px;color:var(--slate)">Live payment requires at least one registered robot with a wallet address.</p>' +
     '</div>';
 }
 
