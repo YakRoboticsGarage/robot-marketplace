@@ -623,6 +623,7 @@ var auctionComplete = false;
 var IDENTITY_REGISTRY = '0x8004A818BFB912233c491871b3d84c89A494BD9e';
 var GET_AGENT_WALLET_SELECTOR = '0x00339509'; // keccak256("getAgentWallet(uint256)")[:4]
 var PLATFORM_WALLET = '0xe33356d0d16c107eac7da1fc7263350cbdb548e5'; // YAK platform USDC receiving address
+var RELAY_WALLET = '0x4b5974229f96ac5987d6e31065d73d6fd8e130d9'; // Gasless relay (pays gas, spender in permit)
 var PLATFORM_COMMISSION = 0.12; // 12%
 var RPC_URLS = {
   8453:     'https://mainnet.base.org',
@@ -1441,10 +1442,8 @@ async function payWithUSDC(operatorWallet) {
       ],
     };
 
-    // Spender = relay worker address. We need to know this ahead of time.
-    // The relay endpoint will reject if the spender doesn't match its own address.
-    // For now, fetch the relay address from the worker.
-    var spender = PLATFORM_WALLET; // Fallback — will be overridden by relay
+    // Spender = relay wallet (the EOA that submits the on-chain transaction)
+    var spender = RELAY_WALLET;
 
     var permitValue = {
       owner: buyerAddr,

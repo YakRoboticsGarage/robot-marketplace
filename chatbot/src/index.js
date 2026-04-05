@@ -1372,6 +1372,14 @@ async function handleRelayUsdc(request, env, cors) {
 
     const usdc = new ethers.Contract(usdcAddr, USDC_ABI, relayWallet);
 
+    // Validate permit spender matches our relay wallet
+    if (owner.toLowerCase() === relayWallet.address.toLowerCase()) {
+      return new Response(
+        JSON.stringify({ error: "Owner cannot be the relay wallet" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
     // Step 1: Submit permit (buyer authorizes relay to spend their USDC)
     const permitTx = await usdc.permit(owner, relayWallet.address, totalBig, deadline, v, r, s);
     const permitReceipt = await permitTx.wait();
