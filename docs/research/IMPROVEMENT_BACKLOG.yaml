@@ -14,11 +14,13 @@ proposals:
   research_source: R-006
   evidence: docs/research/automated/R-006_pls_board_apis.md
   effort: medium
-  priority: null
-  status: proposed
+  priority: low
+  status: deferred
   proposed_date: '2026-04-01'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-05'
+  decision_notes: Deferred to v2.0+. PLS individual license verification is the wrong problem — should verify the operator
+    as a business/individual instead. PLS stamp is the operator responsibility, covered by their E&O insurance. Platform verifies
+    the entity, not the specific credential. See R-027.
 - id: IMP-002
   title: Free-tier Colorado PLS verification via Socrata open-data API
   description: 'For Colorado-licensed operators, query the free Colorado Information Marketplace Socrata API (data.colorado.gov
@@ -30,11 +32,13 @@ proposals:
   research_source: R-006
   evidence: docs/research/automated/R-006_pls_board_apis.md
   effort: small
-  priority: null
-  status: proposed
+  priority: low
+  status: deferred
   proposed_date: '2026-04-01'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-05'
+  decision_notes: Deferred to v2.0+. PLS individual license verification is the wrong problem — should verify the operator
+    as a business/individual instead. PLS stamp is the operator responsibility, covered by their E&O insurance. Platform verifies
+    the entity, not the specific credential. See R-027.
 - id: IMP-003
   title: State-tiered PLS verification routing table in compliance module
   description: 'Build a state routing table that directs PLS verification to the appropriate tier: Tier 1 (free API — CO,
@@ -46,11 +50,13 @@ proposals:
   research_source: R-006
   evidence: docs/research/automated/R-006_pls_board_apis.md
   effort: medium
-  priority: null
-  status: proposed
+  priority: low
+  status: deferred
   proposed_date: '2026-04-01'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-05'
+  decision_notes: Deferred to v2.0+. PLS individual license verification is the wrong problem — should verify the operator
+    as a business/individual instead. PLS stamp is the operator responsibility, covered by their E&O insurance. Platform verifies
+    the entity, not the specific credential. See R-027.
 - id: IMP-004
   title: Deliverable QA system — 4-level buyer-configurable quality checks
   description: 'Implemented as auction/deliverable_qa.py with 4 levels: Level 0 (none, buyer trusts vendor), Level 1 (basic:

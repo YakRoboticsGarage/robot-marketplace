@@ -319,6 +319,27 @@ topics:
     output_file: "docs/research/automated/R-024_fiat_to_usdc_checkout_services.md"
     notes: "Answered by R-024. Stripe Connect USDC payouts are live for US platforms. Sole proprietors and individuals only (not LLCs). Operator links crypto wallet in Express Dashboard. USDC on Base and Polygon. Flat 1.5% fee. See Section 1 of R-024 output."
 
+  # ===== OPERATOR IDENTITY & VERIFICATION =====
+
+  - id: R-027
+    title: "Robot operator identity verification — individuals and businesses"
+    module: M10_compliance
+    hypothesis: "The platform should verify the operator entity (individual or business), not chase individual PLS license numbers. Business registry checks, KYC/KYB services (Middesk, Berbix, Stripe Identity, Persona), and existing compliance data (insurance COI, SAM.gov) may be sufficient to establish operator trust without per-credential verification."
+    status: queued
+    priority: critical
+    estimated_sessions: 2
+    depends_on: []
+    notes: "Key questions: (1) What does a GC actually need to trust an operator? Business registration? Insurance? References? (2) What KYB/KYC services exist for marketplace operator verification? Cost, coverage, API? (3) How do other construction marketplaces (Procore, BuildOps) verify contractors? (4) Can Stripe Connect Express onboarding (which already does KYC) serve as sufficient operator verification? (5) What's the minimum viable trust for the demo ($0.50) vs production ($45K)? (6) Should verification level scale with task value?"
+
+  - id: R-028
+    title: "Stripe Identity and Connect KYC as operator verification"
+    module: M10_compliance
+    hypothesis: "Stripe Connect Express already performs KYC/KYB during onboarding — identity verification, business registration check, sanctions screening. If an operator has a verified Connect account, that may be sufficient platform trust for most task values."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-027]
+
   # ===== COMPETITIVE / ADJACENT PRODUCTS =====
 
   - id: R-026
