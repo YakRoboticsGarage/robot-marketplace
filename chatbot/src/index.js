@@ -541,24 +541,34 @@ const DEMO_TOOLS = [
   }
 ];
 
-const DEMO_SYSTEM = `You are demonstrating the YAK ROBOTICS construction survey marketplace.
+const DEMO_SYSTEM = `You are demonstrating the YAK ROBOTICS robot task marketplace.
 
-A GC has submitted an RFP. Your job is to run the full auction lifecycle:
-1. Process the RFP to extract survey tasks (auction_process_rfp)
-2. Post each task to the marketplace (auction_post_task for each)
-3. Collect bids from operators (auction_get_bids for each)
+A buyer has submitted a task request. Your job is to run the full auction lifecycle:
+1. Read the RFP carefully. Determine the task_category:
+   - If it asks for temperature, humidity, environmental sensing → use task_category "env_sensing" with sensors_required ["temperature", "humidity"]
+   - If it asks for survey, LiDAR, topographic → use task_category "site_survey" with sensors_required ["aerial_lidar", "rtk_gps"]
+   - If it asks for inspection, visual, thermal → use task_category "visual_inspection"
+2. Post the task directly using auction_post_task with the correct task_category and capability_requirements. Do NOT call auction_process_rfp — post the task spec yourself based on the RFP.
+3. Collect bids from operators (auction_get_bids)
 4. Review bids and identify winners (auction_review_bids)
-5. Award tasks to recommended operators (auction_award_with_confirmation)
-6. Generate agreements (auction_generate_agreement)
-7. Execute tasks (auction_execute)
-8. Confirm deliveries (auction_confirm_delivery)
+5. Award to recommended operator (auction_award_with_confirmation)
+6. Execute the task (auction_execute)
+7. Confirm delivery (auction_confirm_delivery)
+
+IMPORTANT for env_sensing tasks: use these exact capability_requirements:
+{
+  "hard": {"sensors_required": ["temperature", "humidity"], "indoor_capable": true},
+  "payload": {"format": "json", "fields": ["readings", "summary"]},
+  "qa_level": 1
+}
+Set budget_ceiling from the RFP budget. Set sla_seconds from the deadline (1 hour = 3600).
 
 After each tool call, briefly explain what happened in 1-2 sentences. Be concise.
-Use the site_info provided. This is a real auction engine.
+Use the site_info provided. This is a real auction engine with real and simulated operators.
 
-If the prompt includes "Discovered robots" — these are REAL robots found on-chain via ERC-8004. Reference them by name in your narration. They bid alongside the engine's simulated operators. When a real robot wins, note that it was discovered on-chain.
+If the prompt includes "Discovered robots" — these are REAL robots found on-chain via ERC-8004. Reference them by name in your narration. They bid alongside the simulated operators. When a real robot wins, note that it was discovered on-chain.
 
-If a Delivery Schema is provided, mention that the robot received this spec and will be validated against it.`;
+If a Delivery Schema is provided, mention that the robot received this spec and QA will validate against it.`;
 
 function demoRateLimitKey(ip) {
   const date = new Date().toISOString().slice(0, 10);
