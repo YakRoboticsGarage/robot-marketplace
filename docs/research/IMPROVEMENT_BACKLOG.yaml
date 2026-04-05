@@ -1,6 +1,6 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-03'
+  last_updated: '2026-04-05'
   source: Automated daily research agent + weekly synthesis
 proposals:
 - id: IMP-001
@@ -389,6 +389,62 @@ proposals:
   evidence: docs/research/automated/R-031_state_plane_zone_autodetect.md
   effort: small
   priority: high
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-024
+  title: Remove duplicate _load_reference definition in rfp_processor.py
+  description: 'auction/rfp_processor.py defines _load_reference(name: str) -> str twice:
+    at line 26 (module-level, used by the regex/keyword path) and again at line 424
+    (marked # type: ignore[no-redef], used by the LLM path). Both implementations are
+    byte-for-byte identical. The line-424 redefinition is dead code — it shadows the
+    first definition but adds no new behavior. Remove lines 424-429 (the second def block).
+    The first definition at line 26 already has module scope and is accessible to
+    _process_rfp_with_llm. The type: ignore suppressor confirms this was noticed but
+    left unfixed. No behavior change.'
+  module: M1_rfp_processor
+  research_source: code-review
+  evidence: auction/rfp_processor.py:26 and :424 — identical _load_reference definitions
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-025
+  title: Add BASE_SEPOLIA_RPC_URL to .env.example
+  description: 'CLAUDE.md documents BASE_SEPOLIA_RPC_URL as a required environment
+    variable for blockchain integration tests, but it is absent from .env.example.
+    Developers setting up the environment for on-chain tests (uv run pytest -m blockchain)
+    have no reference for this variable. Add a commented entry to .env.example alongside
+    the existing RPC_URL entry: BASE_SEPOLIA_RPC_URL=https://sepolia.base.org with a
+    note that it is required for the blockchain pytest marker. Also note the free public
+    endpoint from base.org vs paid options (Alchemy, Infura) for higher rate limits.'
+  module: system
+  research_source: code-review
+  evidence: CLAUDE.md env vars section vs .env.example — BASE_SEPOLIA_RPC_URL missing from example
+  effort: small
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-05'
+  decision_date: null
+  decision_notes: null
+- id: IMP-026
+  title: Use timing-safe comparison for admin key check in Cloudflare Worker
+  description: 'chatbot/src/index.js line 607 compares the admin bypass key using plain
+    string equality: adminKey === env.ADMIN_KEY. This is technically vulnerable to timing
+    attacks. The admin key only bypasses demo rate limiting (not payments or data access),
+    so exploitability is very low. However, the fix is one line: replace with
+    crypto.subtle.timingSafeEqual() using TextEncoder. Workers runtime supports SubtleCrypto.
+    Pattern: const a = new TextEncoder().encode(adminKey); const b = new TextEncoder().encode(env.ADMIN_KEY);
+    crypto.subtle.timingSafeEqual(a, b) — wrap in try/catch for length mismatch.
+    Low priority but a clean habit for any secret comparison.'
+  module: M39_permit_relay
+  research_source: code-review
+  evidence: chatbot/src/index.js:607 — plain string equality on secret comparison
+  effort: small
+  priority: low
   status: proposed
   proposed_date: '2026-04-05'
   decision_date: null

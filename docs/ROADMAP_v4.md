@@ -3,7 +3,7 @@
 **Project:** yakrover-auction-explorer
 **Owner:** Product
 **Last updated:** 2026-03-28 (rev 4.1, payment bonds + award confirmation + legal framework)
-**Status:** v1.0 built (264 tests, 35 MCP tools). v1.5 next. This roadmap is built around construction site surveying as the wedge market.
+**Status:** v1.0 built (278 tests, 35 MCP tools). v1.5 next. This roadmap is built around construction site surveying as the wedge market.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -92,7 +92,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - 35 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation
 - Structured error responses, `available_actions`, `next_action` patterns (per AD-13, AD-14, AD-15)
 - Standards-aligned task specs: ASPRS accuracy classes, USGS quality levels, EPSG CRS codes, structured deliverables
-- 264 passing tests, ~15,978 LOC
+- 278 passing tests, ~16,500 LOC
 - Live demo at yakrobot.bid, yakrobot.bid/mcp-demo (Claude tool_use), yakrobot.bid/yaml (ontology explorer)
 - Chatbot worker on Cloudflare, MCP server with Cloudflare Tunnel
 
@@ -170,7 +170,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [x] Feedback loop (demo → GitHub issues → research agent)
 - [x] Worker deployed with GITHUB_TOKEN + RELAY_PRIVATE_KEY
 - [x] Robot operator onboarding guide published
-- [x] CI fully green (lint, mypy 0 errors, 264 tests)
+- [x] CI fully green (lint, mypy 0 errors, 278 tests)
 - [x] Repo renamed to yakrover-marketplace
 
 ### What's blocking v1.1 completion
