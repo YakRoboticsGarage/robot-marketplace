@@ -619,6 +619,29 @@ const WORKER_BASE = 'https://yakrobot-chat.rafaeldf2.workers.dev';
 var discoveredRobots = [];
 var auctionComplete = false;
 
+// Delivery schema — robot sees this when bidding, QA validates against it
+var DELIVERY_SCHEMA = {
+  description: '3 waypoint readings with temperature and humidity',
+  required: ['readings', 'summary', 'duration_seconds'],
+  properties: {
+    readings: {
+      type: 'array',
+      minItems: 3,
+      items: {
+        required: ['waypoint', 'temperature_c', 'humidity_pct', 'timestamp'],
+        properties: {
+          temperature_c: { type: 'number', minimum: -40, maximum: 85 },
+          humidity_pct: { type: 'number', minimum: 0, maximum: 100 },
+          waypoint: { type: 'integer', minimum: 1 },
+          timestamp: { type: 'string' },
+        },
+      },
+    },
+    summary: { type: 'string', minLength: 1 },
+    duration_seconds: { type: 'number', minimum: 0 },
+  },
+};
+
 // ERC-8004 contract addresses & RPC
 var IDENTITY_REGISTRY = '0x8004A818BFB912233c491871b3d84c89A494BD9e';
 var GET_AGENT_WALLET_SELECTOR = '0x00339509'; // keccak256("getAgentWallet(uint256)")[:4]
@@ -1118,6 +1141,70 @@ function showSummary(text) {
   setTimeout(function() { showDeliveryCard(container); }, 800);
 }
 
+// Client-side schema validator — same logic as server-side validate_delivery_schema()
+// Robot can use this to self-check before submitting
+function validateSchema(data, schema, path) {
+  path = path || '';
+  var issues = [];
+  if (!schema || typeof schema !== 'object') return issues;
+  var prefix = path ? path + ': ' : '';
+
+  // Type check
+  var typeMap = { object: 'object', array: 'array', string: 'string', number: 'number', integer: 'number', boolean: 'boolean' };
+  if (schema.type && typeMap[schema.type]) {
+    var ok = false;
+    if (schema.type === 'array') ok = Array.isArray(data);
+    else if (schema.type === 'integer') ok = typeof data === 'number' && Number.isInteger(data);
+    else ok = typeof data === typeMap[schema.type] && !Array.isArray(data);
+    if (!ok) {
+      issues.push(prefix + 'Expected ' + schema.type + ', got ' + typeof data);
+      return issues;
+    }
+  }
+
+  // Required fields
+  if (typeof data === 'object' && !Array.isArray(data) && schema.required) {
+    schema.required.forEach(function(f) {
+      if (!(f in data)) issues.push(prefix + 'Missing required field: ' + f);
+    });
+  }
+
+  // Properties (recurse)
+  if (typeof data === 'object' && !Array.isArray(data) && schema.properties) {
+    Object.keys(schema.properties).forEach(function(k) {
+      if (k in data) {
+        var childPath = path ? path + '.' + k : k;
+        issues = issues.concat(validateSchema(data[k], schema.properties[k], childPath));
+      }
+    });
+  }
+
+  // Numeric ranges
+  if (typeof data === 'number') {
+    if (schema.minimum !== undefined && data < schema.minimum) issues.push(prefix + data + ' below minimum ' + schema.minimum);
+    if (schema.maximum !== undefined && data > schema.maximum) issues.push(prefix + data + ' above maximum ' + schema.maximum);
+  }
+
+  // String length
+  if (typeof data === 'string' && schema.minLength !== undefined && data.length < schema.minLength) {
+    issues.push(prefix + 'String too short (length ' + data.length + ', minimum ' + schema.minLength + ')');
+  }
+
+  // Array checks
+  if (Array.isArray(data)) {
+    if (schema.minItems !== undefined && data.length < schema.minItems) issues.push(prefix + 'Array has ' + data.length + ' items, minimum ' + schema.minItems);
+    if (schema.maxItems !== undefined && data.length > schema.maxItems) issues.push(prefix + 'Array has ' + data.length + ' items, maximum ' + schema.maxItems);
+    if (schema.items) {
+      data.forEach(function(item, i) {
+        var childPath = path ? path + '[' + i + ']' : '[' + i + ']';
+        issues = issues.concat(validateSchema(item, schema.items, childPath));
+      });
+    }
+  }
+
+  return issues;
+}
+
 async function showDeliveryCard(container) {
   var card = document.createElement('div');
   card.className = 'delivery-card';
@@ -1138,13 +1225,13 @@ async function showDeliveryCard(container) {
         robot_id: discoveredRobots.length > 0 ? discoveredRobots[0].agent_id : 'mock',
         robot_name: discoveredRobots.length > 0 ? discoveredRobots[0].name : 'Simulated Operator',
         delivery_data: {
-          task: 'Environmental monitoring — server room climate assessment',
           readings: [
             { waypoint: 1, temperature_c: 22.4, humidity_pct: 45.2, timestamp: new Date().toISOString() },
             { waypoint: 2, temperature_c: 23.1, humidity_pct: 43.8, timestamp: new Date().toISOString() },
             { waypoint: 3, temperature_c: 21.9, humidity_pct: 46.5, timestamp: new Date().toISOString() },
           ],
           summary: 'All readings within spec. Temperature range: 21.9-23.1°C. Humidity range: 43.8-46.5% RH.',
+          duration_seconds: 245,
         },
       }),
     });
@@ -1157,6 +1244,32 @@ async function showDeliveryCard(container) {
       }
     }
   } catch (e) { console.warn('IPFS upload failed:', e.message); }
+
+  // Run schema validation on the delivery data
+  var sampleDelivery = {
+    readings: [
+      { waypoint: 1, temperature_c: 22.4, humidity_pct: 45.2, timestamp: new Date().toISOString() },
+      { waypoint: 2, temperature_c: 23.1, humidity_pct: 43.8, timestamp: new Date().toISOString() },
+      { waypoint: 3, temperature_c: 21.9, humidity_pct: 46.5, timestamp: new Date().toISOString() },
+    ],
+    summary: 'All readings within spec. Temperature range: 21.9-23.1°C. Humidity range: 43.8-46.5% RH.',
+    duration_seconds: 245,
+  };
+  var schemaIssues = validateSchema(sampleDelivery, DELIVERY_SCHEMA);
+  var schemaStatus = schemaIssues.length === 0 ? 'PASS' : 'FAIL';
+  var schemaChecks = (DELIVERY_SCHEMA.required || []).length;
+
+  var schemaResultHtml =
+    '<div style="margin:12px 0;padding:10px;background:var(--navy);border-radius:4px;border-left:3px solid ' + (schemaStatus === 'PASS' ? 'var(--green)' : '#ef4444') + '">' +
+      '<div style="font-size:12px;font-weight:600;color:' + (schemaStatus === 'PASS' ? 'var(--green)' : '#ef4444') + ';margin-bottom:4px">Schema Validation: ' + schemaStatus + '</div>' +
+      '<div style="font-size:11px;color:var(--slate-light)">' +
+        'Checked against task delivery spec: ' + schemaChecks + ' required fields, ' +
+        (DELIVERY_SCHEMA.properties.readings.minItems || '?') + ' readings required, ' +
+        'sensor ranges validated.' +
+      '</div>' +
+      (schemaIssues.length > 0 ? '<div style="font-size:11px;color:#fca5a5;margin-top:4px">' + schemaIssues.join('<br>') + '</div>' : '') +
+      '<div style="font-size:10px;color:var(--slate);margin-top:6px">The robot received this same spec before starting work — no surprises.</div>' +
+    '</div>';
 
   // QA level selector (buyer override)
   var qaSelector =
@@ -1193,6 +1306,7 @@ async function showDeliveryCard(container) {
         '<a href="' + (ipfsUrl || 'https://ipfs.io/ipfs/' + ipfsCid) + '" target="_blank" style="color:var(--orange);font-family:monospace;font-size:11px;text-decoration:none">' + ipfsCid + '</a>' +
         ' <a href="https://ipfs.io/ipfs/' + ipfsCid + '" target="_blank" style="color:var(--slate);font-size:10px;text-decoration:none">[public gateway]</a>' +
       '</div>' +
+      schemaResultHtml +
       qaSelector +
       '<div style="margin-top:12px">' +
         '<button class="pay-btn" style="background:var(--green);font-size:12px;padding:8px 16px" onclick="acceptDelivery()">Accept Delivery &amp; Proceed to Payment</button>' +
@@ -1212,6 +1326,7 @@ async function showDeliveryCard(container) {
         '3. You download and verify data quality before paying<br>' +
         '4. Payment release is gated on your verification' +
       '</div>' +
+      schemaResultHtml +
       qaSelector;
 
     // Check if payment is possible
