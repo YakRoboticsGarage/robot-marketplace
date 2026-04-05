@@ -6,6 +6,9 @@
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy"
   },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  },
   "devDependencies": {
     "wrangler": "^4.80.0"
   }

@@ -252,6 +252,10 @@ export default {
       return handleUploadDelivery(request, env, cors);
     }
 
+    if (url.pathname === "/api/relay-usdc" && request.method === "POST") {
+      return handleRelayUsdc(request, env, cors);
+    }
+
     if (url.pathname === "/api/auction-feedback" && request.method === "POST") {
       return handleAuctionFeedback(request, env, cors);
     }
@@ -1270,4 +1274,146 @@ async function handleAuctionFeedback(request, env, cors) {
     }),
     { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
   );
+}
+
+// --- Gasless USDC relay via ERC-2612 permit ---
+
+// USDC contract addresses by chain ID
+const USDC_CONTRACTS = {
+  8453:     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  // Base mainnet
+  1:        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  // Ethereum mainnet
+  84532:    "0x036CbD53842c5426634e7929541eC2318f3dCF7e",  // Base Sepolia
+  11155111: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",  // Eth Sepolia
+};
+
+const RPC_ENDPOINTS = {
+  8453:     "https://mainnet.base.org",
+  1:        "https://ethereum-rpc.publicnode.com",
+  84532:    "https://sepolia.base.org",
+  11155111: "https://ethereum-sepolia-rpc.publicnode.com",
+};
+
+// Minimal ABI for USDC permit + transferFrom
+const USDC_ABI = [
+  "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+  "function nonces(address owner) view returns (uint256)",
+  "function name() view returns (string)",
+  "function version() view returns (string)",
+  "function DOMAIN_SEPARATOR() view returns (bytes32)",
+];
+
+async function handleRelayUsdc(request, env, cors) {
+  if (!env.RELAY_PRIVATE_KEY) {
+    return new Response(
+      JSON.stringify({ error: "USDC relay not configured (RELAY_PRIVATE_KEY missing)" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  const {
+    chain_id,
+    owner,           // buyer address
+    operator_wallet, // 88% destination
+    platform_wallet, // 12% destination (should match PLATFORM_WALLET)
+    total_amount,    // total USDC in smallest units (6 decimals)
+    deadline,        // permit deadline (unix timestamp)
+    v, r, s,         // permit signature components
+  } = body;
+
+  // Validate inputs
+  if (!chain_id || !owner || !operator_wallet || !platform_wallet || !total_amount || !deadline || v === undefined || !r || !s) {
+    return new Response(
+      JSON.stringify({ error: "Missing required fields: chain_id, owner, operator_wallet, platform_wallet, total_amount, deadline, v, r, s" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  const usdcAddr = USDC_CONTRACTS[chain_id];
+  const rpcUrl = RPC_ENDPOINTS[chain_id];
+  if (!usdcAddr || !rpcUrl) {
+    return new Response(
+      JSON.stringify({ error: `Unsupported chain_id: ${chain_id}. Supported: ${Object.keys(USDC_CONTRACTS).join(", ")}` }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Validate platform wallet matches expected
+  const expectedPlatform = "0xe33356d0d16c107eac7da1fc7263350cbdb548e5";
+  if (platform_wallet.toLowerCase() !== expectedPlatform.toLowerCase()) {
+    return new Response(
+      JSON.stringify({ error: "Platform wallet mismatch" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Calculate split (88% operator, 12% platform)
+  const totalBig = BigInt(total_amount);
+  const platformAmount = totalBig * 12n / 100n;
+  const operatorAmount = totalBig - platformAmount;
+
+  try {
+    // We need ethers for on-chain interaction — dynamically import
+    // Cloudflare Workers support dynamic import of npm packages
+    const { ethers } = await import("ethers");
+
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const relayWallet = new ethers.Wallet(env.RELAY_PRIVATE_KEY, provider);
+
+    const usdc = new ethers.Contract(usdcAddr, USDC_ABI, relayWallet);
+
+    // Step 1: Submit permit (buyer authorizes relay to spend their USDC)
+    const permitTx = await usdc.permit(owner, relayWallet.address, totalBig, deadline, v, r, s);
+    const permitReceipt = await permitTx.wait();
+
+    // Step 2: Transfer to operator (88%)
+    const opTx = await usdc.transferFrom(owner, operator_wallet, operatorAmount);
+    const opReceipt = await opTx.wait();
+
+    // Step 3: Transfer to platform (12%)
+    const platTx = await usdc.transferFrom(owner, platform_wallet, platformAmount);
+    const platReceipt = await platTx.wait();
+
+    // Determine block explorer
+    const explorers = { 8453: "https://basescan.org", 1: "https://etherscan.io", 84532: "https://sepolia.basescan.org", 11155111: "https://sepolia.etherscan.io" };
+    const explorer = explorers[chain_id] || "https://etherscan.io";
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        chain_id,
+        permit_tx: permitReceipt.hash,
+        operator_tx: opReceipt.hash,
+        platform_tx: platReceipt.hash,
+        operator_amount: operatorAmount.toString(),
+        platform_amount: platformAmount.toString(),
+        explorer,
+        relay_address: relayWallet.address,
+      }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Relay error:", err);
+    const msg = err.message || String(err);
+    // Don't expose internal errors to client
+    const safeMsg = msg.includes("insufficient funds") ? "Relay wallet has insufficient ETH for gas"
+      : msg.includes("nonce") ? "Permit nonce mismatch — wallet may have a pending transaction"
+      : msg.includes("expired") ? "Permit deadline expired"
+      : msg.includes("invalid signature") ? "Invalid permit signature"
+      : "Relay transaction failed";
+    return new Response(
+      JSON.stringify({ error: safeMsg }),
+      { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
 }

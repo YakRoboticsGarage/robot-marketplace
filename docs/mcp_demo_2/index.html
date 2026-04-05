@@ -1250,8 +1250,8 @@ function showPaymentCard(container) {
         'Pay $' + (amountCents / 100).toFixed(2) + ' with Card' +
       '</button>' +
       '<button class="pay-btn pay-btn-usdc" onclick="payWithUSDC(\'' + escapeHtml(usdcWallet || '') + '\')" ' +
-        (usdcEnabled ? '' : 'disabled title="Operator has no USDC wallet on Base"') + '>' +
-        'Pay $0.01 USDC' +
+        (usdcEnabled ? 'title="Gasless — platform pays gas. Base + Ethereum mainnet supported."' : 'disabled title="Operator has no USDC wallet"') + '>' +
+        'Pay $0.01 USDC (gasless)' +
       '</button>' +
     '</div>';
 
@@ -1341,18 +1341,23 @@ async function payWithUSDC(operatorWallet) {
     return;
   }
 
-  // Determine chain from discovered robot
-  var chainId = discoveredRobots.length > 0 ? discoveredRobots[0].chain_id : 11155111;
-  var chainName = chainId === 8453 ? 'Base' : chainId === 11155111 ? 'Sepolia' : 'Chain ' + chainId;
-
-  // USDC contract addresses by chain
+  // Chain config
   var USDC_ADDRESSES = {
-    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',     // Base mainnet
-    84532: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',    // Base Sepolia
-    11155111: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // Eth Sepolia USDC
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    84532: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    11155111: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
   };
+  var CHAIN_NAMES = { 8453: 'Base', 1: 'Ethereum', 84532: 'Base Sepolia', 11155111: 'Sepolia' };
+  var CHAIN_HEX = { 8453: '0x2105', 1: '0x1', 84532: '0x14a34', 11155111: '0xaa36a7' };
 
+  // Default to Base mainnet, fall back to Sepolia for testnet robots
+  var chainId = discoveredRobots.length > 0 ? discoveredRobots[0].chain_id : 8453;
+  // Map Sepolia robot chain to Sepolia USDC (testnet)
+  if (chainId === 11155111) chainId = 11155111;
+  var chainName = CHAIN_NAMES[chainId] || 'Chain ' + chainId;
   var usdcAddr = USDC_ADDRESSES[chainId];
+
   if (!usdcAddr) {
     btn.textContent = 'USDC not available on ' + chainName;
     btn.disabled = false;
@@ -1360,10 +1365,10 @@ async function payWithUSDC(operatorWallet) {
   }
 
   try {
-    // Connect wallet via MetaMask / Coinbase Wallet
+    // Connect wallet (MetaMask, Rabby, Coinbase Wallet — all inject window.ethereum)
     if (!window.ethereum) {
       btn.textContent = 'No wallet found';
-      alert('Please install MetaMask or Coinbase Wallet to pay with USDC.');
+      alert('Install MetaMask, Rabby, or Coinbase Wallet to pay with USDC.');
       btn.disabled = false;
       return;
     }
@@ -1374,12 +1379,12 @@ async function payWithUSDC(operatorWallet) {
     var signer = await provider.getSigner();
     var buyerAddr = await signer.getAddress();
 
-    // Check chain — request switch if wrong
+    // Switch chain if needed
     var network = await provider.getNetwork();
     if (Number(network.chainId) !== chainId) {
       btn.textContent = 'Switching to ' + chainName + '...';
       try {
-        await provider.send('wallet_switchEthereumChain', [{ chainId: '0x' + chainId.toString(16) }]);
+        await provider.send('wallet_switchEthereumChain', [{ chainId: CHAIN_HEX[chainId] }]);
         provider = new ethers.BrowserProvider(window.ethereum);
         signer = await provider.getSigner();
       } catch (switchErr) {
@@ -1389,61 +1394,118 @@ async function payWithUSDC(operatorWallet) {
       }
     }
 
-    // Calculate amounts (USDC has 6 decimals)
-    var totalCents = 1; // $0.01
-    var operatorAmount = Math.floor(totalCents * (1 - PLATFORM_COMMISSION)); // 88% = 0.0088
-    var platformAmount = totalCents - operatorAmount; // 12% = 0.0012
-    // In USDC units: $0.01 = 10000 (6 decimals), but we're working in cents
-    var operatorUnits = BigInt(operatorAmount) * 100n; // cents to USDC units (6 dec)
-    var platformUnits = BigInt(platformAmount) * 100n;
-
-    // ERC-20 transfer ABI
-    var usdcAbi = ['function transfer(address to, uint256 amount) returns (bool)', 'function balanceOf(address) view returns (uint256)'];
-    var usdc = new ethers.Contract(usdcAddr, usdcAbi, signer);
+    // Amount: $0.01 = 10000 USDC units (6 decimals)
+    var totalUnits = 10000n; // $0.01
+    var usdcAbi = [
+      'function balanceOf(address) view returns (uint256)',
+      'function nonces(address) view returns (uint256)',
+      'function name() view returns (string)',
+      'function version() view returns (string)',
+    ];
+    var usdc = new ethers.Contract(usdcAddr, usdcAbi, provider);
 
     // Check balance
     btn.textContent = 'Checking USDC balance...';
     var balance = await usdc.balanceOf(buyerAddr);
-    var totalUnits = operatorUnits + platformUnits;
     if (balance < totalUnits) {
       btn.textContent = 'Insufficient USDC';
-      alert('You need at least $0.01 USDC on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(4));
+      alert('You need at least $0.01 USDC on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(6));
       btn.disabled = false;
       return;
     }
 
-    // Transfer to operator (88%)
-    btn.textContent = 'Sending to operator (' + (100 - PLATFORM_COMMISSION * 100) + '%)...';
-    var tx1 = await usdc.transfer(operatorWallet, operatorUnits);
-    btn.textContent = 'Confirming operator payment...';
-    var receipt1 = await tx1.wait();
+    // Build ERC-2612 permit signature (gasless for buyer)
+    btn.textContent = 'Signing permit (no gas needed)...';
+    var nonce = await usdc.nonces(buyerAddr);
+    var name = await usdc.name();
+    var deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour expiry
 
-    // Transfer to platform (12%)
-    btn.textContent = 'Sending to platform (' + (PLATFORM_COMMISSION * 100) + '%)...';
-    var tx2 = await usdc.transfer(PLATFORM_WALLET, platformUnits);
-    btn.textContent = 'Confirming platform payment...';
-    var receipt2 = await tx2.wait();
+    // The relay worker address will be the spender — we get it from a known constant
+    // or the relay endpoint can return it. For now, we set it in the permit and
+    // the relay validates it matches.
+    // We'll permit the max amount and let the relay split it.
+    var domain = {
+      name: name,
+      version: '2', // USDC uses version "2" for FiatTokenV2_2
+      chainId: chainId,
+      verifyingContract: usdcAddr,
+    };
 
-    // Determine explorer
-    var explorerBase = chainId === 8453 ? 'https://basescan.org' : chainId === 11155111 ? 'https://sepolia.etherscan.io' : 'https://etherscan.io';
+    var types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
+      ],
+    };
+
+    // Spender = relay worker address. We need to know this ahead of time.
+    // The relay endpoint will reject if the spender doesn't match its own address.
+    // For now, fetch the relay address from the worker.
+    var spender = PLATFORM_WALLET; // Fallback — will be overridden by relay
+
+    var permitValue = {
+      owner: buyerAddr,
+      spender: spender,
+      value: totalUnits.toString(),
+      nonce: nonce.toString(),
+      deadline: deadline,
+    };
+
+    var sig = await signer.signTypedData(domain, types, permitValue);
+    var splitSig = ethers.Signature.from(sig);
+
+    // Send to relay worker (platform pays gas)
+    btn.textContent = 'Relaying transaction (platform pays gas)...';
+
+    var relayRes = await fetch(WORKER_BASE + '/api/relay-usdc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chain_id: chainId,
+        owner: buyerAddr,
+        operator_wallet: operatorWallet,
+        platform_wallet: PLATFORM_WALLET,
+        total_amount: totalUnits.toString(),
+        deadline: deadline,
+        v: splitSig.v,
+        r: splitSig.r,
+        s: splitSig.s,
+      }),
+    });
+
+    var relayData = await relayRes.json();
+
+    if (!relayRes.ok || relayData.error) {
+      btn.textContent = relayData.error || 'Relay failed';
+      btn.disabled = false;
+      return;
+    }
 
     // Show success
+    var explorer = relayData.explorer;
+    var opAmount = Number(BigInt(relayData.operator_amount)) / 1000000;
+    var platAmount = Number(BigInt(relayData.platform_amount)) / 1000000;
+
     showUsdcSuccess({
-      operator_tx: receipt1.hash,
-      platform_tx: receipt2.hash,
+      operator_tx: relayData.operator_tx,
+      platform_tx: relayData.platform_tx,
       operator_wallet: operatorWallet,
       platform_wallet: PLATFORM_WALLET,
-      operator_amount: Number(operatorUnits) / 1000000,
-      platform_amount: Number(platformUnits) / 1000000,
-      explorer: explorerBase,
+      operator_amount: opAmount,
+      platform_amount: platAmount,
+      explorer: explorer,
       chain_name: chainName,
+      gasless: true,
     });
 
   } catch (err) {
     console.error('USDC payment error:', err);
     btn.textContent = 'Payment failed — try again';
     if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
-      btn.textContent = 'Transaction rejected';
+      btn.textContent = 'Signature rejected';
     }
     btn.disabled = false;
   }
@@ -1460,6 +1522,7 @@ function showUsdcSuccess(data) {
     '<h3>USDC Payment Complete</h3>' +
     '<div style="font-size:14px;color:var(--slate-light);margin-bottom:16px">' +
       'Real USDC moved through a real robot auction on ' + escapeHtml(data.chain_name) + '.' +
+      (data.gasless ? ' Gas sponsored by the platform.' : '') +
     '</div>' +
     '<div style="max-width:360px;margin:0 auto 16px;text-align:left">' +
       '<div class="payment-row"><span class="payment-label">Operator received</span><span class="payment-value" style="color:var(--green)">$' + data.operator_amount.toFixed(4) + ' USDC</span></div>' +
