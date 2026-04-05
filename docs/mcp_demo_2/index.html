@@ -1025,7 +1025,21 @@ async function runDemo() {
     terrain: document.getElementById('siteTerrain').value.trim()
   };
 
-  const prompt = rfpText + '\n\nSite Info: ' + JSON.stringify(siteInfo);
+  // Build prompt with discovered robot info
+  var robotContext = '';
+  if (discoveredRobots.length > 0) {
+    var robotList = discoveredRobots.map(function(r) {
+      var walletStr = (r.payment && r.payment.usdc_wallet) ? ', wallet: ' + r.payment.usdc_wallet : '';
+      var toolStr = (r.mcp_tools && r.mcp_tools.length > 0) ? ', tools: ' + r.mcp_tools.join(', ') : '';
+      return '- ' + r.name + ' (agent #' + r.agent_id + ' on ' + r.chain_name + walletStr + toolStr + ')';
+    }).join('\n');
+    robotContext = '\n\nDiscovered robots (registered on-chain via ERC-8004):\n' + robotList +
+      '\n\nThese are REAL robots discovered on-chain. Reference them by name when posting tasks and collecting bids. The auction engine also has simulated operators that may bid alongside these real robots.';
+  }
+
+  var deliverySchemaContext = '\n\nDelivery Schema (robot receives this, QA validates against it):\n' + JSON.stringify(DELIVERY_SCHEMA, null, 2);
+
+  const prompt = rfpText + '\n\nSite Info: ' + JSON.stringify(siteInfo) + robotContext + deliverySchemaContext;
 
   try {
     const response = await fetch(WORKER_URL, {

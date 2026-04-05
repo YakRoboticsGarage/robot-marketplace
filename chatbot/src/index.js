@@ -554,7 +554,11 @@ A GC has submitted an RFP. Your job is to run the full auction lifecycle:
 8. Confirm deliveries (auction_confirm_delivery)
 
 After each tool call, briefly explain what happened in 1-2 sentences. Be concise.
-Use the site_info provided. This is a real auction engine with 7 Michigan operators.`;
+Use the site_info provided. This is a real auction engine.
+
+If the prompt includes "Discovered robots" — these are REAL robots found on-chain via ERC-8004. Reference them by name in your narration. They bid alongside the engine's simulated operators. When a real robot wins, note that it was discovered on-chain.
+
+If a Delivery Schema is provided, mention that the robot received this spec and will be validated against it.`;
 
 function demoRateLimitKey(ip) {
   const date = new Date().toISOString().slice(0, 10);
