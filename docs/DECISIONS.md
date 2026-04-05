@@ -106,15 +106,18 @@ Card payments are not made per-task. Buyers purchase credit bundles upfront (e.g
 
 ---
 
-### TC-4 · Crypto Stack: USDC on Base (updated 2026-04-02, post-critique revision)
-- **Settlement:** Direct USDC transfer to robot wallet address (read from on-chain `getAgentWallet()`)
-- **x402:** NOT used for marketplace settlement (critique found it's pay-to-access, not escrow). Reserved for agent-to-robot control (Tumbller sessions).
-- **Splits.org:** NOT used for demo (direct transfer is simpler). Available for production-scale multi-operator distribution.
-- **Robot wallet discovery:** `getAgentWallet(agentId)` on ERC-8004 identity registry. Verified: Tumbller (agent 989, Sepolia) returns `0x99a55d71682807fde9c81e0984aBdd2C7AcCE136`.
-- **Demo chain:** Sepolia (where Tumbller is registered). Base mainnet when robots register there.
-- **Production chain:** Base mainnet (gas ~$0.007/tx). Ethereum mainnet for high-value tasks.
-- **Escrow:** `RobotTaskEscrow.sol` deferred to v1.1 Phase 3 (not needed for $0.50 demo).
-- **Fiat rail:** Stripe destination charges with `application_fee_amount` (12%). No fiat-to-crypto bridge.
+### TC-4 · Crypto Stack: Gasless USDC via ERC-2612 Permit Relay (updated 2026-04-05)
+- **Settlement:** Gasless USDC payment via ERC-2612 permit relay. Buyer signs EIP-712 permit (no gas needed), Worker submits `permit()` + `transferFrom()` on-chain, paying gas from platform relay wallet.
+- **Relay wallet:** `0x4b5974229f96ac5987d6e31065d73d6fd8e130d9` — funded on Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia.
+- **Platform wallet:** `0xe33356d0d16c107eac7da1fc7263350cbdb548e5` — receives 12% commission.
+- **Wallets supported:** Rabby, MetaMask, Coinbase Wallet (any EIP-1193 + EIP-712 wallet).
+- **Chains supported:** Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia.
+- **Gas cost:** ~$0.005/tx (Base), ~$0.15/tx (Ethereum mainnet). Platform pays.
+- **x402:** NOT used for marketplace settlement. Reserved for agent-to-robot control.
+- **Splits.org:** NOT used for demo. Available for production-scale distribution.
+- **Robot wallet discovery:** `getAgentWallet(agentId)` on ERC-8004 identity registry.
+- **Escrow:** `RobotTaskEscrow.sol` deferred (not needed for demo amounts).
+- **Fiat rail:** Stripe destination charges with `application_fee_amount` (12%).
 - **Discovery:** Direct subgraph query from browser + `eth_call` for wallet. No server dependency.
 
 ---

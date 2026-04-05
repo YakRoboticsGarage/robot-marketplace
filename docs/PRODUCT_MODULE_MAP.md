@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-03 | **Modules:** 38 | **Built:** 28 | **Building:** 2 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
+**Updated:** 2026-04-05 | **Modules:** 39 | **Built:** 29 | **Building:** 2 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
 
 ---
 
@@ -130,7 +130,8 @@ Buyer --> [M14: Wallet Ledger] --> [M15: Stripe Service]
 | M17 | **On-Chain Escrow** | Planned (v1.1 Phase 3) | `contracts/RobotTaskEscrow.sol` (not yet created) | Base USDC escrow: hold on acceptance, release on delivery, refund on timeout. Commitment hash memos (FD-4). |
 | M18 | **x402 Middleware** | Deferred | — | Reserved for agent-to-robot control sessions (Tumbller). NOT used for marketplace settlement (critique found wrong abstraction). |
 | M37 | **Splits Distribution** | Deferred | — | Splits.org for production-scale multi-operator distribution. Not needed for demo (direct USDC transfer to robot wallet is simpler). |
-| M38 | **Browser Wallet Connect** | Planned (v1.1) | `docs/mcp_demo_2/` | ethers.js/viem USDC transfer from buyer wallet to robot wallet (read from `getAgentWallet`). ~1-2 days. |
+| M38 | **Browser Wallet Connect** | Built | `docs/mcp_demo_2/` | Gasless USDC via ERC-2612 permit + relay. Supports Rabby, MetaMask, Coinbase Wallet. Base + Ethereum mainnet. |
+| M39 | **Permit Relay** | Built | `chatbot/src/index.js` (`/api/relay-usdc`) | Worker-side permit submission + transferFrom. Platform pays gas from funded relay wallet (`0x4b59...0d9`). |
 
 ---
 
@@ -258,7 +259,7 @@ M1-M15, M19-M20, M22-M28 -- core auction, payments, compliance, frontend
 M30 (Event Log), M31 (Task Feed API) -- tracking infrastructure
 
 ### v1.1 (In Progress) -- 3 modules
-M38 (Browser Wallet Connect), M15 (Stripe production activation), M17 (Escrow Contract, future). Demo live at yakrobot.bid/mcp-demo-2. Blocked on: Stripe production keys + USDC wallet connect code.
+M38 (Browser Wallet Connect — BUILT), M39 (Permit Relay — BUILT), M15 (Stripe production activation). Demo live at yakrobot.bid/mcp-demo-2. Blocked on: Stripe production keys, robot Base registration.
 
 ### v1.5 (Next) -- 4 modules
 M16 (Settlement Router), M23 (Commitment Hash on-chain), M32 (Buyer Dashboard), M33 (Operator Dashboard), M34 (Admin Console)
@@ -309,4 +310,5 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposit
 | M35 Deliverable QA | `auction/deliverable_qa.py` |
 | M36 PLS Review & Stamp | (gap — PLS-as-a-service routing + electronic seal) |
 | M37 Splits Distribution | (deferred — direct transfer for demo, Splits for production scale) |
-| M38 Browser Wallet Connect | (planned — ethers.js USDC transfer to robot wallet) |
+| M38 Browser Wallet Connect | `docs/mcp_demo_2/` (gasless USDC, ERC-2612 permit) |
+| M39 Permit Relay | `chatbot/src/index.js` (`/api/relay-usdc`) |

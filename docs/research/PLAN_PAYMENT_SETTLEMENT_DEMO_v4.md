@@ -65,13 +65,18 @@ This simplifies the payment flow significantly:
 4. [ ] Register webhook URL in Stripe dashboard
 5. [ ] Redeploy worker (`wrangler deploy`)
 
-### For USDC path ($0.01):
+### For USDC path ($0.01) — GASLESS:
 1. [x] ~~Add ethers.js to demo page for wallet connect~~ — DONE
-2. [x] ~~USDC transfer call~~ — DONE (two transfers: 88% to robot, 12% to platform)
+2. [x] ~~USDC transfer call~~ — DONE (ERC-2612 permit relay, platform pays gas)
 3. [x] ~~Show block explorer tx links~~ — DONE
-4. [x] ~~Platform wallet configured~~ — DONE (0xe33356d0d16c107eac7da1fc7263350cbdb548e5)
-5. [ ] Robot wallet needs USDC on the same chain it's registered on (currently Sepolia — testnet USDC only)
-6. [ ] Buyer needs Sepolia USDC + ETH for gas (get from faucet.circle.com)
+4. [x] ~~Platform wallet configured~~ — DONE (`0xe33356d0d16c107eac7da1fc7263350cbdb548e5`)
+5. [x] ~~Relay wallet configured~~ — DONE (`0x4b5974229f96ac5987d6e31065d73d6fd8e130d9`)
+6. [x] ~~Relay wallet funded~~ — DONE (0.05 ETH Sepolia, 0.04 ETH Base Sepolia, 0.01 ETH mainnet, 0.01 ETH Base mainnet)
+7. [x] ~~Worker deployed with RELAY_PRIVATE_KEY~~ — DONE
+8. [x] ~~Gasless flow~~ — DONE (buyer signs EIP-712 permit, no ETH needed)
+9. [x] ~~Multi-wallet support~~ — DONE (Rabby, MetaMask, Coinbase Wallet via window.ethereum)
+10. [x] ~~Multi-chain support~~ — DONE (Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia)
+11. [ ] Buyer needs Sepolia USDC for testing (get from faucet.circle.com)
 
 ### For real production:
 1. [ ] Robot registered on Base mainnet (not Sepolia) with `fleet_provider: yakrover`

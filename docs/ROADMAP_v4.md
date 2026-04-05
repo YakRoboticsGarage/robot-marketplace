@@ -158,20 +158,26 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 
 ### What's done
 - [x] Browser robot discovery (subgraph + getAgentWallet RPC)
-- [x] USDC wallet connect + two-transfer settlement (ethers.js)
+- [x] Gasless USDC payment (ERC-2612 permit + relay, platform pays gas)
+- [x] Multi-wallet: Rabby, MetaMask, Coinbase Wallet
+- [x] Multi-chain: Base mainnet, Ethereum mainnet, Base Sepolia, Eth Sepolia
+- [x] Relay wallet funded (0x4b59...0d9) on all 4 chains
 - [x] Stripe Checkout endpoint with 12% application_fee
 - [x] IPFS delivery upload (Pinata via worker)
+- [x] 4-level deliverable QA (buyer-configurable: none → basic → standards → PLS)
 - [x] Feedback loop (demo → GitHub issues → research agent)
-- [x] Worker deployed with GITHUB_TOKEN
+- [x] Worker deployed with GITHUB_TOKEN + RELAY_PRIVATE_KEY
 - [x] Robot operator onboarding guide published
+- [x] CI fully green (lint, mypy 0 errors, 264 tests)
+- [x] Repo renamed to yakrover-marketplace
 
 ### What's blocking
 - [ ] Production Stripe account + `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`
 - [ ] One operator completes Stripe Connect Express onboarding
 - [ ] `PINATA_JWT` worker secret for IPFS uploads
-- [ ] 8004 team: `robot_submit_bid` + `robot_execute_task` MCP tools
-- [ ] Robot registered on Base mainnet (8004 team, in parallel)
-- [ ] After 8004 PR #4 merges: unskip 4 fakerover bid tests + update mocks to match new `bid()` interface
+- [ ] 8004 team: `robot_submit_bid` + `robot_execute_task` MCP tools (plan reviewed in PR #5)
+- [ ] Robot registered on Base mainnet (8004 team — multi-chain Stage 6 in their plan)
+- [ ] After 8004 PR #4 merges: unskip 4 fakerover bid tests
 
 ### Dropped from earlier plans
 - ~~x402 middleware~~ — wrong tool for marketplace settlement (pay-to-access, not escrow)
