@@ -331,18 +331,18 @@ background-size:1200px 900px}
         <div class="sidebar-label">Payment</div>
         <select class="field-input" id="demoMode" onchange="onDemoModeChange()" style="font-size:12px;padding:6px 8px">
           <option value="base">Base Mainnet (USDC)</option>
-          <option value="base-sepolia">Base Sepolia (USDC testnet)</option>
+          <option value="base-sepolia" selected>Base Sepolia (USDC testnet)</option>
           <option value="eth">Ethereum Mainnet (USDC)</option>
           <option value="eth-sepolia">Ethereum Sepolia (USDC testnet)</option>
           <option value="stripe">Stripe Production (card)</option>
           <option value="stripe-test">Stripe Test (card 4242...)</option>
         </select>
-        <div class="tunnel-status" id="demoModeHint">Real USDC on Base. Buyer wallet needs USDC.</div>
+        <div class="tunnel-status" id="demoModeHint">Testnet USDC. Get test tokens from faucet.</div>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Fleet</div>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
-          <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" style="accent-color:var(--accent)">
+          <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" checked style="accent-color:var(--accent)">
           Simulators only (skip real robots)
         </label>
       </div>
@@ -505,7 +505,7 @@ var DEMO_MODES = {
   'stripe':       { type: 'stripe', chainId: null,   label: 'Stripe',          hint: 'Real card charges via Stripe Connect.' },
   'stripe-test':  { type: 'stripe', chainId: null,   label: 'Stripe Test',     hint: 'Use card 4242 4242 4242 4242, any expiry.' },
 };
-var demoMode = 'base';
+var demoMode = 'base-sepolia';
 
 function onDemoModeChange() {
   demoMode = document.getElementById('demoMode').value;
@@ -514,7 +514,7 @@ function onDemoModeChange() {
   if (hint) hint.textContent = mode.hint;
 }
 
-var simulatorOnly = false;
+var simulatorOnly = true;
 function onSimulatorToggle() {
   simulatorOnly = document.getElementById('simulatorOnly').checked;
 }
