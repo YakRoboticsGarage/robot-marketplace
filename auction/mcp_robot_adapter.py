@@ -264,6 +264,11 @@ class MCPRobotAdapter:
         """
         import asyncio
 
+        # Pre-warm: ensure MCP session is alive before waypoint loop
+        if not self._session_id:
+            log.info("Warming up MCP session for %s...", self.robot_id)
+            await self._mcp_call("tools/list", {})
+
         start = datetime.now(UTC)
         num_waypoints = 3
         readings = []
