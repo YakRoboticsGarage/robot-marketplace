@@ -44,6 +44,7 @@ class MCPRobotAdapter:
         chain_id: int | None = None,
         description: str = "",
         signing_key: str = "default_hmac_key",
+        bearer_token: str | None = None,
     ) -> None:
         self.robot_id = robot_id
         self.name = robot_id
@@ -51,6 +52,7 @@ class MCPRobotAdapter:
         self.wallet = wallet
         self.chain_id = chain_id
         self.signing_key = signing_key
+        self.bearer_token = bearer_token
 
         self.capability_metadata: dict = {
             "sensors": [
@@ -73,12 +75,15 @@ class MCPRobotAdapter:
     def is_reachable(self, timeout: float = 5.0) -> bool:
         """Quick probe: can we initialize an MCP session with this robot?"""
         try:
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json, text/event-stream",
+            }
+            if self.bearer_token:
+                headers["Authorization"] = f"Bearer {self.bearer_token}"
             resp = httpx.post(
                 self.mcp_endpoint,
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json, text/event-stream",
-                },
+                headers=headers,
                 json={
                     "jsonrpc": "2.0",
                     "method": "initialize",
@@ -108,6 +113,8 @@ class MCPRobotAdapter:
         }
         if self._session_id:
             h["Mcp-Session-Id"] = self._session_id
+        if self.bearer_token:
+            h["Authorization"] = f"Bearer {self.bearer_token}"
         return h
 
     async def _mcp_call(self, method: str, params: dict, call_id: int = 1) -> dict | None:

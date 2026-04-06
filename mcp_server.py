@@ -93,12 +93,16 @@ def _discover_onchain_robots():
             log("DISCOVERY", f"  Skip {name}: no MCP endpoint or inactive")
             continue
 
+        # Bearer token for authenticated robot MCP servers
+        fleet_token = os.environ.get("FLEET_MCP_TOKEN")
+
         adapter = MCPRobotAdapter(
             robot_id=name,
             mcp_endpoint=mcp_endpoint,
             wallet=wallet,
             chain_id=8453,
             description=rf.get("description", ""),
+            bearer_token=fleet_token,
         )
         adapters.append(adapter)
         log("DISCOVERY", f"  {name} — {mcp_endpoint[:50]}...")
