@@ -138,7 +138,13 @@ End state:
 
 ### 5. No on-chain settlement record
 **Status:** USDC transfers happen on-chain, but there's no on-chain record linking the payment to the task/robot/delivery. Just raw USDC transfers.
-**Impact:** Medium — no on-chain proof that payment was for a specific task. Future: escrow contract with task ID.
+**Impact:** Medium — no on-chain proof that payment was for a specific task.
+**Research needed:** Design an on-chain settlement broadcast mechanism. Options to investigate:
+- ERC-8004 metadata update with settlement hash after payment
+- Dedicated settlement event emitted by the escrow contract (RobotTaskEscrow.sol, deferred to v1.5)
+- Off-chain attestation (EAS on Base) linking task_id + payment_tx + delivery_cid + agent_id
+- Simple on-chain memo/log transaction with settlement data
+See `docs/DECISIONS.md` FD-1 (settlement abstraction) for architectural context.
 
 ### 6. Feedback goes to GitHub Issues only
 **Status:** Demo feedback (stars + comment) creates a GitHub issue via the worker. Not posted to 8004scan or on-chain.

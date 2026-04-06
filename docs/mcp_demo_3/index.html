@@ -1437,6 +1437,19 @@ async function runAuction() {
     window._awardedRequestId = auctionRequestId;
     window._tunnelUrl = tunnelUrl;
 
+    // Extract delivery_schema from RFP processing result (not hardcoded)
+    var rfpStep = steps.filter(function(s) { return s.tool_name === 'auction_process_rfp'; })[0];
+    if (rfpStep && rfpStep.result && rfpStep.result.result) {
+      var taskSpecs = rfpStep.result.result.task_specs || [];
+      if (taskSpecs.length > 0) {
+        var specSchema = (taskSpecs[0].capability_requirements || {}).delivery_schema;
+        if (specSchema) {
+          DELIVERY_SCHEMA = specSchema;
+          appendFeedItem({ type: 'text', claude_text: 'Delivery schema loaded from task spec' }, steps.length);
+        }
+      }
+    }
+
     // Extract winner info and match to discovered robot
     var winnerName = 'Operator';
     var winnerPrice = '';
@@ -2025,6 +2038,29 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
       status.textContent = 'Thank you! ';
       if (data.issue_url) {
         status.innerHTML += '<a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>';
+      }
+
+      // Also submit on-chain to 8004scan reputation registry
+      var winner = window._winnerRobot;
+      if (winner && winner.agent_id && window._tunnelUrl) {
+        status.innerHTML += ' <span style="color:var(--text-3)">Broadcasting on-chain...</span>';
+        try {
+          var onchainRes = await fetch(window._tunnelUrl + '/api/feedback-onchain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              agent_id: '8453:' + winner.agent_id,
+              rating: selectedRating,
+              comment: comment,
+              task_description: document.getElementById('rfpText').value.trim().slice(0, 200),
+              payment_tx: paymentTx,
+            }),
+          });
+          var onchainData = await onchainRes.json();
+          if (onchainData.ok) {
+            status.innerHTML = 'Thank you! Feedback recorded on-chain. <a href="' + onchainData['8004scan_url'] + '" target="_blank" style="color:var(--accent);text-decoration:none">View on 8004scan</a>';
+          }
+        } catch (e) { console.warn('On-chain feedback failed:', e); }
       }
     } else {
       btn.textContent = 'Error — try again';

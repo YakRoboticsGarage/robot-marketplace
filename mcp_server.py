@@ -302,6 +302,76 @@ Start by asking the user what survey they need, or process an RFP they provide."
             tools_info.append({"name": name, "description": desc})
         return JSONResponse({"tools": tools_info, "count": len(tools_info)})
 
+    async def handle_feedback_onchain(request: Request) -> JSONResponse:
+        """Submit feedback to ERC-8004 reputation registry on-chain via agent0-sdk."""
+        try:
+            body = await request.json()
+        except Exception:
+            return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+
+        agent_id = body.get("agent_id")  # e.g. "8453:38947"
+        rating = body.get("rating", 0)  # 1-5 stars
+        comment = body.get("comment", "")
+        task_description = body.get("task_description", "")
+        payment_tx = body.get("payment_tx", "")
+
+        if not agent_id or not rating:
+            return JSONResponse({"error": "agent_id and rating required"}, status_code=400)
+
+        signer_key = os.environ.get("SIGNER_PVT_KEY") or os.environ.get("FLEET_SIGNER_KEY")
+        pinata_jwt = os.environ.get("PINATA_JWT")
+
+        if not signer_key:
+            return JSONResponse({"error": "No signer key configured for on-chain feedback"}, status_code=500)
+
+        try:
+            from agent0_sdk import SDK
+
+            sdk_kwargs = dict(
+                chainId=8453,
+                rpcUrl="https://mainnet.base.org",
+                signer=signer_key,
+            )
+            if pinata_jwt:
+                sdk_kwargs["ipfs"] = "pinata"
+                sdk_kwargs["pinataJwt"] = pinata_jwt
+
+            sdk = SDK(**sdk_kwargs)
+
+            feedback_file = {
+                "text": comment or f"{rating}/5 stars",
+                "task": task_description,
+                "skill": "env_sensing",
+                "capability": "temperature,humidity",
+                "proofOfPayment": payment_tx,
+            }
+
+            # value: rating scaled to 0-100 (1 star=20, 5 stars=100)
+            value = rating * 20
+
+            log("FEEDBACK", f"Submitting on-chain feedback for {agent_id}: {value}/100")
+            tx = sdk.giveFeedback(
+                agentId=agent_id,
+                value=value,
+                tag1="marketplace",
+                tag2="env_sensing",
+                feedbackFile=feedback_file if pinata_jwt else None,
+            )
+            log("FEEDBACK", f"Transaction submitted: {tx.tx_hash}")
+            mined = tx.wait_mined(timeout=60)
+            log("FEEDBACK", f"Feedback mined for {agent_id}")
+
+            return JSONResponse({
+                "ok": True,
+                "agent_id": agent_id,
+                "tx_hash": tx.tx_hash,
+                "value": value,
+                "8004scan_url": f"https://8004scan.io/agents/base/{agent_id.split(':')[-1]}?tab=feedback",
+            })
+        except Exception as e:
+            log("FEEDBACK", f"On-chain feedback failed: {e}")
+            return JSONResponse({"error": str(e)}, status_code=500)
+
     # Build combined app: REST routes + MCP mount
     mcp_starlette = mcp.streamable_http_app()
 
@@ -310,6 +380,7 @@ Start by asking the user what survey they need, or process an RFP they provide."
             Route("/health", handle_health, methods=["GET"]),
             Route("/api/tools", handle_tool_list, methods=["GET"]),
             Route("/api/tool/{name}", handle_tool_call, methods=["POST"]),
+            Route("/api/feedback-onchain", handle_feedback_onchain, methods=["POST"]),
             Mount("/mcp", app=mcp_starlette),
         ],
         middleware=[
