@@ -140,56 +140,9 @@ def build_engine():
     else:
         log("SERVER", "SQLite: in-memory (set AUCTION_DB_PATH for persistence)")
 
-    # Discover on-chain robots with liveness probing and real-robot preference
-    discovered = []
-    try:
-        from auction.mcp_robot_adapter import MCPRobotAdapter
-        discovered = _discover_onchain_robots()
-        if discovered:
-            log("SERVER", f"Discovered {len(discovered)} on-chain robot(s)")
-    except Exception as e:
-        log("SERVER", f"On-chain discovery failed: {e}")
-
-    if discovered:
-        # Probe liveness in parallel (avoid sequential 5s timeouts)
-        import concurrent.futures
-
-        log("PROBE", f"Probing {len(discovered)} robot(s) in parallel...")
-
-        def _probe(adapter):
-            reachable = adapter.is_reachable(timeout=5.0)
-            return adapter, reachable
-
-        real_online = []
-        sim_online = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(discovered)) as pool:
-            results = pool.map(_probe, discovered)
-
-        for adapter, reachable in results:
-            kind = "simulator" if adapter.is_simulator else "real"
-            if reachable:
-                if adapter.is_simulator:
-                    sim_online.append(adapter)
-                else:
-                    real_online.append(adapter)
-                log("PROBE", f"  ✓ {adapter.robot_id} ({kind}) — online")
-            else:
-                log("PROBE", f"  ✗ {adapter.robot_id} ({kind}) — unreachable")
-
-        from auction.mock_fleet import create_construction_fleet
-
-        if real_online:
-            fleet = create_construction_fleet() + real_online
-            log("SERVER", f"Fleet: {len(real_online)} real robot(s) online — simulators excluded")
-        elif sim_online:
-            fleet = create_construction_fleet() + sim_online
-            log("SERVER", f"Fleet: {len(sim_online)} simulator(s) online — no real robots responding")
-        else:
-            fleet = create_full_fleet()
-            log("SERVER", "Fleet: mock fleet (no on-chain robots reachable)")
-    else:
-        fleet = create_full_fleet()
-        log("SERVER", "Fleet: mock fleet (no on-chain robots found)")
+    # Start with mock fleet immediately (fast startup), then discover on-chain robots in background
+    fleet = create_full_fleet()
+    log("SERVER", f"Fleet: {len(fleet)} operators (mock fleet — discovery in background)")
 
     log("SERVER", f"Fleet: {len(fleet)} operators")
     for r in fleet:
@@ -212,6 +165,54 @@ def build_engine():
         stripe_service=stripe_service,
         events=events,
     )
+
+    # Background discovery: probe on-chain robots and swap fleet after startup
+    import threading
+
+    def _background_discover():
+        try:
+            from auction.mcp_robot_adapter import MCPRobotAdapter
+            discovered = _discover_onchain_robots()
+            if not discovered:
+                log("DISCOVERY", "No on-chain robots found — keeping mock fleet")
+                return
+
+            log("PROBE", f"Probing {len(discovered)} robot(s)...")
+            import concurrent.futures
+
+            def _probe(adapter):
+                return adapter, adapter.is_reachable(timeout=8.0)
+
+            real_online, sim_online = [], []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(discovered)) as pool:
+                for adapter, reachable in pool.map(_probe, discovered):
+                    kind = "simulator" if adapter.is_simulator else "real"
+                    if reachable:
+                        (sim_online if adapter.is_simulator else real_online).append(adapter)
+                        log("PROBE", f"  ✓ {adapter.robot_id} ({kind})")
+                    else:
+                        log("PROBE", f"  ✗ {adapter.robot_id} ({kind})")
+
+            from auction.mock_fleet import create_construction_fleet
+            if real_online:
+                new_fleet = create_construction_fleet() + real_online
+                label = f"{len(real_online)} real robot(s) — simulators excluded"
+            elif sim_online:
+                new_fleet = create_construction_fleet() + sim_online
+                label = f"{len(sim_online)} simulator(s) — no real robots"
+            else:
+                log("DISCOVERY", "No robots reachable — keeping mock fleet")
+                return
+
+            # Hot-swap the engine's fleet
+            engine.robots = new_fleet
+            engine._robots_by_id = {r.robot_id: r for r in new_fleet}
+            log("SERVER", f"Fleet updated: {len(new_fleet)} operators ({label})")
+
+        except Exception as e:
+            log("DISCOVERY", f"Background discovery failed: {e}")
+
+    threading.Thread(target=_background_discover, daemon=True).start()
 
     return engine, wallet, stripe_service
 
