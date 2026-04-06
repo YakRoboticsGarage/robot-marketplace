@@ -1052,7 +1052,9 @@ function renderPaymentOptions(winnerName, winnerPrice) {
     usdcWallet = onChainRobot.payment.usdc_wallet || null;
   }
 
-  var amountCents = 100;
+  // Use the robot's actual bid price (in dollars), convert to cents
+  var bidPrice = window._winnerBidPrice || 0.50;
+  var amountCents = Math.max(Math.round(bidPrice * 100), 50); // Stripe minimum $0.50
 
   var paymentRecipientHtml = '';
   if (onChainRobot && usdcWallet && paymentType === 'usdc') {
@@ -1071,9 +1073,10 @@ function renderPaymentOptions(winnerName, winnerPrice) {
         (demoMode === 'stripe-test' ? ' — test mode' : '') +
       '</button>';
   } else {
+    var usdcAmount = '$' + bidPrice.toFixed(2);
     var usdcLabel = modeInfo.chainId === 84532 || modeInfo.chainId === 11155111
-      ? 'Approve $0.01 Hold (testnet USDC)'
-      : 'Approve $0.01 Hold (USDC)';
+      ? 'Approve ' + usdcAmount + ' Hold (testnet USDC)'
+      : 'Approve ' + usdcAmount + ' Hold (USDC)';
     buttonsHtml =
       '<button class="pay-btn pay-btn-usdc" onclick="payWithUSDC(\'' + escapeHtml(usdcWallet || '') + '\')" style="width:100%" ' +
         (usdcWallet ? '' : 'disabled title="No operator wallet found on-chain"') + '>' +
@@ -1248,6 +1251,7 @@ function resetDemo() {
   window._paymentCommitment = null;
   window._stripeHold = null;
   window._winnerRobot = null;
+  window._winnerBidPrice = null;
   window._stripePaymentIntent = null;
   window._stripeSessionId = null;
   window._lastDeliveryData = null;
@@ -1448,6 +1452,9 @@ async function runAuction() {
     window._winnerRobot = discoveredRobots.filter(function(r) {
       return r.name === winnerName;
     })[0] || discoveredRobots[0] || null;
+
+    // Store the raw bid price for payment (robot's actual ask)
+    window._winnerBidPrice = winnerBid ? parseFloat(winnerBid.price) : 0.50;
 
     await delay(500);
     renderWinnerCard(data.final_text, winnerName, winnerPrice);
@@ -1732,7 +1739,9 @@ async function payWithUSDC(operatorWallet) {
       }
     }
 
-    var totalUnits = 10000n;
+    // USDC amount from robot's bid price (6 decimal places)
+    var bidPrice = window._winnerBidPrice || 0.50;
+    var totalUnits = BigInt(Math.round(bidPrice * 1000000));
     var usdcAbi = [
       'function balanceOf(address) view returns (uint256)',
       'function nonces(address) view returns (uint256)',
@@ -1745,7 +1754,7 @@ async function payWithUSDC(operatorWallet) {
     var balance = await usdc.balanceOf(buyerAddr);
     if (balance < totalUnits) {
       btn.textContent = 'Insufficient USDC';
-      alert('You need at least $0.01 USDC on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(6));
+      alert('You need at least $' + bidPrice.toFixed(2) + ' USDC on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(6));
       btn.disabled = false;
       return;
     }
