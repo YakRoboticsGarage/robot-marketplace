@@ -1013,13 +1013,10 @@ function renderWinnerCard(text, winnerName, winnerPrice) {
 
   var operatorName = winnerName || 'Robot Operator';
   var usdcWallet = null;
-  var onChainRobot = null;
+  var onChainRobot = window._winnerRobot || (discoveredRobots.length > 0 ? discoveredRobots[0] : null);
 
-  if (discoveredRobots.length > 0) {
-    onChainRobot = discoveredRobots[0];
-    if (onChainRobot.payment) {
-      usdcWallet = onChainRobot.payment.usdc_wallet || null;
-    }
+  if (onChainRobot && onChainRobot.payment) {
+    usdcWallet = onChainRobot.payment.usdc_wallet || null;
   }
 
   var paymentRecipientHtml = '';
@@ -1048,14 +1045,11 @@ function renderPaymentOptions(winnerName, winnerPrice) {
 
   var stripeAccountId = 'acct_1TEjjLC2lXDckgmS';
   var usdcWallet = null;
-  var onChainRobot = null;
+  var onChainRobot = window._winnerRobot || (discoveredRobots.length > 0 ? discoveredRobots[0] : null);
 
-  if (discoveredRobots.length > 0) {
-    onChainRobot = discoveredRobots[0];
-    if (onChainRobot.payment) {
-      stripeAccountId = onChainRobot.payment.stripe_connect_id || stripeAccountId;
-      usdcWallet = onChainRobot.payment.usdc_wallet || null;
-    }
+  if (onChainRobot && onChainRobot.payment) {
+    stripeAccountId = onChainRobot.payment.stripe_connect_id || stripeAccountId;
+    usdcWallet = onChainRobot.payment.usdc_wallet || null;
   }
 
   var amountCents = 100;
@@ -1142,8 +1136,8 @@ async function renderDeliveryResult(deliveryData, qaResult) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           request_id: window._awardedRequestId || 'demo_' + Date.now(),
-          robot_id: discoveredRobots.length > 0 ? discoveredRobots[0].agent_id : 'mock',
-          robot_name: discoveredRobots.length > 0 ? discoveredRobots[0].name : 'Simulated Operator',
+          robot_id: window._winnerRobot ? window._winnerRobot.agent_id : 'mock',
+          robot_name: window._winnerRobot ? window._winnerRobot.name : 'Robot Operator',
           delivery_data: deliveryData,
         }),
       });
@@ -1226,8 +1220,8 @@ function renderReceipt(data) {
 
 function renderFeedbackForm(paymentInfo) {
   var slot = document.getElementById('feedbackSlot');
-  var robotName = discoveredRobots.length > 0 ? discoveredRobots[0].name : 'Robot Operator';
-  var robotId = discoveredRobots.length > 0 ? discoveredRobots[0].agent_id : '';
+  var robotName = window._winnerRobot ? window._winnerRobot.name : 'Robot Operator';
+  var robotId = window._winnerRobot ? window._winnerRobot.agent_id : '';
 
   slot.innerHTML =
     '<div class="card card-accent" style="margin-top:16px">' +
@@ -1253,6 +1247,7 @@ function resetDemo() {
   window._tunnelUrl = null;
   window._paymentCommitment = null;
   window._stripeHold = null;
+  window._winnerRobot = null;
   window._stripePaymentIntent = null;
   window._stripeSessionId = null;
   window._lastDeliveryData = null;
@@ -1374,7 +1369,7 @@ async function runAuction() {
       return '- ' + r.name + ' (agent #' + r.agent_id + ' on ' + r.chain_name + walletStr + toolStr + ')';
     }).join('\n');
     robotContext = '\n\nDiscovered robots (registered on-chain via ERC-8004):\n' + robotList +
-      '\n\nThese are REAL robots discovered on-chain. Reference them by name when posting tasks and collecting bids. The auction engine also has simulated operators that may bid alongside these real robots.';
+      '\n\nThese are robots discovered on-chain via ERC-8004. They bid and execute tasks via their MCP endpoints. Reference them by name in your narration.';
   }
 
   var deliverySchemaContext = '\n\nDelivery Schema (robot receives this, QA validates against it):\n' + JSON.stringify(DELIVERY_SCHEMA, null, 2);
@@ -1438,7 +1433,7 @@ async function runAuction() {
     window._awardedRequestId = auctionRequestId;
     window._tunnelUrl = tunnelUrl;
 
-    // Extract winner info
+    // Extract winner info and match to discovered robot
     var winnerName = 'Operator';
     var winnerPrice = '';
     var bidStep = steps.filter(function(s) { return s.tool_name === 'auction_get_bids'; })[0];
@@ -1448,6 +1443,11 @@ async function runAuction() {
       var winnerBid = (bidsResult.bids || []).filter(function(b) { return b.robot_id === bidsResult.recommended_winner; })[0];
       if (winnerBid) winnerPrice = '$' + winnerBid.price;
     }
+
+    // Find the winning robot in discovered robots (match by name/robot_id)
+    window._winnerRobot = discoveredRobots.filter(function(r) {
+      return r.name === winnerName;
+    })[0] || discoveredRobots[0] || null;
 
     await delay(500);
     renderWinnerCard(data.final_text, winnerName, winnerPrice);
@@ -1547,10 +1547,7 @@ async function payWithStripe(amountCents, operatorAccountId) {
   btn.disabled = true;
   btn.textContent = 'Authorizing hold...';
 
-  var operatorName = 'Robot Operator';
-  if (discoveredRobots.length > 0) {
-    operatorName = discoveredRobots[0].name || operatorName;
-  }
+  var operatorName = window._winnerRobot ? window._winnerRobot.name : 'Robot Operator';
 
   try {
     // Step 1: Create PaymentIntent with manual capture (authorize only, no charge)
@@ -1695,7 +1692,8 @@ async function payWithUSDC(operatorWallet) {
 
   // Chain from demo mode selector (overrides robot's chain)
   var overrideChain = getDemoChainId();
-  var chainId = overrideChain || (discoveredRobots.length > 0 ? discoveredRobots[0].chain_id : 8453);
+  var winnerChain = window._winnerRobot ? window._winnerRobot.chain_id : 8453;
+  var chainId = overrideChain || winnerChain;
   if (chainId === 11155111) chainId = 84532; // Eth Sepolia → Base Sepolia
   var chainName = CHAIN_NAMES[chainId] || 'Chain ' + chainId;
   var usdcAddr = USDC_ADDRESSES[chainId];

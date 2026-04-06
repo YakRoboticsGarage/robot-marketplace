@@ -57,6 +57,55 @@ except ImportError:
     StripeService = None
 
 
+def _discover_onchain_robots():
+    """Query ERC-8004 subgraph for yakrover robots and create MCP adapters."""
+    import httpx
+    from auction.mcp_robot_adapter import MCPRobotAdapter
+
+    SUBGRAPH_URL = "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb"
+    YAKROVER_HEX = "0x79616b726f766572"
+
+    query = (
+        '{ agentMetadata_collection(where: {key: "fleet_provider", value: "'
+        + YAKROVER_HEX
+        + '"}, first: 20) { agent { agentId owner registrationFile { name description active mcpEndpoint } '
+        'metadata(first: 10) { key value } } } }'
+    )
+
+    resp = httpx.post(SUBGRAPH_URL, json={"query": query}, timeout=10.0)
+    data = resp.json()
+
+    agents = data.get("data", {}).get("agentMetadata_collection", [])
+    adapters = []
+
+    for entry in agents:
+        agent = entry.get("agent", {})
+        rf = agent.get("registrationFile", {})
+        meta = {m["key"]: m["value"] for m in agent.get("metadata", [])}
+
+        name = rf.get("name", "Robot")
+        mcp_endpoint = rf.get("mcpEndpoint", "")
+        wallet = meta.get("agentWallet")
+        active = rf.get("active", False)
+
+        # Skip robots without a real MCP endpoint
+        if not mcp_endpoint or "placeholder" in mcp_endpoint or not active:
+            log("DISCOVERY", f"  Skip {name}: no MCP endpoint or inactive")
+            continue
+
+        adapter = MCPRobotAdapter(
+            robot_id=name,
+            mcp_endpoint=mcp_endpoint,
+            wallet=wallet,
+            chain_id=8453,
+            description=rf.get("description", ""),
+        )
+        adapters.append(adapter)
+        log("DISCOVERY", f"  {name} — {mcp_endpoint[:50]}...")
+
+    return adapters
+
+
 def build_engine():
     """Create and configure the auction engine with construction fleet."""
     # Wallet — auto-funded for demo
@@ -87,8 +136,26 @@ def build_engine():
     else:
         log("SERVER", "SQLite: in-memory (set AUCTION_DB_PATH for persistence)")
 
-    # Full fleet — sensor robots + construction operators
-    fleet = create_full_fleet()
+    # Discover real robots from ERC-8004 subgraph, fall back to mock fleet
+    discovered = []
+    try:
+        from auction.mcp_robot_adapter import MCPRobotAdapter
+        discovered = _discover_onchain_robots()
+        if discovered:
+            log("SERVER", f"Discovered {len(discovered)} on-chain robot(s)")
+    except Exception as e:
+        log("SERVER", f"On-chain discovery failed: {e}")
+
+    if discovered:
+        # Use on-chain robots + construction survey operators (no mock sensor robots)
+        from auction.mock_fleet import create_construction_fleet
+        fleet = create_construction_fleet() + discovered
+        log("SERVER", "Fleet: on-chain robots + construction operators (mock sensors excluded)")
+    else:
+        # Fallback: full mock fleet when no on-chain robots available
+        fleet = create_full_fleet()
+        log("SERVER", "Fleet: mock fleet (no on-chain robots found)")
+
     log("SERVER", f"Fleet: {len(fleet)} operators")
     for r in fleet:
         name = getattr(r, "name", r.robot_id)

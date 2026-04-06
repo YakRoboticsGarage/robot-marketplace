@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-06 (rev 4.4, v1.1 milestone 3 — Stripe Payment Element inline authorize/capture)
-**Status:** v1.0 built. **v1.1 milestone 3 reached** (265 tests, 35 MCP tools). Both USDC + Stripe working inline (no redirects). Demo-3 at yakrobot.bid/mcp-demo-3.
+**Last updated:** 2026-04-06 (rev 4.5, v1.1 milestone 4 — real on-chain robots via MCP endpoints)
+**Status:** v1.0 built. **v1.1 milestone 4 reached** (265 tests, 35 MCP tools). On-chain robots bid + execute via MCP. Mock fleet replaced. Demo-3 at yakrobot.bid/mcp-demo-3.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.

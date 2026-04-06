@@ -6,7 +6,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 
 **Wedge market:** Construction site surveying (pre-bid topo, GPR subsurface, progress monitoring). Typical tasks: $1,000-$10,000. Full project lifecycle: $25,000-$72,000+.
 **v1.0 status:** Built. 278 tests, 35 MCP tools, ~16,500 LOC.
-**v1.1 status:** Milestone 3 reached (2026-04-06). Both USDC (Base mainnet) and Stripe (Payment Element, authorize/capture) working end-to-end. No redirects. Tag: `v1.1-milestone-stripe-inline`.
+**v1.1 status:** Milestone 4 reached (2026-04-06). Real on-chain robots bid and execute via MCP endpoints. Mock fleet replaced by ERC-8004 discovered robots (Base mainnet). USDC + Stripe both working. Tag: `v1.1-milestone-real-robots`.
 **Next:** v1.5 (settlement abstraction + construction task specs + privacy foundation). See `docs/FEATURE_REQUIREMENTS_v15.md`.
 **Live sites:** [yakrobot.bid](https://yakrobot.bid), [yakrobot.bid/mcp-demo](https://yakrobot.bid/mcp-demo/), [yakrobot.bid/mcp-demo-2](https://yakrobot.bid/mcp-demo-2/), [yakrobot.bid/mcp-demo-3](https://yakrobot.bid/mcp-demo-3/) (current demo), [yakrobot.bid/yaml](https://yakrobot.bid/yaml), [yakrobot.bid/pitch](https://yakrobot.bid/pitch)
 
