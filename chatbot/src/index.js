@@ -240,6 +240,14 @@ export default {
       return handleCreateCheckout(request, env, cors);
     }
 
+    if (url.pathname === "/api/capture-payment" && request.method === "POST") {
+      return handleCapturePayment(request, env, cors);
+    }
+
+    if (url.pathname === "/api/stripe-config" && request.method === "GET") {
+      return handleStripeConfig(env, cors);
+    }
+
     if (url.pathname === "/api/payment-status" && request.method === "GET") {
       return handlePaymentStatus(url, env, cors);
     }
@@ -929,11 +937,15 @@ async function handleCreateCheckout(request, env, cors) {
     request_id = "demo",
     success_url,
     cancel_url,
+    ui_mode,       // "embedded" for inline checkout (no redirect)
+    return_url,    // required for embedded mode
   } = body;
 
-  if (!success_url || !cancel_url) {
+  const isEmbedded = ui_mode === "embedded";
+
+  if (!isEmbedded && (!success_url || !cancel_url)) {
     return new Response(
-      JSON.stringify({ error: "success_url and cancel_url required" }),
+      JSON.stringify({ error: "success_url and cancel_url required (or use ui_mode: 'embedded')" }),
       { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
@@ -948,10 +960,19 @@ async function handleCreateCheckout(request, env, cors) {
   stripeBody.append("line_items[0][price_data][unit_amount]", String(amount_cents));
   stripeBody.append("line_items[0][price_data][product_data][name]", `Survey task payment — ${operator_name}`);
   stripeBody.append("line_items[0][quantity]", "1");
-  stripeBody.append("success_url", success_url);
-  stripeBody.append("cancel_url", cancel_url);
   stripeBody.append("metadata[request_id]", request_id);
   stripeBody.append("metadata[operator_name]", operator_name);
+
+  if (isEmbedded) {
+    // Embedded checkout: inline form, no redirect, manual capture (authorize only)
+    stripeBody.append("ui_mode", "embedded");
+    stripeBody.append("return_url", return_url || "https://yakrobot.bid/mcp-demo-3/");
+    stripeBody.append("payment_intent_data[capture_method]", "manual");
+  } else {
+    // Redirect checkout: classic flow
+    stripeBody.append("success_url", success_url);
+    stripeBody.append("cancel_url", cancel_url);
+  }
 
   // If operator has a Connect account, use destination charges with application fee
   if (operator_account_id) {
@@ -975,7 +996,7 @@ async function handleCreateCheckout(request, env, cors) {
     if (!stripeRes.ok) {
       console.error("Stripe error:", JSON.stringify(session));
       return new Response(
-        JSON.stringify({ error: session.error?.message || "Stripe error" }),
+        JSON.stringify({ error: session.error?.message || "Stripe error", debug: session.error }),
         { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
@@ -985,11 +1006,12 @@ async function handleCreateCheckout(request, env, cors) {
       await env.RATE_LIMIT_KV.put(
         `checkout:${session.id}`,
         JSON.stringify({
-          status: "pending",
+          status: isEmbedded ? "authorized" : "pending",
           amount_cents,
           currency,
           operator_name,
           request_id,
+          payment_intent: session.payment_intent,
           created_at: new Date().toISOString(),
         }),
         { expirationTtl: 86400 }
@@ -998,8 +1020,10 @@ async function handleCreateCheckout(request, env, cors) {
 
     return new Response(
       JSON.stringify({
-        checkout_url: session.url,
+        checkout_url: session.url || null,
+        client_secret: session.client_secret || null,
         session_id: session.id,
+        payment_intent: session.payment_intent,
         amount_cents,
         application_fee_cents: applicationFee,
         operator_payout_cents: amount_cents - applicationFee,
@@ -1010,6 +1034,99 @@ async function handleCreateCheckout(request, env, cors) {
     console.error("Checkout error:", err);
     return new Response(
       JSON.stringify({ error: "Failed to create checkout session" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+}
+
+// --- Stripe config (publishable key for embedded checkout) ---
+
+async function handleStripeConfig(env, cors) {
+  return new Response(
+    JSON.stringify({
+      publishable_key: env.STRIPE_PUBLISHABLE_KEY || null,
+      configured: !!env.STRIPE_SECRET_KEY,
+    }),
+    { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+  );
+}
+
+// --- Capture payment (finalize a manual-capture PaymentIntent) ---
+
+async function handleCapturePayment(request, env, cors) {
+  if (!env.STRIPE_SECRET_KEY) {
+    return new Response(
+      JSON.stringify({ error: "Stripe not configured" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  const { payment_intent_id } = body;
+  if (!payment_intent_id) {
+    return new Response(
+      JSON.stringify({ error: "payment_intent_id required" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    // Capture the authorized payment
+    const captureRes = await fetch(
+      `https://api.stripe.com/v1/payment_intents/${payment_intent_id}/capture`,
+      {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}` },
+      }
+    );
+
+    const pi = await captureRes.json();
+
+    if (!captureRes.ok) {
+      return new Response(
+        JSON.stringify({ error: pi.error?.message || "Capture failed", debug: pi.error }),
+        { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Fetch receipt URL from the charge
+    let receiptUrl = null;
+    if (pi.latest_charge) {
+      try {
+        const chargeRes = await fetch(
+          `https://api.stripe.com/v1/charges/${pi.latest_charge}`,
+          { headers: { "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}` } }
+        );
+        const charge = await chargeRes.json();
+        receiptUrl = charge.receipt_url || null;
+      } catch (_) {}
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        payment_intent_id: pi.id,
+        status: pi.status,
+        amount_cents: pi.amount,
+        currency: pi.currency,
+        receipt_url: receiptUrl,
+        operator_name: pi.metadata?.operator_name || "Robot Operator",
+      }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Capture error:", err);
+    return new Response(
+      JSON.stringify({ error: "Payment capture failed" }),
       { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
