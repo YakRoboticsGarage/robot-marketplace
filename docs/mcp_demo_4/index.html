@@ -330,14 +330,14 @@ background-size:1200px 900px}
       <div class="sidebar-section">
         <div class="sidebar-label">Payment</div>
         <select class="field-input" id="demoMode" onchange="onDemoModeChange()" style="font-size:12px;padding:6px 8px">
-          <option value="base">Base Mainnet (USDC)</option>
-          <option value="base-sepolia" selected>Base Sepolia (USDC testnet)</option>
+          <option value="base" selected>Base Mainnet (USDC)</option>
+          <option value="base-sepolia">Base Sepolia (USDC testnet)</option>
           <option value="eth">Ethereum Mainnet (USDC)</option>
           <option value="eth-sepolia">Ethereum Sepolia (USDC testnet)</option>
           <option value="stripe">Stripe Production (card)</option>
           <option value="stripe-test">Stripe Test (card 4242...)</option>
         </select>
-        <div class="tunnel-status" id="demoModeHint">Testnet USDC. Get test tokens from faucet.</div>
+        <div class="tunnel-status" id="demoModeHint">Real USDC on Base. Buyer wallet needs USDC.</div>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Fleet</div>
@@ -505,7 +505,7 @@ var DEMO_MODES = {
   'stripe':       { type: 'stripe', chainId: null,   label: 'Stripe',          hint: 'Real card charges via Stripe Connect.' },
   'stripe-test':  { type: 'stripe', chainId: null,   label: 'Stripe Test',     hint: 'Use card 4242 4242 4242 4242, any expiry.' },
 };
-var demoMode = 'base-sepolia';
+var demoMode = 'base';
 
 function onDemoModeChange() {
   demoMode = document.getElementById('demoMode').value;
