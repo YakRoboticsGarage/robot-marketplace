@@ -240,6 +240,10 @@ export default {
       return handleCreateCheckout(request, env, cors);
     }
 
+    if (url.pathname === "/api/create-payment-intent" && request.method === "POST") {
+      return handleCreatePaymentIntent(request, env, cors);
+    }
+
     if (url.pathname === "/api/capture-payment" && request.method === "POST") {
       return handleCapturePayment(request, env, cors);
     }
@@ -1039,7 +1043,84 @@ async function handleCreateCheckout(request, env, cors) {
   }
 }
 
-// --- Stripe config (publishable key for embedded checkout) ---
+// --- Create PaymentIntent (for Payment Element — fully inline, no redirect) ---
+
+async function handleCreatePaymentIntent(request, env, cors) {
+  if (!env.STRIPE_SECRET_KEY) {
+    return new Response(
+      JSON.stringify({ error: "Stripe not configured" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
+  let body;
+  try { body = await request.json(); } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+
+  const {
+    amount_cents = 100,
+    currency = "usd",
+    operator_name = "Robot Operator",
+    operator_account_id,
+    request_id = "demo",
+  } = body;
+
+  const applicationFee = Math.round(amount_cents * 0.12);
+
+  const piBody = new URLSearchParams();
+  piBody.append("amount", String(amount_cents));
+  piBody.append("currency", currency);
+  piBody.append("capture_method", "manual");
+  piBody.append("metadata[request_id]", request_id);
+  piBody.append("metadata[operator_name]", operator_name);
+
+  if (operator_account_id) {
+    piBody.append("application_fee_amount", String(applicationFee));
+    piBody.append("transfer_data[destination]", operator_account_id);
+  }
+
+  try {
+    const stripeRes = await fetch("https://api.stripe.com/v1/payment_intents", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: piBody.toString(),
+    });
+
+    const pi = await stripeRes.json();
+
+    if (!stripeRes.ok) {
+      console.error("Stripe PI error:", JSON.stringify(pi));
+      return new Response(
+        JSON.stringify({ error: pi.error?.message || "Stripe error", debug: pi.error }),
+        { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        client_secret: pi.client_secret,
+        payment_intent_id: pi.id,
+        amount_cents: pi.amount,
+        currency: pi.currency,
+        application_fee_cents: applicationFee,
+        operator_payout_cents: amount_cents - applicationFee,
+      }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("PaymentIntent error:", err);
+    return new Response(
+      JSON.stringify({ error: "Failed to create payment intent" }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+}
+
+// --- Stripe config (publishable key for Payment Element) ---
 
 async function handleStripeConfig(env, cors) {
   return new Response(
@@ -1143,14 +1224,19 @@ async function handlePaymentStatus(url, env, cors) {
     );
   }
 
-  // Check KV for webhook-updated status
+  // Check KV for webhook-updated status (only use if it has payment_intent or is definitively paid)
   if (env.RATE_LIMIT_KV) {
     const stored = await env.RATE_LIMIT_KV.get(`checkout:${sessionId}`);
     if (stored) {
-      return new Response(stored, {
-        status: 200,
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
+      const parsed = JSON.parse(stored);
+      // If webhook has populated it with payment_intent or final status, return it
+      if (parsed.payment_intent || parsed.status === "paid") {
+        return new Response(stored, {
+          status: 200,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+      // Otherwise fall through to query Stripe directly (embedded checkout may have completed)
     }
   }
 
@@ -1164,12 +1250,31 @@ async function handlePaymentStatus(url, env, cors) {
         }
       );
       const session = await stripeRes.json();
+
+      // For manual capture, check the PaymentIntent status
+      let status = "pending";
+      let piId = session.payment_intent;
+      if (session.payment_status === "paid") {
+        status = "paid";
+      } else if (session.status === "complete" && piId) {
+        // Embedded checkout with manual capture: session is complete but payment_status is "unpaid"
+        // Check the PaymentIntent directly
+        try {
+          const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${piId}`, {
+            headers: { "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}` },
+          });
+          const pi = await piRes.json();
+          if (pi.status === "requires_capture") status = "requires_capture";
+          else if (pi.status === "succeeded") status = "paid";
+        } catch (_) {}
+      }
+
       return new Response(
         JSON.stringify({
-          status: session.payment_status === "paid" ? "paid" : "pending",
+          status,
+          payment_intent: piId || null,
           amount_cents: session.amount_total,
           currency: session.currency,
-          receipt_url: session.payment_intent ? null : null, // filled by webhook
           operator_name: session.metadata?.operator_name,
         }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } }

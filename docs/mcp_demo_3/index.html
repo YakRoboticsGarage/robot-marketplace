@@ -413,11 +413,15 @@ Requirements:
   <!-- FOOTER -->
   <footer class="app-footer">
     Powered by Claude Haiku 4.5 + YAK ROBOTICS auction engine (34 MCP tools) + Stripe Connect + Base
+    <span id="buildStamp" style="display:block;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-3);opacity:0.6"></span>
   </footer>
 
 </div>
 
 <script>
+// Build timestamp — updated each deploy
+var BUILD_STAMP = '__BUILD_TIMESTAMP__';
+
 // ===== CONSTANTS (copied verbatim from mcp-demo-2) =====
 var WORKER_URL = 'https://yakrobot-chat.rafaeldf2.workers.dev/api/demo';
 var WORKER_BASE = 'https://yakrobot-chat.rafaeldf2.workers.dev';
@@ -1549,8 +1553,8 @@ async function payWithStripe(amountCents, operatorAccountId) {
   }
 
   try {
-    // Create embedded checkout session with manual capture (authorize only)
-    var res = await fetch(WORKER_BASE + '/api/create-checkout', {
+    // Step 1: Create PaymentIntent with manual capture (authorize only, no charge)
+    var res = await fetch(WORKER_BASE + '/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1559,31 +1563,18 @@ async function payWithStripe(amountCents, operatorAccountId) {
         operator_name: operatorName,
         operator_account_id: operatorAccountId || undefined,
         request_id: window._awardedRequestId || 'demo_' + Date.now(),
-        ui_mode: 'embedded',
-        return_url: window.location.href.split('?')[0],
       }),
     });
 
     var data = await res.json();
-
     if (data.error) {
-      console.error('Stripe checkout error:', data);
+      console.error('Stripe PI error:', data);
       btn.textContent = 'Error: ' + data.error;
       btn.disabled = false;
       return;
     }
 
-    if (!data.client_secret) {
-      btn.textContent = 'No client_secret returned';
-      btn.disabled = false;
-      return;
-    }
-
-    // Store payment intent for capture later
-    window._stripePaymentIntent = data.payment_intent;
-    window._stripeSessionId = data.session_id;
-
-    // Fetch publishable key
+    // Step 2: Get publishable key
     var stripeKey = null;
     try {
       var configRes = await fetch(WORKER_BASE + '/api/stripe-config');
@@ -1597,35 +1588,60 @@ async function payWithStripe(amountCents, operatorAccountId) {
       return;
     }
 
-    // Mount embedded checkout in the HOLD phase
-    btn.textContent = 'Loading payment form...';
+    // Step 3: Mount Payment Element inline (no redirect)
+    btn.textContent = 'Loading card form...';
     var mountEl = document.getElementById('stripeEmbedMount');
     if (!mountEl) { btn.textContent = 'Mount element missing'; btn.disabled = false; return; }
 
     var stripe = Stripe(stripeKey);
-    var checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
+    var elements = stripe.elements({ clientSecret: data.client_secret });
+    var paymentElement = elements.create('payment');
     mountEl.innerHTML = '';
-    checkout.mount(mountEl);
+    paymentElement.mount(mountEl);
 
-    // Listen for completion — Stripe fires session.completed when card is authorized
-    // Poll for status since embedded checkout doesn't have a direct callback
-    btn.textContent = 'Complete the form below...';
-    var pollCount = 0;
-    var pollInterval = setInterval(async function() {
-      pollCount++;
-      if (pollCount > 120) { clearInterval(pollInterval); return; } // 2 min max
-      try {
-        var statusRes = await fetch(WORKER_BASE + '/api/payment-status?session_id=' + data.session_id);
-        var status = await statusRes.json();
-        if (status.status === 'authorized' || status.status === 'paid' || status.status === 'requires_capture') {
-          clearInterval(pollInterval);
-          checkout.destroy();
-          mountEl.innerHTML = '';
-          // Stripe hold approved — transition to execute phase
-          showStripeHoldApproved(data, amountCents, operatorName);
-        }
-      } catch (_) {}
-    }, 2000);
+    // Step 4: Add a submit button below the form
+    var submitBtn = document.createElement('button');
+    submitBtn.className = 'pay-btn pay-btn-stripe';
+    submitBtn.style.cssText = 'width:100%;margin-top:12px';
+    submitBtn.textContent = 'Authorize $' + (amountCents / 100).toFixed(2) + ' Hold';
+    mountEl.after(submitBtn);
+    btn.style.display = 'none'; // hide the original button
+
+    submitBtn.onclick = async function() {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authorizing...';
+
+      // confirmPayment with redirect:'if_required' — stays on page for card payments
+      var result = await stripe.confirmPayment({
+        elements: elements,
+        confirmParams: { return_url: window.location.href.split('?')[0] },
+        redirect: 'if_required',
+      });
+
+      if (result.error) {
+        console.error('Stripe confirm error:', result.error);
+        submitBtn.textContent = result.error.message || 'Authorization failed';
+        submitBtn.disabled = false;
+        return;
+      }
+
+      // Success — paymentIntent is authorized (requires_capture)
+      var pi = result.paymentIntent;
+      console.log('Stripe authorized:', pi.id, pi.status);
+
+      // Clean up form
+      paymentElement.destroy();
+      mountEl.innerHTML = '';
+      submitBtn.remove();
+
+      // Transition to execution (same as USDC flow)
+      showStripeHoldApproved({
+        payment_intent: pi.id,
+        amount_cents: amountCents,
+        application_fee_cents: data.application_fee_cents,
+        operator_payout_cents: data.operator_payout_cents,
+      }, amountCents, operatorName);
+    };
 
   } catch (err) {
     console.error('Stripe error:', err);
@@ -2096,6 +2112,10 @@ function resetBtn() {
 // ===== INIT =====
 
 setTimeout(discoverRobots, 500);
+
+// Show build stamp
+var bs = document.getElementById('buildStamp');
+if (bs && BUILD_STAMP !== '__BUILD_TIMESTAMP__') bs.textContent = 'build: ' + BUILD_STAMP;
 checkPaymentReturn();
 </script>
 
