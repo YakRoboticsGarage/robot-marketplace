@@ -336,11 +336,14 @@ Start by asking the user what survey they need, or process an RFP they provide."
         comment = body.get("comment", "")
         task_description = body.get("task_description", "")
         payment_tx = body.get("payment_tx", "")
+        buyer_address = body.get("buyer_address", "")
 
         if not agent_id or not rating:
             return JSONResponse({"error": "agent_id and rating required"}, status_code=400)
 
-        signer_key = os.environ.get("SIGNER_PVT_KEY") or os.environ.get("FLEET_SIGNER_KEY")
+        # Use relay wallet for feedback (doesn't own any robots → no self-feedback block)
+        # Falls back to SIGNER_PVT_KEY if relay not available
+        signer_key = os.environ.get("RELAY_PRIVATE_KEY") or os.environ.get("SIGNER_PVT_KEY")
         pinata_jwt = os.environ.get("PINATA_JWT")
 
         if not signer_key:
@@ -351,7 +354,7 @@ Start by asking the user what survey they need, or process an RFP they provide."
 
             sdk_kwargs = dict(
                 chainId=8453,
-                rpcUrl="https://mainnet.base.org",
+                rpcUrl="https://1rpc.io/base",
                 signer=signer_key,
             )
             if pinata_jwt:
@@ -366,6 +369,8 @@ Start by asking the user what survey they need, or process an RFP they provide."
                 "skill": "env_sensing",
                 "capability": "temperature,humidity",
                 "proofOfPayment": payment_tx,
+                "buyerAddress": buyer_address,
+                "submittedVia": "yakrobot.bid marketplace",
             }
 
             # value: rating scaled to 0-100 (1 star=20, 5 stars=100)

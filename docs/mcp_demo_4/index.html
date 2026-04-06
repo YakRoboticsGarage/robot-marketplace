@@ -1950,6 +1950,7 @@ async function payWithUSDC(operatorWallet) {
       request_id: commitRequestId,
       chain_id: chainId,
       chain_name: chainName,
+      owner: buyerAddr,
       operator_wallet: operatorWallet,
       operator_amount: Number(BigInt(commitData.operator_amount)) / 1000000,
       platform_amount: Number(BigInt(commitData.platform_amount)) / 1000000,
@@ -2166,6 +2167,7 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
               comment: comment,
               task_description: document.getElementById('rfpText').value.trim().slice(0, 200),
               payment_tx: paymentTx,
+              buyer_address: (window._paymentCommitment ? window._paymentCommitment.owner : '') || '',
             }),
           });
           var onchainData = await onchainRes.json();
