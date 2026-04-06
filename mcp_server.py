@@ -186,8 +186,16 @@ def build_engine():
                 for adapter, reachable in pool.map(_probe, discovered):
                     kind = "simulator" if adapter.is_simulator else "real"
                     if reachable:
-                        (sim_online if adapter.is_simulator else real_online).append(adapter)
-                        log("PROBE", f"  ✓ {adapter.robot_id} ({kind})")
+                        if adapter.is_simulator:
+                            # Only include simulators on our infrastructure (Fly.io = always on)
+                            if "fly.dev" in adapter.mcp_endpoint:
+                                sim_online.append(adapter)
+                                log("PROBE", f"  ✓ {adapter.robot_id} ({kind}, fly.dev)")
+                            else:
+                                log("PROBE", f"  ~ {adapter.robot_id} ({kind}, external — skipped)")
+                        else:
+                            real_online.append(adapter)
+                            log("PROBE", f"  ✓ {adapter.robot_id} ({kind})")
                     else:
                         log("PROBE", f"  ✗ {adapter.robot_id} ({kind})")
 
