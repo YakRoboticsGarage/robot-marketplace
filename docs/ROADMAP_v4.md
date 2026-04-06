@@ -189,6 +189,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [ ] After 8004 PR #4 merges: unskip 4 fakerover bid tests
 
 ### Deferred to next phase
+- [ ] **Stable tunnel URLs** — Replace random `trycloudflare.com` with named Cloudflare tunnels (`mcp.yakrobot.bid`, `fleet.yakrobot.bid`). Currently every session requires new tunnel URLs, on-chain metadata updates, and manual paste into demo. See `docs/research/PLAN_REAL_ROBOT_INTEGRATION.md` "Open: Stable Tunnel URLs" section.
 - [ ] Stripe Connect per robot: operator Stripe Connect ID in ERC-8004 metadata (`stripe_connect_id`). Currently hardcoded to platform test account — USDC path is the one where robots actually get paid. See `docs/research/PLAN_REAL_ROBOT_INTEGRATION.md` "Open: Stripe Payments" section.
 - [ ] Production Stripe: switch `sk_test_` → `sk_live_`, operator completes real Connect onboarding
 - [ ] Stripe payment confirmation visible to robot/operator (robot doesn't currently verify payment)

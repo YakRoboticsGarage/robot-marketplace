@@ -148,3 +148,39 @@ Recommend: **B** — try discovered robots first, fall back to mock fleet if non
 3. **Stripe Connect onboarding link:** Marketplace generates a Stripe Connect onboarding URL for each robot operator. After completion, the Connect account ID is stored and associated with the robot.
 
 **Recommendation:** Option 1 (on-chain) is most aligned with the decentralized architecture. Requires coordination with 8004 team to add the metadata field to the registration flow. Option 2 is faster to implement but adds a centralized dependency.
+
+---
+
+## Open: Stable Tunnel URLs (Priority)
+
+**Current state (2026-04-06):** Both the marketplace MCP server and robot MCP server use free `trycloudflare.com` tunnels that generate a random URL each time they start. This means:
+- On-chain robot MCP endpoints go stale whenever the tunnel restarts (requires `update_agent.py` + on-chain tx + gas + subgraph re-indexing)
+- Demo page requires manually pasting the marketplace tunnel URL each session
+- Can't send a demo link to someone and have it "just work"
+
+**Impact:** Every demo session requires 5+ minutes of setup (start simulators, start servers, start tunnels, update on-chain registrations, paste URLs). A stable URL makes the demo instantly runnable.
+
+**Options:**
+1. **Cloudflare named tunnel (free):** Create a Cloudflare account, set up a named tunnel with a fixed subdomain (e.g., `mcp.yakrobot.bid`, `fleet.yakrobot.bid`). Free tier supports this. Requires one-time `cloudflared tunnel create` + DNS CNAME setup.
+2. **ngrok static domain (free tier):** ngrok gives one free static domain per account (e.g., `xxx.ngrok-free.dev`). The 8004 repo already supports `NGROK_DOMAIN`. Requires ngrok account.
+3. **Dedicated server:** Deploy both servers to a VPS (Fly.io, Railway, Render) with a stable hostname. Most reliable but adds hosting cost.
+4. **Hybrid:** Named Cloudflare tunnel for marketplace (it's our infra), ngrok for robot fleet (operator's infra — each operator runs their own ngrok/tunnel).
+
+**Recommendation:** Option 1 (Cloudflare named tunnel) for the marketplace MCP server — we already use Cloudflare (Workers, yakrobot.bid DNS). Option 4 hybrid for robot fleet — operators should manage their own endpoints.
+
+**Two stable URLs needed:**
+| Service | Current | Target |
+|---------|---------|--------|
+| Marketplace MCP server | `random.trycloudflare.com` (changes daily) | `mcp.yakrobot.bid` (permanent) |
+| Robot fleet MCP server | `random.trycloudflare.com` (changes daily) | `fleet.yakrobot.bid` or ngrok static domain |
+
+**Setup for Cloudflare named tunnel:**
+```bash
+# One-time setup
+cloudflared tunnel create yakrobot-mcp
+cloudflared tunnel route dns yakrobot-mcp mcp.yakrobot.bid
+
+# Then run with:
+cloudflared tunnel run --url http://localhost:8001 yakrobot-mcp
+# URL is always: https://mcp.yakrobot.bid
+```
