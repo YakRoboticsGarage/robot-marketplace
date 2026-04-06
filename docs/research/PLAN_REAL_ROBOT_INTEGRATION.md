@@ -133,3 +133,18 @@ If the robot MCP server is down, the auction should still work with mock fleet. 
 - **C)** Replace mock fleet entirely (auction fails if robot server is down)
 
 Recommend: **B** — try discovered robots first, fall back to mock fleet if none respond.
+
+---
+
+## Open: Stripe Payments to Robot Operators
+
+**Current state (2026-04-06):** Stripe payments go to a hardcoded platform Connect account (`acct_1TEjjLC2lXDckgmS`), not to the robot's operator. USDC payments correctly go to the robot's on-chain `agentWallet`. The Stripe path works for the demo (card charged, authorize/capture flow) but the robot operator doesn't receive the Stripe payout.
+
+**Why:** ERC-8004 on-chain metadata stores `agentWallet` (crypto address) but has no field for `stripe_connect_id`. The marketplace has no way to look up which Stripe Connect account belongs to which robot.
+
+**Options for later:**
+1. **On-chain metadata:** Add `stripe_connect_id` to the ERC-8004 agent metadata. Robot operators register their Stripe Connect Express account alongside their wallet. The marketplace reads it from the subgraph like it reads `agentWallet`.
+2. **Off-chain registry:** Marketplace maintains a mapping of `robot_id → stripe_connect_id` in its own database. Operators register their Stripe account via a separate onboarding flow.
+3. **Stripe Connect onboarding link:** Marketplace generates a Stripe Connect onboarding URL for each robot operator. After completion, the Connect account ID is stored and associated with the robot.
+
+**Recommendation:** Option 1 (on-chain) is most aligned with the decentralized architecture. Requires coordination with 8004 team to add the metadata field to the registration flow. Option 2 is faster to implement but adds a centralized dependency.

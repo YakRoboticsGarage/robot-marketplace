@@ -188,10 +188,10 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [ ] End-to-end test: real robot bids → real execution → real sensor data → IPFS upload → schema QA → USDC payment
 - [ ] After 8004 PR #4 merges: unskip 4 fakerover bid tests
 
-### Deferred to next phase (after USDC + robot execution confirmed working)
+### Deferred to next phase
+- [ ] Stripe Connect per robot: operator Stripe Connect ID in ERC-8004 metadata (`stripe_connect_id`). Currently hardcoded to platform test account — USDC path is the one where robots actually get paid. See `docs/research/PLAN_REAL_ROBOT_INTEGRATION.md` "Open: Stripe Payments" section.
 - [ ] Production Stripe: switch `sk_test_` → `sk_live_`, operator completes real Connect onboarding
 - [ ] Stripe payment confirmation visible to robot/operator (robot doesn't currently verify payment)
-- [ ] Operator Stripe Connect ID stored in robot agent card (currently hardcoded in demo)
 - [ ] Stripe webhook for payment status tracking
 
 ### Dropped from earlier plans
