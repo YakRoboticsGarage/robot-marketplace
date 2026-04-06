@@ -449,3 +449,91 @@ proposals:
   proposed_date: '2026-04-05'
   decision_date: null
   decision_notes: null
+- id: IMP-027
+  title: Migrate permit relay to EIP-3009 transferWithAuthorization
+  description: 'Replace the three-transaction permit+transferFrom pattern in handleRelayUsdc and handleExecutePayment
+    with two transferWithAuthorization calls (88% to operator, 12% to platform). EIP-3009
+    eliminates the MEV allowance window: no on-chain allowance is created, each transfer is
+    atomic, and nonces are random (not sequential) so concurrent transactions are safe. Circle
+    USDC on Base already implements transferWithAuthorization. Frontend change: buyer signs two
+    EIP-712 messages (or one, if relay aggregates via multicall). This is the structural fix for
+    the non-atomicity risk identified in R-034. The permit+transferFrom pattern is still usable
+    as a fallback for tokens that do not implement EIP-3009.'
+  module: M18_x402
+  research_source: R-034
+  evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null
+- id: IMP-028
+  title: Add server-side permit signature pre-verification before on-chain submission
+  description: 'Before calling usdc.permit() on-chain, verify the buyer''s signature server-side
+    using ethers.verifyTypedData(domain, types, value, {v,r,s}) and confirm the recovered
+    address matches owner. If mismatch, reject with 400 before spending any relay wallet gas.
+    Domain should be constructed from: name=USDC, version=2, chainId=chain_id, verifyingContract=usdcAddr.
+    Add to both handleRelayUsdc (direct) and handleExecutePayment (commit-on-hire). This prevents
+    gas waste on malformed submissions and provides cleaner error messages.'
+  module: M18_x402
+  research_source: R-034
+  evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null
+- id: IMP-029
+  title: Add relay wallet gas balance monitoring via Cloudflare Cron Trigger
+  description: 'Add a Cron Trigger to wrangler.toml (e.g., "*/15 * * * *") that runs every 15
+    minutes, reads the ETH balance of the relay wallet (0x4b5974229f96ac5987d6e31065d73d6fd8e130d9)
+    on each active chain, and writes the result to RATE_LIMIT_KV under key "health:relay_wallet".
+    Alert if balance drops below threshold: 0.01 ETH on Base mainnet, 0.05 ETH on Ethereum
+    mainnet. A depleted relay wallet causes all USDC payments to silently fail — this is
+    a single-point-of-failure for the payment path at construction-scale task values.'
+  module: M34_admin_console
+  research_source: R-034
+  evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null
+- id: IMP-030
+  title: Remove relay_address from API success response in production
+  description: 'The handleRelayUsdc success response includes relay_address: relayWallet.address
+    (chatbot/src/index.js line 1717). This exposes the relay hot wallet address in every
+    successful payment response, making it trivially discoverable by adversaries who can then
+    monitor the ETH balance and time DoS attacks. Remove relay_address from the production
+    response body. It may be retained in logs. If needed for debugging, gate it behind an admin
+    flag or include only in development/testnet responses.'
+  module: M18_x402
+  research_source: R-034
+  evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null
+- id: IMP-031
+  title: Add deadline floor validation to handleRelayUsdc (match commit-on-hire minimum)
+  description: 'The direct relay endpoint (handleRelayUsdc, chatbot/src/index.js ~line 1685)
+    does not enforce a minimum deadline margin — it accepts any future timestamp including
+    one that expires in seconds. The commit-on-hire flow (handleCommitPayment, line 1787)
+    correctly requires deadline >= now + 300 (5 minutes). Apply the same minDeadline check
+    to handleRelayUsdc: reject if deadline < now + 300 with a clear error message. This
+    prevents race conditions where a valid permit expires between server receipt and on-chain
+    inclusion, wasting relay gas and confusing the buyer.'
+  module: M18_x402
+  research_source: R-034
+  evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null

@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-05"  # R-031 complete; IMP-021/022/023 added; R-032/R-033 spawned
+  last_updated: "2026-04-06"  # R-034 complete; IMP-027/028/029/030/031 added; R-035/R-036 spawned; feedback issues 4-9 processed
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -512,10 +512,38 @@ topics:
     title: "ERC-2612 permit relay security: MEV risk, replay attacks, and relay wallet custody"
     module: M18_x402
     hypothesis: "The new /api/relay-usdc Cloudflare Worker (commit 44ae91f) submits permit + transferFrom on behalf of the buyer, paying gas from RELAY_PRIVATE_KEY. This design has known risks: (1) permit signature replay on other chains if deadline is not enforced, (2) MEV sandwich attacks on the transferFrom tx, (3) relay wallet as a hot wallet custody risk holding gas funds. Research best practices for permit relay design: deadline validation, nonce checks, fee estimation, and whether a paymaster pattern (ERC-4337) is safer at construction-scale ($10K-$45K) payments."
-    status: queued
+    status: complete
     priority: high
     estimated_sessions: 1
+    completed_date: "2026-04-06"
     depends_on: []
     spawned_from: "git:44ae91f (ERC-2612 permit relay)"
     spawned_date: "2026-04-05"
-    notes: "New code shipped 2026-04-05. Relay wallet 0x4b59...0d9 is funded EOA paying gas for permit+transferFrom. Validate: chain ID binding in permit domain separator, deadline enforced server-side, transferFrom reverts handled, relay wallet replenishment strategy."
+    output_file: "docs/research/automated/R-034_erc2612_permit_relay_security.md"
+    improvement_proposals: [IMP-027, IMP-028, IMP-029, IMP-030, IMP-031]
+    spawned: [R-035, R-036]
+    notes: "Key finding: EIP-3009 transferWithAuthorization (already in Circle USDC) is strictly safer than permit+transferFrom — eliminates MEV allowance window. Relay wallet address exposed in API response (IMP-030). Gas monitoring absent (IMP-029). ERC-4337 not recommended at current scale. Cross-chain replay mitigated by USDC's dynamic domain separator but server-side pre-verification still needed (IMP-028)."
+
+  # ===== SPAWNED BY R-034 =====
+
+  - id: R-035
+    title: "EIP-3009 transferWithAuthorization implementation guide for USDC on Base"
+    module: M18_x402
+    hypothesis: "Circle's USDC on Base implements EIP-3009 transferWithAuthorization, which is atomic (no allowance window) and safer than the current permit+transferFrom relay. Research: (1) exact ABI and signing payload for transferWithAuthorization, (2) whether buyer can sign a single message that covers both operator (88%) and platform (12%) splits, or must sign two messages, (3) whether an aggregator/multicall contract can combine both transfers atomically, (4) frontend signing UX with ethers.js v6 + Rabby/MetaMask, (5) gas cost comparison vs current three-tx pattern."
+    status: queued
+    priority: high
+    estimated_sessions: 1
+    depends_on: [R-034]
+    spawned_from: R-034
+    spawned_date: "2026-04-06"
+
+  - id: R-036
+    title: "Flashbots Protect RPC compatibility with Cloudflare Workers and Base mainnet"
+    module: M18_x402
+    hypothesis: "Flashbots Protect provides a private mempool that prevents MEV sandwich attacks by hiding pending transactions. Research: (1) does Flashbots Protect support Base mainnet, (2) is the Protect RPC endpoint compatible with ethers.js JsonRpcProvider in a Cloudflare Worker environment, (3) what is the latency overhead vs standard 1rpc.io/base endpoint, (4) does Protect support EIP-3009 transferWithAuthorization or only EIP-2612 permit transactions. This would be defense-in-depth even after EIP-3009 migration."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-034]
+    spawned_from: R-034
+    spawned_date: "2026-04-06"
