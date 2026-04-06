@@ -147,6 +147,16 @@ background-size:1200px 900px}
 .btn-primary{display:block;width:100%;padding:14px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s}
 .btn-primary:hover{background:var(--accent-hover)}
 .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.btn-primary.reset{background:var(--text-3);color:#fff}
+.btn-primary.reset:hover{background:var(--text-2)}
+
+/* Back link for phase navigation */
+.phase-back{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-3);text-decoration:none;cursor:pointer;margin-bottom:12px}
+.phase-back:hover{color:var(--accent)}
+
+/* Continue button after auction */
+.btn-continue{display:inline-block;margin-top:16px;padding:12px 24px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:var(--radius);cursor:pointer}
+.btn-continue:hover{background:var(--accent-hover)}
 
 .btn-group{display:flex;gap:12px;margin-top:16px}
 .pay-btn{padding:12px 24px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s,transform 0.1s}
@@ -342,7 +352,7 @@ background-size:1200px 900px}
       <div class="sidebar-section">
         <div class="sidebar-label">Fleet</div>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
-          <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" checked style="accent-color:var(--accent)">
+          <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" checked style="accent-color:var(--navy)">
           Simulators only (skip real robots)
         </label>
       </div>
@@ -429,14 +439,16 @@ Requirements:
 
     <!-- AUCTION PHASE -->
     <div class="phase-view" id="phase-auction">
+      <span class="phase-back" onclick="showPhase('setup')">&#8592; Setup</span>
       <h2 class="phase-heading">Auction in Progress</h2>
       <p class="phase-subheading">Claude is orchestrating the auction using MCP tools.</p>
       <div class="progress-label" id="auctionProgress">Sending RFP to auction engine...</div>
       <div id="winnerSlot"></div>
     </div>
 
-    <!-- COMMIT PHASE -->
+    <!-- COMMIT / DISPATCH PHASE -->
     <div class="phase-view" id="phase-commit">
+      <span class="phase-back" onclick="showPhase('auction')">&#8592; Auction</span>
       <h2 class="phase-heading">Approve Hold</h2>
       <p class="phase-subheading">Authorize a payment hold. No charge until you approve the delivery.</p>
       <div id="stripeEmbedMount"></div>
@@ -445,6 +457,7 @@ Requirements:
 
     <!-- EXECUTE PHASE -->
     <div class="phase-view" id="phase-execute">
+      <span class="phase-back" onclick="showPhase('commit')">&#8592; Dispatch</span>
       <h2 class="phase-heading">Task Execution</h2>
       <p class="phase-subheading">Robot is executing. Results validated against the delivery schema.</p>
       <div id="commitmentStatusCard"></div>
@@ -453,6 +466,7 @@ Requirements:
 
     <!-- SETTLE / DONE PHASE -->
     <div class="phase-view" id="phase-settle">
+      <span class="phase-back" onclick="showPhase('execute')">&#8592; Execute</span>
       <h2 class="phase-heading">Transaction Complete</h2>
       <p class="phase-subheading">Payment settled through a real robot auction.</p>
       <div id="receiptSlot"></div>
@@ -966,8 +980,8 @@ function showPhase(phaseId) {
   var btns = [runBtn, mobileBtn].filter(Boolean);
   btns.forEach(function(b) {
     if (phaseId === 'settle') {
-      b.textContent = 'Run Again';
-      b.classList.add('cta');
+      b.textContent = 'Reset Demo';
+      b.classList.add('reset');
       b.disabled = false;
       b.onclick = function() { resetDemo(); };
     } else if (phaseId !== 'setup') {
@@ -1384,7 +1398,7 @@ function resetDemo() {
   var btn = document.getElementById('runBtn');
   btn.disabled = false;
   btn.textContent = 'Hire Robot';
-  btn.classList.remove('cta');
+  btn.classList.remove('cta', 'reset');
   btn.onclick = function() { runAuction(); };
 
   var mobileBtn = document.getElementById('mobileRunBtn');
@@ -1584,10 +1598,16 @@ async function runAuction() {
     await delay(500);
     renderWinnerCard(data.final_text, winnerName, winnerPrice);
 
-    // Dwell on winner card for 4 seconds so user can read it
-    await delay(4000);
-    showPhase('commit');
-    renderPaymentOptions(winnerName, winnerPrice);
+    // User manually proceeds — no auto-advance
+    window._pendingWinner = { name: winnerName, price: winnerPrice };
+    var proceedBtn = document.createElement('button');
+    proceedBtn.className = 'btn-continue';
+    proceedBtn.textContent = 'Proceed to Dispatch \u2192';
+    proceedBtn.onclick = function() {
+      showPhase('commit');
+      renderPaymentOptions(window._pendingWinner.name, window._pendingWinner.price);
+    };
+    document.getElementById('winnerSlot').appendChild(proceedBtn);
 
   } catch (err) {
     showError('Network error. Check your connection and try again.');
