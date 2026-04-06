@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-06 (rev 4.6, v1.1 milestone 5 — real Tumbller live execution)
-**Status:** v1.0 built. **v1.1 milestone 5 reached** (273 tests, 35 MCP tools). Real Tumbller moves + reads sensors at waypoints via MCP. Full pipeline end-to-end. Demo-3 at yakrobot.bid/mcp-demo-3.
+**Last updated:** 2026-04-06 (rev 4.7, v1.1 complete)
+**Status:** v1.0 built. **v1.1 complete** (273 tests, 35 MCP tools). Real robots via MCP, USDC + Stripe, Fly.io always-on. Demo at yakrobot.bid/mcp-demo-3.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.

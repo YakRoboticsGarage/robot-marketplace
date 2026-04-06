@@ -1,11 +1,11 @@
 # Plan: Live Payment Settlement Demo (v4 — Implementation Status)
 
-**Date:** 2026-04-05 (v1.1 milestone 2)
-**Status:** USDC payment working end-to-end on **Base mainnet** with real ERC-8004 robot. Stripe working in test mode. Two-phase demo with correct user journey.
+**Date:** 2026-04-06 (v1.1 complete)
+**Status:** COMPLETE. USDC on Base mainnet + Stripe inline authorize/capture. Real robots via MCP. Always-on on Fly.io.
 **Supersedes:** v3
-**Demo:** https://yakrobot.bid/mcp-demo-2/
+**Demo:** https://yakrobot.bid/mcp-demo-3/
 **Goal:** Real money through a real robot auction. Buyer pays, operator and platform both get paid.
-**Milestone tags:** `v1.1-milestone-payment-e2e` (Sepolia), `v1.1-milestone-base-mainnet` (mainnet + UX)
+**Milestone tags:** `v1.1-milestone-payment-e2e`, `v1.1-milestone-base-mainnet`, `v1.1-milestone-stripe-inline`, `v1.1-milestone-real-robots`, `v1.1-milestone-tumbller-live`
 
 ---
 

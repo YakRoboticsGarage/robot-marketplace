@@ -258,8 +258,8 @@ M1-M15, M19-M20, M22-M28 -- core auction, payments, compliance, frontend
 ### v1.0.2 (In Progress) -- 2 modules
 M30 (Event Log), M31 (Task Feed API) -- tracking infrastructure
 
-### v1.1 (Milestone reached 2026-04-05) -- 3 modules
-M38 (Browser Wallet Connect — BUILT), M39 (Permit Relay — BUILT), M15 (Stripe test mode working). Demo live at yakrobot.bid/mcp-demo-2. **USDC payment confirmed end-to-end on Base Sepolia.** Remaining: Stripe production keys, robot Base registration.
+### v1.1 (Complete 2026-04-06) -- 7 modules
+M38 (Browser Wallet Connect), M39 (Permit Relay), M40 (MCPRobotAdapter), M41 (On-chain Discovery), M42 (Stripe Payment Element), M43 (8004scan Feedback), M44 (Fly.io Deployment). Demo at yakrobot.bid/mcp-demo-3. Real robots bid + execute via MCP. USDC on Base mainnet + Stripe inline. Always-on infrastructure on Fly.io.
 
 ### v1.5 (Next) -- 4 modules
 M16 (Settlement Router), M23 (Commitment Hash on-chain), M32 (Buyer Dashboard), M33 (Operator Dashboard), M34 (Admin Console)
