@@ -136,7 +136,7 @@ def build_engine():
     else:
         log("SERVER", "SQLite: in-memory (set AUCTION_DB_PATH for persistence)")
 
-    # Discover real robots from ERC-8004 subgraph, fall back to mock fleet
+    # Discover on-chain robots with liveness probing and real-robot preference
     discovered = []
     try:
         from auction.mcp_robot_adapter import MCPRobotAdapter
@@ -147,12 +147,43 @@ def build_engine():
         log("SERVER", f"On-chain discovery failed: {e}")
 
     if discovered:
-        # Use on-chain robots + construction survey operators (no mock sensor robots)
+        # Probe liveness in parallel (avoid sequential 5s timeouts)
+        import concurrent.futures
+
+        log("PROBE", f"Probing {len(discovered)} robot(s) in parallel...")
+
+        def _probe(adapter):
+            reachable = adapter.is_reachable(timeout=5.0)
+            return adapter, reachable
+
+        real_online = []
+        sim_online = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(discovered)) as pool:
+            results = pool.map(_probe, discovered)
+
+        for adapter, reachable in results:
+            kind = "simulator" if adapter.is_simulator else "real"
+            if reachable:
+                if adapter.is_simulator:
+                    sim_online.append(adapter)
+                else:
+                    real_online.append(adapter)
+                log("PROBE", f"  ✓ {adapter.robot_id} ({kind}) — online")
+            else:
+                log("PROBE", f"  ✗ {adapter.robot_id} ({kind}) — unreachable")
+
         from auction.mock_fleet import create_construction_fleet
-        fleet = create_construction_fleet() + discovered
-        log("SERVER", "Fleet: on-chain robots + construction operators (mock sensors excluded)")
+
+        if real_online:
+            fleet = create_construction_fleet() + real_online
+            log("SERVER", f"Fleet: {len(real_online)} real robot(s) online — simulators excluded")
+        elif sim_online:
+            fleet = create_construction_fleet() + sim_online
+            log("SERVER", f"Fleet: {len(sim_online)} simulator(s) online — no real robots responding")
+        else:
+            fleet = create_full_fleet()
+            log("SERVER", "Fleet: mock fleet (no on-chain robots reachable)")
     else:
-        # Fallback: full mock fleet when no on-chain robots available
         fleet = create_full_fleet()
         log("SERVER", "Fleet: mock fleet (no on-chain robots found)")
 

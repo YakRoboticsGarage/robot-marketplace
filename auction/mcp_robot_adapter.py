@@ -68,6 +68,37 @@ class MCPRobotAdapter:
         }
 
         self._session_id: str | None = None
+        self.is_simulator: bool = "fakerover" in robot_id.lower() or "faker" in robot_id.lower()
+
+    def is_reachable(self, timeout: float = 5.0) -> bool:
+        """Quick probe: can we initialize an MCP session with this robot?"""
+        try:
+            resp = httpx.post(
+                self.mcp_endpoint,
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                },
+                json={
+                    "jsonrpc": "2.0",
+                    "method": "initialize",
+                    "params": {
+                        "protocolVersion": "2025-03-26",
+                        "capabilities": {},
+                        "clientInfo": {"name": "probe", "version": "1.0"},
+                    },
+                    "id": 0,
+                },
+                timeout=timeout,
+            )
+            if resp.status_code == 200:
+                sid = resp.headers.get("mcp-session-id")
+                if sid:
+                    self._session_id = sid
+                return True
+        except Exception:
+            pass
+        return False
 
     def _mcp_headers(self) -> dict:
         """Headers for MCP Streamable HTTP."""
