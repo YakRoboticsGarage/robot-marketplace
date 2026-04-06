@@ -194,7 +194,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [x] ~~8004 team: `robot_submit_bid` + `robot_execute_task` MCP tools~~ — Anuraj delivered (Stages 1-5), merged to main. Marketplace calls them via MCPRobotAdapter.
 - [x] ~~End-to-end test: real robot bids → real execution → real sensor data → schema QA → USDC payment~~ — Confirmed 2026-04-06. Berlin robots bid $0.50 via MCP, execute via fakerover simulator, QA PASS, USDC settled on Base mainnet.
 - [x] ~~IPFS upload of delivery data from real robot execution~~ — demo-3 uploads via `/api/upload-delivery` after execution, CID shown after payment release
-- [ ] Unskip 4 fakerover bid tests in `test_fakerover_bid.py` — PR #4 merged but test mocks need updating to match new bid format
+- [x] ~~Unskip fakerover bid tests~~ — rewritten for new bid format (8 tests, 0 skipped, all pass)
 
 ### Deferred to next phase
 - [ ] **Stable tunnel URLs** — Replace random `trycloudflare.com` with named Cloudflare tunnels (`mcp.yakrobot.bid`, `fleet.yakrobot.bid`). Currently every session requires new tunnel URLs, on-chain metadata updates, and manual paste into demo. See `docs/research/PLAN_REAL_ROBOT_INTEGRATION.md` "Open: Stable Tunnel URLs" section.
