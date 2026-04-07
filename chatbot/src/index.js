@@ -1666,6 +1666,15 @@ async function handleRelayUsdc(request, env, cors) {
     );
   }
 
+  // Validate deadline margin (match commit-on-hire minimum of 5 min)
+  const relayNow = Math.floor(Date.now() / 1000);
+  if (deadline < relayNow + 300) {
+    return new Response(
+      JSON.stringify({ error: "Permit deadline too soon. Must be at least 5 minutes in the future." }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+    );
+  }
+
   const usdcAddr = USDC_CONTRACTS[chain_id];
   const rpcUrl = RPC_ENDPOINTS[chain_id];
   if (!usdcAddr || !rpcUrl) {
