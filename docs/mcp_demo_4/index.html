@@ -295,7 +295,7 @@ background-size:1200px 900px}
   /* Footer: wrap links */
   .app-footer{flex-wrap:wrap;gap:8px;padding:10px 16px;justify-content:center}
 
-  /* Mobile "Hire Robot" button — shown in main content */
+  /* Mobile "Hire Operator" button — shown in main content */
   .mobile-cta{display:block !important;margin-bottom:16px}
 
   /* Small text floors */
@@ -339,7 +339,7 @@ background-size:1200px 900px}
 
     <!-- Primary action — always at top -->
     <div class="sidebar-action">
-      <button class="btn-primary" id="runBtn" onclick="runAuction()">Hire Robot</button>
+      <button class="btn-primary" id="runBtn" onclick="runAuction()">Hire Operator</button>
     </div>
 
     <div class="sidebar-top">
@@ -397,8 +397,8 @@ background-size:1200px 900px}
       <h2 class="phase-heading">Define Your Task</h2>
       <p class="phase-subheading">Describe the work you need done. Available operators will compete for your job.</p>
 
-      <!-- Mobile: Hire Robot button visible without opening sidebar -->
-      <button class="btn-primary mobile-cta" id="mobileRunBtn" style="display:none" onclick="runAuction()">Hire Robot</button>
+      <!-- Mobile: Hire Operator button visible without opening sidebar -->
+      <button class="btn-primary mobile-cta" id="mobileRunBtn" style="display:none" onclick="runAuction()">Hire Operator</button>
 
       <div class="card card-accent">
         <div class="card-label">RFP Document</div>
@@ -1487,13 +1487,13 @@ function resetDemo() {
   // Reset sidebar button
   var btn = document.getElementById('runBtn');
   btn.disabled = false;
-  btn.textContent = 'Hire Robot';
+  btn.textContent = 'Hire Operator';
   btn.classList.remove('cta', 'reset');
   btn.onclick = function() { runAuction(); };
 
   var mobileBtn = document.getElementById('mobileRunBtn');
   if (mobileBtn) {
-    mobileBtn.textContent = 'Hire Robot';
+    mobileBtn.textContent = 'Hire Operator';
     mobileBtn.classList.remove('cta');
     mobileBtn.disabled = false;
     mobileBtn.onclick = function() { runAuction(); };
