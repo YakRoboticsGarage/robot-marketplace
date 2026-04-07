@@ -1,6 +1,6 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-06'
+  last_updated: '2026-04-07'
   source: Automated daily research agent + weekly synthesis
 proposals:
 - id: IMP-001
@@ -577,5 +577,58 @@ proposals:
   priority: medium
   status: proposed
   proposed_date: '2026-04-06'
+  decision_date: null
+  decision_notes: null
+- id: IMP-035
+  title: Implement EIP-3009 relay endpoint with Multicall3 batch submission
+  description: 'Replace the handleRelayUsdc and handleExecutePayment functions in chatbot/src/index.js
+    with an EIP-3009 transferWithAuthorization implementation. Buyer signs two TransferWithAuthorization
+    EIP-712 messages (one for 88% to operator, one for 12% to platform). Relay submits both via
+    Multicall3 aggregate3 at 0xcA11bde05977b3631167028862bE2a173976CA11 with allowFailure=false for
+    atomic split. USDC domain: name="USD Coin", version="2". Nonces must be random bytes32 values.
+    Remove ERC-2612 ABI fields (permit, nonces, DOMAIN_SEPARATOR) and add EIP-3009 fields
+    (transferWithAuthorization, receiveWithAuthorization, authorizationState, cancelAuthorization).
+    API body changes: replace {deadline, v, r, s} with {valid_before, operator_nonce, platform_nonce,
+    v1, r1, s1, v2, r2, s2, operator_amount, platform_amount}. See R-035 Findings 2-4 for exact ABI strings and code.'
+  module: M18_x402
+  research_source: R-035
+  evidence: docs/research/automated/R-035_eip3009_transferwithauthorization_guide.md
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-036
+  title: Add cancelAuthorization to task cancellation flow
+  description: 'When a buyer cancels a task that has already had EIP-3009 payment authorizations signed
+    (but the relay has not yet submitted them), call usdc.cancelAuthorization(owner, nonce, v, r, s)
+    for each stored nonce to invalidate the buyer signed transfers on-chain. Store operator_nonce and
+    platform_nonce in the KV commitment record alongside the signatures. Wire into the task cancel endpoint
+    so cancellation of a committed-but-unexecuted task automatically revokes the payment authorization.
+    This prevents accidental relay submission after task cancellation and gives the buyer clean funds recovery.'
+  module: M18_x402
+  research_source: R-035
+  evidence: docs/research/automated/R-035_eip3009_transferwithauthorization_guide.md
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-037
+  title: Add authorizationState nonce freshness check to relay endpoint
+  description: 'Before submitting transferWithAuthorization on-chain, call usdc.authorizationState(owner, nonce)
+    for each nonce (operator and platform). If true, the nonce was already consumed — return HTTP 409
+    with a clear error asking the buyer to re-sign with fresh nonces. This prevents confusing on-chain
+    revert errors from duplicate submission attempts (e.g., buyer double-clicked Pay, or the form was
+    re-submitted after a network error). Two read calls before submission, no extra gas.'
+  module: M18_x402
+  research_source: R-035
+  evidence: docs/research/automated/R-035_eip3009_transferwithauthorization_guide.md
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
   decision_date: null
   decision_notes: null

@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-06"  # R-034 complete; IMP-027/028/029/030/031 added; R-035/R-036 spawned; feedback issues 4-9 processed
+  last_updated: "2026-04-07"  # R-035 complete; IMP-035/036/037 added; R-038 spawned; feedback issues 10-11 processed (Demo-4 tests, no actionable signal)
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -530,12 +530,17 @@ topics:
     title: "EIP-3009 transferWithAuthorization implementation guide for USDC on Base"
     module: M18_x402
     hypothesis: "Circle's USDC on Base implements EIP-3009 transferWithAuthorization, which is atomic (no allowance window) and safer than the current permit+transferFrom relay. Research: (1) exact ABI and signing payload for transferWithAuthorization, (2) whether buyer can sign a single message that covers both operator (88%) and platform (12%) splits, or must sign two messages, (3) whether an aggregator/multicall contract can combine both transfers atomically, (4) frontend signing UX with ethers.js v6 + Rabby/MetaMask, (5) gas cost comparison vs current three-tx pattern."
-    status: queued
+    status: complete
     priority: high
     estimated_sessions: 1
+    completed_date: "2026-04-07"
     depends_on: [R-034]
     spawned_from: R-034
     spawned_date: "2026-04-06"
+    output_file: "docs/research/automated/R-035_eip3009_transferwithauthorization_guide.md"
+    improvement_proposals: [IMP-035, IMP-036, IMP-037]
+    spawned: [R-038]
+    notes: "Key findings: Buyer must sign TWO messages (one per recipient — EIP-3009 is single-recipient). Multicall3 (0xcA11bde05977b3631167028862bE2a173976CA11) batches both transferWithAuthorization calls atomically in one tx with allowFailure=false. Use transferWithAuthorization (not receiveWithAuthorization) for EOA destinations. USDC domain: name='USD Coin', version='2'. Random bytes32 nonce = concurrent-safe. cancelAuthorization enables buyer escape hatch. USDC v2.2 on Base already deployed with 6-7% gas reduction."
 
   - id: R-036
     title: "Flashbots Protect RPC compatibility with Cloudflare Workers and Base mainnet"
@@ -547,3 +552,14 @@ topics:
     depends_on: [R-034]
     spawned_from: R-034
     spawned_date: "2026-04-06"
+
+  - id: R-038
+    title: "validBefore window for commit-on-hire EIP-3009 authorizations and Multicall3 resume-safety"
+    module: M18_x402
+    hypothesis: "The commit-on-hire flow (/api/commit-payment + /api/execute-payment) stores payment credentials in KV and executes when a robot is assigned — a window that could be hours to days. In EIP-3009, the buyer signs two TransferWithAuthorization messages with a validBefore timestamp. If validBefore is too short (e.g., 1 hour), execution may fail for delayed assignments. If too long (e.g., 72 hours), buyer funds are locked for an extended window. Research: (1) what is the typical robot assignment latency in the current demo (p50/p99 from KV records), (2) what validBefore window balances expiry risk vs lock-up, (3) should commit-on-hire use Multicall3 batch or sequential calls — sequential is more resume-safe (txHashes per step) but non-atomic, batch is atomic but harder to resume."
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-035]
+    spawned_from: R-035
+    spawned_date: "2026-04-07"
