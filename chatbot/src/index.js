@@ -653,9 +653,17 @@ async function handleDemo(request, env, cors) {
     );
   }
 
-  // Admin bypass: X-Admin-Key header skips rate limit
+  // Admin bypass: X-Admin-Key header skips rate limit (timing-safe comparison)
   const adminKey = request.headers.get("X-Admin-Key");
-  const isAdmin = env.ADMIN_KEY && adminKey === env.ADMIN_KEY;
+  let isAdmin = false;
+  if (env.ADMIN_KEY && adminKey) {
+    try {
+      const enc = new TextEncoder();
+      const a = enc.encode(adminKey);
+      const b = enc.encode(env.ADMIN_KEY);
+      isAdmin = a.byteLength === b.byteLength && crypto.subtle.timingSafeEqual(a, b);
+    } catch { isAdmin = false; }
+  }
 
   // Rate limit by IP — 5 demo runs per day (admin bypasses)
   const ip =
