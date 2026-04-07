@@ -627,6 +627,7 @@ function escapeHtml(str) {
 
 function formatStepText(str) {
   if (!str) return '';
+  str = normalizeCase(str);
   var html = escapeHtml(str);
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   var lines = html.split('\n');
@@ -1062,6 +1063,28 @@ function closeAllFeedDetails() {
   if (overlay) overlay.classList.remove('active');
 }
 
+function stripMarkdown(str) {
+  if (!str) return '';
+  return str
+    .replace(/^#{1,6}\s+/gm, '')       // headers
+    .replace(/^[-*_]{3,}\s*$/gm, '')    // horizontal rules
+    .replace(/\*\*(.+?)\*\*/g, '$1')   // bold
+    .replace(/^\s*[-*]\s+/gm, '')       // unordered list markers
+    .replace(/^\s*\d+\.\s+/gm, '')      // ordered list markers
+    .replace(/^\|.*\|$/gm, '')          // table rows
+    .replace(/\n+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+// Convert ALL CAPS words (3+ chars) to title case for cleaner display
+function normalizeCase(str) {
+  if (!str) return '';
+  return str.replace(/\b([A-Z]{3,})\b/g, function(match) {
+    return match.charAt(0) + match.slice(1).toLowerCase();
+  });
+}
+
 function toggleFeed() {
   var panel = document.getElementById('feedPanel');
   if (panel) panel.classList.toggle('collapsed');
@@ -1090,12 +1113,7 @@ function appendFeedItem(step, index) {
   } else {
     dotClass = 'feed-dot feed-dot-blue';
     var raw = step.claude_text || '';
-    // Strip markdown formatting from feed preview
-    raw = raw.replace(/\*\*(.+?)\*\*/g, '$1'); // bold
-    raw = raw.replace(/^\s*[-*]\s+/gm, ''); // list markers
-    raw = raw.replace(/^\s*\d+\.\s+/gm, ''); // ordered list
-    raw = raw.replace(/^\|.*\|$/gm, ''); // table rows
-    raw = raw.replace(/\n+/g, ' ').trim();
+    raw = normalizeCase(stripMarkdown(raw));
     text = raw.length > 60 ? raw.substring(0, 60) + '...' : raw;
   }
 
