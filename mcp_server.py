@@ -199,14 +199,14 @@ def build_engine():
                             # Only include simulators on our infrastructure (always on)
                             if "fly.dev" in adapter.mcp_endpoint or "yakrover.online" in adapter.mcp_endpoint:
                                 sim_online.append(adapter)
-                                log("PROBE", f"  ✓ {adapter.robot_id} ({kind})")
+                                log("PROBE", f"  OK{adapter.robot_id} ({kind})")
                             else:
                                 log("PROBE", f"  ~ {adapter.robot_id} ({kind}, external — skipped)")
                         else:
                             real_online.append(adapter)
-                            log("PROBE", f"  ✓ {adapter.robot_id} ({kind})")
+                            log("PROBE", f"  OK{adapter.robot_id} ({kind})")
                     else:
-                        log("PROBE", f"  ✗ {adapter.robot_id} ({kind})")
+                        log("PROBE", f"  --{adapter.robot_id} ({kind})")
 
             from auction.mock_fleet import create_construction_fleet
             if real_online and not engine._simulator_only:

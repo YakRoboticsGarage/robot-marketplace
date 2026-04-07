@@ -1541,7 +1541,7 @@ async function handleAuctionFeedback(request, env, cors) {
   let issueUrl = null;
   if (env.GITHUB_TOKEN) {
     try {
-      const stars = "★".repeat(entry.rating) + "☆".repeat(5 - entry.rating);
+      const stars = entry.rating + "/5";
       const issueBody = [
         `## Auction Feedback`,
         ``,
