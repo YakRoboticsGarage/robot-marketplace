@@ -1,6 +1,11 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-07'
+  total_items: 43
+  implemented: 9
+  deferred: 5
+  rejected: 1
+  proposed: 28
   source: Automated daily research agent + weekly synthesis
 proposals:
 - id: IMP-001
@@ -257,18 +262,18 @@ proposals:
     ignore for dynamic patterns. Mypy CI is now blocking.'
 - id: IMP-016
   title: 'Unskip fakerover bid tests after 8004 PR #4 merge'
-  description: '4 tests in test_fakerover_bid.py are skipped because the FakeRover bid() interface changed in yakrover-8004-mcp
-    PR #4. After that PR merges: update the mock client to return the new bid format, unskip the tests, and re-add test_fakerover_bid.py
-    to the CI pytest command.'
+  description: 'Rewrote all tests for new marketplace bid format. 8 tests (was 4 skipped + 2 active).
+    Stubs updated for BiddingTerms, core.marketplace_tools. Tests cover: bid acceptance (env_sensing,
+    sensor_reading), required fields, capabilities, rejection (wrong category, low budget, offline sim).'
   module: M9_mock_fleet
   research_source: code-review
-  evidence: auction/tests/test_fakerover_bid.py — 4 skip markers
+  evidence: auction/tests/test_fakerover_bid.py — 8 tests, 0 skipped
   effort: small
   priority: null
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-03'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-06'
+  decision_notes: Fully rewritten for Anuraj's new bid() format. 8 tests pass. 273 total tests.
 - id: IMP-017
   title: Add state-detection logic to rfp_processor.py for multi-state DOT standards
   description: 'Extract the issuing DOT/state from the RFP header text (e.g., "Ohio Department of Transportation", "TxDOT",
@@ -628,6 +633,79 @@ proposals:
   evidence: docs/research/automated/R-035_eip3009_transferwithauthorization_guide.md
   effort: small
   priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-038
+  title: SQLite persistence on Fly.io (tasks survive restarts)
+  description: 'Marketplace on Fly.io loses all auction state on deploy/restart. Add Fly volume,
+    set AUCTION_DB_PATH. Engine already supports SyncTaskStore.'
+  module: M22_sqlite_store
+  research_source: demo-testing
+  evidence: Tasks lost on every flyctl deploy — confirmed 2026-04-06
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-039
+  title: WalletConnect v2 for mobile USDC payments
+  description: 'Mobile browsers lack window.ethereum. Add WalletConnect v2 SDK for mobile wallet connection.'
+  module: M38_browser_wallet
+  research_source: demo-testing
+  evidence: USDC payment fails on mobile — no window.ethereum
+  effort: high
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-040
+  title: On-chain settlement attestation via EAS on Base
+  description: 'Create EAS attestation linking task_id, payment_tx, delivery_cid, agent_id, buyer_address.'
+  module: M17_onchain_escrow
+  research_source: PLAN_STABLE_INFRASTRUCTURE
+  evidence: No on-chain record linking payment to task
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-041
+  title: Auto-deploy Fly.io on git push via GitHub Actions
+  description: 'Add deploy-fly.yml workflow. Separate jobs for marketplace and fleet apps.'
+  module: system
+  research_source: PLAN_STABLE_INFRASTRUCTURE
+  evidence: Manual flyctl deploy required
+  effort: small
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-042
+  title: Robot-side IPFS delivery upload (robot uploads CID, marketplace verifies)
+  description: 'Robot uploads own delivery data to IPFS, returns CID. Marketplace verifies against schema.'
+  module: M35_deliverable_qa
+  research_source: PLAN_STABLE_INFRASTRUCTURE
+  evidence: IPFS uploaded by marketplace, not robot
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-043
+  title: RPC failover in payment execution (retry with fallback provider)
+  description: 'Wire RPC_FALLBACKS into payment execution. Try primary, catch 500, retry with fallback.'
+  module: M39_permit_relay
+  research_source: demo-testing
+  evidence: 1rpc.io 500 error during live payment — 2026-04-06
+  effort: small
+  priority: high
   status: proposed
   proposed_date: '2026-04-07'
   decision_date: null
