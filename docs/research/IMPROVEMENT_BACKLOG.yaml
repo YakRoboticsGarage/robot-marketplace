@@ -1,11 +1,11 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-07'
-  total_items: 43
-  implemented: 9
-  deferred: 5
+  total_items: 45
+  implemented: 7
+  deferred: 4
   rejected: 1
-  proposed: 28
+  proposed: 33
   source: Automated daily research agent + weekly synthesis
 proposals:
 - id: IMP-001
@@ -706,6 +706,39 @@ proposals:
   evidence: 1rpc.io 500 error during live payment — 2026-04-06
   effort: small
   priority: high
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-044
+  title: Log swallowed connection exceptions in mcp_robot_adapter.py
+  description: >
+    auction/mcp_robot_adapter.py:104 has a bare `except Exception: pass` in the session
+    initialization path. Connection errors are silently dropped, producing no diagnostic
+    output. Replace with `except Exception as exc: log("ADAPTER", f"session init failed: {exc}")`
+    so failures surface in the auction log without raising.
+  module: M34_robot_mcp_bridge
+  research_source: code-audit-2026-04-07
+  evidence: 'mcp_robot_adapter.py line 104: except Exception: pass — connection failures are invisible'
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-045
+  title: Replace print()-based log shim in core.py with stdlib logging
+  description: >
+    The `log()` function in auction/core.py (line 667) wraps print(). In production
+    this produces no timestamps, no log levels, and no structured output. Replace with
+    Python stdlib `logging.getLogger("yakrover")` calls. Tag-based calls map to
+    WARNING (ERROR, TIMEOUT, REJECT) and INFO (all others). Zero behaviour change;
+    enables log-level filtering and structured capture by Fly.io / CloudWatch.
+  module: system
+  research_source: code-audit-2026-04-07
+  evidence: 'core.py:667 — log() wraps print(), no levels or timestamps'
+  effort: small
+  priority: low
   status: proposed
   proposed_date: '2026-04-07'
   decision_date: null

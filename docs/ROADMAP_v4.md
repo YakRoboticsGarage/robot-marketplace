@@ -3,7 +3,7 @@
 **Project:** yakrover-auction-explorer
 **Owner:** Product
 **Last updated:** 2026-04-07 (rev 4.8, v1.2 milestone — single-sign USDC, no platform fee)
-**Status:** v1.0 built. v1.1 complete. **v1.2 milestone** (277 tests, 35 MCP tools). Single-signature USDC, no platform fee, professional buyer UI. Demo at yakrobot.bid/mcp-demo.
+**Status:** v1.0 built. v1.1 complete. **v1.2 milestone** (284 tests, 35 MCP tools). Single-signature USDC, no platform fee, professional buyer UI. Demo at yakrobot.bid/mcp-demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
