@@ -202,8 +202,8 @@ background-size:1200px 900px}
 .star-row span{color:var(--text-3);transition:color 0.1s}
 
 /* Delivery data card */
-.data-card{background:var(--bg-subtle);border-radius:var(--radius);padding:12px;margin:12px 0}
-.data-card pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-2);overflow:auto;max-height:200px;margin:0;white-space:pre-wrap;word-break:break-all}
+.data-card{background:var(--bg-subtle);border-radius:var(--radius);padding:8px;margin:8px 0}
+.data-card pre{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-2);overflow:auto;max-height:120px;margin:0;white-space:pre-wrap;word-break:break-all}
 
 /* Progress label */
 .progress-label{font-size:13px;color:var(--text-2);padding:8px 0;display:none}
@@ -447,8 +447,11 @@ Requirements:
     <!-- AUCTION PHASE -->
     <div class="phase-view" id="phase-auction">
       <span class="phase-back" onclick="showPhase('setup')">Back to Setup</span>
-      <h2 class="phase-heading">Finding the Best Operator</h2>
-      <p class="phase-subheading">Your request is being matched with available operators. They're reviewing the scope and submitting bids.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h2 class="phase-heading" style="margin-bottom:0">Finding the Best Operator</h2>
+        <div id="auctionActionSlot"></div>
+      </div>
+      <p class="phase-subheading">Your request is being matched with available operators.</p>
       <div class="progress-label" id="auctionProgress">Processing your request...</div>
       <div id="winnerSlot"></div>
     </div>
@@ -456,7 +459,9 @@ Requirements:
     <!-- COMMIT / DISPATCH PHASE -->
     <div class="phase-view" id="phase-commit">
       <span class="phase-back" onclick="showPhase('auction')">Back to Auction</span>
-      <h2 class="phase-heading">Authorize Payment</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h2 class="phase-heading" style="margin-bottom:0">Authorize Payment</h2>
+      </div>
       <p class="phase-subheading">Place a hold to confirm your hire. You won't be charged until you approve the delivered results.</p>
       <div id="stripeEmbedMount"></div>
       <div id="commitSlot"></div>
@@ -465,7 +470,10 @@ Requirements:
     <!-- EXECUTE PHASE -->
     <div class="phase-view" id="phase-execute">
       <span class="phase-back" onclick="showPhase('commit')">Back to Dispatch</span>
-      <h2 class="phase-heading">Work in Progress</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h2 class="phase-heading" style="margin-bottom:0">Work in Progress</h2>
+        <div id="executeActionSlot"></div>
+      </div>
       <p class="phase-subheading">The operator is performing the task. Results will be verified before payment is released.</p>
       <div id="commitmentStatusCard"></div>
       <div id="deliverySlot"></div>
@@ -1386,15 +1394,15 @@ async function renderDeliveryResult(deliveryData, qaResult) {
 
   var dataPreviewHtml = '';
 
-  var releaseHtml = '';
+  // Show Release Payment button next to heading
   if (qaStatus === 'PASS') {
-    releaseHtml =
-      '<button class="btn-continue release-payment-btn" onclick="releasePayment()" style="margin-bottom:16px">Release Payment</button>' +
-      '<p class="explainer" style="margin-bottom:12px">Quality check passed. Release payment to complete the transaction.</p>';
+    var execAction = document.getElementById('executeActionSlot');
+    if (execAction) {
+      execAction.innerHTML = '<button class="pay-btn release-payment-btn" style="background:var(--accent);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Payment</button>';
+    }
   }
 
   slot.innerHTML =
-    releaseHtml +
     '<h3 style="margin-bottom:8px">Delivery Received</h3>' +
     qaHtml + dataPreviewHtml;
 }
@@ -1523,6 +1531,8 @@ function resetDemo() {
   document.getElementById('revealedDataSlot').innerHTML = '';
   document.getElementById('feedbackSlot').innerHTML = '';
   document.getElementById('feedList').innerHTML = '';
+  var aas = document.getElementById('auctionActionSlot'); if (aas) aas.innerHTML = '';
+  var eas = document.getElementById('executeActionSlot'); if (eas) eas.innerHTML = '';
   document.getElementById('errorMsg').classList.remove('visible');
 
   // Reset progress
@@ -1735,18 +1745,12 @@ async function runAuction() {
     window._auctionSummaryText = data.final_text || '';
     renderWinnerCard(data.final_text, winnerName, winnerPrice);
 
-    // User manually proceeds — button at top of winner card
+    // User manually proceeds — button next to heading
     window._pendingWinner = { name: winnerName, price: winnerPrice };
-    var proceedBtn = document.createElement('button');
-    proceedBtn.className = 'btn-continue';
-    proceedBtn.style.marginBottom = '16px';
-    proceedBtn.textContent = 'Proceed to Dispatch';
-    proceedBtn.onclick = function() {
-      showPhase('commit');
-      renderPaymentOptions(window._pendingWinner.name, window._pendingWinner.price);
-    };
-    var slot = document.getElementById('winnerSlot');
-    slot.insertBefore(proceedBtn, slot.firstChild);
+    var actionSlot = document.getElementById('auctionActionSlot');
+    if (actionSlot) {
+      actionSlot.innerHTML = '<button class="pay-btn" style="background:var(--accent);color:#fff;font-size:11px;padding:6px 12px" onclick="showPhase(\'commit\');renderPaymentOptions(window._pendingWinner.name,window._pendingWinner.price)">Proceed to Dispatch</button>';
+    }
 
   } catch (err) {
     showError('Network error. Check your connection and try again.');
