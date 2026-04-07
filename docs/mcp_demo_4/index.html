@@ -1059,7 +1059,10 @@ function closeFeedDetail(id) {
 }
 
 function closeAllFeedDetails() {
-  document.querySelectorAll('.feed-detail.expanded').forEach(function(el) { el.classList.remove('expanded'); });
+  document.querySelectorAll('.feed-detail.expanded').forEach(function(el) {
+    if (el.id === 'feedbackModal' || el.id === 'summaryModal') el.remove();
+    else el.classList.remove('expanded');
+  });
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.remove('active');
 }
@@ -1247,7 +1250,7 @@ function renderWinnerCard(text, winnerName, winnerPrice) {
       (sla ? '<div class="kv-row"><span class="kv-label">SLA</span><span class="kv-value">' + escapeHtml(sla) + '</span></div>' : '') +
       (score ? '<div class="kv-row"><span class="kv-label">Score</span><span class="kv-value">' + escapeHtml(score) + '</span></div>' : '') +
       (walletShort ? '<div class="kv-row"><span class="kv-label">Payment Account</span><span class="kv-value kv-value-mono">' + escapeHtml(walletShort) + '</span></div>' : '') +
-      (text ? '<details style="margin-top:12px"><summary style="font-size:12px;color:var(--text-3);cursor:pointer">View full summary</summary><div style="font-size:12px;color:var(--text-2);margin-top:8px;line-height:1.6">' + formatStepText(text) + '</div></details>' : '') +
+      (text ? '<div style="margin-top:12px"><span style="font-size:12px;color:var(--text-3);cursor:pointer;text-decoration:underline" onclick="showSummaryPopup()">View full summary</span></div>' : '') +
     '</div>';
 }
 
@@ -1382,12 +1385,7 @@ async function renderDeliveryResult(deliveryData, qaResult) {
   if (deliveryData) {
     var readings = deliveryData.readings || [];
     dataPreviewHtml =
-      '<details class="data-details"><summary style="font-size:12px;color:var(--text-2);cursor:pointer;padding:8px 0">Delivery payload (' + readings.length + ' waypoints) — click to preview</summary>' +
-      '<div class="data-card payload-blurred" id="deliveryPayload">' +
-        '<pre>' + escapeHtml(JSON.stringify(deliveryData, null, 2)) + '</pre>' +
-      '</div>' +
-      '<p class="explainer" id="payloadBlurNotice">Full data revealed after payment release.</p>' +
-      '</details>';
+      '<p class="explainer" style="margin-top:8px">' + readings.length + ' waypoint readings received. Full delivery data available after payment is released.</p>';
   }
 
   var releaseHtml = '';
@@ -1436,21 +1434,66 @@ function renderFeedbackForm(paymentInfo) {
   var robotName = window._winnerRobot ? window._winnerRobot.name : 'Robot Operator';
   var robotId = window._winnerRobot ? window._winnerRobot.agent_id : '';
 
+  // Store for popup use
+  window._feedbackInfo = { robotId: robotId, robotName: robotName, paymentInfo: paymentInfo };
+
   slot.innerHTML =
-    '<div class="card card-accent" style="margin-top:16px">' +
-      '<h3>Rate this transaction</h3>' +
-      '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">How was your experience with ' + escapeHtml(robotName) + '?</p>' +
-      '<div class="star-row" id="feedbackStars" style="display:flex;gap:6px">' +
-        '<span data-star="1" onclick="selectStar(1)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">1</span>' +
-        '<span data-star="2" onclick="selectStar(2)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">2</span>' +
-        '<span data-star="3" onclick="selectStar(3)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">3</span>' +
-        '<span data-star="4" onclick="selectStar(4)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">4</span>' +
-        '<span data-star="5" onclick="selectStar(5)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">5</span>' +
-      '</div>' +
-      '<textarea class="form-textarea" id="feedbackComment" placeholder="Optional: share what went well or what could improve..." style="min-height:60px;margin-bottom:8px"></textarea>' +
-      '<button class="pay-btn" style="background:var(--accent);color:#fff;font-size:12px;padding:8px 16px" id="feedbackSubmitBtn" onclick="submitFeedback(\'' + escapeHtml(robotId) + '\',\'' + escapeHtml(robotName) + '\',\'' + escapeHtml(paymentInfo.payment_method || '') + '\',\'' + escapeHtml(paymentInfo.payment_tx || '') + '\')">Submit Feedback</button>' +
-      '<span id="feedbackStatus" style="font-size:11px;color:var(--text-3);margin-left:8px"></span>' +
-    '</div>';
+    '<button class="pay-btn" style="background:var(--bg-subtle);color:var(--text-2);border:1px solid var(--border);font-size:12px;padding:8px 16px;margin-top:12px" onclick="openFeedbackPopup()">Rate this operator</button>' +
+    '<span id="feedbackStatus" style="font-size:11px;color:var(--text-3);margin-left:8px"></span>';
+}
+
+function openFeedbackPopup() {
+  var info = window._feedbackInfo;
+  if (!info) return;
+
+  var modal = document.createElement('div');
+  modal.className = 'feed-detail expanded';
+  modal.id = 'feedbackModal';
+  modal.innerHTML =
+    '<div class="feed-detail-close" onclick="closeFeedbackPopup()">Close</div>' +
+    '<h3 style="margin:0 0 12px">Rate this operator</h3>' +
+    '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">How was your experience with ' + escapeHtml(info.robotName) + '?</p>' +
+    '<div class="star-row" id="feedbackStars" style="display:flex;gap:6px;margin-bottom:12px">' +
+      '<span data-star="1" onclick="selectStar(1)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">1</span>' +
+      '<span data-star="2" onclick="selectStar(2)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">2</span>' +
+      '<span data-star="3" onclick="selectStar(3)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">3</span>' +
+      '<span data-star="4" onclick="selectStar(4)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">4</span>' +
+      '<span data-star="5" onclick="selectStar(5)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">5</span>' +
+    '</div>' +
+    '<textarea class="form-textarea" id="feedbackComment" placeholder="Optional: share what went well or what could improve..." style="min-height:60px;margin-bottom:8px;width:100%"></textarea>' +
+    '<button class="pay-btn" style="background:var(--accent);color:#fff;font-size:12px;padding:8px 16px" id="feedbackSubmitBtn" onclick="submitFeedback(\'' + escapeHtml(info.robotId) + '\',\'' + escapeHtml(info.robotName) + '\',\'' + escapeHtml(info.paymentInfo.payment_method || '') + '\',\'' + escapeHtml(info.paymentInfo.payment_tx || '') + '\')">Submit</button>' +
+    '<span id="feedbackStatus" style="font-size:11px;color:var(--text-3);margin-left:8px"></span>';
+
+  document.body.appendChild(modal);
+  var overlay = document.getElementById('feedDetailOverlay');
+  if (overlay) overlay.classList.add('active');
+}
+
+function showSummaryPopup() {
+  var text = window._auctionSummaryText || '';
+  var modal = document.createElement('div');
+  modal.className = 'feed-detail expanded';
+  modal.id = 'summaryModal';
+  modal.innerHTML =
+    '<div class="feed-detail-close" onclick="closeSummaryPopup()">Close</div>' +
+    '<div style="margin-top:8px;font-size:13px;line-height:1.7;color:var(--text-2)">' + formatStepText(text) + '</div>';
+  document.body.appendChild(modal);
+  var overlay = document.getElementById('feedDetailOverlay');
+  if (overlay) overlay.classList.add('active');
+}
+
+function closeSummaryPopup() {
+  var modal = document.getElementById('summaryModal');
+  if (modal) modal.remove();
+  var overlay = document.getElementById('feedDetailOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function closeFeedbackPopup() {
+  var modal = document.getElementById('feedbackModal');
+  if (modal) modal.remove();
+  var overlay = document.getElementById('feedDetailOverlay');
+  if (overlay) overlay.classList.remove('active');
 }
 
 function resetDemo() {
@@ -1463,6 +1506,8 @@ function resetDemo() {
   window._winnerRobot = null;
   window._winnerBidPrice = null;
   window._lastBidStep = null;
+  window._auctionSummaryText = null;
+  window._feedbackInfo = null;
   window._stripePaymentIntent = null;
   window._stripeSessionId = null;
   window._lastDeliveryData = null;
@@ -1689,6 +1734,7 @@ async function runAuction() {
     window._winnerBidPrice = winnerBid ? parseFloat(winnerBid.price) : 0.50;
 
     await delay(500);
+    window._auctionSummaryText = data.final_text || '';
     renderWinnerCard(data.final_text, winnerName, winnerPrice);
 
     // User manually proceeds — button at top of winner card
