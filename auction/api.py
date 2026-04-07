@@ -228,14 +228,5 @@ def create_api_router(engine: AuctionEngine) -> APIRouter:
     return router
 
 
-def add_cors(app: Any) -> None:
-    """Add CORS middleware to a FastAPI app for browser access."""
-    if not _HAS_FASTAPI:
-        return
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Tighten in production
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # CORS is handled at the Cloudflare Worker and mcp_server.py levels.
+    # Removed unused add_cors() — see IMP-032.
