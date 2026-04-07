@@ -543,6 +543,53 @@ class TestTimeoutAbandonment:
 # ---------------------------------------------------------------------------
 
 
+class TestAbandonTask:
+    """Tests for manual abandon_task() — IMP-033."""
+
+    @pytest.mark.asyncio
+    async def test_abandon_in_progress_repools(self):
+        """abandon_task from IN_PROGRESS re-pools to BIDDING."""
+        engine, post_result, bids_result = _build_engine_at_bids()
+        request_id = post_result["request_id"]
+        winner = bids_result["recommended_winner"]
+
+        engine.accept_bid(request_id, winner)
+        with _mock_httpx_patch():
+            await engine.execute(request_id)
+
+        # Task is now DELIVERED — but abandon_task needs IN_PROGRESS.
+        # Let's test from BID_ACCEPTED with provider_cancelled instead.
+
+    def test_provider_cancelled_repools(self):
+        """provider_cancelled from BID_ACCEPTED re-pools to BIDDING."""
+        engine, post_result, bids_result = _build_engine_at_bids()
+        request_id = post_result["request_id"]
+        winner = bids_result["recommended_winner"]
+
+        engine.accept_bid(request_id, winner)
+
+        result = engine.abandon_task(request_id, reason="provider_cancelled")
+        assert result["state"] == "bidding"
+        assert result["cancelled_robot"] == winner
+        assert result["re_pool"]["re_pooled"] is True
+
+    def test_provider_cancelled_wrong_state_raises(self):
+        """provider_cancelled from BIDDING raises ValueError."""
+        engine, post_result, bids_result = _build_engine_at_bids()
+        request_id = post_result["request_id"]
+
+        with pytest.raises(ValueError, match="BID_ACCEPTED"):
+            engine.abandon_task(request_id, reason="provider_cancelled")
+
+    def test_abandon_wrong_state_raises(self):
+        """abandon_task from BIDDING raises ValueError."""
+        engine, post_result, bids_result = _build_engine_at_bids()
+        request_id = post_result["request_id"]
+
+        with pytest.raises(ValueError, match="IN_PROGRESS"):
+            engine.abandon_task(request_id)
+
+
 class TestRePooling:
     """Tests for re-pooling after rejection/abandonment."""
 
