@@ -49,23 +49,31 @@ VVA = Vegetated Vertical Accuracy (95th percentile)
 
 Use for `crs_epsg` and `vertical_datum_epsg`. Always prefer EPSG codes over string names.
 
-### Horizontal CRS (State Plane NAD83)
+### Horizontal CRS (State Plane NAD83, US feet)
 
-| State/Zone | EPSG | String Name |
-|------------|------|-------------|
-| Michigan South | 2113 | NAD83 Michigan South |
-| Michigan Central | 2112 | NAD83 Michigan Central |
-| Michigan North | 2111 | NAD83 Michigan North |
-| Ohio South | 3402 | NAD83 Ohio South |
-| Ohio North | 3401 | NAD83 Ohio North |
-| Indiana East | 2965 | NAD83 Indiana East |
-| Indiana West | 2966 | NAD83 Indiana West |
-| Illinois East | 3435 | NAD83 Illinois East |
-| Illinois West | 3436 | NAD83 Illinois West |
-| Texas North Central | 2276 | NAD83 TX North Central |
-| Texas Central | 2277 | NAD83 TX Central |
-| California Zone 5 | 2229 | NAD83 CA Zone 5 |
-| Florida East | 2236 | NAD83 FL East |
+| State/Zone | EPSG | Key Counties | Notes |
+|------------|------|-------------|-------|
+| **Michigan North** | **2251** | UP: Marquette, Houghton, Chippewa | |
+| **Michigan Central** | **2252** | Grand Traverse, Alpena, Manistee | |
+| **Michigan South** | **2253** | Wayne (Detroit), Kent (GR), Oakland, Washtenaw | Most MDOT projects |
+| **Ohio North** | **3734** | Cuyahoga (Cleveland), Franklin (Columbus), Summit | |
+| **Ohio South** | **3735** | Hamilton (Cincinnati), Montgomery (Dayton) | |
+| Texas North | 2275 | Potter (Amarillo), Lubbock | |
+| Texas North Central | 2276 | Dallas, Tarrant, Collin | High TAM |
+| Texas Central | 2277 | Travis (Austin), Bexar (San Antonio) | |
+| Texas South Central | 2278 | Harris (Houston) | Highest TAM |
+| Texas South | 2279 | Cameron, Hidalgo | |
+| California Zone 1 | 2225 | Del Norte, Humboldt, Siskiyou | |
+| California Zone 2 | 2226 | Butte, Placer, Sacramento | |
+| California Zone 3 | 2227 | Alameda (Oakland), San Francisco | |
+| California Zone 4 | 2228 | Monterey, San Luis Obispo | |
+| California Zone 5 | 2229 | LA, Orange, San Bernardino, Riverside | Highest TAM |
+| California Zone 6 | 2230 | San Diego, Imperial | |
+| Indiana East | 2965 | Marion (Indianapolis), Hamilton | |
+| Indiana West | 2966 | Tippecanoe, Vigo | |
+| Illinois East | 3435 | Cook (Chicago), DuPage | |
+| Illinois West | 3436 | St. Clair, Madison | |
+| Florida East | 2236 | Miami-Dade, Broward, Palm Beach | |
 
 ### Vertical Datums
 
