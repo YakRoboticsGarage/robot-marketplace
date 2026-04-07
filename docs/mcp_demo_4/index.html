@@ -474,11 +474,13 @@ Requirements:
     <!-- SETTLE / DONE PHASE -->
     <div class="phase-view" id="phase-settle">
       <span class="phase-back" onclick="showPhase('execute')">Back to Execute</span>
-      <h2 class="phase-heading">Complete</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h2 class="phase-heading" style="margin-bottom:0">Complete</h2>
+        <div id="feedbackSlot"></div>
+      </div>
       <p class="phase-subheading">The job is done and payment has been released to the operator.</p>
       <div id="receiptSlot"></div>
       <div id="revealedDataSlot"></div>
-      <div id="feedbackSlot"></div>
     </div>
 
   </main>
@@ -1434,7 +1436,7 @@ function renderFeedbackForm(paymentInfo) {
   window._feedbackInfo = { robotId: robotId, robotName: robotName, paymentInfo: paymentInfo };
 
   slot.innerHTML =
-    '<button class="pay-btn" style="background:var(--bg-subtle);color:var(--text-2);border:1px solid var(--border);font-size:12px;padding:8px 16px;margin-top:12px" onclick="openFeedbackPopup()">Rate this operator</button>' +
+    '<button class="pay-btn" style="background:var(--bg-subtle);color:var(--text-2);border:1px solid var(--border);font-size:11px;padding:6px 12px" onclick="openFeedbackPopup()">Rate this operator</button>' +
     '<span id="feedbackStatus" style="font-size:11px;color:var(--text-3);margin-left:8px"></span>';
 }
 
