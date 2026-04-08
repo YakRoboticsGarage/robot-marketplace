@@ -1,11 +1,11 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-07'
-  total_items: 45
+  last_updated: '2026-04-08'
+  total_items: 47
   implemented: 7
   deferred: 4
   rejected: 1
-  proposed: 33
+  proposed: 35
   source: Automated daily research agent + weekly synthesis
 proposals:
 - id: IMP-001
@@ -741,5 +741,41 @@ proposals:
   priority: low
   status: proposed
   proposed_date: '2026-04-07'
+  decision_date: null
+  decision_notes: null
+- id: IMP-046
+  title: pyproject.toml version field is stale (1.0.0 vs v1.3 codebase)
+  description: >
+    pyproject.toml declares `version = "1.0.0"` but the codebase is at v1.3 milestone
+    (ACH + 3-method payment selector, tagged v1.3-milestone-ach-payment). Any tooling
+    that reads the package version (pip show, importlib.metadata) will report 1.0.0,
+    creating confusion in support and dependency graphs. Bump to "1.3.0" to match the
+    milestone tags. No behaviour change.
+  module: system
+  research_source: code-audit-2026-04-08
+  evidence: 'pyproject.toml line 3: version = "1.0.0" — git tag is v1.3-milestone-ach-payment'
+  effort: trivial
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-08'
+  decision_date: null
+  decision_notes: null
+- id: IMP-047
+  title: test_fakerover_bid.py is blanket-excluded from CI rather than marker-gated
+  description: >
+    The CI unit-test job passes `--ignore=auction/tests/test_fakerover_bid.py`, meaning
+    8 bid-execution tests never run in automated builds. These tests require the fakerover
+    simulator (FAKEROVER_URL), which is the same condition as the `fleet` marker already
+    defined in pyproject.toml. Replace the --ignore flag with `@pytest.mark.fleet` on
+    the fakerover tests and remove the blanket ignore from test.yml. The tests then run
+    automatically when the fleet server is available (CI dispatch / release tags) and
+    regressions in bid handling are caught rather than silently skipped.
+  module: M9_mock_fleet
+  research_source: code-audit-2026-04-08
+  evidence: '.github/workflows/test.yml unit-tests job: --ignore=auction/tests/test_fakerover_bid.py — 8 tests never run in CI'
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-08'
   decision_date: null
   decision_notes: null

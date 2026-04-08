@@ -1,1 +1,1 @@
-{"name": "YAK Docs Sync", "message": "Docs sync 2026-04-07: corrected test count 280→284, LOC 17009→17042, research topics 46→47 (8 complete). Fixed IMPROVEMENT_BACKLOG meta. Proposed IMP-044 (log swallowed exceptions) + IMP-045 (stdlib logging)."}
+{"name": "YAK Docs Sync", "message": "Docs sync 2026-04-08: fixed test count 278→284 + LOC 17009→17042 in ROADMAP_v4, commits 50→99 + proposals 31→33 in README. Proposed IMP-046 (pyproject version stale) + IMP-047 (fakerover tests excluded from CI)."}

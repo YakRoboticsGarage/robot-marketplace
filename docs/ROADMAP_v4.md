@@ -3,7 +3,7 @@
 **Project:** yakrover-auction-explorer
 **Owner:** Product
 **Last updated:** 2026-04-08 (rev 4.9, v1.3 milestone — ACH + 3-method payment selector)
-**Status:** v1.0 built. v1.1 complete. v1.2 complete. **v1.3 milestone** (278 tests, 35 MCP tools). ACH bank transfer, 3-method buyer payment selector, US Stripe, deploy scripts. Demo at yakrobot.bid/demo.
+**Status:** v1.0 built. v1.1 complete. v1.2 complete. **v1.3 milestone** (284 tests, 35 MCP tools). ACH bank transfer, 3-method buyer payment selector, US Stripe, deploy scripts. Demo at yakrobot.bid/demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -92,7 +92,7 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - 35 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation
 - Structured error responses, `available_actions`, `next_action` patterns (per AD-13, AD-14, AD-15)
 - Standards-aligned task specs: ASPRS accuracy classes, USGS quality levels, EPSG CRS codes, structured deliverables
-- 280 passing tests, ~17,009 LOC
+- 284 passing tests, ~17,042 LOC
 - Live demo at yakrobot.bid, yakrobot.bid/demo (Claude tool_use), yakrobot.bid/yaml (ontology explorer)
 - Chatbot worker on Cloudflare, MCP server with Cloudflare Tunnel
 
