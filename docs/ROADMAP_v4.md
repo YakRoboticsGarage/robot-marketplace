@@ -201,12 +201,15 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - [x] ~~Unskip fakerover bid tests~~ — rewritten for new bid format (8 tests, 0 skipped, all pass)
 
 ### Next phase
-- [ ] **Stable tunnel URLs** — Replace random `trycloudflare.com` with named Cloudflare tunnels (`mcp.yakrobot.bid`, `fleet.yakrobot.bid`). See `docs/research/PLAN_REAL_ROBOT_INTEGRATION.md`.
-- [ ] **8004scan feedback** — Broadcast auction feedback (rating, comment) to the robot's on-chain profile at https://8004scan.io/agents/base/{agentId}?tab=feedback. Buyers rate the robot after delivery, visible to future buyers.
+- [ ] **ACH bank transfer** — Add `us_bank_account` to Stripe Payment Element. Same hold/capture pattern as card. GCs prefer ACH for tasks >$3K. See `docs/research/PLAN_PAYMENT_SETTLEMENT_DEMO_v4.md`.
+- [ ] **Payment method selection in UI** — Dispatch phase shows 3 buttons (Card / Bank Transfer / Crypto) instead of sidebar dropdown. User picks at moment of payment.
+- [ ] **Operator award notification** — MCP call `robot_task_awarded` to notify operator they won + payment is held. Currently robot only learns at execution time. Coordinate with Anuraj.
+- [x] ~~Stable tunnel URLs~~ — yakrover.online DNS active, Fly.io custom domains with SSL.
+- [x] ~~8004scan feedback~~ — On-chain via relay wallet + agent0-sdk. Graceful fallback on self-feedback block.
 - [ ] Stripe Connect per robot: operator Stripe Connect ID in ERC-8004 metadata.
 - [ ] Production Stripe: switch `sk_test_` → `sk_live_`, operator Connect onboarding.
-- [ ] Stripe payment confirmation visible to robot/operator.
 - [ ] Stripe webhook for payment status tracking.
+- [ ] 0xSplits for platform fee (when reintroduced): buyer sends to split address, auto-distributes.
 
 ### Dropped from earlier plans
 - ~~x402 middleware~~ — wrong tool for marketplace settlement (pay-to-access, not escrow)

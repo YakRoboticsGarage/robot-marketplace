@@ -213,10 +213,37 @@ Browser (yakrobot.bid/mcp-demo-2)
 | Stripe payment confirmation to operator | Robot doesn't currently verify Stripe payment |
 | Stripe webhook for status tracking | `STRIPE_WEBHOOK_SECRET` ready, endpoint built, needs registration |
 
+### Next: ACH Bank Transfer Support
+
+GCs typically pay via bank transfer for tasks over $3K. ACH support completes the payment method coverage:
+
+| Method | Hold mechanism | Release | Status |
+|--------|---------------|---------|--------|
+| Card | Stripe PI, manual capture | `/api/capture-payment` | Working (test mode) |
+| Bank Transfer (ACH) | Stripe PI, `us_bank_account` method | Same capture endpoint | Planned |
+| Crypto (USDC) | EIP-3009 on Base | `/api/execute-payment` | Working (production) |
+
+**ACH implementation path:**
+- Stripe Payment Element already supports ACH — add `us_bank_account` to `payment_method_types` in `handleCreatePaymentIntent`
+- `capture_method: manual` works the same for ACH as card (authorize then capture)
+- Stripe handles bank verification (micro-deposits or instant via Financial Connections)
+- Settlement: 2-4 business days (vs instant for card, instant for crypto)
+- Test credentials: routing 110000000, account 000123456789
+
+**UI change:** Dispatch phase shows 3 payment method buttons (Card / Bank Transfer / Crypto) instead of mode dropdown in sidebar.
+
+### Next: Operator Award Notification
+
+Currently the robot has no knowledge it won the auction until `robot_execute_task` is called. For production:
+- New MCP tool: `robot_task_awarded` — notifies robot it was selected, payment is held, prep for execution
+- Payload: task_id, task_description, payment_status, buyer info
+- Allows robot to pre-warm sensors, move to position, confirm availability
+- Coordinate with Anuraj (8004 team) to add to robot plugin interface
+
 ### Future
 | What | Notes |
 |------|-------|
 | Escrow contract on Base/Ethereum | On-chain hold/release for high-value tasks (>$10K) |
-| Splits.org for multi-operator distribution | Production-scale revenue splitting |
-| Fiat-to-USDC checkout | Research topic R-024 | TBD |
-| Splits.org integration | Production-scale multi-operator distribution | 2-3 |
+| 0xSplits for operator/platform distribution | Buyer sends to split address, auto-distributes. One signature. |
+| Fiat-to-USDC checkout (Coinbase Onramp) | Card-funded USDC without platform touching fiat conversion |
+| EAS settlement attestation | On-chain proof linking task, payment, delivery, and parties |
