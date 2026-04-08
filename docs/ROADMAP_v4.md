@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-07 (rev 4.8, v1.2 milestone — single-sign USDC, no platform fee)
-**Status:** v1.0 built. v1.1 complete. **v1.2 milestone** (284 tests, 35 MCP tools). Single-signature USDC, no platform fee, professional buyer UI. Demo at yakrobot.bid/demo.
+**Last updated:** 2026-04-08 (rev 4.9, v1.3 milestone — ACH + 3-method payment selector)
+**Status:** v1.0 built. v1.1 complete. v1.2 complete. **v1.3 milestone** (278 tests, 35 MCP tools). ACH bank transfer, 3-method buyer payment selector, US Stripe, deploy scripts. Demo at yakrobot.bid/demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -217,6 +217,153 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - ~~Wallet funding before auction~~ — payment is the climax, not the prelude
 - ~~Internal wallet ledger for real payments~~ — Stripe/blockchain IS the ledger
 - ~~25/75 payment split~~ — simplified to full payment on delivery
+
+---
+
+## v1.3 — ACH Bank Transfer + Payment Method Selection (MILESTONE REACHED 2026-04-08)
+
+| | |
+|---|---|
+| **Timeline** | 1 day (2026-04-08) |
+| **Serves** | Marco (buyer — GCs pay by bank transfer), Demo audiences |
+| **Goal** | Buyer chooses payment method at checkout. ACH for construction-scale payments ($3K+). |
+| **Demo** | https://yakrobot.bid/demo/ |
+| **Revert tag** | `v1.3-milestone-ach-payment` |
+
+> **Research:** PLAN_ACH_AND_PAYMENT_TRANSLATION.md (critique-reviewed, ACH has no hold)
+
+### What's built
+
+**ACH bank transfer (third payment rail):**
+- `POST /api/create-ach-intent` — ACH PaymentIntent with Financial Connections instant verification
+- `POST /api/transfer-to-operator` — platform-to-operator transfer after ACH settlement
+- Webhook lifecycle tracking: `payment_intent.processing`, `succeeded`, `payment_failed`
+- Settlement polling (up to 10s) for test-mode ACH that settles within seconds
+- Transfer with `source_transaction` linking + fallback for currency mismatch
+
+**3-method buyer payment selector:**
+- Dispatch phase shows Card / Bank Transfer / Stablecoin buttons (was admin-preselected)
+- Admin dropdown simplified to Production / Test Mode toggle
+- USDC chain auto-detected from winning robot's on-chain `chain_id`
+- Each button hides siblings and mounts the relevant payment form inline
+
+**Infrastructure:**
+- US Stripe account (USD-native, no EUR conversion issues)
+- `stripe_connect_id` read from robot's on-chain ERC-8004 metadata (hex-decoded)
+- Structured deploy scripts: `scripts/deploy-worker.sh`, `scripts/deploy-demo.sh`, `scripts/deploy-all.sh`
+- Pre-flight checks block rogue wrangler configs, verify secrets, smoke-test endpoints
+- Demo URL moved to yakrobot.bid/demo (from yakrobot.bid/mcp-demo)
+
+### Key architecture decision
+
+ACH does not support authorize/capture. Card uses Stripe manual capture (real hold). ACH initiates an immediate debit — the marketplace holds funds at the platform level and transfers to the operator after delivery is verified. Three separate flows, one buyer-facing UI.
+
+| Method | Hold mechanism | Release trigger |
+|--------|---------------|----------------|
+| Card | Stripe `capture_method: manual` | `/api/capture-payment` |
+| ACH | Platform-level hold (immediate debit) | `/api/transfer-to-operator` |
+| USDC | EIP-3009 signed authorization | `/api/execute-payment` |
+
+---
+
+## v1.4 — Demo Polish + Livestream + Platform Admin (PLANNED)
+
+| | |
+|---|---|
+| **Timeline** | After v1.3 |
+| **Serves** | Demo audiences, investors, Marco (buyer) |
+| **Goal** | Livestream of robot execution. Operational tooling. Demo credibility for fundraising. |
+
+### Robot execution livestream
+
+Embed a live camera feed in the Execute phase so demo audiences see the robot physically move and take sensor readings. Simplest viable path: MJPEG stream over HTTP tunnel.
+
+```
+Camera (MJPEG) → Cloudflare tunnel → <img> tag in Execute phase
+```
+
+| Component | What's needed |
+|-----------|--------------|
+| Camera hardware | ESP32-CAM, IP camera, or USB webcam pointed at robot |
+| Stream tunnel | Add to yakrover.online Cloudflare tunnel (e.g. `camera.yakrover.online`) |
+| Frontend | `<img src="stream_url">` in Execute phase, show/hide with robot execution state |
+| Robot metadata | Optional: `camera_endpoint` in on-chain metadata for per-robot camera discovery |
+
+**Effort:** ~30 minutes for MJPEG. ~2 hours if HLS via YouTube/Cloudflare Stream is needed for scale.
+
+### Platform administration (carried from v1.2 plan)
+
+- Operational runbook: secret rotation, wallet funding, worker deploy
+- Relay wallet balance monitoring
+- Service health endpoint aggregation
+- Deploy scripts (done in v1.3)
+
+---
+
+## v1.5 — Zero-Knowledge Task Privacy (RESEARCH REQUIRED)
+
+| | |
+|---|---|
+| **Timeline** | Research phase: 2-4 weeks. Implementation: TBD based on findings. |
+| **Serves** | GCs with confidential site data, government contracts, competitive bid environments |
+| **Goal** | The marketplace has zero knowledge of the task request, RFP content, sensor data, or deliverables. It only knows that a task was completed and payment was settled. |
+
+> **Research project:** R-050 (zero-knowledge marketplace protocol)
+
+### Problem
+
+Construction RFPs contain sensitive information: site locations, structural assessments, subsurface conditions, project timelines. Government contracts add ITAR/CUI restrictions. GCs doing competitive pre-bid surveys don't want competitors (or the platform) to know which sites they're evaluating.
+
+Today the marketplace sees everything: the RFP text, bid details, sensor readings, delivery data. This is a liability and a trust barrier for enterprise and government buyers.
+
+### What "zero knowledge" means here
+
+The platform should only know:
+- A task exists (opaque ID)
+- A buyer and operator are matched
+- Payment is held and released
+- The task completed (boolean) with an on-chain attestation
+
+The platform should NOT know:
+- What the task is (RFP content, location, requirements)
+- What was delivered (sensor data, survey results, deliverables)
+- The bid amounts or scoring rationale (beyond "winner selected")
+- The operator's identity (beyond their on-chain agent ID)
+
+### Research questions (R-050)
+
+1. **Encrypted task specs:** Can the RFP be encrypted end-to-end (buyer → operator) such that the marketplace routes it without reading it? Candidate: hybrid encryption (ECDH key exchange from on-chain keys + AES-256-GCM for payload). The marketplace holds the ciphertext and forwards it.
+
+2. **Private auction scoring:** Can bids be scored without the platform seeing the prices? Candidates: sealed-bid with commit-reveal, homomorphic comparison (TFHE/concrete), MPC between buyer and operator, or simply: buyer runs scoring locally and submits only the winner ID.
+
+3. **Blind delivery verification:** Can the platform verify that delivery meets the spec without seeing either? Candidates: ZK proof that delivery_hash matches spec_hash (SP1, RISC Zero), buyer-side verification with on-chain attestation (EAS), trusted execution (TEE).
+
+4. **Private payment settlement:** Already partially addressed by FD-1 Mode 2 (Horizen L3) and PP-2 (hidden wallet addresses). Extend to: platform doesn't know the payment amount, only that escrow was funded and released. Candidate: shielded pools, commitment schemes.
+
+5. **Regulatory compatibility:** Can zero-knowledge coexist with AML/KYC? The platform needs to verify operator identity at registration but not per-task. Buyer identity verification can be delegated to the payment provider (Stripe KYC, on-chain identity attestation).
+
+6. **Incremental path:** What's the minimum viable privacy that delivers real value? Likely: encrypted RFP + buyer-side QA + on-chain completion attestation. The platform becomes a routing layer, not a data processor.
+
+### Relationship to existing privacy work
+
+| Existing | Scope | Status |
+|----------|-------|--------|
+| PP-2: Hidden wallet addresses | Operator wallets not in API responses | Designed (v1.5) |
+| FD-1 Mode 2: Horizen L3 | Private settlement (shielded escrow) | Research (FD-5) |
+| PP-11: ZK task verification | Delegated SP1 proofs for delivery | Designed (v3.0) |
+| PP-16: Privacy Pools on Base | Shielded payments | Monitoring 0xbow |
+| BBS+ anonymous reputation | Unlinkable operator credentials | Designed (v3.0) |
+
+R-050 unifies these into a coherent end-to-end protocol where the marketplace is a blind matchmaker and payment router.
+
+### Success criteria
+
+- RFP content is never readable by the platform (encrypted at rest and in transit)
+- Delivery data is never stored on or routed through platform infrastructure
+- Payment settlement reveals only "funded" and "released" to the platform
+- Buyer can still verify delivery quality (client-side QA against encrypted spec)
+- Operator reputation still accumulates (ZK attestation of completion, no task details)
+- The entire flow works on the existing ERC-8004 + Base + Stripe infrastructure
 
 ---
 
