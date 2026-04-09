@@ -1268,9 +1268,20 @@ def register_auction_tools(
                     del sdk  # release HTTP connections
 
                 except Exception as exc:
-                    chain_results[chain_name] = {
-                        "status": "error",
-                        "error": str(exc)[:200],  # truncate to avoid leaking RPC URLs or keys
+                    error_msg = str(exc)[:200]
+                    # Check if the mint succeeded despite the error (e.g. setAgentURI failed after mint)
+                    # The agent may exist on-chain even though the full flow errored
+                    if hasattr(agent, 'registration_file') and getattr(agent.registration_file, 'agentId', None):
+                        chain_results[chain_name] = {
+                            "status": "ok",
+                            "agent_id": str(agent.registration_file.agentId),
+                            "agent_uri": str(getattr(agent.registration_file, 'agentURI', '') or ''),
+                            "warning": f"Minted but post-registration step failed: {error_msg}",
+                        }
+                    else:
+                        chain_results[chain_name] = {
+                            "status": "error",
+                            "error": error_msg,
                     }
 
             # 3. Check if any chain succeeded
