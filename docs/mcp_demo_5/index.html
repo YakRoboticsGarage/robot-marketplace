@@ -17,7 +17,7 @@
   --border:#CBD5E0;
   --text:#1A1F26;--text-2:#4A5568;--text-3:#5f6b78;
   --accent:#E8792B;--accent-hover:#C4611E;
-  --green:#1A7D4E;--green-bg:#E6F5ED;
+  --green:#1A7D4E;--green-bg:#E6F5ED;--green-bg-subtle:rgba(26,125,78,0.2);
   --amber:#C27B1A;--amber-bg:#fef3c7;
   --red:#dc2626;--red-bg:#FEE2E2;--red-border:#FECACA;
   --link:#2D5F8A;
@@ -58,8 +58,8 @@ background-size:1200px 900px}
 .breadcrumbs-bar{display:flex;align-items:center;gap:0;padding:0;margin-left:auto}
 .phase{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;color:rgba(255,255,255,0.35);background:transparent;text-transform:uppercase;cursor:default;transition:all 0.2s}
 .phase.active{background:var(--accent);color:#fff}
-.phase.done{background:rgba(26,125,78,0.2);color:var(--green);cursor:pointer}
-.phase.done:hover{background:rgba(26,125,78,0.3)}
+.phase.done{background:var(--green-bg-subtle);color:var(--green);cursor:pointer}
+.phase.done:hover{background:var(--green-bg)}
 .phase-chevron{width:14px;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;user-select:none}
 
 /* Sidebar: fixed settings top, scrollable feed bottom */
@@ -115,7 +115,7 @@ background-size:1200px 900px}
 .action-bar{position:fixed;bottom:0;left:300px;right:0;background:var(--bg);border-top:1px solid var(--border);padding:12px 40px;z-index:50;display:none;box-shadow:0 -2px 8px rgba(0,0,0,0.06)}
 .action-bar.visible{display:flex;align-items:center;justify-content:center;gap:12px}
 .action-bar .btn-primary,.action-bar .pay-btn{margin:0}
-.phase-view{display:none;flex:1;overflow-y:auto;padding:24px 40px 32px}
+.phase-view{display:none;flex:1;overflow-y:auto;padding:24px 40px}
 .phase-view.active{display:flex;flex-direction:column}
 .phase-heading{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
 .phase-subheading{font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5}
@@ -138,6 +138,11 @@ background-size:1200px 900px}
 .field-input[type="file"]{font-size:12px;padding:6px 8px;cursor:pointer}
 .field-input[type="file"]::file-selector-button{background:var(--bg-subtle);border:1px solid var(--border);border-radius:3px;padding:4px 10px;font-family:inherit;font-size:11px;cursor:pointer;margin-right:8px}
 input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
+
+/* Utility classes for repeated patterns */
+.check-label{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer}
+.field-hint{font-size:11px;color:var(--text-3);margin-top:4px}
+.btn-sm{display:inline-block;font-size:11px;padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;font-family:inherit;font-weight:600}
 
 /* Key-value rows */
 .kv-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)}
@@ -272,7 +277,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
   .header-logo{font-size:10px;letter-spacing:1.5px}
   .header-sep{display:none}
   .breadcrumbs-bar{width:100%;padding:6px 0;overflow-x:auto;margin-left:0;-webkit-overflow-scrolling:touch}
-  .phase{padding:4px 10px;font-size:9px;min-height:32px;display:inline-flex;align-items:center}
+  .phase{padding:4px 8px;font-size:10px;min-height:32px;display:inline-flex;align-items:center;letter-spacing:0.5px}
 
   /* Sidebar: fixed drawer overlay */
   .sidebar{display:none;position:fixed;top:0;left:0;width:85vw;max-width:320px;height:100vh;z-index:200;background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;padding-top:48px}
@@ -283,7 +288,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 
   /* Main content: single column, full width */
   .main-content{grid-column:1;grid-row:2;padding:0;max-width:100%}
-  .phase-view{padding:16px 16px 32px}
+  .phase-view{padding:16px}
   .phase-heading{font-size:18px}
   .phase-subheading{font-size:13px}
   .field-grid{grid-template-columns:1fr}
@@ -418,6 +423,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 
     <!-- SETUP PHASE -->
     <div class="phase-view active" id="phase-setup">
+      <div id="discoveryBanner" style="background:var(--amber-bg);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--amber);margin-bottom:12px;display:none">Discovering on-chain operators...</div>
       <h2 class="phase-heading">Define Your Task</h2>
       <p class="phase-subheading">Describe the work you need done. Available operators will compete for your job.</p>
 
@@ -604,15 +610,15 @@ Requirements:
             <div class="field-grid">
               <div>
                 <div class="field-label">Sensor Capabilities (select all that apply)</div>
-                <div id="regEquipmentChecks" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="aerial_lidar" checked> Aerial LiDAR</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="photogrammetry"> Photogrammetry</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="terrestrial_lidar"> Terrestrial LiDAR</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="gpr"> GPR (Subsurface)</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="rtk_gps"> RTK GPS</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="thermal_camera"> Thermal / IR</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="robotic_total_station"> Robotic Total Station</label>
-                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" value="__other_sensor__" onchange="document.getElementById('regSensorOther').style.display=this.checked?'':'none'"> Other</label>
+                <div id="regEquipmentChecks" class="field-grid" style="gap:4px;margin-top:4px">
+                  <label class="check-label"><input type="checkbox" value="aerial_lidar" checked> Aerial LiDAR</label>
+                  <label class="check-label"><input type="checkbox" value="photogrammetry"> Photogrammetry</label>
+                  <label class="check-label"><input type="checkbox" value="terrestrial_lidar"> Terrestrial LiDAR</label>
+                  <label class="check-label"><input type="checkbox" value="gpr"> GPR (Subsurface)</label>
+                  <label class="check-label"><input type="checkbox" value="rtk_gps"> RTK GPS</label>
+                  <label class="check-label"><input type="checkbox" value="thermal_camera"> Thermal / IR</label>
+                  <label class="check-label"><input type="checkbox" value="robotic_total_station"> Robotic Total Station</label>
+                  <label class="check-label"><input type="checkbox" value="__other_sensor__" onchange="document.getElementById('regSensorOther').style.display=this.checked?'':'none'"> Other</label>
                 </div>
                 <input class="field-input" type="text" id="regSensorOther" placeholder="e.g. multispectral, ultrasonic, eddy current" style="display:none;margin-top:6px;font-size:12px">
               </div>
@@ -666,7 +672,7 @@ Requirements:
                 <input class="field-input" type="file" id="regCertOther" accept=".pdf,.jpg,.png" style="font-size:12px;padding:6px 8px">
               </div>
             </div>
-            <div style="font-size:11px;color:var(--text-3);margin-top:6px">Not required for bidding. Verified during award review.</div>
+            <div class="field-hint" style="margin-top:6px">Not required for bidding. Verified during award review.</div>
           </div>
         </div>
 
@@ -685,13 +691,13 @@ Requirements:
               <div>
                 <label class="field-label" for="regMinBid">Minimum Bid (cents)</label>
                 <input class="field-input" type="number" id="regMinBid" value="50" min="1">
-                <div style="font-size:11px;color:var(--text-3);margin-top:4px">Lowest price your robot will bid, regardless of task budget.</div>
+                <div class="field-hint">Lowest price your robot will bid, regardless of task budget.</div>
               </div>
               <div>
                 <div class="field-label">Bid Aggressiveness: <span id="regBidPctLabel">80%</span></div>
                 <input type="range" id="regBidPct" min="70" max="95" value="80" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
                 <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)"><span>70% (aggressive)</span><span>95% (conservative)</span></div>
-                <div style="font-size:11px;color:var(--text-3);margin-top:4px">Percentage of the task budget ceiling your robot bids. Lower = more competitive.</div>
+                <div class="field-hint">Percentage of the task budget ceiling your robot bids. Lower = more competitive.</div>
               </div>
             </div>
           </div>
@@ -699,21 +705,21 @@ Requirements:
           <div class="card card-blue" style="margin-top:12px">
             <div class="card-label">Accepted Payment Channels</div>
             <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Which payment methods will you accept from buyers? Stored on-chain as <code style="font-size:11px">accepted_currencies</code>.</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px">
-              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regAcceptFiat" checked onchange="onPaymentChannelChange()"> Card / Bank Transfer (USD)</label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regAcceptUsdc" checked onchange="onPaymentChannelChange()"> USDC on Base</label>
+            <div class="field-grid" style="gap:4px;margin-bottom:14px">
+              <label class="check-label"><input type="checkbox" id="regAcceptFiat" checked onchange="onPaymentChannelChange()"> Card / Bank Transfer (USD)</label>
+              <label class="check-label"><input type="checkbox" id="regAcceptUsdc" checked onchange="onPaymentChannelChange()"> USDC on Base</label>
             </div>
             <div style="border-top:1px solid var(--border);padding-top:14px">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Payment Destinations</div>
               <div id="regFiatSection" style="margin-bottom:10px">
                 <label class="field-label" for="regStripeAccount">Stripe Connect Account <span style="font-weight:400;color:var(--text-3)">(card / bank transfer payouts)</span></label>
                 <input class="field-input" type="text" id="regStripeAccount" placeholder="acct_... (leave blank to set up after registration)">
-                <div style="font-size:11px;color:var(--text-3);margin-top:4px">Stripe Connect onboarding can be completed after registration.</div>
+                <div class="field-hint">Stripe Connect onboarding can be completed after registration.</div>
               </div>
               <div id="regUsdcSection">
                 <label class="field-label" for="regUsdcWallet">USDC Wallet Address <span style="font-weight:400;color:var(--text-3)">(agentWallet on-chain)</span></label>
                 <input class="field-input" type="text" id="regUsdcWallet" placeholder="Defaults to platform deployer wallet">
-                <div style="font-size:11px;color:var(--text-3);margin-top:4px">USDC payouts go to this address on Base. Pre-filled with your connected wallet if available. Can be updated on-chain after registration.</div>
+                <div class="field-hint">USDC payouts go to this address on Base. Pre-filled with your connected wallet if available. Can be updated on-chain after registration.</div>
               </div>
             </div>
           </div>
@@ -723,13 +729,13 @@ Requirements:
             <summary style="font-size:13px;color:var(--text-3);cursor:pointer;font-weight:500">Advanced Settings</summary>
             <div class="card" style="margin-top:8px">
               <div class="card-label">Registration Chains</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">
-                <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regChainBaseMainnet" checked> Base Mainnet</label>
-                <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regChainBaseSepolia" checked> Base Sepolia</label>
-                <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regChainEthMainnet"> Ethereum Mainnet</label>
-                <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="regChainEthSepolia"> Ethereum Sepolia</label>
+              <div class="field-grid" style="gap:4px;margin-top:4px">
+                <label class="check-label"><input type="checkbox" id="regChainBaseMainnet" checked> Base Mainnet</label>
+                <label class="check-label"><input type="checkbox" id="regChainBaseSepolia" checked> Base Sepolia</label>
+                <label class="check-label"><input type="checkbox" id="regChainEthMainnet"> Ethereum Mainnet</label>
+                <label class="check-label"><input type="checkbox" id="regChainEthSepolia"> Ethereum Sepolia</label>
               </div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Each chain costs ~$0.005 gas. Platform wallet covers gas.</div>
+              <div class="field-hint" style="margin-top:6px">Each chain costs ~$0.005 gas. Platform wallet covers gas.</div>
             </div>
           </details>
 
@@ -1133,6 +1139,8 @@ function validateSchema(data, schema, path) {
 async function discoverRobots() {
   var status = document.getElementById('discoveryStatus');
   var cards = document.getElementById('robotCards');
+  var banner = document.getElementById('discoveryBanner');
+  if (banner) banner.style.display = '';
 
   status.textContent = 'Searching for available robots...';
   cards.innerHTML = '';
@@ -1214,6 +1222,8 @@ async function discoverRobots() {
   } else {
     showNoRobots();
   }
+  var banner = document.getElementById('discoveryBanner');
+  if (banner) { banner.textContent = discoveredRobots.length + ' operator(s) found on-chain'; banner.style.background = 'var(--green-bg)'; banner.style.color = 'var(--green)'; setTimeout(function() { banner.style.display = 'none'; }, 3000); }
 
   } catch (err) {
     console.error('Discovery error:', err);
@@ -1227,6 +1237,8 @@ async function discoverRobots() {
       };
     });
     renderRobotsSidebar(discoveredRobots);
+    var banner = document.getElementById('discoveryBanner');
+    if (banner) { banner.textContent = 'Discovery error — using known robots'; banner.style.background = 'var(--red-bg)'; banner.style.color = 'var(--red)'; setTimeout(function() { banner.style.display = 'none'; }, 5000); }
   }
 }
 
@@ -1735,7 +1747,7 @@ async function renderDeliveryResult(deliveryData, qaResult) {
           '<button class="pay-btn" style="background:var(--amber);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Anyway</button>' +
           '<button class="pay-btn" style="background:var(--red);color:#fff;font-size:11px;padding:6px 12px" onclick="showPhase(\'setup\');resetDemo()">Reject &amp; Reset</button>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--text-3);margin-top:4px">Quality check failed. Release anyway to pay the operator, or reject and start over.</div>';
+        '<div class="field-hint">Quality check failed. Release anyway to pay the operator, or reject and start over.</div>';
     }
   }
 
