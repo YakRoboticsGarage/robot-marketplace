@@ -3319,10 +3319,11 @@ function submitRegistration() {
   var chainLabels = {'base-mainnet':'Base mainnet','base-sepolia':'Base Sepolia','eth-mainnet':'Ethereum mainnet','eth-sepolia':'Ethereum Sepolia'};
   var chainLabel = chainLabels[selectedChain] || selectedChain;
   lines.innerHTML =
-    '<div id="regStepChain" style="color:var(--text-3)">Registering on ' + chainLabel + '...</div>' +
+    '<div id="regStepMint" style="color:var(--text-3)">Minting identity on ' + chainLabel + '...</div>' +
+    '<div id="regStepIPFS" style="color:var(--text-3)">Uploading agent card to IPFS...</div>' +
     '<div id="regStepFleet" style="color:var(--text-3)">Joining bidding fleet...</div>';
 
-  var _regPendingTimer = setTimeout(function() { markRegStep('regStepChain', 'pending'); }, 500);
+  var _regPendingTimer = setTimeout(function() { markRegStep('regStepMint', 'pending'); }, 500);
 
   var tunnelUrl = document.getElementById('tunnelUrl').value;
   fetch(tunnelUrl + '/api/tool/auction_register_robot_onchain', {
@@ -3360,20 +3361,28 @@ function submitRegistration() {
 
     // Clear animation timer
     clearTimeout(_regPendingTimer);
-    // Mark chain result
     var cr = result.chain_result || {};
     var registrationOk = cr.status === 'ok';
 
-    if (registrationOk) {
-      markRegStep('regStepChain', 'done', cr.agent_id || '');
-      appendFeedItem({type: 'tool_call', tool_name: 'register_' + selectedChain.replace('-','_')}, feedCounter);
+    // Mark mint step
+    if (cr.agent_id) {
+      markRegStep('regStepMint', 'done', cr.agent_id);
+      appendFeedItem({type: 'tool_call', tool_name: 'mint_' + selectedChain.replace('-','_')}, feedCounter);
     } else {
-      markRegStep('regStepChain', 'error', (cr.error || 'failed').slice(0, 100));
-      appendFeedItem({type: 'text', claude_text: chainLabel + ': ' + (cr.error || 'failed')}, feedCounter);
+      markRegStep('regStepMint', 'error', (cr.error || 'failed').slice(0, 100));
     }
 
-    // Check if registration failed
+    // Mark IPFS step
+    if (cr.agent_uri && !cr.agent_uri.startsWith('pending')) {
+      markRegStep('regStepIPFS', 'done', cr.agent_uri.slice(0, 30));
+    } else if (cr.agent_id) {
+      markRegStep('regStepIPFS', 'error', cr.agent_uri ? cr.agent_uri.slice(8, 60) : 'not set');
+    }
+
+    // Check if registration failed entirely (no mint)
     if (!registrationOk) {
+      markRegStep('regStepMint', 'error', (cr.error || 'failed').slice(0, 100));
+      markRegStep('regStepIPFS', 'error', 'skipped');
       markRegStep('regStepFleet', 'error', 'registration failed');
       appendFeedItem({type: 'text', claude_text: 'Registration failed on ' + chainLabel}, feedCounter);
       // Show error but keep progress visible so user can see per-chain errors

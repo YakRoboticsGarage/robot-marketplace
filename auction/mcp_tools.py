@@ -1235,13 +1235,42 @@ def register_auction_tools(
                     "task_categories": task_category,
                 })
 
-                tx = agent.registerIPFS()
-                mined = tx.wait_mined(timeout=120)
+                # Step 1: Mint token with on-chain metadata (no IPFS URI yet)
+                import time as _time
+                metadata_entries = agent._collectMetadataForRegistration()
+                tx1_hash = sdk.web3_client.transact_contract(
+                    sdk.identity_registry,
+                    "register",
+                    "",  # empty URI — set in step 2
+                    metadata_entries,
+                )
+                receipt = sdk.web3_client.wait_for_transaction(tx1_hash, timeout=120)
+                agent_id_int = agent._extractAgentIdFromReceipt(receipt)
+                agent_id = f"{cfg['chain_id']}:{agent_id_int}"
+                agent.registration_file.agentId = agent_id
+                agent.registration_file.updatedAt = int(_time.time())
 
-                # TransactionMined.result is the RegistrationFile; agentId/agentURI are on it
-                reg_file = getattr(mined, "result", mined)
-                agent_id = str(getattr(reg_file, "agentId", "") or "")
-                agent_uri = str(getattr(reg_file, "agentURI", "") or "")
+                # Step 2: Upload IPFS agent card + set URI (with delay for RPC state propagation)
+                agent_uri = ""
+                _time.sleep(3)  # let RPC nodes sync minted token state
+                try:
+                    ipfs_cid = sdk.ipfs_client.addRegistrationFile(
+                        agent.registration_file,
+                        chainId=cfg["chain_id"],
+                        identityRegistryAddress=sdk.identity_registry.address,
+                    )
+                    tx2_hash = sdk.web3_client.transact_contract(
+                        sdk.identity_registry,
+                        "setAgentURI",
+                        agent_id_int,
+                        f"ipfs://{ipfs_cid}",
+                    )
+                    sdk.web3_client.wait_for_transaction(tx2_hash, timeout=60)
+                    agent_uri = f"ipfs://{ipfs_cid}"
+                    agent.registration_file.agentURI = agent_uri
+                except Exception as uri_exc:
+                    # Mint succeeded but IPFS/URI failed — robot is on-chain, card is missing
+                    agent_uri = f"pending ({str(uri_exc)[:80]})"
 
                 chain_result = {
                     "agent_id": agent_id,
