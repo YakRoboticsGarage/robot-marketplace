@@ -1240,7 +1240,7 @@ def register_auction_tools(
                 metadata["operator_company"] = company_name
                 metadata["operator_location"] = location
                 metadata["equipment_model"] = model
-                metadata["bid_pct"] = str(bid_pct)
+                # bid_pct intentionally NOT stored on-chain or IPFS — competitive intelligence
                 metadata["sensors"] = ",".join(all_sensors)
                 if usdc_wallet:
                     metadata["preferred_usdc_wallet"] = usdc_wallet
