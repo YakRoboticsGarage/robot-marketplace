@@ -148,6 +148,11 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .mt-12{margin-top:12px}
 .mb-8{margin-bottom:8px}
 .mb-12{margin-bottom:12px}
+.mb-16{margin-bottom:16px}
+.mt-8{margin-top:8px}
+.btn-sub-label{display:block;font-size:11px;color:rgba(255,255,255,0.7)}
+.star-btn{width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3);background:none;padding:0;font-family:inherit;transition:all 0.1s}
+.star-btn:hover{border-color:var(--accent);color:var(--accent)}
 
 /* Key-value rows */
 .kv-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)}
@@ -549,7 +554,7 @@ Requirements:
       <div id="regMcpSection" style="display:none">
         <div class="card card-blue">
           <div class="card-label">Connect Claude Code to the Marketplace</div>
-          <p style="font-size:13px;color:var(--text-2);margin-bottom:12px">Paste this command into your terminal, then tell Claude to register your robot.</p>
+          <p class="explainer mb-12">Paste this command into your terminal, then tell Claude to register your robot.</p>
           <div style="background:var(--bg-subtle);border:1px solid var(--border);border-radius:4px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;position:relative;word-break:break-all" id="mcpCommandBlock">claude mcp add --transport http yakrover https://mcp.yakrover.online/mcp</div>
           <button class="admin-btn" onclick="copyMcpCommand()" style="margin-top:8px" id="mcpCopyBtn">Copy Command</button>
           <p style="font-size:12px;color:var(--text-3);margin-top:12px">Then say: <em>"Register my survey robot. I have a DJI M350 RTK with Zenmuse L2, based in Detroit MI."</em></p>
@@ -614,8 +619,8 @@ Requirements:
             <div class="card-label">Sensors &amp; Platform</div>
             <div class="field-grid">
               <div>
-                <div class="field-label">Sensor Capabilities (select all that apply)</div>
-                <div id="regEquipmentChecks" class="field-grid" style="gap:4px;margin-top:4px">
+                <div class="field-label" id="sensorGroupLabel">Sensor Capabilities (select all that apply)</div>
+                <div id="regEquipmentChecks" class="field-grid" style="gap:4px;margin-top:4px" role="group" aria-labelledby="sensorGroupLabel">
                   <label class="check-label"><input type="checkbox" value="aerial_lidar" checked> Aerial LiDAR</label>
                   <label class="check-label"><input type="checkbox" value="photogrammetry"> Photogrammetry</label>
                   <label class="check-label"><input type="checkbox" value="terrestrial_lidar"> Terrestrial LiDAR</label>
@@ -699,7 +704,7 @@ Requirements:
                 <div class="field-hint">Lowest price your robot will bid, regardless of task budget.</div>
               </div>
               <div>
-                <div class="field-label">Bid Aggressiveness: <span id="regBidPctLabel">80%</span></div>
+                <label class="field-label" for="regBidPct">Bid Aggressiveness: <span id="regBidPctLabel">80%</span></label>
                 <input type="range" id="regBidPct" min="70" max="95" value="80" aria-label="Bid aggressiveness percentage" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
                 <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)"><span>70% (aggressive)</span><span>95% (conservative)</span></div>
                 <div class="field-hint">Percentage of the task budget ceiling your robot bids. Lower = more competitive.</div>
@@ -1426,6 +1431,7 @@ function closeAllFeedDetails() {
   });
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.remove('active');
+  _restoreFocus();
 }
 
 function stripMarkdown(str) {
@@ -1648,23 +1654,23 @@ function renderPaymentOptions(winnerName, winnerPrice) {
   var cardBtn =
     '<button class="pay-btn pay-btn-stripe" onclick="payWithStripe(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0" ' +
       (hasStripe ? '' : 'disabled title="Operator has no Stripe Connect account"') + '>' +
-      '<span style="display:block;font-size:13px;font-weight:600">Card</span>' +
-      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
+      '<span style="display:block;font-size:13px;font-weight:600" class="pay-btn-title">Card</span>' +
+      '<span class="btn-sub-label">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
     '</button>';
 
   var achBtn =
     '<button class="pay-btn pay-btn-ach" onclick="payWithACH(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0;background:var(--ach)" ' +
       (hasStripe ? '' : 'disabled title="Operator has no Stripe Connect account"') + '>' +
-      '<span style="display:block;font-size:13px;font-weight:600">Bank Transfer</span>' +
-      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
+      '<span style="display:block;font-size:13px;font-weight:600" class="pay-btn-title">Bank Transfer</span>' +
+      '<span class="btn-sub-label">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
     '</button>';
 
   var usdcLabel = isTestnet ? 'Stablecoin (testnet)' : 'Stablecoin';
   var usdcBtn =
     '<button class="pay-btn pay-btn-usdc" onclick="payWithUSDC(\'' + escapeHtml(usdcWallet || '') + '\')" style="flex:1;min-width:0" ' +
       (usdcWallet ? '' : 'disabled title="Operator has no payment account configured"') + '>' +
-      '<span style="display:block;font-size:13px;font-weight:600">' + usdcLabel + '</span>' +
-      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + amountStr + ' USDC</span>' +
+      '<span style="display:block;font-size:13px;font-weight:600" class="pay-btn-title">' + usdcLabel + '</span>' +
+      '<span class="btn-sub-label">' + amountStr + ' USDC</span>' +
     '</button>';
 
   var testBadge = test ? '<div style="font-size:10px;color:var(--text-3);text-align:center;margin-top:4px">Test mode' +
@@ -1777,7 +1783,7 @@ function renderReceipt(data) {
     slot.innerHTML =
       '<div class="receipt-card">' +
         '<h3>Payment Complete</h3>' +
-        '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">Bank transfer processed. Payment transferred to the operator.</p>' +
+        '<p class="explainer mb-16">Bank transfer processed. Payment transferred to the operator.</p>' +
         '<div class="kv-row"><span class="kv-label">Operator received</span><span class="kv-value kv-value-green">$' + data.operator_amount.toFixed(2) + '</span></div>' +
         '<div class="kv-row"><span class="kv-label">Method</span><span class="kv-value">ACH Bank Transfer</span></div>' +
         (data.transfer_id ? '<div class="kv-row"><span class="kv-label">Transfer</span><span class="kv-value kv-value-mono" style="font-size:10px">' + data.transfer_id + '</span></div>' : '') +
@@ -1786,7 +1792,7 @@ function renderReceipt(data) {
     slot.innerHTML =
       '<div class="receipt-card">' +
         '<h3>Payment Complete</h3>' +
-        '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">Your card has been charged. Payment distributed to the operator.</p>' +
+        '<p class="explainer mb-16">Your card has been charged. Payment distributed to the operator.</p>' +
         '<div class="kv-row"><span class="kv-label">Operator received</span><span class="kv-value kv-value-green">$' + data.operator_amount.toFixed(2) + '</span></div>' +
         (data.receipt_url ? '<div style="margin-top:12px"><a class="receipt-link" href="' + data.receipt_url + '" target="_blank">View Stripe receipt</a></div>' : '') +
       '</div>';
@@ -1794,7 +1800,7 @@ function renderReceipt(data) {
     slot.innerHTML =
       '<div class="receipt-card">' +
         '<h3>Payment Complete</h3>' +
-        '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">Payment has been released to the operator.</p>' +
+        '<p class="explainer mb-16">Payment has been released to the operator.</p>' +
         '<div class="kv-row"><span class="kv-label">Operator received</span><span class="kv-value kv-value-green">$' + data.operator_amount.toFixed(4) + '</span></div>' +
         '<div style="margin-top:12px">' +
           '<a class="receipt-link" href="' + data.explorer + '/tx/' + data.operator_tx + '" target="_blank">View operator payment</a>' +
@@ -1830,13 +1836,13 @@ function openFeedbackPopup() {
   modal.innerHTML =
     '<button type="button" class="feed-detail-close" onclick="closeFeedbackPopup()" aria-label="Close">Close</button>' +
     '<h3 style="margin:0 0 12px">Rate this operator</h3>' +
-    '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">How was your experience with ' + escapeHtml(info.robotName) + '?</p>' +
+    '<p class="explainer mb-12">How was your experience with ' + escapeHtml(info.robotName) + '?</p>' +
     '<div class="star-row" id="feedbackStars" style="display:flex;gap:6px;margin-bottom:12px">' +
-      '<span data-star="1" onclick="selectStar(1)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">1</span>' +
-      '<span data-star="2" onclick="selectStar(2)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">2</span>' +
-      '<span data-star="3" onclick="selectStar(3)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">3</span>' +
-      '<span data-star="4" onclick="selectStar(4)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">4</span>' +
-      '<span data-star="5" onclick="selectStar(5)" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-3)">5</span>' +
+      '<span data-star="1" onclick="selectStar(1)" class="star-btn">1</span>' +
+      '<span data-star="2" onclick="selectStar(2)" class="star-btn">2</span>' +
+      '<span data-star="3" onclick="selectStar(3)" class="star-btn">3</span>' +
+      '<span data-star="4" onclick="selectStar(4)" class="star-btn">4</span>' +
+      '<span data-star="5" onclick="selectStar(5)" class="star-btn">5</span>' +
     '</div>' +
     '<textarea class="form-textarea" id="feedbackComment" placeholder="Optional: share what went well or what could improve..." style="min-height:60px;margin-bottom:8px;width:100%"></textarea>' +
     '<button class="pay-btn" style="background:var(--accent);color:#fff;font-size:12px;padding:8px 16px" id="feedbackSubmitBtn" onclick="submitFeedback(\'' + escapeHtml(info.robotId) + '\',\'' + escapeHtml(info.robotName) + '\',\'' + escapeHtml(info.paymentInfo.payment_method || '') + '\',\'' + escapeHtml(info.paymentInfo.payment_tx || '') + '\')">Submit</button>' +
@@ -3392,7 +3398,7 @@ function submitRegistration() {
 
         // ---- Robot identity ----
         h += '<h3 style="margin-bottom:2px">' + escapeHtml(result.name || name) + '</h3>';
-        h += '<div style="font-size:13px;color:var(--text-2);margin-bottom:16px">' + escapeHtml(result.company || company) + ' &middot; ' + escapeHtml(location) + '</div>';
+        h += '<div class="text-muted mb-16">' + escapeHtml(result.company || company) + ' &middot; ' + escapeHtml(location) + '</div>';
 
         h += '<div class="kv-row"><span class="kv-label">Platform</span><span class="kv-value">' + escapeHtml(model) + '</span></div>';
         h += '<div class="kv-row"><span class="kv-label">Sensors</span><span class="kv-value">' + equipTypes.map(escapeHtml).join(', ') + '</span></div>';
