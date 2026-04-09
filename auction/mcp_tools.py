@@ -1236,10 +1236,12 @@ def register_auction_tools(
                 })
 
                 tx = agent.registerIPFS()
-                result = tx.wait_mined(timeout=120)
+                mined = tx.wait_mined(timeout=120)
 
-                agent_id = str(getattr(result, "agentId", ""))
-                agent_uri = str(getattr(result, "agentURI", ""))
+                # TransactionMined.result is the RegistrationFile; agentId/agentURI are on it
+                reg_file = getattr(mined, "result", mined)
+                agent_id = str(getattr(reg_file, "agentId", "") or "")
+                agent_uri = str(getattr(reg_file, "agentURI", "") or "")
 
                 chain_result = {
                     "agent_id": agent_id,
