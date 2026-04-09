@@ -595,10 +595,6 @@ Requirements:
                 <input class="field-input" type="text" id="regCompany" placeholder="Acme Survey Co.">
               </div>
               <div>
-                <label class="field-label" for="regEmail">Contact Email</label>
-                <input class="field-input" type="email" id="regEmail" placeholder="alex@acmesurvey.com">
-              </div>
-              <div>
                 <label class="field-label" for="regLocation">Location</label>
                 <input class="field-input" type="text" id="regLocation" placeholder="Detroit, MI">
               </div>
@@ -3199,11 +3195,9 @@ function validateAndAdvance(targetStep) {
   if (targetStep === 'equipment') {
     var n = document.getElementById('regName').value.trim();
     var c = document.getElementById('regCompany').value.trim();
-    var e = document.getElementById('regEmail').value.trim();
     var l = document.getElementById('regLocation').value.trim();
     if (!n || n === 'FakeRover-') { showError('Please enter a robot name.'); return; }
     if (!c) { showError('Please enter a company name.'); return; }
-    if (!e || e.indexOf('@') === -1) { showError('Please enter a valid email address.'); return; }
     if (!l) { showError('Please enter a location.'); return; }
   }
   if (targetStep === 'payment') {
@@ -3306,7 +3300,7 @@ function connectOperatorWallet() {
 function submitRegistration() {
   var name = document.getElementById('regName').value.trim();
   var company = document.getElementById('regCompany').value.trim();
-  var email = document.getElementById('regEmail').value.trim();
+  var email = ''; // removed — PII not stored on-chain, comms via agent/MCP
   var location = document.getElementById('regLocation').value.trim();
   var modelSelect = document.getElementById('regModel').value;
   var model = modelSelect === '__other__' ? document.getElementById('regModelOther').value.trim() : modelSelect;
@@ -3383,6 +3377,8 @@ function submitRegistration() {
       min_bid_cents: minBid,
       bid_pct: bidPct,
       operator_wallet: window._registration.operatorWallet || '',
+      stripe_connect_id: (document.getElementById('regStripeAccount') && document.getElementById('regStripeAccount').value.trim()) || '',
+      usdc_wallet: (document.getElementById('regUsdcWallet') && document.getElementById('regUsdcWallet').value.trim()) || window._registration.operatorWallet || '',
       chain: selectedChain,
     }),
     signal: AbortSignal.timeout(120000),

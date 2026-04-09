@@ -1099,13 +1099,15 @@ def register_auction_tools(
         name: str,
         description: str,
         company_name: str,
-        contact_email: str,
-        location: str,
-        equipment_type: str,
-        model: str,
+        contact_email: str = "",
+        location: str = "",
+        equipment_type: str = "aerial_lidar",
+        model: str = "",
         min_bid_cents: int = 50,
         bid_pct: float = 0.80,
         operator_wallet: str = "",
+        stripe_connect_id: str = "",
+        usdc_wallet: str = "",
         equipment_types: list[str] | None = None,
         chain: str = "base-mainnet",
     ) -> dict:
@@ -1128,8 +1130,6 @@ def register_auction_tools(
             return _error_response_structured("INVALID_NAME", "name is required.", "Provide a non-empty robot name.")
         if not company_name or not company_name.strip():
             return _error_response_structured("INVALID_COMPANY", "company_name is required.", "Provide a company or operator name.")
-        if not contact_email or "@" not in contact_email:
-            return _error_response_structured("INVALID_EMAIL", "contact_email is not a valid email.", "Use format: user@domain.com")
         if not location or not location.strip():
             return _error_response_structured("INVALID_LOCATION", "location is required.", "e.g. Detroit, MI")
         # Validate equipment_type — allow known types and custom types (from "Other" input)
@@ -1225,7 +1225,7 @@ def register_auction_tools(
                 if hasattr(agent, "setX402Support"):
                     agent.setX402Support(False)
 
-                agent.setMetadata({
+                metadata = {
                     "category": "robot",
                     "robot_type": "survey_platform",
                     "fleet_provider": "yakrover",
@@ -1233,7 +1233,18 @@ def register_auction_tools(
                     "min_bid_price": str(min_bid_cents),
                     "accepted_currencies": "usd,usdc",
                     "task_categories": task_category,
-                })
+                }
+                if stripe_connect_id:
+                    metadata["stripe_connect_id"] = stripe_connect_id
+                # Additional IPFS-only metadata (included in agent card JSON, not separate on-chain keys)
+                metadata["operator_company"] = company_name
+                metadata["operator_location"] = location
+                metadata["equipment_model"] = model
+                metadata["bid_pct"] = str(bid_pct)
+                metadata["sensors"] = ",".join(all_sensors)
+                if usdc_wallet:
+                    metadata["preferred_usdc_wallet"] = usdc_wallet
+                agent.setMetadata(metadata)
 
                 # Step 1: Mint token with on-chain metadata (no IPFS URI yet)
                 import time as _time
