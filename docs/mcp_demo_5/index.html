@@ -13,7 +13,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#ffffff;--bg-subtle:#F0F2F5;--bg-card:#ffffff;--bg-hover:#f1f3f5;
+  --bg:#ffffff;--bg-subtle:#F0F2F5;--bg-hover:#f1f3f5;
   --border:#CBD5E0;
   --text:#1A1F26;--text-2:#4A5568;--text-3:#5f6b78;
   --accent:#E8792B;--accent-hover:#C4611E;
@@ -121,7 +121,7 @@ background-size:1200px 900px}
 .phase-subheading{font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5}
 
 /* Cards */
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
 .card-accent{border-left:3px solid var(--accent)}
 .card-green{border-left:3px solid var(--green)}
 .card-blue{border-left:3px solid var(--navy-light)}
@@ -143,6 +143,11 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .check-label{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer}
 .field-hint{font-size:11px;color:var(--text-3);margin-top:4px}
 .btn-sm{display:inline-block;font-size:11px;padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;font-family:inherit;font-weight:600}
+.text-muted{font-size:13px;color:var(--text-2)}
+.text-small{font-size:12px;color:var(--text-3)}
+.mt-12{margin-top:12px}
+.mb-8{margin-bottom:8px}
+.mb-12{margin-bottom:12px}
 
 /* Key-value rows */
 .kv-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)}
@@ -188,7 +193,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .explainer{font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.5}
 
 /* Winner card */
-.winner-card{background:var(--bg-card);border:1px solid var(--accent);border-left:3px solid var(--accent);border-radius:var(--radius);padding:20px;margin-top:16px}
+.winner-card{background:var(--bg);border:1px solid var(--accent);border-left:3px solid var(--accent);border-radius:var(--radius);padding:20px;margin-top:16px}
 .winner-card h3{color:var(--accent);font-size:16px;margin-bottom:12px}
 .winner-narration{font-size:13px;line-height:1.7;color:var(--text-2);margin-bottom:16px}
 .winner-narration p{margin:0 0 8px}
@@ -210,7 +215,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .payload-revealed{filter:none;user-select:auto;pointer-events:auto}
 
 /* Receipt */
-.receipt-card{background:var(--bg-card);border:1px solid var(--green);border-left:3px solid var(--green);border-radius:var(--radius);padding:20px}
+.receipt-card{background:var(--bg);border:1px solid var(--green);border-left:3px solid var(--green);border-radius:var(--radius);padding:20px}
 .receipt-card h3{color:var(--green);font-size:16px;margin-bottom:12px}
 .receipt-link{color:var(--accent);font-weight:600;text-decoration:none;font-size:13px}
 .receipt-link:hover{text-decoration:underline}
@@ -251,9 +256,9 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .feed-text{flex:1;min-width:0;font-size:12px;color:var(--text-2);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .feed-time{font-size:10px;color:var(--text-3);white-space:nowrap;flex-shrink:0;font-family:'JetBrains Mono',monospace}
 /* Feed detail: renders as overlay on main content area, not cramped in sidebar */
-.feed-detail{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:600px;max-height:70vh;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:var(--text-2);overflow:auto;white-space:pre-wrap;word-break:break-word;z-index:300}
+.feed-detail{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:600px;max-height:70vh;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:var(--text-2);overflow:auto;white-space:pre-wrap;word-break:break-word;z-index:300}
 .feed-detail.expanded{display:block}
-.feed-detail-close{position:absolute;top:8px;right:12px;cursor:pointer;font-size:14px;color:var(--text-3);font-family:'Inter',sans-serif;font-weight:600}
+.feed-detail-close{position:absolute;top:8px;right:12px;cursor:pointer;font-size:14px;color:var(--text-3);font-family:'Inter',sans-serif;font-weight:600;background:none;border:none;padding:4px}
 .feed-detail-close:hover{color:var(--text)}
 .feed-detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:299}
 .feed-detail-overlay.active{display:block}
@@ -432,7 +437,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
       <button class="admin-btn cta mobile-cta" id="mobileRegisterBtn" style="display:none;margin-top:8px" onclick="showRegistration()">Register Robot</button>
 
       <div class="card card-accent">
-        <div class="card-label">RFP Document</div>
+        <label class="card-label" for="rfpText">RFP Document</label>
         <textarea class="form-textarea" id="rfpText">ENVIRONMENTAL MONITORING REQUEST
 Indoor Climate Assessment — Server Room Inspection
 
@@ -591,7 +596,7 @@ Requirements:
               </div>
             </div>
             <div style="margin-top:12px">
-              <div class="field-label">Description</div>
+              <label class="field-label" for="regDescription">Description</label>
               <textarea class="field-input" id="regDescription" rows="2" placeholder="Brief description of your robot and services" style="resize:vertical;font-family:inherit"></textarea>
             </div>
           </div>
@@ -695,7 +700,7 @@ Requirements:
               </div>
               <div>
                 <div class="field-label">Bid Aggressiveness: <span id="regBidPctLabel">80%</span></div>
-                <input type="range" id="regBidPct" min="70" max="95" value="80" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
+                <input type="range" id="regBidPct" min="70" max="95" value="80" aria-label="Bid aggressiveness percentage" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
                 <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)"><span>70% (aggressive)</span><span>95% (conservative)</span></div>
                 <div class="field-hint">Percentage of the task budget ceiling your robot bids. Lower = more competitive.</div>
               </div>
@@ -713,13 +718,13 @@ Requirements:
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Payment Destinations</div>
               <div id="regFiatSection" style="margin-bottom:10px">
                 <label class="field-label" for="regStripeAccount">Stripe Connect Account <span style="font-weight:400;color:var(--text-3)">(card / bank transfer payouts)</span></label>
-                <input class="field-input" type="text" id="regStripeAccount" placeholder="acct_... (leave blank to set up after registration)">
-                <div class="field-hint">Stripe Connect onboarding can be completed after registration.</div>
+                <input class="field-input" type="text" id="regStripeAccount" placeholder="acct_... (leave blank to set up after registration)" aria-describedby="regStripeHint">
+                <div class="field-hint" id="regStripeHint">Stripe Connect onboarding can be completed after registration.</div>
               </div>
               <div id="regUsdcSection">
                 <label class="field-label" for="regUsdcWallet">USDC Wallet Address <span style="font-weight:400;color:var(--text-3)">(agentWallet on-chain)</span></label>
-                <input class="field-input" type="text" id="regUsdcWallet" placeholder="Defaults to platform deployer wallet">
-                <div class="field-hint">USDC payouts go to this address on Base. Pre-filled with your connected wallet if available. Can be updated on-chain after registration.</div>
+                <input class="field-input" type="text" id="regUsdcWallet" placeholder="Defaults to platform deployer wallet" aria-describedby="regUsdcWalletHint">
+                <div class="field-hint" id="regUsdcWalletHint">USDC payouts go to this address on Base. Pre-filled with your connected wallet if available. Can be updated on-chain after registration.</div>
               </div>
             </div>
           </div>
@@ -1356,7 +1361,12 @@ function showPhase(phaseId) {
   // Hide all phase views, show target
   document.querySelectorAll('.phase-view').forEach(function(el) { el.classList.remove('active'); });
   var target = document.getElementById('phase-' + phaseId);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    // Move focus to new phase for screen readers
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  }
 
   // Update breadcrumbs — completed phases are clickable
   document.querySelectorAll('.breadcrumbs-bar .phase').forEach(function(el) {
@@ -1406,6 +1416,7 @@ function closeFeedDetail(id) {
   if (el) el.classList.remove('expanded');
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.remove('active');
+  _restoreFocus();
 }
 
 function closeAllFeedDetails() {
@@ -1483,7 +1494,10 @@ function appendFeedItem(step, index) {
   var detailDiv = document.createElement('div');
   detailDiv.className = 'feed-detail';
   detailDiv.id = detailId;
-  var closeBtn = '<div class="feed-detail-close" onclick="closeFeedDetail(\'' + detailId + '\')">Close</div>';
+  detailDiv.setAttribute('role', 'dialog');
+  detailDiv.setAttribute('aria-modal', 'true');
+  detailDiv.setAttribute('aria-label', 'Step detail');
+  var closeBtn = '<button type="button" class="feed-detail-close" onclick="closeFeedDetail(\'' + detailId + '\')" aria-label="Close">Close</button>';
   if (step.type === 'tool_call') {
     detailDiv.innerHTML = closeBtn + '<div style="margin-top:8px">// Input\n' + escapeHtml(JSON.stringify(step.input, null, 2)) + '\n\n// Result\n' + escapeHtml(JSON.stringify(step.result, null, 2)) + '</div>';
   } else {
@@ -1491,7 +1505,7 @@ function appendFeedItem(step, index) {
   }
 
   item.addEventListener('click', function() {
-    // Show as centered modal
+    _saveFocus();
     detailDiv.classList.add('expanded');
     var overlay = document.getElementById('feedDetailOverlay');
     if (overlay) overlay.classList.add('active');
@@ -1803,14 +1817,18 @@ function renderFeedbackForm(paymentInfo) {
 }
 
 function openFeedbackPopup() {
+  _saveFocus();
   var info = window._feedbackInfo;
   if (!info) return;
 
   var modal = document.createElement('div');
   modal.className = 'feed-detail expanded';
   modal.id = 'feedbackModal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'Rate this operator');
   modal.innerHTML =
-    '<div class="feed-detail-close" onclick="closeFeedbackPopup()">Close</div>' +
+    '<button type="button" class="feed-detail-close" onclick="closeFeedbackPopup()" aria-label="Close">Close</button>' +
     '<h3 style="margin:0 0 12px">Rate this operator</h3>' +
     '<p style="font-size:13px;color:var(--text-2);margin-bottom:12px">How was your experience with ' + escapeHtml(info.robotName) + '?</p>' +
     '<div class="star-row" id="feedbackStars" style="display:flex;gap:6px;margin-bottom:12px">' +
@@ -1830,23 +1848,32 @@ function openFeedbackPopup() {
 }
 
 function showSummaryPopup() {
+  _saveFocus();
   var text = window._auctionSummaryText || '';
   var modal = document.createElement('div');
   modal.className = 'feed-detail expanded';
   modal.id = 'summaryModal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'Auction summary');
   modal.innerHTML =
-    '<div class="feed-detail-close" onclick="closeSummaryPopup()">Close</div>' +
+    '<button type="button" class="feed-detail-close" onclick="closeSummaryPopup()" aria-label="Close">Close</button>' +
     '<div style="margin-top:8px;font-size:13px;line-height:1.7;color:var(--text-2)">' + formatStepText(text) + '</div>';
   document.body.appendChild(modal);
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.add('active');
 }
 
+var _lastFocusedElement = null;
+function _saveFocus() { _lastFocusedElement = document.activeElement; }
+function _restoreFocus() { if (_lastFocusedElement && _lastFocusedElement.focus) { _lastFocusedElement.focus(); _lastFocusedElement = null; } }
+
 function closeSummaryPopup() {
   var modal = document.getElementById('summaryModal');
   if (modal) modal.remove();
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.remove('active');
+  _restoreFocus();
 }
 
 function closeFeedbackPopup() {
@@ -1854,6 +1881,7 @@ function closeFeedbackPopup() {
   if (modal) modal.remove();
   var overlay = document.getElementById('feedDetailOverlay');
   if (overlay) overlay.classList.remove('active');
+  _restoreFocus();
 }
 
 function resetDemo() {
