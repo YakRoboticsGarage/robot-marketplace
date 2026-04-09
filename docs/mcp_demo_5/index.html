@@ -788,6 +788,7 @@ var WORKER_BASE = 'https://yakrobot-chat.rafaeldf2.workers.dev';
 // Global state
 var discoveredRobots = [];
 var auctionComplete = false;
+var _cachedStripeKey = null;
 
 // Demo mode — controls payment pathway
 // Demo environment: 'production' or 'test'
@@ -1412,9 +1413,11 @@ function stripMarkdown(str) {
 }
 
 // Convert ALL CAPS words (3+ chars) to title case for cleaner display
+var PRESERVE_ACRONYMS = new Set(['JSON','USDC','RFP','GPR','MCP','SLA','QA','ACH','API','GPS','RTK','LiDAR','ASPRS','USGS','PDF','FAA','COI','PLS','NBI','AIA','DOT','DBE','MDOT','EPSG','CRS','DTN']);
 function normalizeCase(str) {
   if (!str) return '';
-  return str.replace(/\b([A-Z]{3,})\b/g, function(match) {
+  return str.replace(/\b([A-Z]{2,})\b/g, function(match) {
+    if (PRESERVE_ACRONYMS.has(match)) return match;
     return match.charAt(0) + match.slice(1).toLowerCase();
   });
 }
@@ -1587,12 +1590,12 @@ function renderWinnerCard(text, winnerName, winnerPrice) {
 function renderPaymentOptions(winnerName, winnerPrice) {
   var slot = document.getElementById('commitSlot');
 
-  var stripeAccountId = 'acct_1TJs17RdTPLY7gNp';
+  var stripeAccountId = null;
   var usdcWallet = null;
   var onChainRobot = window._winnerRobot || (discoveredRobots.length > 0 ? discoveredRobots[0] : null);
 
   if (onChainRobot && onChainRobot.payment) {
-    stripeAccountId = onChainRobot.payment.stripe_connect_id || stripeAccountId;
+    stripeAccountId = onChainRobot.payment.stripe_connect_id || null;
     usdcWallet = onChainRobot.payment.usdc_wallet || null;
   }
 
@@ -1604,16 +1607,19 @@ function renderPaymentOptions(winnerName, winnerPrice) {
   var isTestnet = chainId === 84532 || chainId === 11155111;
 
   // Three payment method buttons
+  var hasStripe = !!stripeAccountId;
   var cardBtn =
-    '<button class="pay-btn pay-btn-stripe" onclick="payWithStripe(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0">' +
+    '<button class="pay-btn pay-btn-stripe" onclick="payWithStripe(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0" ' +
+      (hasStripe ? '' : 'disabled title="Operator has no Stripe Connect account"') + '>' +
       '<span style="display:block;font-size:13px;font-weight:600">Card</span>' +
-      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + amountStr + '</span>' +
+      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
     '</button>';
 
   var achBtn =
-    '<button class="pay-btn pay-btn-ach" onclick="payWithACH(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0;background:var(--ach)">' +
+    '<button class="pay-btn pay-btn-ach" onclick="payWithACH(' + amountCents + ',\'' + escapeHtml(stripeAccountId || '') + '\')" style="flex:1;min-width:0;background:var(--ach)" ' +
+      (hasStripe ? '' : 'disabled title="Operator has no Stripe Connect account"') + '>' +
       '<span style="display:block;font-size:13px;font-weight:600">Bank Transfer</span>' +
-      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + amountStr + '</span>' +
+      '<span style="display:block;font-size:11px;color:rgba(255,255,255,0.7)">' + (hasStripe ? amountStr : 'Not available') + '</span>' +
     '</button>';
 
   var usdcLabel = isTestnet ? 'Stablecoin (testnet)' : 'Stablecoin';
@@ -1633,7 +1639,7 @@ function renderPaymentOptions(winnerName, winnerPrice) {
       (winnerPrice ? '<div class="kv-row"><span class="kv-label">Bid price</span><span class="kv-value">' + escapeHtml(winnerPrice) + '</span></div>' : '') +
     '</div>' +
     '<p class="explainer">Choose your payment method. You will not be charged until you approve the delivered results.</p>' +
-    '<div style="display:flex;gap:8px;margin-top:8px">' + cardBtn + achBtn + usdcBtn + '</div>' +
+    '<div class="btn-group" style="margin-top:8px">' + cardBtn + achBtn + usdcBtn + '</div>' +
     testBadge +
     '<div id="stripeEmbedMount" style="margin-top:12px"></div>';
 }
@@ -1708,10 +1714,17 @@ async function renderDeliveryResult(deliveryData, qaResult) {
   var dataPreviewHtml = '';
 
   // Show Release Payment button next to heading
-  if (qaStatus === 'PASS') {
-    var execAction = document.getElementById('executeActionSlot');
-    if (execAction) {
+  var execAction = document.getElementById('executeActionSlot');
+  if (execAction) {
+    if (qaStatus === 'PASS') {
       execAction.innerHTML = '<button class="pay-btn release-payment-btn" style="background:var(--accent);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Payment</button>';
+    } else {
+      execAction.innerHTML =
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="pay-btn" style="background:var(--amber);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Anyway</button>' +
+          '<button class="pay-btn" style="background:var(--red);color:#fff;font-size:11px;padding:6px 12px" onclick="showPhase(\'setup\');resetDemo()">Reject &amp; Reset</button>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text-3);margin-top:4px">Quality check failed. Release anyway to pay the operator, or reject and start over.</div>';
     }
   }
 
@@ -1851,6 +1864,8 @@ function resetDemo() {
   document.getElementById('revealedDataSlot').innerHTML = '';
   document.getElementById('feedbackSlot').innerHTML = '';
   document.getElementById('feedList').innerHTML = '';
+  // Clean up orphaned feed detail divs from body
+  document.querySelectorAll('.feed-detail').forEach(function(el) { el.remove(); });
   var aas = document.getElementById('auctionActionSlot'); if (aas) aas.innerHTML = '';
   var eas = document.getElementById('executeActionSlot'); if (eas) eas.innerHTML = '';
   document.getElementById('errorMsg').classList.remove('visible');
@@ -1961,6 +1976,11 @@ async function runAuction() {
 
   // Build prompt
   var rfpText = document.getElementById('rfpText').value.trim();
+  if (rfpText.length < 10) {
+    showError('Please enter a task description in the RFP field (at least 10 characters).');
+    resetBtn();
+    return;
+  }
   var siteInfo = {
     project_name: document.getElementById('siteProject').value.trim(),
     location: document.getElementById('siteLocation').value.trim(),
@@ -2125,6 +2145,9 @@ async function runExecution() {
       })
     });
 
+    if (!response.ok) {
+      throw new Error('Server returned HTTP ' + response.status);
+    }
     var data = await response.json();
 
     if (data.error) {
@@ -2201,13 +2224,15 @@ async function payWithStripe(amountCents, operatorAccountId) {
       return;
     }
 
-    // Step 2: Get publishable key
-    var stripeKey = null;
-    try {
-      var configRes = await fetch(WORKER_BASE + '/api/stripe-config');
-      var config = await configRes.json();
-      stripeKey = config.publishable_key;
-    } catch (_) {}
+    // Step 2: Get publishable key (cached after first fetch)
+    if (!_cachedStripeKey) {
+      try {
+        var configRes = await fetch(WORKER_BASE + '/api/stripe-config');
+        var config = await configRes.json();
+        _cachedStripeKey = config.publishable_key;
+      } catch (_) {}
+    }
+    var stripeKey = _cachedStripeKey;
 
     if (!stripeKey) {
       btn.textContent = 'Stripe not configured (no publishable key)';
@@ -2306,13 +2331,15 @@ async function payWithACH(amountCents, operatorAccountId) {
       return;
     }
 
-    // Step 2: Get publishable key
-    var stripeKey = null;
-    try {
-      var configRes = await fetch(WORKER_BASE + '/api/stripe-config');
-      var config = await configRes.json();
-      stripeKey = config.publishable_key;
-    } catch (_) {}
+    // Step 2: Get publishable key (cached after first fetch)
+    if (!_cachedStripeKey) {
+      try {
+        var configRes = await fetch(WORKER_BASE + '/api/stripe-config');
+        var config = await configRes.json();
+        _cachedStripeKey = config.publishable_key;
+      } catch (_) {}
+    }
+    var stripeKey = _cachedStripeKey;
 
     if (!stripeKey) {
       btn.textContent = 'Stripe not configured (no publishable key)';
@@ -2848,7 +2875,7 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        request_id: 'demo_' + Date.now(),
+        request_id: window._awardedRequestId || 'demo_' + Date.now(),
         role: 'buyer',
         robot_id: robotId,
         robot_name: robotName,
@@ -2913,60 +2940,11 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
 
 // ===== CHECK PAYMENT RETURN (verbatim) =====
 
+// Legacy redirect-based payment return — removed (inline Payment Element flow supersedes it)
 function checkPaymentReturn() {
   var params = new URLSearchParams(window.location.search);
-  var payment = params.get('payment');
-  var sessionId = params.get('session_id');
-
-  if (payment === 'success' && sessionId) {
-    showPaymentSuccess(sessionId);
+  if (params.get('payment')) {
     window.history.replaceState({}, '', window.location.pathname);
-  } else if (payment === 'cancelled') {
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-}
-
-async function showPaymentSuccess(sessionId) {
-  showPhase('settle');
-
-  var status = { status: 'pending' };
-  for (var i = 0; i < 10; i++) {
-    try {
-      var res = await fetch(WORKER_BASE + '/api/payment-status?session_id=' + sessionId);
-      status = await res.json();
-      if (status.status === 'paid') break;
-    } catch(e) {}
-    await delay(2000);
-  }
-
-  var slot = document.getElementById('receiptSlot');
-
-  if (status.status === 'paid') {
-    var amountStr = status.amount_cents ? '$' + (status.amount_cents / 100).toFixed(2) : '$1.00';
-    var operatorName = status.operator_name || 'Robot Operator';
-
-    slot.innerHTML =
-      '<div class="receipt-card">' +
-        '<h3>Payment Complete</h3>' +
-        '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">Real money moved through a real robot auction.</p>' +
-        '<div class="kv-row"><span class="kv-label">' + escapeHtml(operatorName) + ' received</span><span class="kv-value kv-value-green">' + amountStr + '</span></div>' +
-        (status.receipt_url ? '<div style="margin-top:12px"><a class="receipt-link" href="' + status.receipt_url + '" target="_blank">View Stripe receipt</a></div>' : '') +
-        '<div style="margin-top:8px"><a class="receipt-link" href="https://yakrobot.bid" target="_blank">Back to yakrobot.bid</a></div>' +
-      '</div>';
-
-    setTimeout(function() {
-      renderFeedbackForm({
-        payment_method: 'stripe',
-        payment_tx: status.payment_intent || '',
-      });
-    }, 1000);
-  } else {
-    slot.innerHTML =
-      '<div class="receipt-card">' +
-        '<h3>Payment Processing</h3>' +
-        '<p style="font-size:13px;color:var(--text-2)">Your payment is being processed. Check your email for a Stripe receipt.</p>' +
-        '<div style="margin-top:12px"><a class="receipt-link" href="https://yakrobot.bid" target="_blank">Back to yakrobot.bid</a></div>' +
-      '</div>';
   }
 }
 
