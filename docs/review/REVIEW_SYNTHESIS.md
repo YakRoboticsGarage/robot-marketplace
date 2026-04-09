@@ -145,15 +145,17 @@
 | A9 | MEDIUM | No UI feedback that mid-auction filter toggle only takes effect on next auction |
 | A10 | MEDIUM | `/health` returns fleet=0 before first auction with no indication this is expected |
 
-## Updated Totals
+## Final Totals (all resolved)
 
-| Severity | Count |
-|---|---|
-| **Critical** | 7 (Buyer 3, Frontend 2, Admin 1, +1 Production mode) |
-| **High** | 20 |
-| **Medium** | 34 |
-| **Low** | 27 |
-| **Total** | **88 findings** |
+| Severity | Found | Resolved |
+|---|---|---|
+| **Critical** | 7 | 7 |
+| **High** | 23 | 23 |
+| **Medium** | 40 | 40 |
+| **Low** | 30 | 30 |
+| **Total** | **100** | **100** |
+
+All findings resolved across 10 commits on 2026-04-09.
 
 ## Visual Design Findings (Agent 7 — complete)
 

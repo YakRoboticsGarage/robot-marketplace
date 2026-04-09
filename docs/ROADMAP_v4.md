@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-09 (rev 5.0, v1.4 next — operator sign-up and registration)
-**Status:** v1.0 built. v1.1 complete. v1.2 complete. v1.3 complete (284 tests, 35 MCP tools). **v1.4 next** — production operator sign-up and registration. Demo at yakrobot.bid/demo.
+**Last updated:** 2026-04-09 (rev 5.1, v1.4 complete — operator registration + code review)
+**Status:** v1.0 built. v1.1 complete. v1.2 complete. v1.3 complete. **v1.4 complete** (36 MCP tools, on-chain ERC-8004 registration, 100-finding code review resolved). Demo at yakrobot.bid/demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.

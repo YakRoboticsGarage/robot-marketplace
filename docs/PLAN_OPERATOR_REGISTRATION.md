@@ -1,7 +1,7 @@
 # Plan: Operator Sign-Up and Registration (v1.4)
 
 **Date:** 2026-04-09
-**Status:** Plan — ready for review
+**Status:** Implemented (2026-04-09). On-chain registration live on Base mainnet + Sepolia. 100-finding code review completed.
 **Phase:** v1.4
 **Personas:** Alex (independent operator), Controller (AP manager)
 **Gate for v1.5:** At least 1 operator registered on-chain and bidding on tasks

@@ -53,8 +53,8 @@
 meta:
   name: "Robot Task Auction Marketplace"
   project: yakrover-auction-explorer
-  schema_version: "2.4"
-  updated: "2026-04-08"
+  schema_version: "2.5"
+  updated: "2026-04-09"
   provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-08 with v1.1-v1.3 implementation state (real robot, USDC mainnet, ACH, 3-method payment). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
   license: "Proprietary — YAK Robotics Garage"
 
@@ -2818,8 +2818,11 @@ roadmap:
 
     - id: phase:v1.4
       label: "Operator Sign-Up and Registration"
-      status: next
+      status: built
+      date: "2026-04-09"
+      tag: "v1.4-milestone-operator-registration"
       personas: [persona:alex, persona:controller]
+      stats: {mcp_tools: 36, code_review_findings: 100, code_review_resolved: 100}
       entry_gate: "v1.3 complete (278 tests passing, 3-method payment live)"
       capabilities_unlocked:
         - "Production operator registration flow — company name, contact, location, coverage area"
@@ -2841,7 +2844,7 @@ roadmap:
 
     - id: phase:v1.5
       label: "Crypto Rail + Construction Wedge"
-      status: planned
+      status: next
       timeline: "Weeks 13-16 (4 weeks)"
       personas: [persona:marco, persona:controller]
       features: [feature:F-1, feature:F-2, feature:F-3, feature:F-4, feature:F-5, feature:F-6, feature:F-7, feature:F-8, feature:F-9, feature:F-10, feature:F-11, feature:F-12]
