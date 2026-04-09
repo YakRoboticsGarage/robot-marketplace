@@ -1092,7 +1092,7 @@ def register_auction_tools(
         "eth-mainnet": {"chain_id": 1, "rpc": "https://ethereum-rpc.publicnode.com"},
         "eth-sepolia": {"chain_id": 11155111, "rpc": "https://ethereum-sepolia-rpc.publicnode.com"},
     }
-    DEFAULT_CHAINS = ["base-mainnet", "base-sepolia"]
+    DEFAULT_CHAIN = "base-mainnet"
 
     @mcp.tool()
     async def auction_register_robot_onchain(
@@ -1107,18 +1107,16 @@ def register_auction_tools(
         bid_pct: float = 0.80,
         operator_wallet: str = "",
         equipment_types: list[str] | None = None,
-        chains: list[str] | None = None,
+        chain: str = "base-mainnet",
     ) -> dict:
         """Register a robot on-chain (ERC-8004) and add to bidding fleet.
 
-        Registers on the specified chains (default: Base mainnet + Base Sepolia).
-        Supported chains: base-mainnet, base-sepolia, eth-mainnet, eth-sepolia.
+        Registers on a single chain (default: base-mainnet).
+        Supported: base-mainnet, base-sepolia, eth-mainnet, eth-sepolia.
 
         Creates an operator profile, registers the robot via agent0-sdk
-        (2 transactions per chain + IPFS upload), and hot-adds a fleet
-        robot so it can bid on tasks immediately.
-
-        Takes 30-60 seconds per chain due to on-chain transaction confirmation.
+        (2 transactions + IPFS upload), and hot-adds a fleet robot so it
+        can bid on tasks immediately. Takes 30-60 seconds.
 
         If operator_wallet is provided, token ownership is transferred to
         that address after minting.
@@ -1188,109 +1186,100 @@ def register_auction_tools(
             for sensor in all_sensors:
                 engine._operator_registry.add_equipment(op_id, sensor, model)
 
-            # 2. On-chain registration on selected chains
-            target_chains = chains if chains else DEFAULT_CHAINS
-            chain_results = {}
-            for chain_name in target_chains:
-                cfg = CHAIN_CONFIG.get(chain_name)
-                if not cfg:
-                    chain_results[chain_name] = {"status": "error", "error": f"Unknown chain: {chain_name}"}
-                    continue
-                try:
-                    from agent0_sdk import SDK
-                    sdk = SDK(
-                        chainId=cfg["chain_id"],
-                        rpcUrl=cfg["rpc"],
-                        signer=signer_key,
-                        ipfs="pinata",
-                        pinataJwt=pinata_jwt,
-                    )
+            # 2. On-chain registration (single chain)
+            target_chain = chain if chain else DEFAULT_CHAIN
+            cfg = CHAIN_CONFIG.get(target_chain)
+            if not cfg:
+                return _error_response_structured(
+                    "INVALID_CHAIN",
+                    f"Unknown chain '{target_chain}'.",
+                    f"Valid chains: {sorted(CHAIN_CONFIG)}",
+                )
 
-                    agent = sdk.createAgent(name=name, description=description, image="")
-                    agent.setMCP(mcp_endpoint, auto_fetch=False)
+            chain_result = {}
+            try:
+                from agent0_sdk import SDK
+                sdk = SDK(
+                    chainId=cfg["chain_id"],
+                    rpcUrl=cfg["rpc"],
+                    signer=signer_key,
+                    ipfs="pinata",
+                    pinataJwt=pinata_jwt,
+                )
 
-                    # Inject tool list and fleet endpoint into MCP endpoint meta
-                    mcp_ep = next(
-                        (ep for ep in agent.registration_file.endpoints
-                         if hasattr(ep, "type") and str(ep.type).lower().endswith("mcp")),
-                        None,
-                    )
-                    if mcp_ep is None:
-                        raise ValueError("agent0-sdk did not create an MCP endpoint — check SDK version")
-                    mcp_ep.meta["mcpTools"] = tool_names
-                    mcp_ep.meta["fleetEndpoint"] = fleet_endpoint
+                agent = sdk.createAgent(name=name, description=description, image="")
+                agent.setMCP(mcp_endpoint, auto_fetch=False)
 
-                    agent.setTrust(reputation=True)
-                    agent.setActive(True)
-                    if hasattr(agent, "setX402Support"):
-                        agent.setX402Support(False)
+                mcp_ep = next(
+                    (ep for ep in agent.registration_file.endpoints
+                     if hasattr(ep, "type") and str(ep.type).lower().endswith("mcp")),
+                    None,
+                )
+                if mcp_ep is None:
+                    raise ValueError("agent0-sdk did not create an MCP endpoint — check SDK version")
+                mcp_ep.meta["mcpTools"] = tool_names
+                mcp_ep.meta["fleetEndpoint"] = fleet_endpoint
 
-                    agent.setMetadata({
-                        "category": "robot",
-                        "robot_type": "survey_platform",
-                        "fleet_provider": "yakrover",
-                        "fleet_domain": "yakrobot.bid",
-                        "min_bid_price": str(min_bid_cents),
-                        "accepted_currencies": "usd,usdc",
-                        "task_categories": task_category,
-                    })
+                agent.setTrust(reputation=True)
+                agent.setActive(True)
+                if hasattr(agent, "setX402Support"):
+                    agent.setX402Support(False)
 
-                    tx = agent.registerIPFS()
-                    result = tx.wait_mined(timeout=120)
+                agent.setMetadata({
+                    "category": "robot",
+                    "robot_type": "survey_platform",
+                    "fleet_provider": "yakrover",
+                    "fleet_domain": "yakrobot.bid",
+                    "min_bid_price": str(min_bid_cents),
+                    "accepted_currencies": "usd,usdc",
+                    "task_categories": task_category,
+                })
 
-                    agent_id = str(getattr(result, "agentId", ""))
-                    agent_uri = str(getattr(result, "agentURI", ""))
+                tx = agent.registerIPFS()
+                result = tx.wait_mined(timeout=120)
 
-                    chain_results[chain_name] = {
-                        "agent_id": agent_id,
-                        "agent_uri": agent_uri,
+                agent_id = str(getattr(result, "agentId", ""))
+                agent_uri = str(getattr(result, "agentURI", ""))
+
+                chain_result = {
+                    "agent_id": agent_id,
+                    "agent_uri": agent_uri,
+                    "status": "ok",
+                }
+
+                # Transfer ownership if operator wallet provided
+                if operator_wallet and operator_wallet.startswith("0x"):
+                    try:
+                        agent_id_int = int(agent_id.split(":")[-1]) if ":" in agent_id else int(agent_id)
+                        deployer_addr = sdk.web3_client.account.address
+                        sdk.web3_client.transact_contract(
+                            sdk.identity_registry,
+                            "transferFrom",
+                            deployer_addr,
+                            operator_wallet,
+                            agent_id_int,
+                        )
+                        chain_result["transferred_to"] = operator_wallet
+                    except Exception as te:
+                        chain_result["transfer_error"] = str(te)[:200]
+
+                del sdk
+
+            except Exception as exc:
+                error_msg = str(exc)[:200]
+                if hasattr(agent, "registration_file") and getattr(agent.registration_file, "agentId", None):
+                    chain_result = {
                         "status": "ok",
+                        "agent_id": str(agent.registration_file.agentId),
+                        "agent_uri": str(getattr(agent.registration_file, "agentURI", "") or ""),
+                        "warning": f"Minted but post-registration step failed: {error_msg}",
                     }
+                else:
+                    chain_result = {"status": "error", "error": error_msg}
 
-                    # Transfer ownership if operator wallet provided
-                    # (uses same sdk instance before cleanup)
-                    if operator_wallet and operator_wallet.startswith("0x"):
-                        try:
-                            # Extract numeric agent ID
-                            agent_id_int = int(agent_id.split(":")[-1]) if ":" in agent_id else int(agent_id)
-                            deployer_addr = sdk.web3_client.account.address
-                            sdk.web3_client.transact_contract(
-                                sdk.identity_registry,
-                                "transferFrom",
-                                deployer_addr,
-                                operator_wallet,
-                                agent_id_int,
-                            )
-                            chain_results[chain_name]["transferred_to"] = operator_wallet
-                        except Exception as te:
-                            chain_results[chain_name]["transfer_error"] = str(te)
-
-                    del sdk  # release HTTP connections
-
-                except Exception as exc:
-                    error_msg = str(exc)[:200]
-                    # Check if the mint succeeded despite the error (e.g. setAgentURI failed after mint)
-                    # The agent may exist on-chain even though the full flow errored
-                    if hasattr(agent, 'registration_file') and getattr(agent.registration_file, 'agentId', None):
-                        chain_results[chain_name] = {
-                            "status": "ok",
-                            "agent_id": str(agent.registration_file.agentId),
-                            "agent_uri": str(getattr(agent.registration_file, 'agentURI', '') or ''),
-                            "warning": f"Minted but post-registration step failed: {error_msg}",
-                        }
-                    else:
-                        chain_results[chain_name] = {
-                            "status": "error",
-                            "error": error_msg,
-                    }
-
-            # 3. Check if any chain succeeded
-            any_chain_ok = any(r.get("status") == "ok" for r in chain_results.values())
-            all_chains_ok = all(r.get("status") == "ok" for r in chain_results.values())
-            failed_chains = [c for c, r in chain_results.items() if r.get("status") != "ok"]
-
-            # Only create fleet robot if at least one chain registration succeeded
-            if any_chain_ok:
+            # 3. Create fleet robot if registration succeeded
+            registration_ok = chain_result.get("status") == "ok"
+            if registration_ok:
                 from auction.mock_fleet import RuntimeRegisteredRobot
                 sensors = list(all_sensors)
                 capability_metadata = {
@@ -1316,16 +1305,12 @@ def register_auction_tools(
                         engine.robots.append(robot)
                     engine._robots_by_id[op_id] = robot
 
-            # Set honest top-level status
-            if all_chains_ok:
-                status = "active"
-                message = f"{name} registered on all chains and added to fleet. {len(engine.robots)} robots active."
-            elif any_chain_ok:
-                status = "partial"
-                message = f"{name} registered on-chain but {len(failed_chains)} chain(s) failed: {', '.join(failed_chains)}. Added to fleet."
-            else:
-                status = "failed"
-                message = f"On-chain registration failed on all chains: {', '.join(failed_chains)}. Robot not added to fleet."
+            status = "active" if registration_ok else "failed"
+            message = (
+                f"{name} registered on {target_chain} and added to fleet. {len(engine.robots)} robots active."
+                if registration_ok
+                else f"Registration failed on {target_chain}: {chain_result.get('error', 'unknown')}. Robot not added to fleet."
+            )
 
             return {
                 "operator_id": op_id,
@@ -1334,7 +1319,8 @@ def register_auction_tools(
                 "company": company_name,
                 "equipment": {"type": equipment_type, "model": model},
                 "sensors": list(all_sensors),
-                "chains": chain_results,
+                "chain": target_chain,
+                "chain_result": chain_result,
                 "fleet_size": len(engine.robots),
                 "message": message,
             }

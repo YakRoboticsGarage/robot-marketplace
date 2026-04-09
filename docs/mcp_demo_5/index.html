@@ -741,14 +741,14 @@ Requirements:
           <details style="margin-top:12px">
             <summary style="font-size:13px;color:var(--text-3);cursor:pointer;font-weight:500">Advanced Settings</summary>
             <div class="card" style="margin-top:8px">
-              <div class="card-label">Registration Chains</div>
-              <div class="field-grid" style="gap:4px;margin-top:4px">
-                <label class="check-label"><input type="checkbox" id="regChainBaseMainnet" checked> Base Mainnet</label>
-                <label class="check-label"><input type="checkbox" id="regChainBaseSepolia" checked> Base Sepolia</label>
-                <label class="check-label"><input type="checkbox" id="regChainEthMainnet"> Ethereum Mainnet</label>
-                <label class="check-label"><input type="checkbox" id="regChainEthSepolia"> Ethereum Sepolia</label>
-              </div>
-              <div class="field-hint" style="margin-top:6px">Each chain costs ~$0.005 gas. Platform wallet covers gas.</div>
+              <label class="field-label" for="regChain">Registration Chain</label>
+              <select class="field-input" id="regChain" style="font-size:13px;padding:8px 10px">
+                <option value="base-mainnet" selected>Base Mainnet</option>
+                <option value="base-sepolia">Base Sepolia</option>
+                <option value="eth-mainnet">Ethereum Mainnet</option>
+                <option value="eth-sepolia">Ethereum Sepolia</option>
+              </select>
+              <div class="field-hint" style="margin-top:6px">One chain per registration. ~$0.005 gas, covered by platform wallet.</div>
             </div>
           </details>
 
@@ -3302,13 +3302,8 @@ function submitRegistration() {
     return;
   }
 
-  // Collect selected chains
-  var selectedChains = [];
-  if (document.getElementById('regChainBaseMainnet') && document.getElementById('regChainBaseMainnet').checked) selectedChains.push('base-mainnet');
-  if (document.getElementById('regChainBaseSepolia') && document.getElementById('regChainBaseSepolia').checked) selectedChains.push('base-sepolia');
-  if (document.getElementById('regChainEthMainnet') && document.getElementById('regChainEthMainnet').checked) selectedChains.push('eth-mainnet');
-  if (document.getElementById('regChainEthSepolia') && document.getElementById('regChainEthSepolia').checked) selectedChains.push('eth-sepolia');
-  if (!selectedChains.length) selectedChains = ['base-mainnet', 'base-sepolia'];
+  // Selected chain (single)
+  var selectedChain = (document.getElementById('regChain') && document.getElementById('regChain').value) || 'base-mainnet';
 
   document.getElementById('errorMsg').classList.remove('visible');
   var btn = document.getElementById('regSubmitBtn');
@@ -3322,18 +3317,12 @@ function submitRegistration() {
   document.getElementById('regProgress').style.display = '';
   var lines = document.getElementById('regProgressLines');
   var chainLabels = {'base-mainnet':'Base mainnet','base-sepolia':'Base Sepolia','eth-mainnet':'Ethereum mainnet','eth-sepolia':'Ethereum Sepolia'};
-  var progressHtml = '';
-  selectedChains.forEach(function(c, i) {
-    progressHtml += '<div id="regStepChain' + i + '" style="color:var(--text-3)">Registering on ' + (chainLabels[c]||c) + '...</div>';
-  });
-  progressHtml += '<div id="regStepFleet" style="color:var(--text-3)">Joining bidding fleet...</div>';
-  lines.innerHTML = progressHtml;
+  var chainLabel = chainLabels[selectedChain] || selectedChain;
+  lines.innerHTML =
+    '<div id="regStepChain" style="color:var(--text-3)">Registering on ' + chainLabel + '...</div>' +
+    '<div id="regStepFleet" style="color:var(--text-3)">Joining bidding fleet...</div>';
 
-  // Animate progress steps with estimated timing (cleared when results arrive)
-  var _regProgressTimers = [];
-  selectedChains.forEach(function(c, i) {
-    _regProgressTimers.push(setTimeout(function() { markRegStep('regStepChain' + i, 'pending'); }, 500 + i * 12000));
-  });
+  var _regPendingTimer = setTimeout(function() { markRegStep('regStepChain', 'pending'); }, 500);
 
   var tunnelUrl = document.getElementById('tunnelUrl').value;
   fetch(tunnelUrl + '/api/tool/auction_register_robot_onchain', {
@@ -3351,7 +3340,7 @@ function submitRegistration() {
       min_bid_cents: minBid,
       bid_pct: bidPct,
       operator_wallet: window._registration.operatorWallet || '',
-      chains: selectedChains,
+      chain: selectedChain,
     }),
     signal: AbortSignal.timeout(120000),
   })
@@ -3369,37 +3358,29 @@ function submitRegistration() {
       return;
     }
 
-    // Clear animation timers so they don't overwrite final states
-    _regProgressTimers.forEach(function(t) { clearTimeout(t); });
-    // Mark per-chain progress
-    var chains = result.chains || {};
-    var successChains = [];
-    var failedChains = [];
-    selectedChains.forEach(function(c, i) {
-      var cr = chains[c] || {};
-      if (cr.status === 'ok') {
-        markRegStep('regStepChain' + i, 'done', cr.agent_id || '');
-        successChains.push(c);
-        appendFeedItem({type: 'tool_call', tool_name: 'register_' + c.replace('-','_')}, feedCounter);
-      } else {
-        markRegStep('regStepChain' + i, 'error', (cr.error || 'failed').slice(0, 100));
-        failedChains.push(c);
-        appendFeedItem({type: 'text', claude_text: (chainLabels[c]||c) + ': ' + (cr.error || 'failed')}, feedCounter);
-      }
-    });
+    // Clear animation timer
+    clearTimeout(_regPendingTimer);
+    // Mark chain result
+    var cr = result.chain_result || {};
+    var registrationOk = cr.status === 'ok';
 
-    // Check if ALL chains failed
-    if (successChains.length === 0) {
-      markRegStep('regStepFleet', 'error', 'no chain succeeded');
-      appendFeedItem({type: 'text', claude_text: 'Registration failed — all chains returned errors'}, feedCounter);
+    if (registrationOk) {
+      markRegStep('regStepChain', 'done', cr.agent_id || '');
+      appendFeedItem({type: 'tool_call', tool_name: 'register_' + selectedChain.replace('-','_')}, feedCounter);
+    } else {
+      markRegStep('regStepChain', 'error', (cr.error || 'failed').slice(0, 100));
+      appendFeedItem({type: 'text', claude_text: chainLabel + ': ' + (cr.error || 'failed')}, feedCounter);
+    }
+
+    // Check if registration failed
+    if (!registrationOk) {
+      markRegStep('regStepFleet', 'error', 'registration failed');
+      appendFeedItem({type: 'text', claude_text: 'Registration failed on ' + chainLabel}, feedCounter);
       // Show error but keep progress visible so user can see per-chain errors
       setTimeout(function() {
         var errorHtml = '<div style="margin-top:16px;padding:16px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);font-size:13px;color:var(--red)">';
-        errorHtml += '<strong>Registration failed.</strong> No chain registration succeeded.<br>';
-        failedChains.forEach(function(c) {
-          var cr = chains[c] || {};
-          errorHtml += '<div style="margin-top:4px;overflow-wrap:break-word">' + escapeHtml(chainLabels[c]||c) + ': ' + escapeHtml((cr.error || 'unknown error').slice(0, 150)) + '</div>';
-        });
+        errorHtml += '<strong>Registration failed on ' + escapeHtml(chainLabel) + '.</strong><br>';
+        errorHtml += '<div style="margin-top:4px;overflow-wrap:break-word">' + escapeHtml((cr.error || 'unknown error').slice(0, 150)) + '</div>';
         errorHtml += '<div style="margin-top:8px"><button class="admin-btn" onclick="document.getElementById(\'regFormSection\').style.display=\'\';document.getElementById(\'regProgress\').style.display=\'none\';showRegStep(\'payment\')" style="margin-top:4px">Back to Payment &amp; Bidding</button></div>';
         errorHtml += '</div>';
         document.getElementById('regProgress').insertAdjacentHTML('beforeend', errorHtml);
@@ -3413,10 +3394,9 @@ function submitRegistration() {
     markRegStep('regStepFleet', 'pending');
 
     // On-chain verification: query the subgraph to confirm the agent exists
-    var verifyChain = successChains[0];
-    var verifyAgentId = (chains[verifyChain].agent_id || '').split(':').pop();
+    var verifyAgentId = (cr.agent_id || '').split(':').pop();
     var chainNameToId = {'base-mainnet':8453,'base-sepolia':84532,'eth-mainnet':1,'eth-sepolia':11155111};
-    var subgraphUrl = SUBGRAPH_URLS[chainNameToId[verifyChain]];
+    var subgraphUrl = SUBGRAPH_URLS[chainNameToId[selectedChain]];
 
     function showConfirmation(verified) {
       if (verified) {
@@ -3426,33 +3406,20 @@ function submitRegistration() {
       }
 
       window._registration.operatorId = result.operator_id;
-      window._registration.chains = chains;
+      window._registration.chain = selectedChain;
       window._registration.status = result.status;
 
       setTimeout(function() {
         document.getElementById('regProgress').style.display = 'none';
         document.getElementById('regConfirm').style.display = '';
         var card = document.getElementById('regConfirmCard');
-        var isPartial = failedChains.length > 0;
         var scanPaths = {'base-mainnet':'base','base-sepolia':'base-sepolia','eth-mainnet':'ethereum','eth-sepolia':'ethereum-sepolia'};
-        var firstUri = '';
-        var transferAddr = '';
-        selectedChains.forEach(function(c) {
-          var cr = chains[c] || {};
-          if (cr.agent_uri && !firstUri) firstUri = cr.agent_uri;
-          if (cr.transferred_to) transferAddr = cr.transferred_to;
-        });
+        var agentUri = cr.agent_uri || '';
+        var transferAddr = cr.transferred_to || '';
 
         var h = '';
+        h += '<div style="margin-bottom:16px"><span class="badge-lg badge-lg-green">REGISTERED — BIDDING ENABLED</span></div>';
 
-        // ---- Status badge at top ----
-        if (result.status === 'active') {
-          h += '<div style="margin-bottom:16px"><span class="badge-lg badge-lg-green">REGISTERED — BIDDING ENABLED</span></div>';
-        } else if (result.status === 'partial') {
-          h += '<div style="margin-bottom:16px"><span class="badge-lg badge-lg-amber">PARTIALLY REGISTERED — BIDDING ENABLED</span></div>';
-        }
-
-        // ---- Robot identity ----
         h += '<h3 style="margin-bottom:2px">' + escapeHtml(result.name || name) + '</h3>';
         h += '<div class="text-muted mb-16">' + escapeHtml(result.company || company) + ' &middot; ' + escapeHtml(location) + '</div>';
 
@@ -3462,54 +3429,37 @@ function submitRegistration() {
         if (transferAddr) {
           h += '<div class="kv-row"><span class="kv-label">Owner</span><span class="kv-value kv-value-green">' + escapeHtml(transferAddr) + '</span></div>';
         }
-        if (firstUri) {
-          var cid = firstUri.replace('ipfs://', '');
-          h += '<div class="kv-row"><span class="kv-label">IPFS</span><span class="kv-value kv-value-mono"><a href="https://gateway.pinata.cloud/ipfs/' + cid + '" target="_blank" style="color:var(--link)">' + escapeHtml(firstUri) + '</a></span></div>';
+        if (agentUri) {
+          var cid = agentUri.replace('ipfs://', '');
+          h += '<div class="kv-row"><span class="kv-label">IPFS</span><span class="kv-value kv-value-mono"><a href="https://gateway.pinata.cloud/ipfs/' + cid + '" target="_blank" style="color:var(--link)">' + escapeHtml(agentUri) + '</a></span></div>';
         }
 
-        // ---- Chain registration results (separate section) ----
+        // ---- Chain registration result ----
         h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">';
         h += '<div class="card-label" style="margin-bottom:8px">On-Chain Registration</div>';
-
-        // Successful chains
-        selectedChains.forEach(function(c) {
-          var cr = chains[c] || {};
-          if (cr.status === 'ok' && cr.agent_id) {
-            var aid = cr.agent_id.split(':').pop();
-            var scanPath = scanPaths[c] || c;
-            h += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)">';
-            h += '<span style="color:var(--green);font-size:14px">&#10003;</span>';
-            h += '<span style="font-size:13px;font-weight:500;min-width:120px">' + escapeHtml(chainLabels[c]||c) + '</span>';
-            h += '<span style="font-family:\'JetBrains Mono\',monospace;font-size:12px"><a href="https://8004scan.io/agents/' + scanPath + '/' + aid + '" target="_blank" style="color:var(--link)">#' + escapeHtml(aid) + '</a></span>';
-            h += '<span style="font-size:11px;color:' + (verified ? 'var(--green)' : 'var(--amber)') + ';margin-left:auto">' + (verified ? 'verified' : 'pending indexing') + '</span>';
-            h += '</div>';
-          }
-        });
-
-        // Failed chains
-        selectedChains.forEach(function(c) {
-          var cr = chains[c] || {};
-          if (cr.status !== 'ok') {
-            h += '<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)">';
-            h += '<span style="color:var(--red);font-size:14px">&#10007;</span>';
-            h += '<span style="font-size:13px;font-weight:500;min-width:120px">' + escapeHtml(chainLabels[c]||c) + '</span>';
+        var aid = (cr.agent_id || '').split(':').pop();
+        var scanPath = scanPaths[selectedChain] || selectedChain;
+        h += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0">';
+        h += '<span style="color:var(--green);font-size:14px">&#10003;</span>';
+        h += '<span style="font-size:13px;font-weight:500">' + escapeHtml(chainLabel) + '</span>';
+        h += '<span style="font-family:\'JetBrains Mono\',monospace;font-size:12px"><a href="https://8004scan.io/agents/' + scanPath + '/' + aid + '" target="_blank" style="color:var(--link)">#' + escapeHtml(aid) + '</a></span>';
+        h += '<span style="font-size:11px;color:' + (verified ? 'var(--green)' : 'var(--amber)') + ';margin-left:auto">' + (verified ? 'verified' : 'pending indexing') + '</span>';
+        h += '</div>';
             h += '<span style="font-size:12px;color:var(--red);overflow-wrap:break-word;word-break:break-word;min-width:0">' + escapeHtml((cr.error || 'Registration failed').slice(0, 150)) + '</span>';
             h += '</div>';
-          }
-        });
+        if (cr.warning) {
+          h += '<div class="field-hint" style="margin-top:4px">' + escapeHtml(cr.warning) + '</div>';
+        }
 
         h += '</div>';
 
         card.innerHTML = h;
 
-        // Add to sidebar only if at least one chain succeeded
-        if (successChains.length > 0) {
-          var firstOk = null;
-          successChains.forEach(function(c) { if (!firstOk && chains[c] && chains[c].agent_id) firstOk = chains[c]; });
-          discoveredRobots.push({
-            agent_id: firstOk ? firstOk.agent_id.split(':').pop() : 'new',
-            chain_id: verifyChain === 'base-mainnet' ? 8453 : verifyChain === 'base-sepolia' ? 84532 : verifyChain === 'eth-mainnet' ? 1 : 11155111,
-            chain_name: chainLabels[verifyChain] || verifyChain,
+        // Add to sidebar
+        discoveredRobots.push({
+            agent_id: aid || 'new',
+            chain_id: chainNameToId[selectedChain] || 8453,
+            chain_name: chainLabel,
             name: result.name || name,
             description: desc || '',
             active: true,
@@ -3525,9 +3475,8 @@ function submitRegistration() {
           });
           var robotCards = document.getElementById('robotCards');
           if (robotCards) { robotCards.innerHTML = ''; renderRobotsSidebar(getFilteredRobots()); }
-        }
 
-        appendFeedItem({type: 'text', claude_text: 'Robot registered: ' + (result.name || name) + (isPartial ? ' (partial — ' + failedChains.length + ' chain(s) failed)' : ' (' + successChains.length + ' chain(s))')}, feedCounter);
+        appendFeedItem({type: 'text', claude_text: 'Robot registered: ' + (result.name || name) + ' on ' + chainLabel}, feedCounter);
       }, 800);
     }
 
