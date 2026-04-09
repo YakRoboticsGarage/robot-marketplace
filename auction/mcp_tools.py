@@ -58,7 +58,7 @@ def _error_response(exc: Exception) -> dict[str, Any]:
 
     Never exposes Python exception class names to MCP consumers.
     """
-    msg = str(exc)
+    msg = str(exc)[:500]  # truncate to avoid leaking internal details
     # Map known exception patterns to descriptive codes
     if isinstance(exc, AttributeError) and "capability_requirements" in msg:
         return _error_response_structured(
@@ -1140,6 +1140,14 @@ def register_auction_tools(
                 f"Unknown equipment_type '{equipment_type}'.",
                 f"Valid types: {sorted(SENSOR_TO_CATEGORY)}",
             )
+        if equipment_types:
+            invalid = [s for s in equipment_types if s not in SENSOR_TO_CATEGORY]
+            if invalid:
+                return _error_response_structured(
+                    "INVALID_EQUIPMENT_TYPE",
+                    f"Unknown equipment type(s) in equipment_types: {invalid}.",
+                    f"Valid types: {sorted(SENSOR_TO_CATEGORY)}",
+                )
         if not (0.0 < bid_pct <= 1.0):
             return _error_response_structured("INVALID_BID_PCT", "bid_pct must be between 0 (exclusive) and 1 (inclusive).", "Typical values: 0.70–0.95")
         if min_bid_cents < 1:

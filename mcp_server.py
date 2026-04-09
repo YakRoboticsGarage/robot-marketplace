@@ -289,7 +289,10 @@ Start by asking the user what survey they need, or process an RFP they provide."
         # Lazy discovery: run on first auction-related call
         if tool_name in ("auction_post_task", "auction_process_rfp") and hasattr(engine, "_discover"):
             import asyncio
-            await asyncio.to_thread(engine._discover)
+            try:
+                await asyncio.to_thread(engine._discover)
+            except Exception as e:
+                log("DISCOVERY", f"Discovery failed during tool call: {e}")
 
         try:
             body = await request.json()

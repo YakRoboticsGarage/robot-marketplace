@@ -711,7 +711,7 @@ Requirements:
               </div>
               <div>
                 <label class="field-label" for="regBidPct">Bid Aggressiveness: <span id="regBidPctLabel">80%</span></label>
-                <input type="range" id="regBidPct" min="70" max="95" value="80" aria-label="Bid aggressiveness percentage" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
+                <input type="range" id="regBidPct" min="70" max="95" value="80" style="width:100%;margin-top:4px" oninput="document.getElementById('regBidPctLabel').textContent=this.value+'%'">
                 <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)"><span>70% (aggressive)</span><span>95% (conservative)</span></div>
                 <div class="field-hint">Percentage of the task budget ceiling your robot bids. Lower = more competitive.</div>
               </div>
@@ -1687,7 +1687,7 @@ function renderPaymentOptions(winnerName, winnerPrice) {
       '<div class="kv-row"><span class="kv-label">Winner</span><span class="kv-value kv-value-green">' + escapeHtml(winnerName) + '</span></div>' +
       (winnerPrice ? '<div class="kv-row"><span class="kv-label">Bid price</span><span class="kv-value">' + escapeHtml(winnerPrice) + '</span></div>' : '') +
     '</div>' +
-    '<p class="explainer">Choose your payment method. You will not be charged until you approve the delivered results.</p>' +
+    '<p class="explainer">Choose your payment method. Card payments are held until delivery approval. Bank transfers are initiated immediately.</p>' +
     '<div class="btn-group" style="margin-top:8px">' + cardBtn + achBtn + usdcBtn + '</div>' +
     testBadge +
     '<div id="stripeEmbedMount" style="margin-top:12px"></div>';
@@ -1770,7 +1770,7 @@ async function renderDeliveryResult(deliveryData, qaResult) {
     } else {
       execAction.innerHTML =
         '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-          '<button class="pay-btn" style="background:var(--amber);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Anyway</button>' +
+          '<button class="pay-btn release-payment-btn" style="background:var(--amber);color:#fff;font-size:11px;padding:6px 12px" onclick="releasePayment()">Release Anyway</button>' +
           '<button class="pay-btn" style="background:var(--red);color:#fff;font-size:11px;padding:6px 12px" onclick="showPhase(\'setup\');resetDemo()">Reject &amp; Reset</button>' +
         '</div>' +
         '<div class="field-hint">Quality check failed. Release anyway to pay the operator, or reject and start over.</div>';
@@ -1898,6 +1898,7 @@ function closeFeedbackPopup() {
 
 function resetDemo() {
   // Reset state
+  _auctionRunning = false;
   window._awardedRequestId = null;
   window._tunnelUrl = null;
   window._paymentCommitment = null;
@@ -3053,10 +3054,14 @@ setTimeout(discoverRobots, 500);
 // Global Escape key handler for modals
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
-    // Close any open feed detail
+    // Use dedicated close functions for named modals (they call .remove())
+    var fb = document.getElementById('feedbackModal');
+    if (fb && fb.classList.contains('expanded')) { closeFeedbackPopup(); return; }
+    var sm = document.getElementById('summaryModal');
+    if (sm && sm.classList.contains('expanded')) { closeSummaryPopup(); return; }
+    // Generic feed detail
     var openDetail = document.querySelector('.feed-detail.expanded');
     if (openDetail) { closeFeedDetail(openDetail.id); return; }
-    // Close feedback popup
     var overlay = document.getElementById('feedDetailOverlay');
     if (overlay && overlay.classList.contains('active')) { closeAllFeedDetails(); return; }
   }
@@ -3128,7 +3133,9 @@ function showRegStep(step) {
       }
     }
   }
-  // Scroll to top of main content
+  // Move focus to new step for screen readers + scroll to top
+  var stepEl = document.getElementById('regStep-' + step);
+  if (stepEl) { stepEl.setAttribute('tabindex', '-1'); stepEl.focus({ preventScroll: true }); }
   var main = document.querySelector('.main-content');
   if (main) main.scrollTop = 0;
 }
