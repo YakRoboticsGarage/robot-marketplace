@@ -1134,20 +1134,14 @@ def register_auction_tools(
             return _error_response_structured("INVALID_EMAIL", "contact_email is not a valid email.", "Use format: user@domain.com")
         if not location or not location.strip():
             return _error_response_structured("INVALID_LOCATION", "location is required.", "e.g. Detroit, MI")
-        if equipment_type not in SENSOR_TO_CATEGORY:
+        # Validate equipment_type — allow known types and custom types (from "Other" input)
+        # Custom types are accepted but mapped to "env_sensing" for on-chain task_categories
+        if not equipment_type or not equipment_type.strip():
             return _error_response_structured(
                 "INVALID_EQUIPMENT_TYPE",
-                f"Unknown equipment_type '{equipment_type}'.",
-                f"Valid types: {sorted(SENSOR_TO_CATEGORY)}",
+                "equipment_type is required.",
+                f"Standard types: {sorted(SENSOR_TO_CATEGORY)}. Custom types also accepted.",
             )
-        if equipment_types:
-            invalid = [s for s in equipment_types if s not in SENSOR_TO_CATEGORY]
-            if invalid:
-                return _error_response_structured(
-                    "INVALID_EQUIPMENT_TYPE",
-                    f"Unknown equipment type(s) in equipment_types: {invalid}.",
-                    f"Valid types: {sorted(SENSOR_TO_CATEGORY)}",
-                )
         if not (0.0 < bid_pct <= 1.0):
             return _error_response_structured("INVALID_BID_PCT", "bid_pct must be between 0 (exclusive) and 1 (inclusive).", "Typical values: 0.70–0.95")
         if min_bid_cents < 1:
