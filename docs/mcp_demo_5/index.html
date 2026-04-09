@@ -20,7 +20,7 @@
   --green:#1A7D4E;--green-bg:#E6F5ED;--green-bg-subtle:rgba(26,125,78,0.2);
   --amber:#C27B1A;--amber-bg:#fef3c7;
   --red:#dc2626;--red-bg:#FEE2E2;--red-border:#FECACA;
-  --link:#2D5F8A;
+  --link:#2D5F8A;--blue-bg:#E8F0FE;
   --navy:#1B3A5C;--navy-light:#2D5F8A;
   --stripe:#635bff;--stripe-hover:#5046e5;
   --usdc:#2775ca;--usdc-hover:#1d5fa0;
@@ -95,7 +95,7 @@ background-size:1200px 900px}
 .badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:0.3px}
 .badge-green{background:var(--green-bg);color:var(--green)}
 .badge-yellow{background:var(--amber-bg);color:var(--amber)}
-.badge-blue{background:#E8F0FE;color:#2D5F8A}
+.badge-blue{background:var(--blue-bg);color:var(--link)}
 
 .discovery-status{font-size:12px;color:var(--text-2);padding:6px 0}
 .discovery-empty{text-align:center;padding:20px 12px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-3);font-size:12px;line-height:1.6}
@@ -140,7 +140,7 @@ background-size:1200px 900px}
 input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 
 /* Utility classes for repeated patterns */
-.check-label{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer}
+.check-label{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text-2)}
 .field-hint{font-size:11px;color:var(--text-3);margin-top:4px}
 .btn-sm{display:inline-block;font-size:11px;padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;font-family:inherit;font-weight:600}
 .text-muted{font-size:13px;color:var(--text-2)}
@@ -155,10 +155,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .star-btn:hover{border-color:var(--accent);color:var(--accent)}
 .link-subtle{font-size:12px;color:var(--text-3);cursor:pointer;text-decoration:underline}
 .link-subtle:hover{color:var(--accent)}
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.status-dot-green{background:var(--green)}
-.status-dot-amber{background:var(--amber)}
-.status-dot-accent{background:var(--accent)}
+/* .status-dot classes available for future use but not currently referenced in rendered HTML */
 
 /* Key-value rows */
 .kv-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--bg-subtle)}
@@ -173,7 +170,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 .btn-primary{display:block;width:100%;padding:14px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s}
 .btn-primary:hover{background:var(--accent-hover)}
 .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-.btn-primary:focus-visible,.btn-continue:focus-visible,.pay-btn:focus-visible,.admin-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn-primary:focus-visible,.btn-continue:focus-visible,.pay-btn:focus-visible,.admin-btn:focus-visible,.star-btn:focus-visible,.feed-detail-close:focus-visible,.hamburger:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .phase:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:3px}
 .btn-primary.reset{background:var(--text-3);color:#fff}
 .btn-primary.reset:hover{background:var(--text-2)}
@@ -388,7 +385,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
     <div class="sidebar-top">
       <div class="sidebar-section">
         <div class="sidebar-label">Environment</div>
-        <select class="field-input" id="demoEnv" onchange="onDemoEnvChange()" style="font-size:12px;padding:6px 8px">
+        <select class="field-input" id="demoEnv" onchange="onDemoEnvChange()">
           <option value="production">Production</option>
           <option value="test" selected>Test Mode</option>
         </select>
@@ -396,16 +393,16 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Fleet Filter</div>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+        <label class="check-label">
           <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" checked style="accent-color:var(--navy)">
           Demo fleet only
         </label>
-        <div style="font-size:10px;color:var(--text-3);margin:2px 0 6px 22px">Use pre-configured FakeRover simulators. Uncheck to use only real on-chain robots.</div>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+        <div class="field-hint" style="margin:2px 0 6px 22px">Use pre-configured FakeRover simulators. Uncheck to use only real on-chain robots.</div>
+        <label class="check-label">
           <input type="checkbox" id="hideFakeRovers" onchange="onFakeRoverFilterChange()" style="accent-color:var(--navy)">
           Hide FakeRovers
         </label>
-        <div style="font-size:10px;color:var(--text-3);margin:2px 0 0 22px">Remove FakeRover-* robots from both the sidebar and auction bidding. Only registered robots with custom names will bid.</div>
+        <div class="field-hint" style="margin:2px 0 0 22px">Remove FakeRover-* robots from both the sidebar and auction bidding. Only registered robots with custom names will bid.</div>
       </div>
     </div>
 
@@ -583,7 +580,7 @@ Requirements:
           <button type="button" class="phase-back" onclick="returnFromRegistration()">&larr; Back to Demo</button>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <h2 class="phase-heading" style="margin-bottom:0">Operator Profile</h2>
-            <button class="btn-continue" onclick="showRegStep('equipment')">Next: Equipment &rarr;</button>
+            <button class="btn-continue" onclick="validateAndAdvance('equipment')">Next: Equipment &rarr;</button>
           </div>
           <p class="phase-subheading">Basic information about you and your robot.</p>
           <div class="card card-blue">
@@ -618,7 +615,7 @@ Requirements:
           <button type="button" class="phase-back" onclick="showRegStep('profile')">&larr; Back to Profile</button>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <h2 class="phase-heading" style="margin-bottom:0">Equipment &amp; Certifications</h2>
-            <button class="btn-continue" onclick="showRegStep('payment')">Next: Payment &rarr;</button>
+            <button class="btn-continue" onclick="validateAndAdvance('payment')">Next: Payment &rarr;</button>
           </div>
           <p class="phase-subheading">What sensors does your robot carry? These determine which tasks you can bid on.</p>
           <div class="card card-blue">
@@ -673,19 +670,19 @@ Requirements:
             <div class="field-grid">
               <div>
                 <div class="field-label">FAA Part 107</div>
-                <input class="field-input" type="file" id="regCertPart107" accept=".pdf,.jpg,.png" style="font-size:12px;padding:6px 8px">
+                <input class="field-input" type="file" id="regCertPart107" accept=".pdf,.jpg,.png">
               </div>
               <div>
                 <div class="field-label">Insurance COI (ACORD 25)</div>
-                <input class="field-input" type="file" id="regCertInsurance" accept=".pdf,.jpg,.png" style="font-size:12px;padding:6px 8px">
+                <input class="field-input" type="file" id="regCertInsurance" accept=".pdf,.jpg,.png">
               </div>
               <div>
                 <div class="field-label">PLS License</div>
-                <input class="field-input" type="file" id="regCertPLS" accept=".pdf,.jpg,.png" style="font-size:12px;padding:6px 8px">
+                <input class="field-input" type="file" id="regCertPLS" accept=".pdf,.jpg,.png">
               </div>
               <div>
                 <div class="field-label">Other</div>
-                <input class="field-input" type="file" id="regCertOther" accept=".pdf,.jpg,.png" style="font-size:12px;padding:6px 8px">
+                <input class="field-input" type="file" id="regCertOther" accept=".pdf,.jpg,.png">
               </div>
             </div>
             <div class="field-hint" style="margin-top:6px">Not required for bidding. Verified during award review.</div>
@@ -1380,7 +1377,7 @@ function showPhase(phaseId) {
   }
 
   // Update breadcrumbs — completed phases are clickable
-  document.querySelectorAll('.breadcrumbs-bar .phase').forEach(function(el) {
+  document.querySelectorAll('#breadcrumbs .phase').forEach(function(el) {
     var elPhase = el.getAttribute('data-phase');
     var elIndex = _phaseNames.indexOf(elPhase);
     el.classList.remove('active', 'done');
@@ -1971,6 +1968,8 @@ function toggleSidebar() {
   var overlay = document.getElementById('sidebarOverlay');
   sidebar.classList.toggle('mobile-open');
   overlay.classList.toggle('active');
+  var btn = document.getElementById('hamburgerBtn');
+  if (btn) btn.setAttribute('aria-label', sidebar.classList.contains('mobile-open') ? 'Close navigation menu' : 'Open navigation menu');
 }
 
 
@@ -3140,6 +3139,34 @@ function showRegStep(step) {
   if (main) main.scrollTop = 0;
 }
 
+function validateAndAdvance(targetStep) {
+  document.getElementById('errorMsg').classList.remove('visible');
+  if (targetStep === 'equipment') {
+    var n = document.getElementById('regName').value.trim();
+    var c = document.getElementById('regCompany').value.trim();
+    var e = document.getElementById('regEmail').value.trim();
+    var l = document.getElementById('regLocation').value.trim();
+    if (!n || n === 'FakeRover-') { showError('Please enter a robot name.'); return; }
+    if (!c) { showError('Please enter a company name.'); return; }
+    if (!e || e.indexOf('@') === -1) { showError('Please enter a valid email address.'); return; }
+    if (!l) { showError('Please enter a location.'); return; }
+  }
+  if (targetStep === 'payment') {
+    var checks = document.querySelectorAll('#regEquipmentChecks input[type=checkbox]:checked');
+    var hasEquip = false;
+    checks.forEach(function(cb) { if (cb.value !== '__other_sensor__') hasEquip = true; });
+    if (!hasEquip) {
+      var otherCb = document.querySelector('#regEquipmentChecks input[value="__other_sensor__"]:checked');
+      var otherVal = document.getElementById('regSensorOther');
+      if (otherCb && otherVal && otherVal.value.trim()) hasEquip = true;
+    }
+    if (!hasEquip) { showError('Please select at least one sensor capability.'); return; }
+    var ms = document.getElementById('regModel').value;
+    if (ms === '__other__' && !document.getElementById('regModelOther').value.trim()) { showError('Please specify a platform/model name.'); return; }
+  }
+  showRegStep(targetStep);
+}
+
 function onRegModeChange(mode) {
   var form = document.getElementById('regFormSection');
   var mcp = document.getElementById('regMcpSection');
@@ -3289,9 +3316,10 @@ function submitRegistration() {
   progressHtml += '<div id="regStepFleet" style="color:var(--text-3)">Joining bidding fleet...</div>';
   lines.innerHTML = progressHtml;
 
-  // Animate progress steps with estimated timing
+  // Animate progress steps with estimated timing (cleared when results arrive)
+  var _regProgressTimers = [];
   selectedChains.forEach(function(c, i) {
-    setTimeout(function() { markRegStep('regStepChain' + i, 'pending'); }, 500 + i * 12000);
+    _regProgressTimers.push(setTimeout(function() { markRegStep('regStepChain' + i, 'pending'); }, 500 + i * 12000));
   });
 
   var tunnelUrl = document.getElementById('tunnelUrl').value;
@@ -3328,6 +3356,8 @@ function submitRegistration() {
       return;
     }
 
+    // Clear animation timers so they don't overwrite final states
+    _regProgressTimers.forEach(function(t) { clearTimeout(t); });
     // Mark per-chain progress
     var chains = result.chains || {};
     var successChains = [];

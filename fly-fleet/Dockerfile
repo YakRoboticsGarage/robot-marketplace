@@ -17,4 +17,8 @@ EXPOSE 8000
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
+# Run as non-root user
+RUN useradd -r -m -u 1001 appuser && chown -R appuser /app
+USER appuser
+
 CMD ["/app/start.sh"]

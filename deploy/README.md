@@ -110,3 +110,7 @@ Try these:
 | `AUCTION_DB_PATH` | No | In-memory | SQLite persistence path |
 | `SAM_GOV_API_KEY` | No | — | Real federal debarment checks |
 | `MCP_BEARER_TOKEN` | No | — | Optional auth token |
+| `SIGNER_PVT_KEY` | For on-chain registration | — | Platform deployer wallet private key (signs ERC-8004 registration) |
+| `PINATA_JWT` | For on-chain registration | — | Pinata v3 JWT for IPFS agent card upload |
+| `RELAY_PRIVATE_KEY` | For USDC payments | — | Relay wallet for gasless USDC transactions |
+| `FLEET_MCP_TOKEN` | No | — | Bearer token for fleet MCP server auth |
