@@ -1161,10 +1161,10 @@ def register_auction_tools(
                 "Set PINATA_JWT to your Pinata v3 API JWT.",
             )
 
-        mcp_base = os.environ.get("MCP_PUBLIC_URL", "https://mcp.yakrover.online")
-        mcp_endpoint = mcp_base + "/mcp"
-        fleet_endpoint = mcp_base + "/fleet/mcp"
-        tool_names = list(mcp._tool_manager._tools.keys())
+        marketplace_base = os.environ.get("MCP_PUBLIC_URL", "https://mcp.yakrover.online")
+        marketplace_endpoint = marketplace_base + "/mcp"
+        # The robot's MCP endpoint — where it actually lives (not the marketplace)
+        robot_mcp_url = mcp_endpoint_url or "https://fleet.yakrover.online/fakerover/mcp"
         all_sensor_list = equipment_types if equipment_types else [equipment_type]
         task_categories = sorted({SENSOR_TO_CATEGORY.get(s, "env_sensing") for s in all_sensor_list})
         task_category = ",".join(task_categories)
@@ -1198,6 +1198,7 @@ def register_auction_tools(
                 )
 
             chain_result = {}
+            robot_tools = []
             try:
                 from agent0_sdk import SDK
                 sdk = SDK(
@@ -1209,7 +1210,7 @@ def register_auction_tools(
                 )
 
                 agent = sdk.createAgent(name=name, description=description, image="")
-                agent.setMCP(mcp_endpoint, auto_fetch=False)
+                agent.setMCP(robot_mcp_url, auto_fetch=False)
 
                 mcp_ep = next(
                     (ep for ep in agent.registration_file.endpoints
@@ -1218,8 +1219,44 @@ def register_auction_tools(
                 )
                 if mcp_ep is None:
                     raise ValueError("agent0-sdk did not create an MCP endpoint — check SDK version")
-                mcp_ep.meta["mcpTools"] = tool_names
-                mcp_ep.meta["fleetEndpoint"] = fleet_endpoint
+
+                # Discover the robot's actual tools from its MCP server
+                robot_tools = []
+                try:
+                    import httpx
+                    probe = httpx.post(
+                        robot_mcp_url,
+                        json={"jsonrpc": "2.0", "method": "initialize",
+                              "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                                         "clientInfo": {"name": "registrar", "version": "1.0"}}, "id": 1},
+                        headers={"Accept": "text/event-stream",
+                                 "Authorization": f"Bearer {os.environ.get('FLEET_MCP_TOKEN', '')}"},
+                        timeout=10.0,
+                    )
+                    if probe.status_code == 200:
+                        import json as _json
+                        tools_resp = httpx.post(
+                            robot_mcp_url,
+                            json={"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 2},
+                            headers={"Accept": "text/event-stream",
+                                     "Mcp-Session-Id": probe.headers.get("mcp-session-id", ""),
+                                     "Authorization": f"Bearer {os.environ.get('FLEET_MCP_TOKEN', '')}"},
+                            timeout=10.0,
+                        )
+                        for line in tools_resp.text.splitlines():
+                            if line.startswith("data: "):
+                                try:
+                                    msg = _json.loads(line[6:])
+                                    for t in msg.get("result", {}).get("tools", []):
+                                        if isinstance(t, dict) and "name" in t:
+                                            robot_tools.append(t["name"])
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass  # tool discovery failed — will use fallback defaults
+
+                mcp_ep.meta["mcpTools"] = robot_tools if robot_tools else ["robot_submit_bid", "robot_execute_task"]
+                mcp_ep.meta["fleetEndpoint"] = marketplace_endpoint
 
                 agent.setTrust(reputation=True)
                 agent.setActive(True)
@@ -1339,7 +1376,7 @@ def register_auction_tools(
                             chain_id=cfg["chain_id"],
                             description=description,
                             bearer_token=bearer,
-                            mcp_tools=tool_names,  # marketplace tools for fallback
+                            mcp_tools=robot_tools if robot_tools else None,
                         )
                         if adapter.is_reachable(timeout=10.0):
                             robot = adapter
