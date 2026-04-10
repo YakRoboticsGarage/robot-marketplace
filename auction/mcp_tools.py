@@ -1274,7 +1274,7 @@ def register_auction_tools(
                 }
                 if stripe_connect_id:
                     metadata["stripe_connect_id"] = stripe_connect_id
-                # Additional IPFS-only metadata (included in agent card JSON, not separate on-chain keys)
+                # Additional operator metadata (written on-chain via setMetadata + included in IPFS agent card)
                 metadata["operator_company"] = company_name
                 metadata["operator_location"] = location
                 metadata["equipment_model"] = model

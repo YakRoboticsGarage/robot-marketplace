@@ -54,7 +54,7 @@ meta:
   name: "Robot Task Auction Marketplace"
   project: yakrover-auction-explorer
   schema_version: "2.5"
-  updated: "2026-04-09"
+  updated: "2026-04-10"
   provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-08 with v1.1-v1.3 implementation state (real robot, USDC mainnet, ACH, 3-method payment). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
   license: "Proprietary — YAK Robotics Garage"
 
@@ -3079,6 +3079,93 @@ gtm:
     in_ui: "drone (for aerial), robot (for legged), autonomous equipment (for heavy machinery)"
     in_specs: "UAS (government contexts), autonomous survey platform (formal)"
     sources: [{path: docs/research/RESEARCH_TERMINOLOGY_ROBOT_VS_INDUSTRY.md}]
+
+  # Interface language mapping — how technical terms appear in buyer/operator-facing UI
+  # Rule: use professional registry / business language, not protocol or DeFi terminology.
+  # Test: "Would a Michigan highway GC estimator understand this without Googling?"
+  interface_language:
+    principle: "Blockchain is an integrity mechanism, not a feature. Present it as verification infrastructure, never as a selling point."
+    mapping:
+      # Identity & Registration
+      - technical: "ERC-8004"
+        interface: "identity registry"
+        context: "Referenced as 'the identity registry' or just 'the registry'. Never surfaced as an EIP number."
+      - technical: "agent ID / agentId"
+        interface: "Registration #"
+        context: "Like a license number. Displayed as '#12345' in UI."
+      - technical: "agent card / registrationFile"
+        interface: "published profile"
+        context: "The operator's machine-readable profile. IPFS is the storage layer, not the feature."
+      - technical: "IPFS"
+        interface: "published profile"
+        context: "Never mention IPFS in buyer-facing UI. In technical details: 'profile source'."
+      - technical: "mint / minting"
+        interface: "register / registering identity"
+        context: "Operators 'register', they don't 'mint'. Registration creates a verifiable record."
+      - technical: "8004scan.io"
+        interface: "Identity registry"
+        context: "Link text is 'Identity registry', not '8004scan'. URL stays the same."
+
+      # Blockchain & Networks
+      - technical: "chain / blockchain"
+        interface: "network"
+        context: "In advanced settings: 'Registration Network'. In collapsible details: 'Registry network'."
+      - technical: "Base Mainnet"
+        interface: "Production (Base)"
+        context: "Only in advanced settings dropdown. Default selection."
+      - technical: "Base Sepolia / Ethereum Sepolia"
+        interface: "Test (Base Sepolia) / Test (Ethereum Sepolia)"
+        context: "Testnet names preserved in parentheses for developers, but prefixed with 'Test'."
+      - technical: "on-chain"
+        interface: "registered / verified"
+        context: "Operators are 'registered', not 'on-chain'. Discovery finds 'registered operators', not 'on-chain robots'."
+      - technical: "gas / gas fee"
+        interface: "registration fee" or omit
+        context: "Say 'covered by the platform' or 'no fee to you'. Never mention gas."
+      - technical: "block explorer / basescan.org"
+        interface: "On-chain record"
+        context: "Only in collapsible verification section. Button title explains purpose."
+      - technical: "subgraph"
+        interface: omit
+        context: "Internal indexing infrastructure. Never surfaced. Use 'indexing in progress' for pending state."
+
+      # Payment
+      - technical: "USDC"
+        interface: "Stablecoin (USDC)"
+        context: "Lead with 'Stablecoin', add '(USDC)' in parentheses where needed for clarity."
+      - technical: "wallet / crypto wallet"
+        interface: "payment address" or "payment account"
+        context: "In payment flow: 'payment address'. In error messages: 'payment app' or 'crypto wallet' (since they need to install one)."
+      - technical: "EIP-3009 / transferWithAuthorization"
+        interface: omit
+        context: "Internal payment mechanism. Buyer sees 'Authorize payment'. Never mention the EIP."
+      - technical: "permit / signature"
+        interface: "authorize"
+        context: "Buyer 'authorizes payment', not 'signs a permit'."
+      - technical: "Stripe Connect"
+        interface: "Stripe Connect"
+        context: "Industry-standard term. Acceptable as-is for operators. For buyers: just 'Card / Bank transfer'."
+
+      # Robot Control
+      - technical: "MCP / Model Context Protocol"
+        interface: "robot control system" or omit
+        context: "In registration form: 'Robot Control URL'. In confirmation: 'sends commands to your robot'. In Claude Code mode: MCP is acceptable (developer audience)."
+      - technical: "MCP endpoint"
+        interface: "Robot Control URL" or "Robot API"
+        context: "Registration form label. In verification details: 'Robot API'."
+      - technical: "MCP tools / tool_use"
+        interface: "commands" or "capabilities"
+        context: "Robot has 'X commands available', not 'X MCP tools'. In verification details: 'Available commands'."
+      - technical: "tools/list"
+        interface: omit
+        context: "Internal discovery mechanism. Show result as 'X commands available', not the protocol call."
+
+    where_technical_is_ok:
+      - "Collapsible 'Verification & technical details' section in operator profile popup"
+      - "Claude Code registration mode (developer audience)"
+      - "Code comments and internal variable names"
+      - "Console.warn/error messages (developer debugging)"
+      - "API documentation and MCP tool descriptions"
 
 # ============================================================
 # CONSTITUTIONAL — system invariants vs policies

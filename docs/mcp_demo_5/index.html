@@ -397,7 +397,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
           <input type="checkbox" id="simulatorOnly" onchange="onSimulatorToggle()" checked style="accent-color:var(--navy)">
           Demo fleet only
         </label>
-        <div class="field-hint" style="margin:2px 0 6px 22px">Use pre-configured FakeRover simulators. Uncheck to use only real on-chain robots.</div>
+        <div class="field-hint" style="margin:2px 0 6px 22px">Use demo simulators. Uncheck to show registered operators only.</div>
         <label class="check-label">
           <input type="checkbox" id="hideFakeRovers" onchange="onFakeRoverFilterChange()" style="accent-color:var(--navy)">
           Hide FakeRovers
@@ -436,7 +436,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
 
     <!-- SETUP PHASE -->
     <div class="phase-view active" id="phase-setup">
-      <div id="discoveryBanner" style="background:var(--amber-bg);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--amber);margin-bottom:12px;display:none">Discovering on-chain operators...</div>
+      <div id="discoveryBanner" style="background:var(--amber-bg);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--amber);margin-bottom:12px;display:none">Searching for available operators...</div>
       <h2 class="phase-heading">Define Your Task</h2>
       <p class="phase-subheading">Describe the work you need done. Available operators will compete for your job.</p>
 
@@ -620,7 +620,7 @@ Requirements:
               <div>
                 <div class="field-label" id="sensorGroupLabel">Sensor Capabilities (select all that apply)</div>
                 <div id="regEquipmentChecks" class="field-grid" style="gap:4px;margin-top:4px" role="group" aria-labelledby="sensorGroupLabel">
-                  <label class="check-label"><input type="checkbox" value="aerial_lidar" checked> Aerial LiDAR</label>
+                  <label class="check-label"><input type="checkbox" value="aerial_lidar"> Aerial LiDAR</label>
                   <label class="check-label"><input type="checkbox" value="photogrammetry"> Photogrammetry</label>
                   <label class="check-label"><input type="checkbox" value="terrestrial_lidar"> Terrestrial LiDAR</label>
                   <label class="check-label"><input type="checkbox" value="gpr"> GPR (Subsurface)</label>
@@ -661,9 +661,9 @@ Requirements:
               </div>
             </div>
             <div style="margin-top:12px">
-              <label class="field-label" for="regMcpEndpoint">MCP Endpoint URL <span style="font-weight:400;color:var(--text-3)">(enables real execution)</span></label>
+              <label class="field-label" for="regMcpEndpoint">Robot Control URL <span style="font-weight:400;color:var(--text-3)">(enables live execution)</span></label>
               <input class="field-input" type="url" id="regMcpEndpoint" placeholder="https://your-robot.fly.dev/mcp" value="https://fleet.yakrover.online/fakerover/mcp">
-              <div class="field-hint">The marketplace calls your robot's MCP tools during execution. FakeRovers use the shared fleet simulator. Real operators: enter your own MCP server URL.</div>
+              <div class="field-hint">How the marketplace sends commands to your robot during task execution. Demo operators use the shared simulator. Real operators: enter your own server URL.</div>
             </div>
           </div>
           <div class="card" style="margin-top:12px">
@@ -718,10 +718,10 @@ Requirements:
 
           <div class="card card-blue" style="margin-top:12px">
             <div class="card-label">Accepted Payment Channels</div>
-            <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Which payment methods will you accept from buyers? Stored on-chain as <code style="font-size:11px">accepted_currencies</code>.</div>
+            <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Which payment methods will you accept from buyers?</div>
             <div class="field-grid" style="gap:4px;margin-bottom:14px">
               <label class="check-label"><input type="checkbox" id="regAcceptFiat" checked onchange="onPaymentChannelChange()"> Card / Bank Transfer (USD)</label>
-              <label class="check-label"><input type="checkbox" id="regAcceptUsdc" checked onchange="onPaymentChannelChange()"> USDC on Base</label>
+              <label class="check-label"><input type="checkbox" id="regAcceptUsdc" checked onchange="onPaymentChannelChange()"> Stablecoin (USDC)</label>
             </div>
             <div style="border-top:1px solid var(--border);padding-top:14px">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Payment Destinations</div>
@@ -731,9 +731,9 @@ Requirements:
                 <div class="field-hint" id="regStripeHint">Stripe Connect onboarding can be completed after registration.</div>
               </div>
               <div id="regUsdcSection">
-                <label class="field-label" for="regUsdcWallet">USDC Wallet Address <span style="font-weight:400;color:var(--text-3)">(agentWallet on-chain)</span></label>
-                <input class="field-input" type="text" id="regUsdcWallet" placeholder="Defaults to platform deployer wallet" aria-describedby="regUsdcWalletHint">
-                <div class="field-hint" id="regUsdcWalletHint">USDC payouts go to this address on Base. Pre-filled with your connected wallet if available. Can be updated on-chain after registration.</div>
+                <label class="field-label" for="regUsdcWallet">Stablecoin Payment Address <span style="font-weight:400;color:var(--text-3)">(for USDC payouts)</span></label>
+                <input class="field-input" type="text" id="regUsdcWallet" placeholder="Defaults to marketplace account" aria-describedby="regUsdcWalletHint">
+                <div class="field-hint" id="regUsdcWalletHint">Stablecoin payments go to this address. Pre-filled with your connected wallet if available. Can be updated after registration.</div>
               </div>
             </div>
           </div>
@@ -742,14 +742,14 @@ Requirements:
           <details style="margin-top:12px">
             <summary style="font-size:13px;color:var(--text-3);cursor:pointer;font-weight:500">Advanced Settings</summary>
             <div class="card" style="margin-top:8px">
-              <label class="field-label" for="regChain">Registration Chain</label>
+              <label class="field-label" for="regChain">Registration Network</label>
               <select class="field-input" id="regChain" style="font-size:13px;padding:8px 10px">
-                <option value="base-mainnet" selected>Base Mainnet</option>
-                <option value="base-sepolia">Base Sepolia</option>
-                <option value="eth-mainnet">Ethereum Mainnet</option>
-                <option value="eth-sepolia">Ethereum Sepolia</option>
+                <option value="base-mainnet" selected>Production (Base)</option>
+                <option value="base-sepolia">Test (Base Sepolia)</option>
+                <option value="eth-mainnet">Production (Ethereum)</option>
+                <option value="eth-sepolia">Test (Ethereum Sepolia)</option>
               </select>
-              <div class="field-hint" style="margin-top:6px">One chain per registration. ~$0.005 gas, covered by platform wallet.</div>
+              <div class="field-hint" style="margin-top:6px">One network per registration. Registration fee covered by the platform.</div>
             </div>
           </details>
 
@@ -772,7 +772,7 @@ Requirements:
           <summary style="font-size:13px;color:var(--text-3);cursor:pointer;font-weight:500">Add Credentials (optional)</summary>
           <div style="margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text-2)">
             Uploaded documents are stored and verified during the award review process.
-            Use the MCP tool <code>auction_upload_compliance_doc</code> for programmatic upload.
+            You can also upload documents programmatically via the marketplace API.
           </div>
         </details>
         <button class="btn-continue" onclick="returnFromRegistration()" style="margin-top:16px;width:100%">Return to Demo</button>
@@ -794,7 +794,7 @@ Requirements:
     <span class="footer-sep">&middot;</span>
     <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace" target="_blank">GitHub</a>
     <span class="footer-sep">&middot;</span>
-    <span>Robots on <a href="https://8004scan.io" target="_blank">ERC-8004</a></span>
+    <span>Operators in <a href="https://8004scan.io" target="_blank">Identity Registry</a></span>
     <span class="footer-sep">&middot;</span>
     <span>Payments on <a href="https://basescan.org" target="_blank">Base</a></span>
     <span class="footer-sep">&middot;</span>
@@ -966,6 +966,25 @@ var CHAIN_HEX = { 8453: '0x2105', 1: '0x1', 84532: '0x14a34', 11155111: '0xaa36a
 
 
 // ===== UTILITY FUNCTIONS (verbatim) =====
+
+// Decode hex-encoded on-chain metadata values to UTF-8 strings
+function decodeHexMeta(val) {
+  if (!val) return val;
+  // Already plain text (no 0x prefix and contains non-hex chars)
+  if (!val.startsWith('0x') && /[^0-9a-fA-F]/.test(val)) return val;
+  try {
+    var hex = val.startsWith('0x') ? val.slice(2) : val;
+    // Sanity check: must be even-length hex
+    if (hex.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(hex)) return val;
+    var decoded = '';
+    for (var i = 0; i < hex.length; i += 2) {
+      decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    // If decoded contains mostly printable ASCII, use it; otherwise return original
+    if (/^[\x20-\x7E]+$/.test(decoded)) return decoded;
+    return val;
+  } catch (e) { return val; }
+}
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -1172,16 +1191,11 @@ async function discoverRobots() {
     });
   });
 
-  try {
-    var results = await Promise.race([
-      Promise.all(subgraphPromises),
-      new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')); }, 5000); }),
-    ]);
-    for (var i = 0; i < results.length; i++) {
-      allRobots = allRobots.concat(results[i]);
+  var results = await Promise.allSettled(subgraphPromises);
+  for (var i = 0; i < results.length; i++) {
+    if (results[i].status === 'fulfilled' && results[i].value.length) {
+      allRobots = allRobots.concat(results[i].value);
     }
-  } catch (e) {
-    console.warn('Subgraph discovery timed out, using fallback');
   }
 
   if (allRobots.length === 0) {
@@ -1237,22 +1251,26 @@ async function discoverRobots() {
     showNoRobots();
   }
   var banner = document.getElementById('discoveryBanner');
-  if (banner) { banner.textContent = discoveredRobots.length + ' operator(s) found on-chain'; banner.style.background = 'var(--green-bg)'; banner.style.color = 'var(--green)'; setTimeout(function() { banner.style.display = 'none'; }, 3000); }
+  if (banner) { banner.textContent = discoveredRobots.length + ' registered operator(s) found'; banner.style.background = 'var(--green-bg)'; banner.style.color = 'var(--green)'; setTimeout(function() { banner.style.display = 'none'; }, 3000); }
+
+  // Enrich robots from IPFS agent cards (non-blocking, runs after sidebar is rendered)
+  enrichRobotsFromIPFS(allRobots);
 
   } catch (err) {
     console.error('Discovery error:', err);
-    status.textContent = 'Discovery error — showing known robots';
+    status.textContent = 'Discovery error — showing known operators';
     discoveredRobots = KNOWN_ROBOTS.map(function(kr) {
       return {
         agent_id: kr.agent_id, chain_id: kr.chain_id, chain_name: kr.chain_name,
         name: kr.name, description: kr.description, active: kr.active,
         x402_support: false, mcp_endpoint: kr.mcp_endpoint, mcp_tools: kr.mcp_tools,
+        robot_type: null, task_categories: null, fleet_domain: null,
         owner: '', payment: { usdc_wallet: null, wallet_chain_id: null, stripe_connect_id: null },
       };
     });
     renderRobotsSidebar(discoveredRobots);
     var banner = document.getElementById('discoveryBanner');
-    if (banner) { banner.textContent = 'Discovery error — using known robots'; banner.style.background = 'var(--red-bg)'; banner.style.color = 'var(--red)'; setTimeout(function() { banner.style.display = 'none'; }, 5000); }
+    if (banner) { banner.textContent = 'Discovery error — showing known operators'; banner.style.background = 'var(--red-bg)'; banner.style.color = 'var(--red)'; setTimeout(function() { banner.style.display = 'none'; }, 5000); }
   }
 }
 
@@ -1295,6 +1313,9 @@ async function querySubgraph(url, chainId) {
       }
       var walletFromMeta = null;
       var stripeConnectId = null;
+      var robotType = null;
+      var taskCategories = null;
+      var fleetDomain = null;
       if (a.metadata && Array.isArray(a.metadata)) {
         var walletEntry = a.metadata.filter(function(md) { return md.key === 'agentWallet'; })[0];
         if (walletEntry && walletEntry.value) {
@@ -1310,6 +1331,20 @@ async function querySubgraph(url, chainId) {
             }
           } catch (e) { stripeConnectId = null; }
         }
+        var rtEntry = a.metadata.filter(function(md) { return md.key === 'robot_type'; })[0];
+        if (rtEntry && rtEntry.value) robotType = decodeHexMeta(rtEntry.value);
+        var tcEntry = a.metadata.filter(function(md) { return md.key === 'task_categories'; })[0];
+        if (tcEntry && tcEntry.value) taskCategories = decodeHexMeta(tcEntry.value);
+        var fdEntry = a.metadata.filter(function(md) { return md.key === 'fleet_domain'; })[0];
+        if (fdEntry && fdEntry.value) fleetDomain = decodeHexMeta(fdEntry.value);
+        var emEntry = a.metadata.filter(function(md) { return md.key === 'equipment_model'; })[0];
+        var equipModel = emEntry && emEntry.value ? decodeHexMeta(emEntry.value) : null;
+        var ocEntry = a.metadata.filter(function(md) { return md.key === 'operator_company'; })[0];
+        var opCompany = ocEntry && ocEntry.value ? decodeHexMeta(ocEntry.value) : null;
+        var olEntry = a.metadata.filter(function(md) { return md.key === 'operator_location'; })[0];
+        var opLocation = olEntry && olEntry.value ? decodeHexMeta(olEntry.value) : null;
+        var snEntry = a.metadata.filter(function(md) { return md.key === 'sensors'; })[0];
+        var sensors = snEntry && snEntry.value ? decodeHexMeta(snEntry.value) : null;
       }
       return {
         agent_id: a.agentId || a.id,
@@ -1322,6 +1357,13 @@ async function querySubgraph(url, chainId) {
         agent_uri: a.agentURI || '',
         mcp_endpoint: rf.mcpEndpoint || '',
         mcp_tools: tools,
+        robot_type: robotType,
+        task_categories: taskCategories,
+        fleet_domain: fleetDomain,
+        equipment_model: equipModel || null,
+        operator_company: opCompany || null,
+        operator_location: opLocation || null,
+        sensors: sensors || null,
         owner: a.owner || '',
         payment: {
           usdc_wallet: walletFromMeta || null,
@@ -1334,6 +1376,40 @@ async function querySubgraph(url, chainId) {
     console.warn('Subgraph query failed for chain ' + chainId + ':', e.message);
     return [];
   }
+}
+
+// Fetch IPFS agent cards to enrich robots with services[0] data (mcpTools, endpoint)
+// per ERC-8004 registration-v1 schema. The subgraph doesn't index nested service fields.
+async function enrichRobotsFromIPFS(robots) {
+  var toEnrich = robots.filter(function(r) {
+    return r.agent_uri && r.agent_uri.startsWith('ipfs://');
+  });
+  if (!toEnrich.length) return;
+
+  var fetches = toEnrich.map(function(robot) {
+    var cid = robot.agent_uri.replace('ipfs://', '');
+    var url = 'https://gateway.pinata.cloud/ipfs/' + cid;
+    return fetch(url, { signal: AbortSignal.timeout(8000) })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(card) {
+        if (!card || !card.services || !card.services.length) return;
+        var svc = card.services[0];
+        // mcpTools — always prefer IPFS source over subgraph (which returns [])
+        if (svc.mcpTools && Array.isArray(svc.mcpTools) && svc.mcpTools.length) {
+          robot.mcp_tools = svc.mcpTools;
+        }
+        // mcpEndpoint — use IPFS if subgraph was empty
+        if (svc.endpoint && !robot.mcp_endpoint) {
+          robot.mcp_endpoint = svc.endpoint;
+        }
+      })
+      .catch(function(e) {
+        console.warn('IPFS enrichment failed for ' + robot.name + ':', e.message);
+      });
+  });
+
+  await Promise.allSettled(fetches);
+  console.log('IPFS enrichment complete for ' + toEnrich.length + ' robots');
 }
 
 async function getAgentWallet(chainId, agentId) {
@@ -1542,7 +1618,7 @@ function renderRobotsSidebar(robots) {
     var chainName = robot.chain_id === 8453 ? 'Base' : robot.chain_id === 11155111 ? 'Sepolia' : robot.chain_id === 1 ? 'Ethereum' : 'Chain ' + robot.chain_id;
     var chainShort = robot.chain_id === 8453 ? 'Base' : robot.chain_id === 11155111 ? 'Sep' : robot.chain_id === 1 ? 'Eth' : '#' + robot.chain_id;
     var detailId = 'robot-detail-' + idx;
-    var tools = (robot.mcp_tools || []).slice(0, 4).join(', ') || 'MCP tools available';
+    var tools = (robot.mcp_tools || []).slice(0, 4).join(', ') || 'Remote commands available';
 
     var item = document.createElement('div');
     item.className = 'robot-item';
@@ -1574,7 +1650,7 @@ function showNoRobots() {
   var cards = document.getElementById('robotCards');
   cards.innerHTML =
     '<div class="discovery-empty">' +
-      '<p>The marketplace discovers real robots registered on-chain via <a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank">ERC-8004</a> identity.</p>' +
+      '<p>The marketplace discovers registered operators from the <a href="https://8004scan.io" target="_blank">identity registry</a>.</p>' +
       '<p style="margin-top:6px">The demo auction will use <strong>simulated operators</strong>. ' +
       'Robot operators can register at <a href="https://github.com/YakRoboticsGarage/yakrover-8004-mcp" target="_blank">yakrover-8004-mcp</a>.</p>' +
     '</div>';
@@ -1765,7 +1841,7 @@ async function renderDeliveryResult(deliveryData, qaResult) {
 
   slot.innerHTML =
     '<h3 class="mb-8">Delivery Received' + sourceTag + '</h3>' +
-    '<div class="field-hint mb-8">Data from ' + escapeHtml(robotName) + (isRealExec ? ' via MCP' : ' (demo simulation)') + '</div>' +
+    '<div class="field-hint mb-8">Data from ' + escapeHtml(robotName) + (isRealExec ? ' (live)' : ' (demo simulation)') + '</div>' +
     qaHtml + dataPreviewHtml;
 }
 
@@ -1854,43 +1930,138 @@ function showRobotProfile(robot, idx) {
 
   var chainName = robot.chain_id === 8453 ? 'Base mainnet' : robot.chain_id === 84532 ? 'Base Sepolia' : robot.chain_id === 1 ? 'Ethereum' : robot.chain_id === 11155111 ? 'Ethereum Sepolia' : 'Chain ' + robot.chain_id;
   var walletAddr = (robot.payment && robot.payment.usdc_wallet) || '';
-  var walletShort = walletAddr ? walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4) : 'none';
+  var walletShort = walletAddr ? walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4) : '';
   var stripeId = (robot.payment && robot.payment.stripe_connect_id) || '';
   var agentUri = robot.agent_uri || '';
   var ipfsLink = agentUri && agentUri.startsWith('ipfs://') ? 'https://gateway.pinata.cloud/ipfs/' + agentUri.replace('ipfs://', '') : '';
   var scanPath = robot.chain_id === 8453 ? 'base' : robot.chain_id === 84532 ? 'base-sepolia' : robot.chain_id === 1 ? 'ethereum' : robot.chain_id === 11155111 ? 'ethereum-sepolia' : 'base';
   var explorerBase = robot.chain_id === 8453 ? 'https://basescan.org' : robot.chain_id === 84532 ? 'https://sepolia.basescan.org' : robot.chain_id === 11155111 ? 'https://sepolia.etherscan.io' : 'https://etherscan.io';
-  var tools = (robot.mcp_tools || []).join(', ') || 'No tools listed';
+
+  // Equipment: prefer equipment_model metadata, fall back to robot_type or name heuristic
+  var equipLabel = '';
+  var modelName = robot.equipment_model || '';
+  var rt = robot.robot_type || '';
+  if (modelName) {
+    // Use the registered model name directly (e.g. "ELEGOO Tumbller", "DJI M350 RTK")
+    equipLabel = modelName;
+  } else if (rt === 'survey_platform' || rt === 'drone') equipLabel = 'Survey drone';
+  else if (rt === 'ground_robot') equipLabel = 'Ground robot';
+  else if (rt === 'rover') equipLabel = 'Ground rover';
+  else if (rt) equipLabel = rt.replace(/_/g, ' ');
+  else if (/tumbller/i.test(robot.name)) equipLabel = 'Ground robot';
+  else if (/rover|faker/i.test(robot.name)) equipLabel = 'Survey platform';
+
+  // Company and location from on-chain metadata
+  var companyName = robot.operator_company || '';
+  var locationStr = robot.operator_location || '';
+
+  // Sensors from on-chain metadata (comma-separated)
+  var sensorList = robot.sensors ? robot.sensors.split(',').map(function(s) {
+    s = s.trim();
+    var labels = {
+      'aerial_lidar': 'Aerial LiDAR', 'terrestrial_lidar': 'Terrestrial LiDAR',
+      'gpr': 'GPR', 'rtk_gps': 'RTK GPS', 'robotic_total_station': 'Robotic total station',
+      'photogrammetry': 'Photogrammetry', 'thermal_camera': 'Thermal camera',
+      'temperature_and_humidity': 'Temperature & humidity',
+    };
+    return labels[s] || s.replace(/_/g, ' ');
+  }) : [];
+
+  // Derive capabilities from tools
+  var toolNames = robot.mcp_tools || [];
+  var capabilities = [];
+  var hasMove = toolNames.some(function(t) { return /move|fly|navigate|drive|waypoint/i.test(t); });
+  var hasSensor = toolNames.some(function(t) { return /temperature|humidity|sensor|reading|measure|capture|lidar|photo/i.test(t); });
+  if (hasMove) capabilities.push('Autonomous movement');
+  if (hasSensor) capabilities.push('Sensor data capture');
+  if (toolNames.some(function(t) { return /lidar/i.test(t); })) capabilities.push('LiDAR scanning');
+  if (toolNames.some(function(t) { return /photo|camera/i.test(t); })) capabilities.push('Photogrammetry');
+  if (toolNames.some(function(t) { return /gpr/i.test(t); })) capabilities.push('Ground-penetrating radar');
+  if (toolNames.some(function(t) { return /temperature|humidity/i.test(t); })) capabilities.push('Environmental sensing');
+  if (!capabilities.length && toolNames.length) capabilities.push('Remote-controllable');
+
+  // Task categories from on-chain metadata
+  var taskCats = robot.task_categories || '';
+  var catLabels = taskCats ? taskCats.split(',').map(function(c) {
+    c = c.trim();
+    if (c === 'env_sensing') return 'Environmental sensing';
+    if (c === 'visual_inspection') return 'Visual inspection';
+    if (c === 'topo_survey') return 'Topographic survey';
+    if (c === 'subsurface_scan') return 'Subsurface scanning';
+    return c.replace(/_/g, ' ');
+  }) : [];
+
+  // Payment acceptance
+  var payMethods = [];
+  if (walletAddr) payMethods.push('Stablecoin');
+  if (stripeId) payMethods.push('Card / Bank transfer');
+  var payLabel = payMethods.length ? payMethods.join(', ') : 'Not configured';
 
   var modal = document.createElement('div');
   modal.className = 'feed-detail expanded';
   modal.id = 'robotProfileModal';
   modal.setAttribute('role', 'dialog');
   modal.setAttribute('aria-modal', 'true');
-  modal.setAttribute('aria-label', 'Robot profile: ' + robot.name);
+  modal.setAttribute('aria-label', 'Operator profile: ' + robot.name);
+  // Remote control label — show endpoint hint if tools are empty but endpoint exists
+  var commandsLabel = '';
+  if (toolNames.length) {
+    commandsLabel = toolNames.length + ' commands available';
+  } else if (robot.mcp_endpoint) {
+    commandsLabel = 'Controllable (commands discovered at runtime)';
+  } else {
+    commandsLabel = 'Not listed';
+  }
+
+  var scanUrl = 'https://8004scan.io/agents/' + scanPath + '/' + escapeHtml(String(robot.agent_id));
+  var explorerUrl = explorerBase + '/nft/0x8004A818BFB912233c491871b3d84c89A494BD9e/' + escapeHtml(String(robot.agent_id));
+
   modal.innerHTML =
-    '<button type="button" class="feed-detail-close" onclick="closeRobotProfile()" aria-label="Close">Close</button>' +
-    '<div style="margin-top:8px">' +
-      '<h3 style="margin:0 0 4px;font-size:16px;color:var(--text)">' + escapeHtml(robot.name) + '</h3>' +
-      '<div class="text-muted mb-12">' + escapeHtml(robot.description || 'No description') + '</div>' +
-      '<div style="border-top:1px solid var(--border);padding-top:12px">' +
-        '<div class="kv-row"><span class="kv-label">Agent ID</span><span class="kv-value kv-value-mono">#' + escapeHtml(String(robot.agent_id)) + '</span></div>' +
-        '<div class="kv-row"><span class="kv-label">Chain</span><span class="kv-value">' + escapeHtml(chainName) + '</span></div>' +
-        '<div class="kv-row"><span class="kv-label">Status</span><span class="kv-value">' + (robot.active ? '<span style="color:var(--green)">Active</span>' : '<span style="color:var(--text-3)">Inactive</span>') + '</span></div>' +
-        '<div class="kv-row"><span class="kv-label">USDC Wallet</span><span class="kv-value kv-value-mono">' + escapeHtml(walletShort) + '</span></div>' +
-        (stripeId ? '<div class="kv-row"><span class="kv-label">Stripe Connect</span><span class="kv-value kv-value-mono">' + escapeHtml(stripeId) + '</span></div>' : '') +
-        '<div class="kv-row"><span class="kv-label">IPFS Agent Card</span><span class="kv-value kv-value-mono">' +
-          (agentUri ? escapeHtml(agentUri.slice(0, 30)) + '...' : '<span style="color:var(--amber)">not set</span>') +
+    '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">' +
+      '<div style="flex:1;min-width:0">' +
+        '<h3 style="margin:0 0 4px;font-size:16px;color:var(--text)">' + escapeHtml(robot.name) + '</h3>' +
+        '<div class="text-muted" style="font-size:12px">' + escapeHtml(robot.description || 'No description') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">' +
+        (robot.active
+          ? '<span style="font-size:10px;font-weight:600;color:var(--green);background:var(--green-bg);padding:2px 8px;border-radius:10px">Available</span>'
+          : '<span style="font-size:10px;font-weight:600;color:var(--text-3);background:var(--bg-subtle);padding:2px 8px;border-radius:10px">Offline</span>') +
+        '<button type="button" class="feed-detail-close" onclick="closeRobotProfile()" aria-label="Close" style="position:static;padding:4px;margin:0;font-size:18px;line-height:1">&times;</button>' +
+      '</div>' +
+    '</div>' +
+
+    // Operator info section
+    '<div style="border-top:1px solid var(--border);padding-top:12px">' +
+      (companyName || locationStr ? '<div class="kv-row"><span class="kv-label">Operator</span><span class="kv-value">' + escapeHtml([companyName, locationStr].filter(Boolean).join(' — ')) + '</span></div>' : '') +
+      (equipLabel ? '<div class="kv-row"><span class="kv-label">Equipment</span><span class="kv-value">' + escapeHtml(equipLabel) + '</span></div>' : '') +
+      (sensorList.length ? '<div class="kv-row"><span class="kv-label">Sensors</span><span class="kv-value">' + sensorList.map(escapeHtml).join(', ') + '</span></div>' : '') +
+      (capabilities.length
+        ? '<div class="kv-row"><span class="kv-label">Capabilities</span><span class="kv-value" style="' + (capabilities.length > 4 ? 'max-height:4.5em;overflow-y:auto;' : '') + '">' + capabilities.map(escapeHtml).join(', ') + '</span></div>'
+        : '') +
+      (catLabels.length ? '<div class="kv-row"><span class="kv-label">Task types</span><span class="kv-value">' + catLabels.map(escapeHtml).join(', ') + '</span></div>' : '') +
+      '<div class="kv-row"><span class="kv-label">Accepts payment</span><span class="kv-value">' + escapeHtml(payLabel) + '</span></div>' +
+      '<div class="kv-row"><span class="kv-label">Remote control</span><span class="kv-value">' + escapeHtml(commandsLabel) + '</span></div>' +
+    '</div>' +
+
+    // Verification & technical details (collapsible) — links are inline on data rows, not separate buttons
+    '<details style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">' +
+      '<summary style="font-size:11px;font-weight:600;color:var(--text-3);cursor:pointer;user-select:none;list-style:none">' +
+        '<span style="margin-right:4px;font-size:9px">&#9654;</span> Verification &amp; technical details' +
+      '</summary>' +
+      '<div style="margin-top:8px">' +
+        '<div class="kv-row"><span class="kv-label">Registration #</span><span class="kv-value kv-value-mono"><a href="' + scanUrl + '" target="_blank" style="color:var(--link);text-decoration:none" title="View in identity registry">' + escapeHtml(String(robot.agent_id)) + '</a></span></div>' +
+        '<div class="kv-row"><span class="kv-label">Registry network</span><span class="kv-value"><a href="' + explorerUrl + '" target="_blank" style="color:var(--link);text-decoration:none" title="View on-chain record">' + escapeHtml(chainName) + '</a></span></div>' +
+        (walletAddr ? '<div class="kv-row"><span class="kv-label">Payment address</span><span class="kv-value kv-value-mono">' + escapeHtml(walletShort) + '</span></div>' : '') +
+        (stripeId ? '<div class="kv-row"><span class="kv-label">Payout account</span><span class="kv-value kv-value-mono">' + escapeHtml(stripeId) + '</span></div>' : '') +
+        '<div class="kv-row"><span class="kv-label">Published profile</span><span class="kv-value kv-value-mono">' +
+          (ipfsLink
+            ? '<a href="' + ipfsLink + '" target="_blank" style="color:var(--link);text-decoration:none" title="View published profile">' + escapeHtml(agentUri.slice(0, 30)) + '...</a>'
+            : (agentUri ? escapeHtml(agentUri.slice(0, 30)) + '...' : '<span style="color:var(--amber)">not set</span>')) +
         '</span></div>' +
-        '<div class="kv-row"><span class="kv-label">MCP Endpoint</span><span class="kv-value kv-value-mono">' + escapeHtml(robot.mcp_endpoint || 'not set') + '</span></div>' +
-        '<div class="kv-row"><span class="kv-label">Tools</span><span class="kv-value" style="font-size:11px">' + escapeHtml(tools) + '</span></div>' +
+        '<div class="kv-row"><span class="kv-label">Robot API</span><span class="kv-value kv-value-mono">' + escapeHtml(robot.mcp_endpoint || 'not set') + '</span></div>' +
+        '<div class="kv-row"><span class="kv-label">Available commands</span><span class="kv-value" style="font-size:11px">' + escapeHtml(toolNames.join(', ') || 'None listed') + '</span></div>' +
       '</div>' +
-      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
-        '<a href="' + explorerBase + '/nft/0x8004A818BFB912233c491871b3d84c89A494BD9e/' + escapeHtml(String(robot.agent_id)) + '" target="_blank" class="admin-btn" style="font-size:11px;padding:4px 10px;text-decoration:none">Explorer</a>' +
-        '<a href="https://8004scan.io/agents/' + scanPath + '/' + escapeHtml(String(robot.agent_id)) + '" target="_blank" class="admin-btn" style="font-size:11px;padding:4px 10px;text-decoration:none">8004scan</a>' +
-        (ipfsLink ? '<a href="' + ipfsLink + '" target="_blank" class="admin-btn" style="font-size:11px;padding:4px 10px;text-decoration:none">Agent Card</a>' : '') +
-      '</div>' +
-    '</div>';
+    '</details>';
 
   document.body.appendChild(modal);
   var overlay = document.getElementById('feedDetailOverlay');
@@ -2107,8 +2278,8 @@ async function runAuction() {
       var toolStr = (r.mcp_tools && r.mcp_tools.length > 0) ? ', tools: ' + r.mcp_tools.join(', ') : '';
       return '- ' + r.name + ' (agent #' + r.agent_id + ' on ' + r.chain_name + walletStr + toolStr + ')';
     }).join('\n');
-    robotContext = '\n\nDiscovered robots (registered on-chain via ERC-8004):\n' + robotList +
-      '\n\nThese are robots discovered on-chain via ERC-8004. They bid and execute tasks via their MCP endpoints. Reference them by name in your narration.';
+    robotContext = '\n\nDiscovered operators (registered in identity registry):\n' + robotList +
+      '\n\nThese are registered operators discovered from the identity registry. They bid and execute tasks through the marketplace. Reference them by name in your narration.';
   }
 
   var deliverySchemaContext = '\n\nDelivery Schema (robot receives this, QA validates against it):\n' + JSON.stringify(DELIVERY_SCHEMA, null, 2);
@@ -2583,10 +2754,10 @@ async function payWithUSDC(operatorWallet) {
   document.querySelectorAll('.pay-btn-stripe, .pay-btn-ach').forEach(function(b) { b.style.display = 'none'; });
   var btn = document.querySelector('.pay-btn-usdc');
   btn.disabled = true;
-  btn.textContent = 'Connecting wallet...';
+  btn.textContent = 'Connecting payment...';
 
   if (!operatorWallet) {
-    btn.textContent = 'No operator wallet';
+    btn.textContent = 'No payment account';
     return;
   }
 
@@ -2601,15 +2772,15 @@ async function payWithUSDC(operatorWallet) {
   var usdcAddr = USDC_ADDRESSES[chainId];
 
   if (!usdcAddr) {
-    btn.textContent = 'USDC not available on ' + chainName;
+    btn.textContent = 'Stablecoin not available on ' + chainName;
     btn.disabled = false;
     return;
   }
 
   try {
     if (!window.ethereum) {
-      btn.textContent = 'No wallet found';
-      showError('Install MetaMask, Rabby, or Coinbase Wallet to pay with USDC.');
+      btn.textContent = 'No payment app found';
+      showError('Install a crypto wallet (MetaMask, Rabby, or Coinbase Wallet) to pay with stablecoin.');
       btn.disabled = false;
       return;
     }
@@ -2648,8 +2819,8 @@ async function payWithUSDC(operatorWallet) {
     btn.textContent = 'Checking USDC balance...';
     var balance = await usdc.balanceOf(buyerAddr);
     if (balance < totalUnits) {
-      btn.textContent = 'Insufficient USDC';
-      showError('Insufficient USDC balance. Need $' + bidPrice.toFixed(2) + ' on ' + chainName + '. Your balance: $' + (Number(balance) / 1000000).toFixed(6));
+      btn.textContent = 'Insufficient balance';
+      showError('Insufficient stablecoin balance. Need $' + bidPrice.toFixed(2) + '. Your balance: $' + (Number(balance) / 1000000).toFixed(6));
       btn.disabled = false;
       return;
     }
@@ -2937,9 +3108,9 @@ function showRevealedData() {
     var ipfsHref = window._ipfsUrl || 'https://ipfs.io/ipfs/' + window._ipfsCid;
     ipfsLinkHtml =
       '<div style="margin-bottom:12px;font-size:12px">' +
-        '<span style="color:var(--text-3)">IPFS:</span> ' +
+        '<span style="color:var(--text-3)">Permanent record:</span> ' +
         '<a href="' + ipfsHref + '" target="_blank" style="color:var(--accent);font-family:\'JetBrains Mono\',monospace;text-decoration:none">' + window._ipfsCid + '</a>' +
-        ' <a href="https://ipfs.io/ipfs/' + window._ipfsCid + '" target="_blank" style="color:var(--text-3);font-size:10px;text-decoration:none">[gateway]</a>' +
+        ' <a href="https://ipfs.io/ipfs/' + window._ipfsCid + '" target="_blank" style="color:var(--text-3);font-size:10px;text-decoration:none">[view]</a>' +
       '</div>';
   }
   revealSlot.innerHTML =
@@ -3033,20 +3204,14 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
             }),
           });
           var onchainData = await onchainRes.json();
-          var links = '';
-          if (onchainData.ok && onchainData['8004scan_url']) {
-            links += ' <a href="' + onchainData['8004scan_url'] + '" target="_blank" style="color:var(--accent);text-decoration:none">View on-chain</a>';
-          }
-          if (data.issue_url) {
-            links += (links ? ' &middot; ' : ' ') + '<a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>';
-          }
-          if (!onchainData.ok) {
-            console.warn('On-chain feedback:', onchainData.error);
-          }
-          status.innerHTML = 'Thank you! Feedback ' + (onchainData.ok ? 'recorded on-chain.' : 'saved.') + links;
+          var links = [];
+          if (data.issue_url) links.push('<a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">GitHub</a>');
+          if (onchainData.ok && onchainData['8004scan_url']) links.push('<a href="' + onchainData['8004scan_url'] + '" target="_blank" style="color:var(--accent);text-decoration:none">8004scan</a>');
+          if (!onchainData.ok) console.warn('On-chain feedback:', onchainData.error);
+          status.innerHTML = 'Thank you! Feedback recorded.' + (links.length ? ' ' + links.join(' &middot; ') : '');
         } catch (e) {
           console.warn('On-chain feedback failed:', e);
-          status.innerHTML = 'Thank you! Feedback saved.' + (data.issue_url ? ' <a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>' : '');
+          status.innerHTML = 'Thank you! Feedback recorded.' + (data.issue_url ? ' <a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">GitHub</a>' : '');
         }
       }
     } else {
@@ -3293,7 +3458,7 @@ function connectOperatorWallet() {
   var statusEl = document.getElementById('walletStatus');
   if (!window.ethereum) {
     statusEl.style.display = 'block';
-    statusEl.textContent = 'No wallet detected. Install MetaMask or Coinbase Wallet.';
+    statusEl.textContent = 'No crypto wallet detected. Install MetaMask or Coinbase Wallet.';
     statusEl.style.color = 'var(--red)';
     return;
   }
@@ -3340,14 +3505,14 @@ function submitRegistration() {
       equipTypes.push(cb.value);
     }
   });
-  var equipType = equipTypes[0] || 'aerial_lidar';
+  var equipType = equipTypes[0] || '';
 
   // Enforce FakeRover- prefix for demo discovery (unless admin)
   if (!isRegAdmin() && !name.startsWith('FakeRover-')) name = 'FakeRover-' + name;
 
   // Validate required fields
-  if (!name || name === 'FakeRover-' || !company || !email || !location) {
-    showError('Please fill in all required fields: Robot Name, Company, Email, and Location.');
+  if (!name || name === 'FakeRover-' || !company || !location) {
+    showError('Please fill in all required fields: Robot Name, Company, and Location.');
     return;
   }
   if (!equipTypes.length) {
@@ -3372,8 +3537,8 @@ function submitRegistration() {
   var chainLabels = {'base-mainnet':'Base mainnet','base-sepolia':'Base Sepolia','eth-mainnet':'Ethereum mainnet','eth-sepolia':'Ethereum Sepolia'};
   var chainLabel = chainLabels[selectedChain] || selectedChain;
   lines.innerHTML =
-    '<div id="regStepMint" style="color:var(--text-3)">Minting identity on ' + chainLabel + '...</div>' +
-    '<div id="regStepIPFS" style="color:var(--text-3)">Uploading agent card to IPFS...</div>' +
+    '<div id="regStepMint" style="color:var(--text-3)">Registering identity on ' + chainLabel + '...</div>' +
+    '<div id="regStepIPFS" style="color:var(--text-3)">Publishing operator profile...</div>' +
     '<div id="regStepFleet" style="color:var(--text-3)">Joining bidding fleet...</div>';
 
   var _regPendingTimer = setTimeout(function() { markRegStep('regStepMint', 'pending'); }, 500);
@@ -3465,9 +3630,9 @@ function submitRegistration() {
 
     function showConfirmation(verified) {
       if (verified) {
-        markRegStep('regStepFleet', 'done', (result.fleet_size || 0) + ' robots active — verified on-chain');
+        markRegStep('regStepFleet', 'done', (result.fleet_size || 0) + ' operators active — registration verified');
       } else {
-        markRegStep('regStepFleet', 'done', (result.fleet_size || 0) + ' robots active — subgraph pending');
+        markRegStep('regStepFleet', 'done', (result.fleet_size || 0) + ' operators active — indexing in progress');
       }
 
       window._registration.operatorId = result.operator_id;
@@ -3496,12 +3661,12 @@ function submitRegistration() {
         }
         if (agentUri) {
           var cid = agentUri.replace('ipfs://', '');
-          h += '<div class="kv-row"><span class="kv-label">IPFS</span><span class="kv-value kv-value-mono"><a href="https://gateway.pinata.cloud/ipfs/' + cid + '" target="_blank" style="color:var(--link)">' + escapeHtml(agentUri) + '</a></span></div>';
+          h += '<div class="kv-row"><span class="kv-label">Published profile</span><span class="kv-value kv-value-mono"><a href="https://gateway.pinata.cloud/ipfs/' + cid + '" target="_blank" style="color:var(--link)">' + escapeHtml(agentUri) + '</a></span></div>';
         }
 
         // ---- Chain registration result ----
         h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">';
-        h += '<div class="card-label" style="margin-bottom:8px">On-Chain Registration</div>';
+        h += '<div class="card-label" style="margin-bottom:8px">Identity Registration</div>';
         var aid = (cr.agent_id || '').split(':').pop();
         var scanPath = scanPaths[selectedChain] || selectedChain;
         h += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0">';
@@ -3521,9 +3686,9 @@ function submitRegistration() {
         h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">';
         h += '<div class="card-label" style="margin-bottom:8px">Execution Mode</div>';
         if (execMode === 'live') {
-          h += '<div style="font-size:13px;color:var(--green)">Live — marketplace will call your robot\'s MCP tools during execution</div>';
+          h += '<div style="font-size:13px;color:var(--green)">Live — marketplace will send commands to your robot during task execution</div>';
         } else {
-          h += '<div style="font-size:13px;color:var(--amber)">Demo — execution uses simulated data. ' + (execMode !== 'mock' ? escapeHtml(execMode) : 'Connect a robot MCP server to enable live execution.') + '</div>';
+          h += '<div style="font-size:13px;color:var(--amber)">Demo — execution uses simulated data. ' + (execMode !== 'mock' ? escapeHtml(execMode) : 'Connect your robot control system to enable live execution.') + '</div>';
         }
         h += '</div>';
 
@@ -3534,11 +3699,11 @@ function submitRegistration() {
         h += '1. Your robot will <strong>automatically bid</strong> on matching tasks posted through Hire Operator<br>';
         h += '2. If it wins, the buyer authorizes payment and execution begins<br>';
         if (execMode === 'live') {
-          h += '3. The marketplace calls your robot\'s MCP tools to execute the task<br>';
+          h += '3. The marketplace sends commands to your robot to execute the task<br>';
           h += '4. Delivery is validated, buyer approves, and <strong>payment settles</strong>';
         } else {
           h += '3. Demo mode returns simulated data. To connect real hardware:<br>';
-          h += '&nbsp;&nbsp;&nbsp;Run your robot\'s MCP server and re-register with the endpoint URL<br>';
+          h += '&nbsp;&nbsp;&nbsp;Set up your robot control server and re-register with the endpoint URL<br>';
           h += '4. Or use Claude Code: <code style="font-size:11px;background:var(--bg-subtle);padding:2px 6px;border-radius:3px">claude mcp add --transport http yakrover https://mcp.yakrover.online/mcp</code>';
         }
         h += '</div>';
@@ -3557,6 +3722,9 @@ function submitRegistration() {
             x402_support: false,
             mcp_endpoint: '',
             mcp_tools: [],
+            robot_type: null,
+            task_categories: null,
+            fleet_domain: null,
             owner: '',
             agent_uri: agentUri || '',
             payment: {
