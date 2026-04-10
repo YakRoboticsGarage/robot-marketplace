@@ -1339,6 +1339,7 @@ def register_auction_tools(
                             chain_id=cfg["chain_id"],
                             description=description,
                             bearer_token=bearer,
+                            mcp_tools=tool_names,  # marketplace tools for fallback
                         )
                         if adapter.is_reachable(timeout=10.0):
                             robot = adapter

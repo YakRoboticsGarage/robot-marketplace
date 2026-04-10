@@ -95,6 +95,11 @@ def _discover_onchain_robots():
         # Bearer token for authenticated robot MCP servers
         fleet_token = os.environ.get("FLEET_MCP_TOKEN")
 
+        # Pass known tools from agent card for dynamic tool resolution
+        tools_from_card = rf.get("mcpTools") or []
+        if isinstance(tools_from_card, str):
+            tools_from_card = [t.strip() for t in tools_from_card.split(",") if t.strip()]
+
         adapter = MCPRobotAdapter(
             robot_id=name,
             mcp_endpoint=mcp_endpoint,
@@ -102,6 +107,7 @@ def _discover_onchain_robots():
             chain_id=8453,
             description=rf.get("description", ""),
             bearer_token=fleet_token,
+            mcp_tools=tools_from_card,
         )
         adapters.append(adapter)
         log("DISCOVERY", f"  {name} — {mcp_endpoint[:50]}...")
