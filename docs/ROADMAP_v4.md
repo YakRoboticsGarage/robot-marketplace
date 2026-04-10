@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-09 (rev 5.1, v1.4 complete — operator registration + code review)
-**Status:** v1.0 built. v1.1 complete. v1.2 complete. v1.3 complete. **v1.4 complete** (36 MCP tools, on-chain ERC-8004 registration, 100-finding code review resolved). Demo at yakrobot.bid/demo.
+**Last updated:** 2026-04-10 (rev 5.2, v1.4 complete — operator registration + code review + critique addressed + dynamic MCP tool resolution)
+**Status:** v1.0 built. v1.1 complete. v1.2 complete. v1.3 complete. **v1.4 complete** (36 MCP tools, on-chain ERC-8004 registration, 100-finding code review resolved, operator registration critique addressed, dynamic tool resolution). Demo at yakrobot.bid/demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -267,15 +267,18 @@ ACH does not support authorize/capture. Card uses Stripe manual capture (real ho
 
 ---
 
-## v1.4 — Operator Sign-Up and Registration (NEXT)
+## v1.4 — Operator Sign-Up and Registration (COMPLETE 2026-04-10)
 
 | | |
 |---|---|
-| **Timeline** | After v1.3 |
+| **Timeline** | 2026-04-08 to 2026-04-10 |
 | **Serves** | Alex (independent operator), Controller (AP manager) |
 | **Goal** | Production operator registration, credential verification, and Stripe Connect onboarding. First real operator onboarded. |
 | **Gate for v1.5** | At least 1 operator registered and activated |
 | **Robot verification** | Liveness probe on registration (MCP endpoint reachable). See PLAN_OPERATOR_REGISTRATION.md for v1.5+ verification roadmap (capability attestation, signed telemetry, delivery cross-verification). |
+| **Revert tag** | `v1.4-milestone-operator-registration` |
+| **Critique** | `docs/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md` |
+| **Assessment** | `docs/ASSESSMENT_TECHNICAL_STACK.md` |
 
 ### What exists (backend — all implemented)
 
@@ -300,20 +303,43 @@ All 6 MCP tools for operator management are built and tested:
 - **Operator profile view** — visible to buyers at bid review: equipment, certifications, coverage area, compliance status
 - **Deployment** — production hosting for the registration flow (Cloudflare Workers or Fly.io)
 
-### Done (v1.4 build progress)
+### Done (v1.4 — all complete)
 
+**Session 1 (2026-04-08 to 2026-04-09):**
 - Mock fleet archived — auction engine starts empty, uses only on-chain discovered robots
 - `auction_register_robot_onchain` MCP tool — registers on Base mainnet + Sepolia, hot-adds to fleet
 - 3-step registration UI in demo (Profile → Equipment → Payment & Bidding)
 - Three registration modes: platform signs, operator wallet, Claude Code / MCP
 - FakeRover- prefix enforcement for demo, admin passcode bypass for real robots
 - Hide FakeRovers toggle — filters both sidebar display and server-side auction fleet
+- Product ontology (PRODUCT_DSL_v2.yaml) updated to v2.5 — dry factual language, operator value props, v1.4 milestone
+- Product brief site rebuilt at yakrobot.bid/yaml
+- Single-chain registration (replaced multi-chain)
+- Two-step on-chain registration (mint → 3s delay → IPFS metadata write)
+- 100-finding code review completed + all resolved + re-review regressions fixed
+- Demo feedback button → GitHub issues
+- Technical stack assessment written (docs/ASSESSMENT_TECHNICAL_STACK.md)
+- Error UX: unique IDs, pre-filled GitHub issues, sticky non-bumping bar
+- Non-root Dockerfile
 
-### Next steps (v1.4 remaining)
+**Session 2 (2026-04-10):**
+- Critique of operator registration and demo engine (docs/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md)
+- Full execution path traced: browser → Worker → Claude → MCP → engine → robot adapter → robot MCP
+- 5 priorities addressed: MCP endpoint URL in registration, What's Next guidance, tool discovery, re-discovery on every auction, execution source transparency
+- Dynamic MCP tool resolution: `_resolve_tools()` matches by name patterns instead of hardcoded if/else
+- Fallback commented out (TODO to remove after production verification)
+- Berlin-04/05/06 agent cards being fixed — wrong MCP endpoint (marketplace instead of fleet)
+- Registration now writes robot's MCP endpoint to IPFS agent card (not marketplace)
+- Registration discovers robot's actual tools from its MCP server
+- `bid_pct` removed from IPFS (competitive intelligence — kept private)
+- Email removed from registration (PII)
+- All registration fields stored on-chain/IPFS (stripe_connect_id, company, location, model, sensors, preferred_usdc_wallet)
+
+### Remaining cleanup (deferred to v1.5)
 
 - **Remove `RuntimeRegisteredRobot` dependency on `mock_fleet.py`.** Currently inherits `bid_engine()` and `execute()` from `ConstructionMockRobot`. Should implement its own ~30 lines each, or be replaced entirely by `MCPRobotAdapter` once operators run their own MCP servers. This decouples registration from the mock fleet — `mock_fleet.py` becomes a test-only utility.
 - **Refactor tests to use `RuntimeRegisteredRobot`.** 274 tests currently import `create_demo_fleet()` / `create_construction_fleet()` directly. Not blocking but adds unnecessary coupling to archived mock fleet.
-- **Base Sepolia registration debugging.** Berlin-04 registered on Base mainnet but Sepolia failed silently. Investigate SDK timeout or gas issue on Sepolia.
+- **Fix Berlin-04/05/06 agent cards.** Wrong MCP endpoint in IPFS metadata (marketplace instead of fleet). Need to rewrite agent cards with correct fleet MCP endpoint.
 
 ### Deferred to later milestones
 
