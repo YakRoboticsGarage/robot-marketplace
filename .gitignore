@@ -8,6 +8,7 @@ __pycache__/
 chatbot/node_modules/
 chatbot/.dev.vars
 .herenow/
+.DS_Store
 
 # wrangler files (only chatbot/wrangler.toml should exist — root-level configs break deploys)
 .wrangler
