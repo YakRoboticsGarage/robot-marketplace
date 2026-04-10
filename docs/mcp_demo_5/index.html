@@ -660,6 +660,11 @@ Requirements:
                 <input class="field-input" type="text" id="regModelOther" placeholder="Enter platform/model name" style="display:none;margin-top:6px">
               </div>
             </div>
+            <div style="margin-top:12px">
+              <label class="field-label" for="regMcpEndpoint">MCP Endpoint URL <span style="font-weight:400;color:var(--text-3)">(enables real execution)</span></label>
+              <input class="field-input" type="url" id="regMcpEndpoint" placeholder="https://your-robot.fly.dev/mcp" value="https://fleet.yakrover.online/fakerover/mcp">
+              <div class="field-hint">The marketplace calls your robot's MCP tools during execution. FakeRovers use the shared fleet simulator. Real operators: enter your own MCP server URL.</div>
+            </div>
           </div>
           <div class="card" style="margin-top:12px">
             <div class="card-label">Certifications (optional)</div>
@@ -1751,8 +1756,16 @@ async function renderDeliveryResult(deliveryData, qaResult) {
     }
   }
 
+  // Execution source transparency — is this from a real robot or mock?
+  var robotName = window._winnerRobot ? window._winnerRobot.name : 'Unknown';
+  var isRealExec = window._winnerRobot && window._winnerRobot.mcp_endpoint;
+  var sourceTag = isRealExec
+    ? '<span class="badge badge-green" style="margin-left:8px">LIVE</span>'
+    : '<span class="badge badge-yellow" style="margin-left:8px">SIMULATED</span>';
+
   slot.innerHTML =
-    '<h3 class="mb-8">Delivery Received</h3>' +
+    '<h3 class="mb-8">Delivery Received' + sourceTag + '</h3>' +
+    '<div class="field-hint mb-8">Data from ' + escapeHtml(robotName) + (isRealExec ? ' via MCP' : ' (demo simulation)') + '</div>' +
     qaHtml + dataPreviewHtml;
 }
 
@@ -3379,6 +3392,7 @@ function submitRegistration() {
       operator_wallet: window._registration.operatorWallet || '',
       stripe_connect_id: (document.getElementById('regStripeAccount') && document.getElementById('regStripeAccount').value.trim()) || '',
       usdc_wallet: (document.getElementById('regUsdcWallet') && document.getElementById('regUsdcWallet').value.trim()) || window._registration.operatorWallet || '',
+      mcp_endpoint_url: (document.getElementById('regMcpEndpoint') && document.getElementById('regMcpEndpoint').value.trim()) || '',
       chain: selectedChain,
     }),
     signal: AbortSignal.timeout(120000),
@@ -3496,6 +3510,34 @@ function submitRegistration() {
           h += '<div class="field-hint" style="margin-top:4px">' + escapeHtml(cr.warning) + '</div>';
         }
 
+        h += '</div>';
+
+        // ---- Execution mode ----
+        var execMode = result.execution_mode || 'mock';
+        h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">';
+        h += '<div class="card-label" style="margin-bottom:8px">Execution Mode</div>';
+        if (execMode === 'live') {
+          h += '<div style="font-size:13px;color:var(--green)">Live — marketplace will call your robot\'s MCP tools during execution</div>';
+        } else {
+          h += '<div style="font-size:13px;color:var(--amber)">Demo — execution uses simulated data. ' + (execMode !== 'mock' ? escapeHtml(execMode) : 'Connect a robot MCP server to enable live execution.') + '</div>';
+        }
+        h += '</div>';
+
+        // ---- What's Next ----
+        h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">';
+        h += '<div class="card-label" style="margin-bottom:8px">What Happens Next</div>';
+        h += '<div style="font-size:13px;color:var(--text-2);line-height:1.6">';
+        h += '1. Your robot will <strong>automatically bid</strong> on matching tasks posted through Hire Operator<br>';
+        h += '2. If it wins, the buyer authorizes payment and execution begins<br>';
+        if (execMode === 'live') {
+          h += '3. The marketplace calls your robot\'s MCP tools to execute the task<br>';
+          h += '4. Delivery is validated, buyer approves, and <strong>payment settles</strong>';
+        } else {
+          h += '3. Demo mode returns simulated data. To connect real hardware:<br>';
+          h += '&nbsp;&nbsp;&nbsp;Run your robot\'s MCP server and re-register with the endpoint URL<br>';
+          h += '4. Or use Claude Code: <code style="font-size:11px;background:var(--bg-subtle);padding:2px 6px;border-radius:3px">claude mcp add --transport http yakrover https://mcp.yakrover.online/mcp</code>';
+        }
+        h += '</div>';
         h += '</div>';
 
         card.innerHTML = h;

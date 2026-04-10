@@ -286,9 +286,10 @@ Start by asking the user what survey they need, or process an RFP they provide."
         """REST endpoint: POST /api/tool/{name} — calls an MCP tool by name."""
         tool_name = request.path_params["name"]
 
-        # Lazy discovery: run on first auction-related call
+        # Re-discover fleet on every auction start (not just first call)
         if tool_name in ("auction_post_task", "auction_process_rfp") and hasattr(engine, "_discover"):
             import asyncio
+            engine._discovery_done = False  # force fresh discovery
             try:
                 await asyncio.to_thread(engine._discover)
             except Exception as e:

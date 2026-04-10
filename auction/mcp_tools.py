@@ -1108,6 +1108,7 @@ def register_auction_tools(
         operator_wallet: str = "",
         stripe_connect_id: str = "",
         usdc_wallet: str = "",
+        mcp_endpoint_url: str = "",
         equipment_types: list[str] | None = None,
         chain: str = "base-mainnet",
     ) -> dict:
@@ -1321,27 +1322,54 @@ def register_auction_tools(
 
             # 3. Create fleet robot if registration succeeded
             registration_ok = chain_result.get("status") == "ok"
+            execution_mode = "mock"
             if registration_ok:
-                from auction.mock_fleet import RuntimeRegisteredRobot
                 sensors = list(all_sensors)
-                capability_metadata = {
-                    "sensors": sensors,
-                    "mobility_type": "aerial" if any("aerial" in s or s == "photogrammetry" for s in sensors) else "ground",
-                    "indoor_capable": False,
-                    "equipment": [{"type": s, "model": model} for s in sensors],
-                    "coverage_area": {"base": location},
-                }
-                robot = RuntimeRegisteredRobot(
-                    robot_id=op_id,
-                    name=name,
-                    sensors=sensors,
-                    capability_metadata=capability_metadata,
-                    reputation_metadata={"completion_rate": 0.95},
-                    signing_key=f"reg_{op_id}",
-                    bid_pct=bid_pct,
-                    sla_seconds=3600,
-                    ai_confidence=0.85,
-                )
+                robot = None
+
+                # If MCP endpoint provided and reachable, create a real adapter
+                if mcp_endpoint_url and mcp_endpoint_url.startswith("http"):
+                    try:
+                        from auction.mcp_robot_adapter import MCPRobotAdapter
+                        bearer = os.environ.get("FLEET_MCP_TOKEN", "")
+                        adapter = MCPRobotAdapter(
+                            robot_id=name,
+                            mcp_endpoint=mcp_endpoint_url,
+                            wallet=usdc_wallet or "",
+                            chain_id=cfg["chain_id"],
+                            description=description,
+                            bearer_token=bearer,
+                        )
+                        if adapter.is_reachable(timeout=10.0):
+                            robot = adapter
+                            execution_mode = "live"
+                        else:
+                            execution_mode = "mock (MCP endpoint unreachable)"
+                    except Exception as mcp_exc:
+                        execution_mode = f"mock ({str(mcp_exc)[:60]})"
+
+                # Fall back to mock robot if no live MCP endpoint
+                if robot is None:
+                    from auction.mock_fleet import RuntimeRegisteredRobot
+                    capability_metadata = {
+                        "sensors": sensors,
+                        "mobility_type": "aerial" if any("aerial" in s or s == "photogrammetry" for s in sensors) else "ground",
+                        "indoor_capable": False,
+                        "equipment": [{"type": s, "model": model} for s in sensors],
+                        "coverage_area": {"base": location},
+                    }
+                    robot = RuntimeRegisteredRobot(
+                        robot_id=op_id,
+                        name=name,
+                        sensors=sensors,
+                        capability_metadata=capability_metadata,
+                        reputation_metadata={"completion_rate": 0.95},
+                        signing_key=f"reg_{op_id}",
+                        bid_pct=bid_pct,
+                        sla_seconds=3600,
+                        ai_confidence=0.85,
+                    )
+
                 with engine._fleet_lock:
                     if op_id not in engine._robots_by_id:
                         engine.robots.append(robot)
@@ -1364,6 +1392,7 @@ def register_auction_tools(
                 "chain": target_chain,
                 "chain_result": chain_result,
                 "fleet_size": len(engine.robots),
+                "execution_mode": execution_mode,
                 "message": message,
             }
 
