@@ -1099,13 +1099,16 @@ def register_auction_tools(
         name: str,
         description: str,
         company_name: str,
-        contact_email: str,
-        location: str,
-        equipment_type: str,
-        model: str,
+        contact_email: str = "",
+        location: str = "",
+        equipment_type: str = "aerial_lidar",
+        model: str = "",
         min_bid_cents: int = 50,
         bid_pct: float = 0.80,
         operator_wallet: str = "",
+        stripe_connect_id: str = "",
+        usdc_wallet: str = "",
+        mcp_endpoint_url: str = "",
         equipment_types: list[str] | None = None,
         chain: str = "base-mainnet",
     ) -> dict:
@@ -1128,8 +1131,6 @@ def register_auction_tools(
             return _error_response_structured("INVALID_NAME", "name is required.", "Provide a non-empty robot name.")
         if not company_name or not company_name.strip():
             return _error_response_structured("INVALID_COMPANY", "company_name is required.", "Provide a company or operator name.")
-        if not contact_email or "@" not in contact_email:
-            return _error_response_structured("INVALID_EMAIL", "contact_email is not a valid email.", "Use format: user@domain.com")
         if not location or not location.strip():
             return _error_response_structured("INVALID_LOCATION", "location is required.", "e.g. Detroit, MI")
         # Validate equipment_type — allow known types and custom types (from "Other" input)
@@ -1160,10 +1161,10 @@ def register_auction_tools(
                 "Set PINATA_JWT to your Pinata v3 API JWT.",
             )
 
-        mcp_base = os.environ.get("MCP_PUBLIC_URL", "https://mcp.yakrover.online")
-        mcp_endpoint = mcp_base + "/mcp"
-        fleet_endpoint = mcp_base + "/fleet/mcp"
-        tool_names = list(mcp._tool_manager._tools.keys())
+        marketplace_base = os.environ.get("MCP_PUBLIC_URL", "https://mcp.yakrover.online")
+        marketplace_endpoint = marketplace_base + "/mcp"
+        # The robot's MCP endpoint — where it actually lives (not the marketplace)
+        robot_mcp_url = mcp_endpoint_url or "https://fleet.yakrover.online/fakerover/mcp"
         all_sensor_list = equipment_types if equipment_types else [equipment_type]
         task_categories = sorted({SENSOR_TO_CATEGORY.get(s, "env_sensing") for s in all_sensor_list})
         task_category = ",".join(task_categories)
@@ -1197,6 +1198,7 @@ def register_auction_tools(
                 )
 
             chain_result = {}
+            robot_tools = []
             try:
                 from agent0_sdk import SDK
                 sdk = SDK(
@@ -1208,7 +1210,7 @@ def register_auction_tools(
                 )
 
                 agent = sdk.createAgent(name=name, description=description, image="")
-                agent.setMCP(mcp_endpoint, auto_fetch=False)
+                agent.setMCP(robot_mcp_url, auto_fetch=False)
 
                 mcp_ep = next(
                     (ep for ep in agent.registration_file.endpoints
@@ -1217,15 +1219,51 @@ def register_auction_tools(
                 )
                 if mcp_ep is None:
                     raise ValueError("agent0-sdk did not create an MCP endpoint — check SDK version")
-                mcp_ep.meta["mcpTools"] = tool_names
-                mcp_ep.meta["fleetEndpoint"] = fleet_endpoint
+
+                # Discover the robot's actual tools from its MCP server
+                robot_tools = []
+                try:
+                    import httpx
+                    probe = httpx.post(
+                        robot_mcp_url,
+                        json={"jsonrpc": "2.0", "method": "initialize",
+                              "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                                         "clientInfo": {"name": "registrar", "version": "1.0"}}, "id": 1},
+                        headers={"Accept": "text/event-stream",
+                                 "Authorization": f"Bearer {os.environ.get('FLEET_MCP_TOKEN', '')}"},
+                        timeout=10.0,
+                    )
+                    if probe.status_code == 200:
+                        import json as _json
+                        tools_resp = httpx.post(
+                            robot_mcp_url,
+                            json={"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 2},
+                            headers={"Accept": "text/event-stream",
+                                     "Mcp-Session-Id": probe.headers.get("mcp-session-id", ""),
+                                     "Authorization": f"Bearer {os.environ.get('FLEET_MCP_TOKEN', '')}"},
+                            timeout=10.0,
+                        )
+                        for line in tools_resp.text.splitlines():
+                            if line.startswith("data: "):
+                                try:
+                                    msg = _json.loads(line[6:])
+                                    for t in msg.get("result", {}).get("tools", []):
+                                        if isinstance(t, dict) and "name" in t:
+                                            robot_tools.append(t["name"])
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass  # tool discovery failed — will use fallback defaults
+
+                mcp_ep.meta["mcpTools"] = robot_tools if robot_tools else ["robot_submit_bid", "robot_execute_task"]
+                mcp_ep.meta["fleetEndpoint"] = marketplace_endpoint
 
                 agent.setTrust(reputation=True)
                 agent.setActive(True)
                 if hasattr(agent, "setX402Support"):
                     agent.setX402Support(False)
 
-                agent.setMetadata({
+                metadata = {
                     "category": "robot",
                     "robot_type": "survey_platform",
                     "fleet_provider": "yakrover",
@@ -1233,13 +1271,55 @@ def register_auction_tools(
                     "min_bid_price": str(min_bid_cents),
                     "accepted_currencies": "usd,usdc",
                     "task_categories": task_category,
-                })
+                }
+                if stripe_connect_id:
+                    metadata["stripe_connect_id"] = stripe_connect_id
+                # Additional operator metadata (written on-chain via setMetadata + included in IPFS agent card)
+                metadata["operator_company"] = company_name
+                metadata["operator_location"] = location
+                metadata["equipment_model"] = model
+                # bid_pct intentionally NOT stored on-chain or IPFS — competitive intelligence
+                metadata["sensors"] = ",".join(all_sensors)
+                if usdc_wallet:
+                    metadata["preferred_usdc_wallet"] = usdc_wallet
+                agent.setMetadata(metadata)
 
-                tx = agent.registerIPFS()
-                result = tx.wait_mined(timeout=120)
+                # Step 1: Mint token with on-chain metadata (no IPFS URI yet)
+                import time as _time
+                metadata_entries = agent._collectMetadataForRegistration()
+                tx1_hash = sdk.web3_client.transact_contract(
+                    sdk.identity_registry,
+                    "register",
+                    "",  # empty URI — set in step 2
+                    metadata_entries,
+                )
+                receipt = sdk.web3_client.wait_for_transaction(tx1_hash, timeout=120)
+                agent_id_int = agent._extractAgentIdFromReceipt(receipt)
+                agent_id = f"{cfg['chain_id']}:{agent_id_int}"
+                agent.registration_file.agentId = agent_id
+                agent.registration_file.updatedAt = int(_time.time())
 
-                agent_id = str(getattr(result, "agentId", ""))
-                agent_uri = str(getattr(result, "agentURI", ""))
+                # Step 2: Upload IPFS agent card + set URI (with delay for RPC state propagation)
+                agent_uri = ""
+                _time.sleep(3)  # let RPC nodes sync minted token state
+                try:
+                    ipfs_cid = sdk.ipfs_client.addRegistrationFile(
+                        agent.registration_file,
+                        chainId=cfg["chain_id"],
+                        identityRegistryAddress=sdk.identity_registry.address,
+                    )
+                    tx2_hash = sdk.web3_client.transact_contract(
+                        sdk.identity_registry,
+                        "setAgentURI",
+                        agent_id_int,
+                        f"ipfs://{ipfs_cid}",
+                    )
+                    sdk.web3_client.wait_for_transaction(tx2_hash, timeout=60)
+                    agent_uri = f"ipfs://{ipfs_cid}"
+                    agent.registration_file.agentURI = agent_uri
+                except Exception as uri_exc:
+                    # Mint succeeded but IPFS/URI failed — robot is on-chain, card is missing
+                    agent_uri = f"pending ({str(uri_exc)[:80]})"
 
                 chain_result = {
                     "agent_id": agent_id,
@@ -1272,34 +1352,62 @@ def register_auction_tools(
                         "status": "ok",
                         "agent_id": str(agent.registration_file.agentId),
                         "agent_uri": str(getattr(agent.registration_file, "agentURI", "") or ""),
-                        "warning": f"Minted but post-registration step failed: {error_msg}",
+                        "warning": f"Registered on-chain. Metadata update pending: {error_msg}",
                     }
                 else:
                     chain_result = {"status": "error", "error": error_msg}
 
             # 3. Create fleet robot if registration succeeded
             registration_ok = chain_result.get("status") == "ok"
+            execution_mode = "mock"
             if registration_ok:
-                from auction.mock_fleet import RuntimeRegisteredRobot
                 sensors = list(all_sensors)
-                capability_metadata = {
-                    "sensors": sensors,
-                    "mobility_type": "aerial" if any("aerial" in s or s == "photogrammetry" for s in sensors) else "ground",
-                    "indoor_capable": False,
-                    "equipment": [{"type": s, "model": model} for s in sensors],
-                    "coverage_area": {"base": location},
-                }
-                robot = RuntimeRegisteredRobot(
-                    robot_id=op_id,
-                    name=name,
-                    sensors=sensors,
-                    capability_metadata=capability_metadata,
-                    reputation_metadata={"completion_rate": 0.95},
-                    signing_key=f"reg_{op_id}",
-                    bid_pct=bid_pct,
-                    sla_seconds=3600,
-                    ai_confidence=0.85,
-                )
+                robot = None
+
+                # If MCP endpoint provided and reachable, create a real adapter
+                if mcp_endpoint_url and mcp_endpoint_url.startswith("http"):
+                    try:
+                        from auction.mcp_robot_adapter import MCPRobotAdapter
+                        bearer = os.environ.get("FLEET_MCP_TOKEN", "")
+                        adapter = MCPRobotAdapter(
+                            robot_id=name,
+                            mcp_endpoint=mcp_endpoint_url,
+                            wallet=usdc_wallet or "",
+                            chain_id=cfg["chain_id"],
+                            description=description,
+                            bearer_token=bearer,
+                            mcp_tools=robot_tools if robot_tools else None,
+                        )
+                        if adapter.is_reachable(timeout=10.0):
+                            robot = adapter
+                            execution_mode = "live"
+                        else:
+                            execution_mode = "mock (MCP endpoint unreachable)"
+                    except Exception as mcp_exc:
+                        execution_mode = f"mock ({str(mcp_exc)[:60]})"
+
+                # Fall back to mock robot if no live MCP endpoint
+                if robot is None:
+                    from auction.mock_fleet import RuntimeRegisteredRobot
+                    capability_metadata = {
+                        "sensors": sensors,
+                        "mobility_type": "aerial" if any("aerial" in s or s == "photogrammetry" for s in sensors) else "ground",
+                        "indoor_capable": False,
+                        "equipment": [{"type": s, "model": model} for s in sensors],
+                        "coverage_area": {"base": location},
+                    }
+                    robot = RuntimeRegisteredRobot(
+                        robot_id=op_id,
+                        name=name,
+                        sensors=sensors,
+                        capability_metadata=capability_metadata,
+                        reputation_metadata={"completion_rate": 0.95},
+                        signing_key=f"reg_{op_id}",
+                        bid_pct=bid_pct,
+                        sla_seconds=3600,
+                        ai_confidence=0.85,
+                    )
+
                 with engine._fleet_lock:
                     if op_id not in engine._robots_by_id:
                         engine.robots.append(robot)
@@ -1322,6 +1430,7 @@ def register_auction_tools(
                 "chain": target_chain,
                 "chain_result": chain_result,
                 "fleet_size": len(engine.robots),
+                "execution_mode": execution_mode,
                 "message": message,
             }
 

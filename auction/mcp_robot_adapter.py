@@ -45,6 +45,7 @@ class MCPRobotAdapter:
         description: str = "",
         signing_key: str = "default_hmac_key",
         bearer_token: str | None = None,
+        mcp_tools: list[str] | None = None,
     ) -> None:
         self.robot_id = robot_id
         self.name = robot_id
@@ -53,6 +54,7 @@ class MCPRobotAdapter:
         self.chain_id = chain_id
         self.signing_key = signing_key
         self.bearer_token = bearer_token
+        self._known_tools: list[str] = list(mcp_tools) if mcp_tools else []
 
         self.capability_metadata: dict = {
             "sensors": [
@@ -71,6 +73,33 @@ class MCPRobotAdapter:
 
         self._session_id: str | None = None
         self.is_simulator: bool = "fakerover" in robot_id.lower() or "faker" in robot_id.lower()
+
+    def _resolve_tools(self, tool_list: list[str]) -> tuple[str | None, str | None]:
+        """Match available tools to move and sensor actions by name patterns.
+
+        Returns (move_tool, sensor_tool) or None for either if not found.
+        Searches for common patterns in tool names.
+        """
+        move_tool = None
+        sensor_tool = None
+
+        move_patterns = ["_move", "move_", "fly_waypoint", "navigate", "drive"]
+        sensor_patterns = ["temperature", "humidity", "sensor", "reading", "measure", "capture"]
+
+        for tool_name in tool_list:
+            lower = tool_name.lower()
+            if not move_tool:
+                for pat in move_patterns:
+                    if pat in lower:
+                        move_tool = tool_name
+                        break
+            if not sensor_tool:
+                for pat in sensor_patterns:
+                    if pat in lower:
+                        sensor_tool = tool_name
+                        break
+
+        return move_tool, sensor_tool
 
     def is_reachable(self, timeout: float = 5.0) -> bool:
         """Quick probe: can we initialize an MCP session with this robot?"""
@@ -264,34 +293,70 @@ class MCPRobotAdapter:
         """
         import asyncio
 
-        # Pre-warm: ensure MCP session is alive before waypoint loop
+        # Pre-warm: ensure MCP session is alive and discover available tools
         if not self._session_id:
             log.info("Warming up MCP session for %s...", self.robot_id)
             await self._mcp_call("tools/list", {})
+
+        # Discover tools from robot's MCP server if not already known
+        if not self._known_tools:
+            try:
+                tools_result = await self._mcp_call("tools/list", {})
+                if tools_result and isinstance(tools_result, dict):
+                    tool_entries = tools_result.get("tools", [])
+                    self._known_tools = [t["name"] for t in tool_entries if isinstance(t, dict) and "name" in t]
+                    log.info("Discovered %d tools from %s: %s",
+                             len(self._known_tools), self.robot_id, self._known_tools[:5])
+            except Exception as e:
+                log.warning("Tool discovery failed for %s: %s", self.robot_id, e)
+
+        # Resolve move and sensor tools dynamically
+        move_tool, sensor_tool = self._resolve_tools(self._known_tools)
+
+        # DEPRECATED FALLBACK — commented out to test dynamic resolution.
+        # If this causes execution failures, the robot's MCP server needs to
+        # expose tools with discoverable names (containing "move", "temperature", etc.)
+        # TODO: Remove entirely once dynamic resolution is verified in production.
+        # if not move_tool:
+        #     if "tumbller" in self.robot_id.lower():
+        #         move_tool = "tumbller_move"
+        #     else:
+        #         move_tool = "fakerover_move"
+        #     log.info("Using fallback move tool: %s", move_tool)
+        # if not sensor_tool:
+        #     if "tumbller" in self.robot_id.lower():
+        #         sensor_tool = "tumbller_get_temperature_humidity"
+        #     else:
+        #         sensor_tool = "fakerover_get_temperature_humidity"
+        #     log.info("Using fallback sensor tool: %s", sensor_tool)
+        if not move_tool:
+            log.warning("No move tool found for %s — execution will skip movement", self.robot_id)
+        if not sensor_tool:
+            log.warning("No sensor tool found for %s — execution will use robot_execute_task fallback", self.robot_id)
+
+        log.info("Executing %s with tools: move=%s, sensor=%s", self.robot_id, move_tool, sensor_tool)
 
         start = datetime.now(UTC)
         num_waypoints = 3
         readings = []
 
-        # Try real waypoint-by-waypoint execution
+        # Waypoint-by-waypoint execution using resolved tools
         for wp in range(1, num_waypoints + 1):
-            # Move forward one step (tool name varies by robot type)
-            move_tool = "tumbller_move" if "tumbller" in self.robot_id.lower() else "fakerover_move"
-            move_result = await self._mcp_call("tools/call", {
-                "name": move_tool,
-                "arguments": {"direction": "forward"},
-            })
-            move_ok = move_result and not move_result.get("isError")
-            if move_ok:
-                log.info("Waypoint %d: moved forward", wp)
-            else:
-                log.warning("Waypoint %d: move failed, reading at current position", wp)
+            if move_tool:
+                move_result = await self._mcp_call("tools/call", {
+                    "name": move_tool,
+                    "arguments": {"direction": "forward"},
+                })
+                move_ok = move_result and not move_result.get("isError")
+                if move_ok:
+                    log.info("Waypoint %d: moved forward via %s", wp, move_tool)
+                else:
+                    log.warning("Waypoint %d: move failed (%s), reading at current position", wp, move_tool)
 
             # Brief pause for robot to settle
             await asyncio.sleep(1.0)
-
-            # Read sensor
-            sensor_tool = "tumbller_get_temperature_humidity" if "tumbller" in self.robot_id.lower() else "fakerover_get_temperature_humidity"
+            if not sensor_tool:
+                break  # no sensor tool — skip to robot_execute_task fallback
             sensor_result = await self._mcp_call("tools/call", {
                 "name": sensor_tool,
                 "arguments": {},

@@ -79,7 +79,7 @@ def _discover_onchain_robots():
 
     for entry in agents:
         agent = entry.get("agent", {})
-        rf = agent.get("registrationFile", {})
+        rf = agent.get("registrationFile") or {}
         meta = {m["key"]: m["value"] for m in agent.get("metadata", [])}
 
         name = rf.get("name", "Robot")
@@ -95,6 +95,11 @@ def _discover_onchain_robots():
         # Bearer token for authenticated robot MCP servers
         fleet_token = os.environ.get("FLEET_MCP_TOKEN")
 
+        # Pass known tools from agent card for dynamic tool resolution
+        tools_from_card = rf.get("mcpTools") or []
+        if isinstance(tools_from_card, str):
+            tools_from_card = [t.strip() for t in tools_from_card.split(",") if t.strip()]
+
         adapter = MCPRobotAdapter(
             robot_id=name,
             mcp_endpoint=mcp_endpoint,
@@ -102,6 +107,7 @@ def _discover_onchain_robots():
             chain_id=8453,
             description=rf.get("description", ""),
             bearer_token=fleet_token,
+            mcp_tools=tools_from_card,
         )
         adapters.append(adapter)
         log("DISCOVERY", f"  {name} — {mcp_endpoint[:50]}...")
@@ -286,9 +292,10 @@ Start by asking the user what survey they need, or process an RFP they provide."
         """REST endpoint: POST /api/tool/{name} — calls an MCP tool by name."""
         tool_name = request.path_params["name"]
 
-        # Lazy discovery: run on first auction-related call
+        # Re-discover fleet on every auction start (not just first call)
         if tool_name in ("auction_post_task", "auction_process_rfp") and hasattr(engine, "_discover"):
             import asyncio
+            engine._discovery_done = False  # force fresh discovery
             try:
                 await asyncio.to_thread(engine._discover)
             except Exception as e:
