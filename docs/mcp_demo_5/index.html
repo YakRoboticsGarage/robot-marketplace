@@ -3033,13 +3033,17 @@ async function submitFeedback(robotId, robotName, paymentMethod, paymentTx) {
             }),
           });
           var onchainData = await onchainRes.json();
-          if (onchainData.ok) {
-            status.innerHTML = 'Thank you! Feedback recorded. <a href="' + onchainData['8004scan_url'] + '" target="_blank" style="color:var(--accent);text-decoration:none">View operator profile</a>';
-          } else {
-            // On-chain failed (e.g. self-feedback) — GitHub feedback still saved
-            console.warn('On-chain feedback:', onchainData.error);
-            status.innerHTML = 'Thank you! Feedback saved.' + (data.issue_url ? ' <a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>' : '');
+          var links = '';
+          if (onchainData.ok && onchainData['8004scan_url']) {
+            links += ' <a href="' + onchainData['8004scan_url'] + '" target="_blank" style="color:var(--accent);text-decoration:none">View on-chain</a>';
           }
+          if (data.issue_url) {
+            links += (links ? ' &middot; ' : ' ') + '<a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>';
+          }
+          if (!onchainData.ok) {
+            console.warn('On-chain feedback:', onchainData.error);
+          }
+          status.innerHTML = 'Thank you! Feedback ' + (onchainData.ok ? 'recorded on-chain.' : 'saved.') + links;
         } catch (e) {
           console.warn('On-chain feedback failed:', e);
           status.innerHTML = 'Thank you! Feedback saved.' + (data.issue_url ? ' <a href="' + data.issue_url + '" target="_blank" style="color:var(--accent);text-decoration:none">View on GitHub</a>' : '');
