@@ -437,15 +437,24 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 46. Verify every task type has 8-15 eligible bidders in the 100-robot fleet
 47. Create 5 sample RFPs as demo presets (selectable in UI dropdown)
 
-### Phase 10 — End-to-end verification
-48. Run 10 diverse auctions across different task types and Michigan locations
-49. Verify geographic filtering: UP robot (Copper Country, 400km) bids on Houghton task but not Detroit
-50. Verify busy exclusion: winning robot excluded, re-available after task duration
-51. Verify docked in-situ tasks complete in seconds (not minutes)
-52. Verify reputation-weighted scoring: established operators win more than new entrants
-53. Verify multi-task RFP: I-94 project decomposes into topo + tunnel + bridge → 3 parallel auctions → 3 different winners
-54. Verify 100-robot sidebar: no performance lag, scroll works, popup loads correctly
-55. Verify all 100 robots show correct category-specific tools via IPFS enrichment
+### Phase 10 — Realistic delivery payloads
+48. Update `robot_execute_task` in each category server to return delivery data that matches what the real robot model produces — correct file formats, sizes, and structure
+49. **Aerial LiDAR:** LAS 1.4 point cloud metadata (point count, density, bounding box, CRS), classified ground/non-ground, contour generation summary. Realistic file sizes: 50-500 MB per flight.
+50. **Aerial Photo:** Orthomosaic metadata (GSD, pixel dimensions, GeoTIFF bounds), photo count + overlap stats, 3D point cloud summary. Realistic: 200-2000 photos per flight, 1-10 GB orthomosaic.
+51. **Ground GPR:** DZT scan file metadata (antenna frequency, scan length, depth, trace count), utility detection table (type, depth, lat/lng, confidence), APWA color-coded map reference. Realistic: 10-100 MB per scan line.
+52. **Aerial Thermal:** Radiometric thermal mosaic metadata (resolution, temp range, emissivity), anomaly table (location, severity, delta-T), visual reference photo pairs. Realistic: 50-200 MB thermal mosaic.
+53. **Skydio/Bridge:** Inspection photo set metadata (image count, resolution, coverage %), element-level condition coding (NBI format for bridges), 3D model summary. Realistic: 200-500 photos, 2-5 GB.
+54. Delivery payloads should help answer: how does the marketplace handle large files? What gets uploaded to IPFS vs stored off-chain? How does the buyer download and verify deliverables?
+
+### Phase 11 — End-to-end verification
+55. Run 10 diverse auctions across different task types and Michigan locations
+56. Verify geographic filtering: UP robot (Copper Country, 400km) bids on Houghton task but not Detroit
+57. Verify busy exclusion: winning robot excluded, re-available after task duration
+58. Verify docked in-situ tasks complete in seconds (not minutes)
+59. Verify reputation-weighted scoring: established operators win more than new entrants
+60. Verify multi-task RFP: I-94 project decomposes into topo + tunnel + bridge → 3 parallel auctions → 3 different winners
+61. Verify 100-robot sidebar: no performance lag, scroll works, popup loads correctly
+62. Verify all 100 robots show correct category-specific tools via IPFS enrichment
 
 ---
 
