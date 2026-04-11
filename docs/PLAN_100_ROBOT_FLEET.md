@@ -239,39 +239,152 @@ We already have 43 Michigan RFPs documented in `docs/research/market/RESEARCH_MI
 
 ---
 
-## 8. Implementation Sequence
+## 8. Chain, Gas & Wallet (Tactical)
 
-### Phase A — Infrastructure (1-2 days)
-1. Build 8 MCP server templates (one per robot category)
-2. Deploy to Fly.io
-3. Verify each server responds to `tools/list` and returns category-appropriate tools
+**Chain:** Base Sepolia (testnet). Mainnet registration deferred until fleet testing is validated.
 
-### Phase B — Registration flow updates (1 day)
-4. Add `is_test`, lat/lng, service_radius, `home_type`, `initial_reputation` to registration backend
-5. Update frontend form with new fields (admin-only for test/reputation)
-6. Add "Hide test robots" filter toggle
+**Platform signer wallet:** `0xc69bc0c54901532f0b39acce94d66eaac8156d57` (from `SIGNER_PVT_KEY`)
+- Current balance: **0.1 ETH** on Base Sepolia
+- Role: funds operator wallets, writes platform attestation, serves as faucet
+
+**Operator wallets (18 total):**
+Each operator gets their own deployer address. This simulates real-world conditions where operators register robots from their own wallets — not from the platform.
+
+- **Generation:** batch script derives 18 wallets (deterministic from a seed or random keypairs stored in `fleet_manifest.yaml`)
+- **Funding:** platform signer sends 0.003 ETH to each operator wallet (0.054 ETH total, well within 0.1 ETH balance). Each operator wallet has enough for ~6 robot registrations.
+- **Registration flow:** each robot is minted by its operator's wallet, not the platform
+- **Platform attestation:** after operator registers a robot, platform signer writes `attested_by` and `attestation_status` metadata via a separate transaction. This models the real flow: operator registers → platform verifies → platform attests.
+- **Ownership:** robots are owned by their operator wallet on-chain. No `transferFrom` needed.
+
+**Gas estimate (revised):**
+- 18 funding transactions (platform → operators): ~18 × 21K gas = negligible
+- 100 robot registrations from operator wallets: ~0.0005 ETH total across all wallets
+- 100 attestation transactions from platform wallet: ~0.0003 ETH
+- **Total: ~0.001 ETH. No faucet top-up needed.**
+
+**Subgraph:** Base Sepolia subgraph at `4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u` — already used for discovery. Handles `fleet_provider: yakrover` filter.
+
+---
+
+## 9. Platform Attestation
+
+Robots registered directly on the ERC-8004 contract by third parties should not appear in marketplace discovery unless the platform has verified them. Attestation is the gate.
+
+### Design
+
+**On registration:**
+- Platform writes `attested_by` metadata key with value = signer wallet address (`0xc69b...d57`)
+- Platform writes `attestation_status` metadata key with value = `active`
+
+**On revocation:**
+- Platform calls `setMetadata` to update `attestation_status` to `revoked`
+- Revocation reasons: failed verification, fraud, operator request, compliance issue
+
+**Discovery filter:**
+- Subgraph query adds: filter for `attestation_status == active` (hex-encoded)
+- Robots without `attested_by` or with `attestation_status == revoked` are excluded from discovery
+- Unattested robots are invisible to the marketplace — they exist on-chain but don't bid
+
+**Backend changes:**
+- `auction_register_robot_onchain`: writes `attested_by` and `attestation_status: active` in metadata
+- New MCP tool: `auction_revoke_attestation(agent_id, chain, reason)` — updates `attestation_status` to `revoked`
+- New MCP tool: `auction_reinstate_attestation(agent_id, chain)` — sets `attestation_status` back to `active`
+
+**Frontend changes:**
+- Discovery query filters for `attestation_status` metadata
+- Operator profile popup shows attestation status: "Verified by platform" or "Not verified"
+
+### Why this matters
+- Third parties can register robots on ERC-8004 freely — it's a public registry
+- Without attestation, a spam robot could appear in marketplace discovery
+- Attestation is the marketplace's editorial layer on top of the open registry
+- Revocability means the platform can remove bad actors without touching the on-chain registration
+
+---
+
+## 10. Robot Naming Convention
+
+Each operator uses their own in-house naming standard. The marketplace does NOT enforce a naming convention — operators name robots however they want. The platform may later standardize a display name or alias for the interface, but the registered name reflects the operator's internal system.
+
+**Examples of varied naming conventions across operators:**
+
+| Operator | Convention | Examples |
+|----------|-----------|---------|
+| Great Lakes Aerial Survey | `GLAS-{type}-{seq:02d}` | GLAS-LIDAR-01, GLAS-PHOTO-03, GLAS-SCOUT-02 |
+| Motor City Drones | `MCD {model} #{seq}` | MCD Matrice #1, MCD Skydio #2, MCD M4E #1 |
+| Peninsular Survey Systems | `PSS-{region}-{seq:03d}` | PSS-EAST-001, PSS-WEST-005, PSS-CORR-002 |
+| Wolverine Robotics | `{animal}-{seq}` | Badger-01, Wolverine-03, Mole-02 |
+| Copper Country UAS | `CC-{seq}` | CC-01, CC-02, CC-03, CC-04 |
+| Saginaw Valley Mapping | `SVM {nickname}` | SVM Hawk, SVM Falcon, SVM Osprey |
+| Lakeshore Inspections | `Shore {seq}` | Shore 1, Shore 2, Shore 3 |
+| I-94 Corridor Services | `I94-{type}{seq}` | I94-L1, I94-P1, I94-G1 |
+| DroneScan MI | `DS-{seq:03d}` | DS-001, DS-002, DS-003 |
+| Blue Water Survey | `BW-{color}` | BW-Blue, BW-Teal, BW-Aqua, BW-Navy |
+| Jake Mitchell Aerial | `Jake's {model}` | Jake's Matrice, Jake's Mavic |
+| Northern Drones LLC | `North-1` | North-1 |
+| River Rouge Robotics | `RRR-{type}-{seq}` | RRR-SPOT-01, RRR-AIR-01 |
+| Mackinac Survey Co. | `MAC-{seq}` | MAC-01, MAC-02 |
+| UP Drone Works | `Yooper-{seq}` | Yooper-1, Yooper-2 |
+| Campus Robotics | `Sparty-{seq}` | Sparty-1, Sparty-2 |
+| Flint Aerial Solutions | `FAS-{type}{seq}` | FAS-L1, FAS-T1 |
+| Drone Sisters | `Sister-{name}` | Sister-Ada, Sister-Grace |
+
+This diversity is intentional — it tests that the marketplace handles heterogeneous naming without breaking discovery, bidding, or display.
+
+---
+
+## 11. Implementation Sequence
+
+### Phase A — Attestation + registration flow updates (1 day)
+1. Add `attested_by`, `attestation_status` to registration metadata
+2. Add `is_test`, lat/lng, service_radius, `home_type`, `initial_reputation` to registration backend
+3. Update frontend form with new fields (admin-only for test/reputation)
+4. Add "Hide test robots" filter toggle
+5. Update discovery query to filter for `attestation_status == active`
+6. Add `auction_revoke_attestation` and `auction_reinstate_attestation` MCP tools
+
+### Phase B — MCP servers (1-2 days)
+7. Build 8 MCP server templates (one per robot category)
+8. Deploy to Fly.io (always-on, ~$16/mo total)
+9. Verify each server responds to `tools/list` and returns category-appropriate tools
 
 ### Phase C — Fleet manifest + script (1 day)
-7. Write `fleet_manifest.yaml` with all 100 robots, 18 operators
-8. Write `scripts/register_fleet.py` batch registration script
-9. Dry-run against Base Sepolia
+10. Write `fleet_manifest.yaml` with all 100 robots, 18 operators, varied naming conventions
+11. Generate 18 operator wallets (keypairs stored in manifest, gitignored)
+12. Write `scripts/register_fleet.py` batch registration script:
+    - Step 1: Fund 18 operator wallets from platform signer (0.003 ETH each)
+    - Step 2: Each operator wallet registers its own robots
+    - Step 3: Platform signer writes attestation metadata for each robot
+13. Dry-run: validate manifest, check gas estimate, print plan
 
-### Phase D — Registration (1-2 hours)
-10. Run batch registration on Base mainnet
-11. Verify all 100 robots appear in subgraph
-12. Verify IPFS enrichment shows correct tools for each robot
+### Phase D — Registration on Base Sepolia (~30 min)
+14. Fund operator wallets (18 txns, ~1 min)
+15. Run batch registration from operator wallets (rate limited: 1 per 5 seconds = ~8 min)
+16. Platform attests all 100 robots (100 txns, ~8 min)
+17. Verify all 100 robots appear in Base Sepolia subgraph
+18. Verify IPFS enrichment shows correct tools for each robot
+19. Verify attestation filter works (only attested robots in discovery)
+20. Verify robot ownership matches operator wallets (not platform)
 
-### Phase E — RFP corpus (1 day)
-13. Expand MDOT RFP research to 50 entries
-14. Decompose each into structured task specs
-15. Test multi-task auctions with the full fleet
+### Phase E — Bid engine updates (1 day)
+17. Add geographic hard cutoff filter (haversine distance > service_radius → no bid)
+18. Add busy/offline filter (busy_until timestamp, realistic task durations)
+19. Test with sample auctions: correct robots excluded by distance, busy state
 
-### Phase F — Demo verification
-16. Run 10 diverse RFP auctions through the demo
-17. Verify competitive bidding (multiple bidders per task)
-18. Verify geographic filtering works
-19. Verify reputation-weighted scoring produces expected winner distribution
-20. Verify "busy/offline" robots correctly excluded
+### Phase F — RFP corpus + multi-task UI (1-2 days)
+20. Expand MDOT RFP research to 50 entries
+21. Decompose each into structured task specs with lat/lng
+22. Build multi-task decomposition preview UI (Claude shows breakdown, user confirms)
+23. Build parallel auction display (N winner cards per RFP)
+
+### Phase G — Demo verification
+24. Run 10 diverse RFP auctions through the demo
+25. Verify competitive bidding (multiple bidders per task)
+26. Verify geographic filtering excludes distant robots
+27. Verify busy robots excluded after winning
+28. Verify docked in-situ tasks complete in seconds
+29. Verify reputation-weighted scoring produces expected winner distribution
+30. Verify multi-task RFP decomposition + parallel auctions work end-to-end
 
 ---
 
