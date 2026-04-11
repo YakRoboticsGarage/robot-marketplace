@@ -897,14 +897,65 @@ function onFakeRoverFilterChange() {
 }
 
 var hideFakeRovers = false;
+var _easAttestations = {}; // agent_id → fleet_type, loaded at discovery time
+
 function getFilteredRobots() {
-  // Sidebar filter mirrors server-side EAS attestation filter.
-  // Demo fleet: show is_test robots (demo_fleet attested on server)
-  // Production only: show non-is_test robots (live_production on server)
-  // Both off: show all
-  if (simulatorOnly) return discoveredRobots.filter(function(r) { return r.is_test; });
-  if (hideFakeRovers) return discoveredRobots.filter(function(r) { return !r.is_test; });
-  return discoveredRobots;
+  // Filter by EAS attestation fleet type
+  if (simulatorOnly) {
+    // Demo fleet: demo_fleet + live_production attested robots
+    return discoveredRobots.filter(function(r) {
+      var ft = _easAttestations[String(r.agent_id)];
+      return ft === 'demo_fleet' || ft === 'live_production';
+    });
+  }
+  if (hideFakeRovers) {
+    // Production only: live_production attested robots
+    return discoveredRobots.filter(function(r) {
+      return _easAttestations[String(r.agent_id)] === 'live_production';
+    });
+  }
+  // All: only attested robots (any type)
+  return discoveredRobots.filter(function(r) {
+    return !!_easAttestations[String(r.agent_id)];
+  });
+}
+
+async function loadEASAttestations() {
+  // Query both Base Sepolia and Base mainnet EAS for attestations under our schema
+  var endpoints = ['https://base-sepolia.easscan.org/graphql', 'https://base.easscan.org/graphql'];
+  var query = '{ attestations(where: { schemaId: { equals: "' + EAS_SCHEMA_UID + '" }, revoked: { equals: false } }, take: 500) { decodedDataJson } }';
+
+  for (var i = 0; i < endpoints.length; i++) {
+    try {
+      var resp = await fetch(endpoints[i], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query }),
+        signal: AbortSignal.timeout(10000),
+      });
+      var data = await resp.json();
+      var atts = (data.data || {}).attestations || [];
+      for (var j = 0; j < atts.length; j++) {
+        try {
+          var decoded = JSON.parse(atts[j].decodedDataJson || '[]');
+          var agentId = null, fleetType = null;
+          for (var k = 0; k < decoded.length; k++) {
+            if (decoded[k].name === 'agentId') {
+              var val = decoded[k].value.value;
+              agentId = typeof val === 'object' ? parseInt(val.hex, 16) : parseInt(val);
+            }
+            if (decoded[k].name === 'fleetType') fleetType = decoded[k].value.value;
+          }
+          if (agentId !== null && fleetType) {
+            _easAttestations[String(agentId)] = fleetType;
+          }
+        } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('EAS query failed for ' + endpoints[i] + ':', e.message);
+    }
+  }
+  console.log('EAS attestations loaded: ' + Object.keys(_easAttestations).length + ' agents');
 }
 
 // Returns the USDC chain based on the winning robot's chain, or fallback
@@ -1269,6 +1320,9 @@ async function discoverRobots() {
   }
 
   discoveredRobots = allRobots;
+
+  // Load EAS attestations before filtering sidebar
+  await loadEASAttestations();
 
   var filtered = getFilteredRobots();
   if (filtered.length > 0) {
