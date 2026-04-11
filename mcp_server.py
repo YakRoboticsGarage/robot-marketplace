@@ -134,6 +134,11 @@ def _discover_onchain_robots():
             if isinstance(tools_from_card, str):
                 tools_from_card = [t.strip() for t in tools_from_card.split(",") if t.strip()]
 
+            # Parse sensors from on-chain metadata (comma-separated, hex-encoded)
+            sensors_raw = meta.get("sensors", "")
+            sensors_list = [s.strip() for s in sensors_raw.split(",") if s.strip()] if sensors_raw else []
+            equip_model = meta.get("equipment_model", "")
+
             adapter = MCPRobotAdapter(
                 robot_id=name,
                 mcp_endpoint=mcp_endpoint,
@@ -142,6 +147,8 @@ def _discover_onchain_robots():
                 description=rf.get("description", ""),
                 bearer_token=fleet_token,
                 mcp_tools=tools_from_card,
+                sensors=sensors_list,
+                equipment_model=equip_model,
             )
             adapters.append(adapter)
             log("DISCOVERY", f"  {name} (chain {chain_id}) — {mcp_endpoint[:50]}...")

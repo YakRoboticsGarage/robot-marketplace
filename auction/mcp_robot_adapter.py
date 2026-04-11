@@ -46,6 +46,8 @@ class MCPRobotAdapter:
         signing_key: str = "default_hmac_key",
         bearer_token: str | None = None,
         mcp_tools: list[str] | None = None,
+        sensors: list[str] | None = None,
+        equipment_model: str = "",
     ) -> None:
         self.robot_id = robot_id
         self.name = robot_id
@@ -56,15 +58,22 @@ class MCPRobotAdapter:
         self.bearer_token = bearer_token
         self._known_tools: list[str] = list(mcp_tools) if mcp_tools else []
 
-        self.capability_metadata: dict = {
-            "sensors": [
+        # Build sensor metadata from on-chain sensors list or fall back to defaults
+        if sensors:
+            sensor_list = [{"type": s.strip()} for s in sensors if s.strip()]
+        else:
+            sensor_list = [
                 {"type": "temperature", "model": "AHT20", "accuracy_celsius": 0.3},
                 {"type": "humidity", "model": "AHT20", "accuracy_rh_pct": 2.0},
-            ],
+            ]
+        self.capability_metadata: dict = {
+            "sensors": sensor_list,
             "mobility_type": "differential_drive",
             "indoor_capable": True,
             "location": description or mcp_endpoint,
         }
+        if equipment_model:
+            self.capability_metadata["equipment_model"] = equipment_model
         self.reputation_metadata: dict = {
             "completion_rate": 0.9,
             "tasks_completed": 0,
