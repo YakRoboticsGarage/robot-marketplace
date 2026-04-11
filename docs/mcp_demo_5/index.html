@@ -898,9 +898,12 @@ function onFakeRoverFilterChange() {
 
 var hideFakeRovers = false;
 function getFilteredRobots() {
-  // Server-side EAS attestation filter handles fleet mode.
-  // Frontend shows all discovered robots (already filtered by server).
-  // These toggles only affect the server via /api/fleet-mode.
+  // Sidebar filter mirrors server-side EAS attestation filter.
+  // Demo fleet: show is_test robots (demo_fleet attested on server)
+  // Production only: show non-is_test robots (live_production on server)
+  // Both off: show all
+  if (simulatorOnly) return discoveredRobots.filter(function(r) { return r.is_test; });
+  if (hideFakeRovers) return discoveredRobots.filter(function(r) { return !r.is_test; });
   return discoveredRobots;
 }
 
