@@ -200,6 +200,13 @@ def _discover_onchain_robots():
             )
             adapter.is_test = is_test
             adapter._agent_id_int = int(agent.get("agentId", 0))
+            # Geographic metadata for distance filtering
+            try:
+                adapter._latitude = float(meta["latitude"]) if meta.get("latitude") else None
+                adapter._longitude = float(meta["longitude"]) if meta.get("longitude") else None
+                adapter._service_radius_km = int(meta["service_radius_km"]) if meta.get("service_radius_km") else None
+            except (ValueError, TypeError):
+                adapter._latitude = adapter._longitude = adapter._service_radius_km = None
             adapters.append(adapter)
             log("DISCOVERY", f"  {name} (chain {chain_id}, test={is_test}) — {mcp_endpoint[:50]}...")
 
