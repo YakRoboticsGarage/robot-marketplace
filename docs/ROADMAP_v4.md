@@ -387,6 +387,16 @@ The demo currently has ~10 registered robots. Before the marketplace can handle 
 
 ### Deferred to later milestones
 
+- **Sensor vocabulary management.** Claude generates `sensors_required` from RFP text (e.g., "robotic_total_station" from surveying terminology). The fleet has a finite set of registered sensor types (`aerial_lidar`, `gpr`, `photogrammetry`, `thermal_camera`, `rtk_gps`, `terrestrial_lidar`, `temperature`, `humidity`). When Claude produces a sensor name not in the fleet vocabulary, no robot matches and the auction fails. Needs: (a) a canonical sensor registry that Claude references, (b) a mapping layer that translates equivalent terms (e.g., "total station" → "rtk_gps" for positioning tasks), (c) graceful fallback when an unknown sensor is requested (suggest closest match vs hard fail). This is separate from restricting Claude — new sensor types are a valid outcome when new robot categories are added.
+
+- **Realistic delivery payload per robot category.** Currently `robot_execute_task` returns generic waypoint + sensor readings. Each category should return deliverables matching what the real robot produces — correct file formats, realistic sizes, proper metadata:
+  - Aerial LiDAR: LAS 1.4 point cloud metadata (point count, density, CRS, classified ground/non-ground). Real size: 50–500 MB.
+  - Aerial Photo: Orthomosaic metadata (GSD, pixel dims, GeoTIFF bounds), photo count + overlap. Real size: 1–10 GB.
+  - Ground GPR: DZT scan metadata (antenna freq, trace count, depth), utility detection table (type, depth, lat/lng). Real size: 10–100 MB per scan line.
+  - Thermal: Radiometric mosaic metadata (temp range, emissivity), anomaly table (location, severity). Real size: 50–200 MB.
+  - Bridge/Skydio: Inspection photo set metadata, element-level condition coding (NBI format). Real size: 2–5 GB.
+  - Raises question: what gets uploaded to IPFS (metadata + sample) vs stored off-chain (full dataset)? How does the buyer download and verify?
+
 - **Remove hardcoded tool name fallback in MCPRobotAdapter.** The old tumbller/fakerover name-based fallback is commented out (2026-04-10). Dynamic tool resolution via `_resolve_tools()` is active. Once verified working in production with multiple robot types, delete the commented-out fallback code entirely. See `auction/mcp_robot_adapter.py` lines 320-333.
 - Robot execution livestream (MJPEG/HLS camera feed) — moved to post-v1.4
 - Platform administration tooling (relay wallet monitoring, health aggregation) — partially done in v1.3 deploy scripts
