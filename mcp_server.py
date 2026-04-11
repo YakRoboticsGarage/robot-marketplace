@@ -251,14 +251,10 @@ def build_engine():
                     else:
                         log("PROBE", f"  --{adapter.robot_id} ({kind})")
 
-            # On-chain robots only — no mock fleet
-            if real_online and not engine._simulator_only:
-                new_fleet = real_online
-                label = f"{len(real_online)} real robot(s)"
-            elif sim_online:
-                new_fleet = sim_online
-                label = f"{len(sim_online)} simulator(s)"
-            else:
+            # Combine all reachable robots — both real and simulator
+            new_fleet = real_online + sim_online
+            label = f"{len(real_online)} real + {len(sim_online)} simulator(s)"
+            if not new_fleet:
                 log("DISCOVERY", "No on-chain robots reachable — fleet unchanged")
                 return
 
