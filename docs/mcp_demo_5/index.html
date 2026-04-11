@@ -939,7 +939,7 @@ var SUBGRAPH_URLS = {
   84532:    'https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u',
 };
 
-var DISCOVERY_CHAINS = [1, 8453, 11155111];
+var DISCOVERY_CHAINS = [1, 8453, 11155111, 84532];
 var YAKROVER_HEX = '0x79616b726f766572';
 
 var KNOWN_ROBOTS = [
@@ -1240,13 +1240,8 @@ async function discoverRobots() {
 
   discoveredRobots = allRobots;
 
-  var baseRobots = allRobots.filter(function(r) { return r.chain_id === 8453; });
-  var testnetRobots = allRobots.filter(function(r) { return r.chain_id !== 8453; });
-
-  if (baseRobots.length > 0) {
-    renderRobotsSidebar(baseRobots);
-  } else if (testnetRobots.length > 0) {
-    renderRobotsSidebar(testnetRobots);
+  if (allRobots.length > 0) {
+    renderRobotsSidebar(allRobots);
   } else {
     showNoRobots();
   }
