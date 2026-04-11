@@ -56,61 +56,98 @@ except ImportError:
     StripeService = None
 
 
+def _decode_hex_meta(val):
+    """Decode hex-encoded on-chain metadata values to UTF-8 strings."""
+    if not val:
+        return val
+    if not val.startswith("0x") and any(c not in "0123456789abcdefABCDEF" for c in val):
+        return val  # already plain text
+    try:
+        h = val[2:] if val.startswith("0x") else val
+        if len(h) % 2 != 0:
+            return val
+        decoded = bytes.fromhex(h).decode("utf-8", errors="replace")
+        if all(0x20 <= ord(c) <= 0x7E for c in decoded):
+            return decoded
+        return val
+    except Exception:
+        return val
+
+
 def _discover_onchain_robots():
-    """Query ERC-8004 subgraph for yakrover robots and create MCP adapters."""
+    """Query ERC-8004 subgraph for yakrover robots and create MCP adapters.
+
+    Queries both Base mainnet and Base Sepolia. Filters for robots with
+    attestation_status == 'active' (hex-encoded).
+    """
     import httpx
     from auction.mcp_robot_adapter import MCPRobotAdapter
 
-    SUBGRAPH_URL = "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb"
+    SUBGRAPH_URLS = {
+        8453: "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb",
+        84532: "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u",
+    }
     YAKROVER_HEX = "0x79616b726f766572"
 
     query = (
         '{ agentMetadata_collection(where: {key: "fleet_provider", value: "'
         + YAKROVER_HEX
-        + '"}, first: 20) { agent { agentId owner registrationFile { name description active mcpEndpoint } '
-        'metadata(first: 10) { key value } } } }'
+        + '"}, first: 100) { agent { agentId owner registrationFile { name description active mcpEndpoint } '
+        'metadata(first: 20) { key value } } } }'
     )
 
-    resp = httpx.post(SUBGRAPH_URL, json={"query": query}, timeout=10.0)
-    data = resp.json()
-
-    agents = data.get("data", {}).get("agentMetadata_collection", [])
     adapters = []
 
-    for entry in agents:
-        agent = entry.get("agent", {})
-        rf = agent.get("registrationFile") or {}
-        meta = {m["key"]: m["value"] for m in agent.get("metadata", [])}
-
-        name = rf.get("name", "Robot")
-        mcp_endpoint = rf.get("mcpEndpoint", "")
-        wallet = meta.get("agentWallet")
-        active = rf.get("active", False)
-
-        # Skip robots without a real MCP endpoint
-        if not mcp_endpoint or "placeholder" in mcp_endpoint or not active:
-            log("DISCOVERY", f"  Skip {name}: no MCP endpoint or inactive")
+    for chain_id, subgraph_url in SUBGRAPH_URLS.items():
+        try:
+            resp = httpx.post(subgraph_url, json={"query": query}, timeout=10.0)
+            data = resp.json()
+        except Exception as e:
+            log("DISCOVERY", f"  Subgraph query failed for chain {chain_id}: {e}")
             continue
 
-        # Bearer token for authenticated robot MCP servers
-        fleet_token = os.environ.get("FLEET_MCP_TOKEN")
+        agents = data.get("data", {}).get("agentMetadata_collection", [])
 
-        # Pass known tools from agent card for dynamic tool resolution
-        tools_from_card = rf.get("mcpTools") or []
-        if isinstance(tools_from_card, str):
-            tools_from_card = [t.strip() for t in tools_from_card.split(",") if t.strip()]
+        for entry in agents:
+            agent = entry.get("agent", {})
+            rf = agent.get("registrationFile") or {}
+            meta = {m["key"]: _decode_hex_meta(m["value"]) for m in agent.get("metadata", [])}
 
-        adapter = MCPRobotAdapter(
-            robot_id=name,
-            mcp_endpoint=mcp_endpoint,
-            wallet=wallet,
-            chain_id=8453,
-            description=rf.get("description", ""),
-            bearer_token=fleet_token,
-            mcp_tools=tools_from_card,
-        )
-        adapters.append(adapter)
-        log("DISCOVERY", f"  {name} — {mcp_endpoint[:50]}...")
+            name = rf.get("name", "Robot")
+            mcp_endpoint = rf.get("mcpEndpoint", "")
+            wallet = meta.get("agentWallet")
+            active = rf.get("active", False)
+
+            # Skip robots without a real MCP endpoint or inactive
+            if not mcp_endpoint or "placeholder" in mcp_endpoint or not active:
+                log("DISCOVERY", f"  Skip {name}: no MCP endpoint or inactive")
+                continue
+
+            # Skip robots without platform attestation
+            attestation = meta.get("attestation_status", "")
+            if attestation != "active":
+                log("DISCOVERY", f"  Skip {name}: not attested (status={attestation or 'none'})")
+                continue
+
+            # Bearer token for authenticated robot MCP servers
+            fleet_token = os.environ.get("FLEET_MCP_TOKEN")
+
+            # Pass known tools from agent card for dynamic tool resolution
+            tools_from_card = rf.get("mcpTools") or []
+            if isinstance(tools_from_card, str):
+                tools_from_card = [t.strip() for t in tools_from_card.split(",") if t.strip()]
+
+            adapter = MCPRobotAdapter(
+                robot_id=name,
+                mcp_endpoint=mcp_endpoint,
+                wallet=wallet,
+                chain_id=chain_id,
+                description=rf.get("description", ""),
+                bearer_token=fleet_token,
+                mcp_tools=tools_from_card,
+            )
+            adapters.append(adapter)
+            log("DISCOVERY", f"  {name} (chain {chain_id}) — {mcp_endpoint[:50]}...")
 
     return adapters
 
