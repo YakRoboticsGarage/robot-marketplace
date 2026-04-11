@@ -287,17 +287,41 @@ We already have 43 Michigan RFPs documented in `docs/research/market/RESEARCH_MI
 
 5. **Operator names: fictional but rhyming.** SSI → Peninsular Survey Systems, DroneView → DroneScan MI, Drone Brothers → Drone Sisters. All other names are original Michigan-themed fiction.
 
-## 10. Remaining Open Questions
+## 10. Task Duration Model (Resolved)
 
-1. **Reputation decay** — should seeded reputation decay if the robot doesn't complete tasks? Or is it static for test purposes? Recommend: static for initial test, decay mechanism designed but not active until v2.0.
+Robots go busy for a realistic duration after winning a task. Duration depends on task type and whether the robot is docked (in-situ) or garage-deployed (travel + execute).
 
-2. **Task duration model** — how long should each task type take in real time? Proposal:
-   - Small aerial (Mavic 3E, <5 acres): 5-15 minutes
-   - Medium aerial (M350, 5-50 acres): 30-90 minutes
-   - Large corridor (WingtraOne, >50 acres): 2-4 hours
-   - Ground scan (Spot, interior): 1-3 hours
-   - Confined space (ELIOS 3): 30-60 minutes
+| Task Type | Home Type | Duration | Example |
+|-----------|-----------|----------|---------|
+| In-situ sensor reading | Docked | 5–15 seconds | Temp/humidity check from dock |
+| In-situ photo capture | Docked | 10–30 seconds | Single photo or thermal snapshot from dock |
+| Small aerial survey (<5 acres) | Garage | 5–15 minutes | Parking lot topo, roof inspection |
+| Medium aerial survey (5–50 acres) | Garage | 30–90 minutes | Construction site topo, progress monitoring |
+| Large corridor survey (>50 acres) | Garage | 2–4 hours | Highway corridor, pipeline |
+| Ground LiDAR scan (interior) | Garage | 1–3 hours | Building interior, tunnel segment |
+| GPR subsurface scan | Garage | 1–2 hours | Utility detection, rebar mapping |
+| Confined space inspection | Garage | 30–60 minutes | Tank interior, bridge box girder |
+| Bridge inspection (exterior) | Garage | 45–90 minutes | Deck, substructure, bearings |
 
-3. **Simultaneous auctions** — when an RFP decomposes into 3 tasks, do all 3 auctions run at once (parallel) or sequentially? Parallel is more realistic (different robot types needed), but the demo UI needs to show multiple auction results.
+Docked robots executing in-situ tasks (seconds) become available almost immediately. Garage-deployed robots include implicit travel time in the duration.
 
-4. **Fleet manifest review** — should we review the 100-robot manifest together before registration, or proceed with the plan as-is?
+## 11. Multi-Task Auction Model (Resolved)
+
+When an RFP decomposes into multiple tasks, **all auctions run in parallel**. Each task is an independent auction with its own set of eligible bidders (filtered by sensor capability and geographic radius). A single robot can only win one task from the same RFP (it goes busy after winning).
+
+**Demo UI flow:**
+1. User enters RFP description
+2. Claude decomposes into N tasks and presents breakdown: "This project requires 3 survey tasks: (1) Aerial LiDAR topo — 12 acres, (2) GPR subsurface — utilities, (3) Bridge inspection — 2 structures"
+3. User confirms or edits
+4. All N auctions run simultaneously
+5. Results shown as N winner cards, each with its own operator, bid, and payment
+
+**Implementation:**
+- `auction_post_task` called N times with a shared `rfp_id` linking the tasks
+- Each auction runs independently in the engine
+- Demo feed shows all auctions interleaved: "Task 1: 8 bids received... Task 2: 5 bids received..."
+- Payment: each task settles independently (no bundled payment in v1.5)
+
+## 12. Remaining Open Question
+
+1. **Reputation decay** — seeded reputation is static for initial fleet test. Decay mechanism (reputation decreases if robot is inactive for >30 days) designed but not active until v2.0.
