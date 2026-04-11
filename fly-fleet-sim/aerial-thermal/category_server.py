@@ -96,6 +96,30 @@ CATEGORIES = {
         "task_cats": {"visual_inspection", "bridge_inspection", "env_sensing"},
         "bid_range": (0.68, 0.85),
     },
+    "fixedwing": {
+        "label": "Fixed-Wing VTOL",
+        "sensors": {"aerial_lidar", "photogrammetry", "rtk_gps"},
+        "task_cats": {"topo_survey", "corridor_survey", "env_sensing"},
+        "bid_range": (0.75, 0.92),
+    },
+    "ground_lidar": {
+        "label": "Ground LiDAR",
+        "sensors": {"terrestrial_lidar", "photogrammetry"},
+        "task_cats": {"env_sensing", "as_built", "confined_space"},
+        "bid_range": (0.78, 0.92),
+    },
+    "confined": {
+        "label": "Confined Space",
+        "sensors": {"terrestrial_lidar", "photogrammetry"},
+        "task_cats": {"confined_space", "env_sensing"},
+        "bid_range": (0.80, 0.95),
+    },
+    "fakerover": {
+        "label": "FakeRover",
+        "sensors": {"temperature", "humidity"},
+        "task_cats": {"env_sensing"},
+        "bid_range": (0.60, 0.85),
+    },
 }
 
 
@@ -172,7 +196,7 @@ def build_server(category: str) -> FastMCP:
 
     # ── Category-specific operational tools ────────────────────────
 
-    if category in ("aerial_lidar", "aerial_photo", "aerial_thermal", "skydio"):
+    if category in ("aerial_lidar", "aerial_photo", "aerial_thermal", "skydio", "fixedwing"):
         @mcp.tool
         async def fly_waypoint(latitude: float, longitude: float, altitude_m: float = 60) -> dict:
             """Fly to a GPS waypoint."""
@@ -284,6 +308,82 @@ def build_server(category: str) -> FastMCP:
             """Autonomous inspection scan."""
             return {"status": "inspection_complete", "structure": structure_type,
                     "images_captured": random.randint(50, 200), "anomalies": random.randint(0, 5)}
+
+    elif category == "fixedwing":
+        @mcp.tool
+        async def launch_vtol() -> dict:
+            """VTOL launch sequence."""
+            return {"status": "airborne", "altitude_m": 120, "mode": "cruise"}
+        @mcp.tool
+        async def fly_corridor(start_lat: float, start_lng: float, end_lat: float, end_lng: float) -> dict:
+            """Fly corridor survey between two points."""
+            return {"status": "corridor_complete", "distance_km": round(random.uniform(1, 20), 1), "photos": random.randint(50, 500)}
+        @mcp.tool
+        async def capture_photo() -> dict:
+            """Capture geotagged photo during flight."""
+            return sim_photo()
+        @mcp.tool
+        async def land_vtol() -> dict:
+            """VTOL landing."""
+            return {"status": "landed", "position": sim_gps()}
+        @mcp.tool
+        async def set_flight_plan(waypoints: list) -> dict:
+            """Upload flight plan."""
+            return {"status": "plan_loaded", "waypoints": len(waypoints) if waypoints else 0}
+
+    elif category in ("ground_lidar", "confined"):
+        @mcp.tool
+        async def walk_to(latitude: float, longitude: float) -> dict:
+            """Walk/fly to position."""
+            return {"status": "arrived", "position": sim_gps(latitude, longitude)}
+        @mcp.tool
+        async def scan_360_lidar() -> dict:
+            """360-degree LiDAR scan."""
+            return sim_lidar()
+        @mcp.tool
+        async def capture_photo() -> dict:
+            """Capture photo."""
+            return sim_photo()
+        @mcp.tool
+        async def get_position() -> dict:
+            """Get position."""
+            return sim_gps()
+        @mcp.tool
+        async def check_battery() -> dict:
+            """Check battery."""
+            return sim_battery()
+        if category == "ground_lidar":
+            @mcp.tool
+            async def dock() -> dict:
+                """Return to dock."""
+                return {"status": "docking", "eta_seconds": random.randint(60, 300)}
+            @mcp.tool
+            async def navigate_stairs(direction: str = "up") -> dict:
+                """Navigate stairs."""
+                return {"status": "stairs_complete", "direction": direction}
+        else:
+            @mcp.tool
+            async def detect_obstacle() -> dict:
+                """Detect obstacles."""
+                return {d + "_m": round(random.uniform(0.3, 10), 1) for d in ["front", "rear", "left", "right"]}
+            @mcp.tool
+            async def return_to_pilot() -> dict:
+                """Return to entry point."""
+                return {"status": "returning", "eta_seconds": random.randint(30, 180)}
+
+    elif category == "fakerover":
+        @mcp.tool
+        async def move(direction: str = "forward") -> dict:
+            """Move rover."""
+            return {"status": "moved", "direction": direction, "distance_m": round(random.uniform(0.5, 2.0), 1)}
+        @mcp.tool
+        async def is_online() -> dict:
+            """Check online status."""
+            return {"online": True}
+        @mcp.tool
+        async def get_temperature_humidity() -> dict:
+            """Read temperature and humidity."""
+            return {"temperature_c": round(random.uniform(18, 32), 1), "humidity_pct": round(random.uniform(30, 70), 1)}
 
     return mcp
 

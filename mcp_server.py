@@ -92,7 +92,7 @@ def _discover_onchain_robots():
     query = (
         '{ agentMetadata_collection(where: {key: "fleet_provider", value: "'
         + YAKROVER_HEX
-        + '"}, first: 100) { agent { agentId owner registrationFile { name description active mcpEndpoint } '
+        + '"}, first: 200) { agent { agentId owner registrationFile { name description active mcpEndpoint } '
         'metadata(first: 20) { key value } } } }'
     )
 
