@@ -335,10 +335,10 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 
 ## 11. Implementation Sequence (Comprehensive)
 
-### Current state (as of 2026-04-11, end of Phase 3)
+### Current state (as of 2026-04-11, end of day)
 
 **Completed:**
-- Fleet simulator deployed at `yakrover-fleet-sim.fly.dev/mcp` — 9 categories, 60 tools, always-on ✅
+- Fleet simulator: 9 standalone Fly.io apps (one per category), always-on, each with `robot_submit_bid`/`robot_execute_task`/`robot_get_pricing` + category-specific tools ✅
 - `fleet_manifest.yaml` complete — 100 robots, 18 operators, varied naming ✅
 - Demo discovers Base Sepolia (84532 added to DISCOVERY_CHAINS) and shows all chains ✅
 - Registration backend accepts `is_test`, `latitude`, `longitude`, `service_radius_km`, `home_type` — written as on-chain metadata ✅
@@ -384,7 +384,7 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 13. ✅ All 18 verified via RPC balance check
 14. ✅ Tx hashes logged to `fleet_funding_log.json`
 
-### Phase 4 — Batch registration script
+### Phase 4 — Batch registration script ✅
 15. Write `scripts/register_fleet.py`:
     - Reads `fleet_manifest.yaml` and `.fleet_wallets.json`
     - For each operator → for each robot:
@@ -397,7 +397,7 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 16. Test dry-run mode
 17. Test with 5 robots from different operators — verify ownership, endpoint, metadata, attestation, IPFS tools
 
-### Phase 5 — Full registration (100 robots)
+### Phase 5 — Full registration (100 robots) ✅
 18. Run batch registration for all 100 robots on Base Sepolia
 19. Verify all 100 appear in subgraph with correct metadata
 20. Verify IPFS agent cards have correct category-specific tools
@@ -405,7 +405,7 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 22. Verify attestation filter: only attested robots in marketplace discovery
 23. Verify geo metadata: lat/lng and service_radius readable from subgraph
 
-### Phase 6 — Demo UI updates
+### Phase 6 — Demo UI updates ✅
 24. Replace `FakeRover-` / `Tumbller` name-based filter in `getFilteredRobots()` with `is_test` metadata check
 25. "Demo fleet only" toggle shows `is_test: true` robots; unchecked shows all attested robots
 26. Add "Hide test robots" toggle (new) — for when real operators coexist with test fleet
@@ -413,7 +413,7 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 28. Verify operator profile popup shows correct equipment model, location, category-specific tools for each robot type
 29. Verify IPFS enrichment completes for 100 robots without timeout (may need batch/cache)
 
-### Phase 7 — Bid engine updates
+### Phase 7 — Bid engine updates ✅
 30. Add haversine distance calculation utility
 31. Add geographic hard cutoff filter: robot does not bid if task location > service_radius_km
 32. Extend `auction_post_task` to require `latitude`/`longitude` for the job site
