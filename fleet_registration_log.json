@@ -1,0 +1,172 @@
+[
+  {
+    "name": "GLAS-LIDAR-02",
+    "status": "dry_run",
+    "mcp": "aerial-lidar",
+    "tools": 10,
+    "sensors": [
+      "aerial_lidar",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-LIDAR-03",
+    "status": "dry_run",
+    "mcp": "aerial-lidar",
+    "tools": 10,
+    "sensors": [
+      "aerial_lidar",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-LIDAR-04",
+    "status": "dry_run",
+    "mcp": "aerial-lidar",
+    "tools": 10,
+    "sensors": [
+      "aerial_lidar",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-PHOTO-06",
+    "status": "dry_run",
+    "mcp": "aerial-photo",
+    "tools": 10,
+    "sensors": [
+      "photogrammetry",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-PHOTO-07",
+    "status": "dry_run",
+    "mcp": "aerial-photo",
+    "tools": 10,
+    "sensors": [
+      "photogrammetry",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-SCOUT-08",
+    "status": "dry_run",
+    "mcp": "aerial-photo",
+    "tools": 10,
+    "sensors": [
+      "photogrammetry",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-SCOUT-09",
+    "status": "dry_run",
+    "mcp": "aerial-photo",
+    "tools": 10,
+    "sensors": [
+      "photogrammetry",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "GLAS-SCOUT-10",
+    "status": "dry_run",
+    "mcp": "aerial-photo",
+    "tools": 10,
+    "sensors": [
+      "photogrammetry",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "MCD Matrice-L #2",
+    "status": "dry_run",
+    "mcp": "aerial-lidar",
+    "tools": 10,
+    "sensors": [
+      "aerial_lidar",
+      "rtk_gps"
+    ]
+  },
+  {
+    "name": "MCD Skydio #4",
+    "status": "dry_run",
+    "mcp": "skydio",
+    "tools": 11,
+    "sensors": [
+      "photogrammetry",
+      "thermal_camera"
+    ]
+  },
+  {
+    "name": "GLAS-LIDAR-02",
+    "agent_id": 4472,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreifyt2rbmw36vkk"
+  },
+  {
+    "name": "GLAS-LIDAR-03",
+    "agent_id": 4474,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreih6hnlgcahhchz"
+  },
+  {
+    "name": "GLAS-LIDAR-04",
+    "agent_id": 4475,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreibmbwkhj6drdvu"
+  },
+  {
+    "name": "GLAS-PHOTO-06",
+    "agent_id": 4476,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreiesuo7duwnh2a3"
+  },
+  {
+    "name": "GLAS-PHOTO-07",
+    "agent_id": 4477,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreiawqat5vq5kwgp"
+  },
+  {
+    "name": "GLAS-SCOUT-08",
+    "agent_id": 4478,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreie7ilyf55vgssx"
+  },
+  {
+    "name": "GLAS-SCOUT-09",
+    "agent_id": 4479,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreibzfh2vjfnli3i"
+  },
+  {
+    "name": "GLAS-SCOUT-10",
+    "agent_id": 4480,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreicuzgpz2okxzbb"
+  },
+  {
+    "name": "MCD Matrice-L #2",
+    "agent_id": 4481,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreic74ld7l4ylyxt"
+  },
+  {
+    "name": "MCD Skydio #4",
+    "agent_id": 4482,
+    "status": "ok",
+    "tools": 11,
+    "ipfs": "bafkreidqgqs3qyfcrhy"
+  }
+]
