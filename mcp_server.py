@@ -319,20 +319,13 @@ def build_engine():
             attested = _get_attested_agents()
             if attested:
                 before = len(all_online)
-                all_online = [a for a in all_online if int(getattr(a, 'agent_id_int', 0) or 0) in attested or a.robot_id in [str(aid) for aid in attested]]
-                # Also try matching by parsing agent ID from chain_id:agent_id format
-                attested_ids_str = {str(aid) for aid in attested}
-                all_online_filtered = []
-                for a in real_online + sim_online:
-                    # The adapter stores robot_id as the name, and chain_id as an int
-                    # We need to match against the numeric agent IDs from EAS
-                    # Check if any attested agent_id matches this adapter
-                    # The adapter doesn't have agent_id_int — we need to add it
-                    is_attested = getattr(a, '_agent_id_int', None) in attested
-                    if is_attested:
-                        a._fleet_type = attested.get(getattr(a, '_agent_id_int', 0), "")
-                        all_online_filtered.append(a)
-                all_online = all_online_filtered
+                filtered = []
+                for a in all_online:
+                    aid = getattr(a, '_agent_id_int', None)
+                    if aid is not None and aid in attested:
+                        a._fleet_type = attested[aid]
+                        filtered.append(a)
+                all_online = filtered
                 log("EAS", f"  {before} robots → {len(all_online)} after attestation filter")
             else:
                 log("EAS", "  No attestations found or EAS unavailable — allowing all robots")
