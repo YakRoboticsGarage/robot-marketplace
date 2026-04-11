@@ -334,6 +334,13 @@ def build_engine():
                 log("DISCOVERY", "No attested robots — fleet unchanged")
                 return
 
+            # Log fleet type distribution
+            type_counts = {}
+            for a in all_online:
+                ft = getattr(a, '_fleet_type', 'unset')
+                type_counts[ft] = type_counts.get(ft, 0) + 1
+            log("EAS", f"  Fleet types: {type_counts}")
+
             # Filter by fleet type based on demo mode
             if engine._simulator_only:
                 new_fleet = [a for a in all_online if getattr(a, '_fleet_type', '') in ('demo_fleet', 'live_production')]
