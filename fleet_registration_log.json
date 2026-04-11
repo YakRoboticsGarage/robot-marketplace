@@ -680,5 +680,68 @@
     "status": "ok",
     "tools": 11,
     "ipfs": "bafkreiewuottscpduif"
+  },
+  {
+    "name": "PSS-FLEX-006",
+    "agent_id": 4580,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreiekqq2424y54zd"
+  },
+  {
+    "name": "PSS-WEST-009",
+    "agent_id": 4581,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreih3qcj4pw2gmxh"
+  },
+  {
+    "name": "Wolverine-08",
+    "agent_id": 4582,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreiea622wqi4ccio"
+  },
+  {
+    "name": "SVM Falcon",
+    "agent_id": 4583,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreicnjats62y3qmm"
+  },
+  {
+    "name": "SVM Merlin",
+    "agent_id": 4584,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreicegk4tcttdpss"
+  },
+  {
+    "name": "I94-H5",
+    "agent_id": 4586,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreig7ocutnpvcmkl"
+  },
+  {
+    "name": "BW-Navy",
+    "agent_id": 4587,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreicymbawmcqogvs"
+  },
+  {
+    "name": "MAC-01",
+    "agent_id": 4588,
+    "status": "ok",
+    "tools": 12,
+    "ipfs": "bafkreiflu4jcgooseey"
+  },
+  {
+    "name": "MAC-03",
+    "agent_id": 4589,
+    "status": "ok",
+    "tools": 10,
+    "ipfs": "bafkreibv67aqlawx6f6"
   }
 ]

@@ -185,7 +185,7 @@ operators:
     bid_pct: 0.84
     initial_reputation: 4.4
     is_test: true
-    availability: offline
+    availability: online
   - name: 'MCD Matrice-L #2'
     model: DJI Matrice 350 RTK + Zenmuse L2
     model_key: M350+L2
@@ -414,7 +414,7 @@ operators:
     bid_pct: 0.89
     initial_reputation: 4.2
     is_test: true
-    availability: offline
+    availability: online
   - name: PSS-FLEX-007
     model: DJI Mavic 3 Enterprise RTK
     model_key: Mavic3E
@@ -458,7 +458,7 @@ operators:
     bid_pct: 0.89
     initial_reputation: 4.3
     is_test: true
-    availability: offline
+    availability: online
 - name: Wolverine Robotics
   company: Wolverine Robotics Corp.
   location: Ann Arbor, MI
@@ -584,7 +584,7 @@ operators:
     bid_pct: 0.81
     initial_reputation: 4.4
     is_test: true
-    availability: offline
+    availability: online
   - name: Hawk-09
     model: DJI Matrice 350 RTK + Zenmuse L2
     model_key: M350+L2
@@ -742,7 +742,7 @@ operators:
     bid_pct: 0.77
     initial_reputation: 3.1
     is_test: true
-    availability: offline
+    availability: online
   - name: SVM Osprey
     model: DJI Mavic 3 Enterprise RTK
     model_key: Mavic3E
@@ -787,7 +787,7 @@ operators:
     bid_pct: 0.75
     initial_reputation: 3.1
     is_test: true
-    availability: offline
+    availability: online
   - name: SVM Harrier
     model: Anzu Robotics Raptor RTK
     model_key: AnzuRaptor
@@ -992,7 +992,7 @@ operators:
     bid_pct: 0.77
     initial_reputation: 3.4
     is_test: true
-    availability: offline
+    availability: online
   - name: I94-G6
     model: Boston Dynamics Spot + GSSI StructureScan
     model_key: Spot+GPR
@@ -1150,7 +1150,7 @@ operators:
     bid_pct: 0.73
     initial_reputation: 3.0
     is_test: true
-    availability: offline
+    availability: online
   - name: BW-Cyan
     model: Inspired Flight IF1200
     model_key: IF1200
@@ -1340,7 +1340,7 @@ operators:
     bid_pct: 0.81
     initial_reputation: 2.6
     is_test: true
-    availability: offline
+    availability: online
   - name: MAC-02
     model: DJI Mavic 3 Enterprise RTK
     model_key: Mavic3E
@@ -1368,7 +1368,7 @@ operators:
     bid_pct: 0.81
     initial_reputation: 3.2
     is_test: true
-    availability: offline
+    availability: online
 - name: UP Drone Works
   company: UP Drone Works
   location: Marquette, MI

@@ -2191,7 +2191,7 @@ async function attestRobot(agentId, chainId, robotName) {
   if (!status) return;
 
   if (!window.ethereum) {
-    status.textContent = 'Connect a wallet to attest';
+    status.textContent = 'Install a wallet (MetaMask, Rabby) to attest';
     status.style.color = 'var(--red)';
     return;
   }
@@ -2204,6 +2204,8 @@ async function attestRobot(agentId, chainId, robotName) {
   }
 
   var notes = prompt('Optional notes (or leave blank):', '') || '';
+  var easBase = chainId === 8453 ? 'https://base.easscan.org' : 'https://base-sepolia.easscan.org';
+  var targetChainHex = chainId === 8453 ? '0x2105' : '0x14a34';
 
   status.textContent = 'Connecting wallet...';
   status.style.color = 'var(--text-3)';
@@ -2212,71 +2214,97 @@ async function attestRobot(agentId, chainId, robotName) {
     var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     var attester = accounts[0];
 
-    // Ensure on Base Sepolia
+    // Switch to correct chain
     var currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-    if (currentChain !== '0x14a34') {
-      status.textContent = 'Switch to Base Sepolia...';
+    if (currentChain !== targetChainHex) {
+      status.textContent = 'Switch network...';
       try {
-        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x14a34' }] });
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: targetChainHex }] });
       } catch (e) {
-        status.textContent = 'Please switch to Base Sepolia';
+        status.textContent = 'Please switch to ' + (chainId === 8453 ? 'Base' : 'Base Sepolia');
         status.style.color = 'var(--red)';
         return;
       }
     }
 
-    status.textContent = 'Sign attestation...';
+    status.textContent = 'Preparing attestation...';
 
-    // Encode attestation data: (uint256 agentId, uint256 chainId, string fleetType, string fleetName, string attestorRole, string notes)
-    // Using ethers-style ABI encoding via hex
-    var abiCoder = new (function() {
-      // Minimal ABI encoder for our specific types
-      this.encode = function(agentId, chainId, fleetType, fleetName, role, notes) {
-        // Pack as: uint256, uint256, then dynamic string offsets + data
-        // This is complex to do manually — use EAS SDK approach instead
-        // For now, encode via the contract's attest function directly
-        return null;
-      };
-    })();
+    // ABI-encode the attestation data using ethers.js AbiCoder
+    // Schema: "uint256 agentId,uint256 chainId,string fleetType,string fleetName,string attestorRole,string notes"
+    var coder = new ethers.AbiCoder();
+    var encodedData = coder.encode(
+      ['uint256', 'uint256', 'string', 'string', 'string', 'string'],
+      [agentId, chainId, fleetType, 'yakrover-demo-100', 'community', notes || (robotName + ' attested by ' + attester.slice(0, 8) + '...')]
+    );
 
-    // Build the attest transaction using raw calldata
+    // Build EAS attest() calldata
     // attest((bytes32 schema, (address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value)))
-    // This is complex — let's use eth_abi via a proxy call to our MCP server instead
+    var attestIface = new ethers.Interface([
+      'function attest((bytes32 schema, (address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data, uint256 value) data)) payable returns (bytes32)'
+    ]);
+    var calldata = attestIface.encodeFunctionData('attest', [{
+      schema: EAS_SCHEMA_UID,
+      data: {
+        recipient: '0x0000000000000000000000000000000000000000',
+        expirationTime: 0,
+        revocable: true,
+        refUID: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        data: encodedData,
+        value: 0,
+      }
+    }]);
 
-    // Call our MCP server to create the attestation from the platform wallet
-    var tunnelUrl = document.getElementById('tunnelUrl').value.trim().replace(/\/+$/, '');
-    var resp = await fetch(tunnelUrl + '/api/tool/auction_eas_attest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agent_id: agentId,
-        chain_id: chainId,
-        fleet_type: fleetType,
-        fleet_name: 'yakrover-demo-100',
-        attestor_role: 'community',
-        notes: notes || (robotName + ' attested by ' + attester.slice(0, 8) + '...'),
-        attester_address: attester,
-      }),
+    status.textContent = 'Sign in wallet...';
+
+    // Send transaction from user's wallet
+    var txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: attester,
+        to: EAS_ADDRESS,
+        data: calldata,
+        value: '0x0',
+      }],
     });
 
-    if (!resp.ok) {
-      // Fallback: create attestation directly from browser wallet
-      // For now, show the EAS explorer link where they can do it manually
-      status.innerHTML = 'Server attestation not available. <a href="https://base-sepolia.easscan.org/schema/view/' + EAS_SCHEMA_UID + '" target="_blank" style="color:var(--link)">Attest on EAS</a>';
-      return;
+    status.innerHTML = 'Sent! <a href="' + easBase + '/attestation/view/' + txHash + '" target="_blank" style="color:var(--link)">Waiting for confirmation...</a>';
+    status.style.color = 'var(--text-3)';
+
+    // Poll for receipt
+    var receipt = null;
+    for (var attempt = 0; attempt < 30; attempt++) {
+      await new Promise(function(r) { setTimeout(r, 2000); });
+      receipt = await window.ethereum.request({
+        method: 'eth_getTransactionReceipt',
+        params: [txHash],
+      });
+      if (receipt) break;
     }
 
-    var data = await resp.json();
-    var result = data.result || data;
-    if (result.attestation_uid) {
-      status.innerHTML = 'Attested! <a href="https://base-sepolia.easscan.org/attestation/view/' + result.attestation_uid + '" target="_blank" style="color:var(--link)">View on EAS</a>';
+    if (receipt && receipt.status === '0x1') {
+      // Extract attestation UID from logs
+      var uid = txHash; // fallback
+      if (receipt.logs && receipt.logs.length > 0) {
+        for (var i = 0; i < receipt.logs.length; i++) {
+          var log = receipt.logs[i];
+          if (log.address.toLowerCase() === EAS_ADDRESS.toLowerCase() && log.data && log.data.length >= 66) {
+            uid = '0x' + log.data.slice(2, 66);
+            break;
+          }
+        }
+      }
+      status.innerHTML = 'Attested! <a href="' + easBase + '/attestation/view/' + uid + '" target="_blank" style="color:var(--link)">View on EAS</a>';
       status.style.color = 'var(--green)';
     } else {
-      status.textContent = result.error || 'Attestation failed';
+      status.textContent = 'Transaction failed';
       status.style.color = 'var(--red)';
     }
   } catch (e) {
-    status.textContent = 'Error: ' + (e.message || e).toString().slice(0, 60);
+    if (e.code === 4001) {
+      status.textContent = 'Rejected by user';
+    } else {
+      status.textContent = 'Error: ' + (e.message || e).toString().slice(0, 60);
+    }
     status.style.color = 'var(--red)';
   }
 }
