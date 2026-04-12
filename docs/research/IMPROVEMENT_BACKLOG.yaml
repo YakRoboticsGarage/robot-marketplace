@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-11'
-  total_items: 51
-  implemented: 10
+  last_updated: '2026-04-12'
+  total_items: 63
+  implemented: 15
   deferred: 4
   rejected: 1
-  proposed: 36
-  source: Automated daily research agent + weekly synthesis
-  last_sync: "daily-sync (2026-04-11) — added IMP-050 (auction_eas_attest ignores chain_id in TX routing), IMP-051 (delete stale fallback block in mcp_robot_adapter.py)"
+  proposed: 43
+  source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
+  last_sync: "manual-sync (2026-04-12) — merged 12 items from 100-robot fleet backlog (IMP-052 to IMP-063), resolved IMP-051"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -857,7 +857,155 @@ proposals:
   evidence: 'auction/mcp_robot_adapter.py line 348: TODO: Remove entirely once dynamic resolution is verified in production. — 100-robot fleet deployed and attested post-v1.4; dynamic resolution confirmed'
   effort: trivial
   priority: low
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-11'
+  decision_date: '2026-04-12'
+  decision_notes: Deleted 16 lines of dead tumbller/fakerover hardcoded tool fallback. Dynamic _resolve_tools() verified across 100 robots and 9 categories.
+# ============================================================
+# v1.4.1 100-Robot Fleet Sprint Items (2026-04-12)
+# Source: docs/BACKLOG.md merged into canonical backlog
+# ============================================================
+- id: IMP-052
+  title: Delivery schema end-to-end verification across all 9 RFP presets
+  description: 'Category-specific delivery schemas implemented (auction/delivery_schemas.py) with 8 schema types mapped to 17 task categories. Category servers updated to return matching structured data. Auto-injection in engine.py. Adapter passes through category-specific delivery_data. GPR tested — need to verify remaining 8 presets (LiDAR, photo, thermal, bridge, corridor, tunnel, confined, env_sensing) pass QA end-to-end.'
+  module: M35_deliverable_qa
+  research_source: v1.4.1-fleet-sprint
+  evidence: auction/delivery_schemas.py, fly-fleet-sim/category_server.py
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-12'
   decision_date: null
   decision_notes: null
+- id: IMP-053
+  title: Realistic delivery payload data quality per survey standard
+  description: 'Current simulated data has correct structure but randomly generated values. Should align with industry standards: ASPRS accuracy classes for LiDAR (RMSEz 0.02-0.08m), ASCE 38 quality levels for GPR, ASTM C1153 for thermal, NBI condition states for bridges, USIBD LOA for terrestrial. Research output from R-052 agent has detailed specs per category. Add sensor model names, standards compliance fields, realistic file size estimates.'
+  module: M35_deliverable_qa
+  research_source: R-052
+  evidence: Research agent output (survey deliverable formats)
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-054
+  title: Sensor vocabulary management — canonical registry + term mapping
+  description: 'Claude generates sensors_required from RFP text. Sometimes produces names not in fleet vocabulary (e.g., robotic_total_station). Fleet has finite set: aerial_lidar, gpr, photogrammetry, thermal_camera, rtk_gps, terrestrial_lidar, temperature, humidity. Need: (a) canonical sensor registry in auction/core.py, (b) mapping layer for equivalent terms (total_station → rtk_gps, lidar → aerial_lidar), (c) graceful fallback for unknown sensors (suggest closest match, not silent fail). New sensor types should be addable without code changes.'
+  module: M1_core_types
+  research_source: v1.4.1-fleet-sprint
+  evidence: 'RFP preset "Aerial LiDAR Topo" generated robotic_total_station sensor, excluding GLAS-LIDAR-01 which has aerial_lidar+rtk_gps'
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-055
+  title: Multi-task RFP decomposition with parallel auctions
+  description: 'One RFP can require multiple survey types (e.g., I-94 = aerial topo + GPR subsurface + bridge inspection). Currently posts one task per Hire Operator click. Need: Claude decomposes into N tasks, user sees preview and confirms, N auctions run in parallel with shared rfp_id, N winner cards displayed. Each task settles independently. Reference: docs/research/automated/R-051_imr_llm_multi_robot_task_planning.md (disjunctive graphs for scheduling).'
+  module: M2_auction_engine
+  research_source: R-051
+  evidence: docs/PLAN_100_ROBOT_FLEET.md Phase 8
+  effort: large
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-056
+  title: RFP corpus expansion to 50 Michigan projects
+  description: 'docs/research/market/RESEARCH_MICHIGAN_RFP_EXAMPLES.md has 43 Michigan RFPs researched. Need 7 more to reach 50 target. Each decomposed into structured task specs with lat/lng coordinates. Sources: MDOT bid lettings, RCOC, DWSD CIP, EGLE dam program, MSU/U-M campus projects.'
+  module: M30_rfp_processing
+  research_source: v1.4.1-fleet-sprint
+  evidence: docs/research/market/RESEARCH_MICHIGAN_RFP_EXAMPLES.md
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-057
+  title: EAS attestation frontend performance optimization
+  description: 'Frontend sidebar queries EAS GraphQL at page load (~500 attestations across 2 chains). At 100 robots takes 1-2s. At 1000+ could become slow or hit rate limits. Consider caching attestations server-side or in localStorage with 5-min TTL.'
+  module: M41_demo_frontend
+  research_source: v1.4.1-fleet-sprint
+  evidence: docs/mcp_demo_5/index.html loadEASAttestations function
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-058
+  title: EAS attestation as registration gate (not just discovery filter)
+  description: 'Currently EAS attestation filters at discovery time (post-registration). For production: attestation should gate marketplace participation — unattested robots can register on-chain but do not appear in discovery until platform attests. Separates "registered on ERC-8004" from "verified by marketplace". The auction_eas_attest MCP tool exists for platform admin use. Design: auto-attest on registration vs manual review queue vs verification checklist.'
+  module: M42_attestation
+  research_source: v1.4.1-fleet-sprint
+  evidence: scripts/eas_attest.py, auction/mcp_tools.py (auction_eas_attest)
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-059
+  title: IPFS vs off-chain delivery storage architecture
+  description: 'Current delivery payloads are small JSON metadata uploaded to IPFS via Pinata. Real survey deliverables are 50MB-10GB. IPFS is impractical for multi-GB files. Need: metadata manifest on IPFS (what was delivered + content hashes), actual files on off-chain storage (S3 presigned URLs, Filecoin CIDs, or operator-hosted). Buyer downloads from off-chain, verifies hash against IPFS manifest.'
+  module: M35_deliverable_qa
+  research_source: v1.4.1-fleet-sprint
+  evidence: docs/PLAN_100_ROBOT_FLEET.md Phase 10
+  effort: large
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: null
+- id: IMP-060
+  title: IPFS enrichment scaling (batch/cache for 1000+ robots)
+  description: 'Frontend fetches each robot IPFS card in batches of 10. Works at 100 robots. At 1000+ need server-side cache (cache tool lists per MCP endpoint URL) or aggregated query.'
+  module: M41_demo_frontend
+  research_source: v1.4.1-fleet-sprint
+  evidence: docs/mcp_demo_5/index.html enrichRobotsFromIPFS function
+  effort: small
+  priority: low
+  status: deferred
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: Defer until robot count exceeds 200.
+- id: IMP-061
+  title: Sidebar virtualization for 1000+ robots
+  description: '100 DOM elements render fine. At 1000+ needs virtual scroll or pagination to prevent browser lag.'
+  module: M41_demo_frontend
+  research_source: v1.4.1-fleet-sprint
+  evidence: docs/mcp_demo_5/index.html renderRobotsSidebar
+  effort: medium
+  priority: low
+  status: deferred
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: Defer until robot count exceeds 300.
+- id: IMP-062
+  title: Parallel bid engine with async concurrency
+  description: 'bid_engine() calls are sequential per eligible robot via MCPRobotAdapter. 20 eligible = 20 serial HTTP calls (~2s each = 40s). Convert to asyncio.gather with per-robot timeout (10s) for parallel bidding. Cap at 30 concurrent requests.'
+  module: M2_auction_engine
+  research_source: v1.4.1-fleet-sprint
+  evidence: auction/engine.py get_bids method
+  effort: medium
+  priority: low
+  status: deferred
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: Defer until auction latency becomes user-facing issue.
+- id: IMP-063
+  title: Subgraph pagination for 200+ robots per chain
+  description: 'Subgraph query uses first:200. At 200+ robots per chain needs cursor-based pagination. Both server-side (mcp_server.py) and frontend (index.html) queries affected.'
+  module: M41_demo_frontend
+  research_source: v1.4.1-fleet-sprint
+  evidence: mcp_server.py, docs/mcp_demo_5/index.html
+  effort: small
+  priority: low
+  status: deferred
+  proposed_date: '2026-04-12'
+  decision_date: null
+  decision_notes: Defer until approaching 200 robots on a single chain.
