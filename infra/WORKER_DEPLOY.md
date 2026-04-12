@@ -8,7 +8,7 @@ Proxies chat from yakrobot.bid to the Anthropic API. Keeps the API key server-si
 yakrobot.bid (static, here.now)
   └── chat widget (JS in demo/index.html)
         └── POST /api/chat
-              └── Cloudflare Worker (yakrobot-chat)
+              └── Cloudflare Worker (yakrobot-api)
                     └── Anthropic Messages API (streaming)
 ```
 
@@ -39,7 +39,7 @@ Update `CHAT_API` in `demo/index.html` to `http://localhost:8787/api/chat` for l
 
 ```bash
 npx wrangler deploy
-# Outputs: https://yakrobot-chat.<your-subdomain>.workers.dev
+# Outputs: https://yakrobot-api.<your-subdomain>.workers.dev
 ```
 
 ## Route to yakrobot.bid/api/chat
@@ -53,7 +53,7 @@ custom_domain = true
 ```
 
 Or configure in the Cloudflare dashboard:
-1. Go to Workers & Pages > yakrobot-chat > Settings > Triggers
+1. Go to Workers & Pages > yakrobot-api > Settings > Triggers
 2. Add route: `yakrobot.bid/api/*`
 3. Select the zone for yakrobot.bid
 
@@ -78,7 +78,7 @@ var CHAT_API = '/api/chat';
 
 For production without custom route (use the workers.dev URL):
 ```js
-var CHAT_API = 'https://yakrobot-chat.<subdomain>.workers.dev/api/chat';
+var CHAT_API = 'https://yakrobot-api.<subdomain>.workers.dev/api/chat';
 ```
 
 ## Cost

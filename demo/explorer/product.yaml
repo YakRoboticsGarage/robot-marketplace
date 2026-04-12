@@ -1789,7 +1789,7 @@ architecture:
         description: "Live auction demo — Claude orchestrates real MCP tools, 3-method payment (Card/ACH/USDC)"
         source: docs/mcp_demo_5/index.html
     worker:
-      name: yakrobot-chat
+      name: yakrobot-api
       platform: "Cloudflare Workers"
       endpoints:
         - "POST /api/chat — chatbot proxy to Anthropic API (streaming)"
@@ -1828,7 +1828,7 @@ architecture:
         demo/index.html .............. Main demo (interactive walkthrough)
         docs/mcp_demo_5/index.html ... Live MCP demo (Claude + real auction + 3-method payment)
         docs/site/ ................... YAML ontology explorer
-      yakrobot-chat (Cloudflare Worker)
+      yakrobot-api (Cloudflare Worker)
         /api/chat .................... Chatbot → Anthropic Messages API (streaming)
         /api/demo .................... Tool-use loop → MCP server (non-streaming)
         /api/create-ach-intent ....... Stripe ACH PaymentIntent
