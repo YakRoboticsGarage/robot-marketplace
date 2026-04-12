@@ -53,9 +53,9 @@
 meta:
   name: "Robot Task Auction Marketplace"
   project: yakrover-auction-explorer
-  schema_version: "2.5"
-  updated: "2026-04-10"
-  provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-08 with v1.1-v1.3 implementation state (real robot, USDC mainnet, ACH, 3-method payment). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
+  schema_version: "2.6"
+  updated: "2026-04-12"
+  provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-12 with v1.1-v1.4.1 implementation state (real robot, USDC mainnet, ACH, 3-method payment). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
   license: "Proprietary — YAK Robotics Garage"
 
 # [Entry 5] Closed enum declarations for machine-readability
@@ -119,7 +119,7 @@ talisman_metadata:
   staleness_policy:
     max_age_days: 30
     refresh_trigger: "Any bet confidence changes by > 0.15 or a phase gate is crossed"
-    last_refresh: "2026-04-10 (v2.5 — v1.4 single-chain registration; MCP tools: 36; DSL: 3623 lines)"
+    last_refresh: "2026-04-12 (v2.6 — v1.4.1 100-robot fleet, EAS attestation, delivery schemas, repo restructure)"
 
 executive_summary:
   core_problem:

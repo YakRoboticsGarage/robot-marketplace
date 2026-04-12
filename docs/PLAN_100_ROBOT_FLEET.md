@@ -335,34 +335,29 @@ This diversity is intentional — it tests that the marketplace handles heteroge
 
 ## 11. Implementation Sequence (Comprehensive)
 
-### Current state (as of 2026-04-11, end of day)
+### Current state (as of 2026-04-12)
 
 **Completed:**
-- Fleet simulator: 9 standalone Fly.io apps (one per category), always-on, each with `robot_submit_bid`/`robot_execute_task`/`robot_get_pricing` + category-specific tools ✅
-- `fleet_manifest.yaml` complete — 100 robots, 18 operators, varied naming ✅
+- Fleet simulator: 9 standalone Fly.io apps (one per category) in `infra/fleet-sim/`, always-on, each with `robot_submit_bid`/`robot_execute_task`/`robot_get_pricing` + category-specific tools ✅
+- `data/fleet_manifest.yaml` complete — 100 robots, 18 operators, varied naming ✅
 - Demo discovers Base Sepolia (84532 added to DISCOVERY_CHAINS) and shows all chains ✅
 - Registration backend accepts `is_test`, `latitude`, `longitude`, `service_radius_km`, `home_type` — written as on-chain metadata ✅
 - MCP server discovery queries both Base mainnet + Base Sepolia (was mainnet only) ✅
 - 18 operator wallets generated (`.fleet_wallets.json`, gitignored) and funded (0.003 ETH each on Base Sepolia) ✅
-- 5 test robots (#4292-4296) updated: MCP endpoint corrected to `yakrover-fleet-sim.fly.dev/mcp`, geo/equipment/sensor metadata added (some via retry due to nonce collisions). Owned by platform signer (not operator wallets — pre-date Phase 3). ✅
-
-**Attestation decision:**
-- Metadata-based attestation (`attested_by`/`attestation_status`) removed — `setMetadata` is owner-only on ERC-8004, so platform can't attest operator-owned robots.
-- EAS (Ethereum Attestation Service) planned as the correct mechanism. EAS on Base Sepolia: `0x4200000000000000000000000000000000000021`. Not yet implemented.
-- For now, `fleet_provider == yakrover` is the only discovery filter.
-
-**Lessons learned from 5-robot test:**
-- SDK `setMetadata(dict)` fires one tx per key without waiting → nonce collisions. Batch registration via `register()` bundles all metadata in one tx — no issue for new robots.
-- Updating existing robots requires one-key-at-a-time with 5s delays.
-- `registerIPFS()` on existing agents works correctly for updating MCP endpoint and IPFS card.
-- Subgraph indexing takes 1-5 minutes after on-chain writes.
+- 5 test robots (#4292-4296) updated and transferred to operator wallets ✅
+- EAS attestation: 100 demo_fleet (Base Sepolia) + 1 live_production Tumbller (Base mainnet) ✅
+- EAS-based discovery filtering on both server and frontend ✅
+- Geographic hard cutoff filter (haversine distance > service_radius_km) ✅
+- Busy state tracking (task-type-specific durations, 15s to 2hr) ✅
+- 8 category-specific delivery schemas (`auction/delivery_schemas.py`) ✅
+- Category servers return schema-matching delivery data ✅
+- Mole-04B (#4419) retired — is_test=false, deactivated, attestation revoked ✅
+- Repo restructured: `demo/marketplace/`, `infra/fleet-sim/`, `data/`, `docs/architecture/` ✅
 
 **Not started:**
-- `simulatorOnly` filter still uses `FakeRover-` name prefix — needs metadata-based filter
-- Bid engine has NO geographic filtering or busy state tracking
-- Demo UI has NO multi-task decomposition preview
-- Batch registration script not yet written
-- 95 remaining robots not registered
+- Multi-task RFP decomposition (Phase 8)
+- RFP corpus expansion to 50 (Phase 9, currently 43)
+- End-to-end verification of all 9 RFP presets through QA (Phase 11)
 
 ### Phase 1 — Backend registration updates ✅
 1. ✅ Add `is_test` parameter to `auction_register_robot_onchain` — write as on-chain metadata
