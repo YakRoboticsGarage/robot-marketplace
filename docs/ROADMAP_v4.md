@@ -595,6 +595,7 @@ Marco's assistant posts a construction survey task with structured specs -- accu
 - No auto-generated subcontracts (v2.0)
 - No automated ACORD 25 parsing (v2.0) -- v1.5 captures COI fields manually
 - No PLS license board API integration (v2.0) -- v1.5 captures license number and expiration only
+- No MPP/SPT agent-initiated payment (v2.0) -- see R-053
 - No escrow milestone management (v2.5)
 - No retainage tracking (v2.5)
 - No lien waiver automation (v2.5)
@@ -625,6 +626,14 @@ Diane posts an inspection with `privacy: true`. Her task spec is encrypted, matc
 - Robot-to-robot schedule coordination: airspace deconfliction, sequential access
 - Merged deliverable package: all subtask outputs combined into one data delivery
 - Upstream PRs: `bid()` on `RobotPlugin`, fleet MCP auction tools
+
+**Agent-initiated payment (MPP):**
+- Stripe Machine Payments Protocol integration for buyer agent (R-053)
+- Controller pre-authorizes Shared Payment Token (SPT) with spending limit
+- Claude agent pays via SPT on task award — no human checkout form
+- Backend: Stripe Connect holds funds (manual capture), releases on QA pass
+- Hybrid: MPP front-end (agent autonomy) + Connect back-end (escrow safety)
+- Requires: MPP enabled on Stripe account, `mppx` server-side handler
 
 **Construction-specific features:**
 - **Project-based task grouping:** All tasks for SR-89A live under one project. Pre-bid, monthly monitoring, and as-built linked to same baseline.

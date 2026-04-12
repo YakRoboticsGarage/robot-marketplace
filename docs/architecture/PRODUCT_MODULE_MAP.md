@@ -2,7 +2,7 @@
 
 A landscape view of every distinct component in the YAK ROBOTICS marketplace. Each module is an independently-scoped unit of development with defined inputs, outputs, and responsibilities.
 
-**Updated:** 2026-04-05 | **Modules:** 39 | **Built:** 30 | **Building:** 1 | **Gaps:** 1 | **Planned:** 3 | **Deferred:** 4
+**Updated:** 2026-04-12 | **Modules:** 48 | **Built:** 39 | **Planned:** 5 | **Deferred:** 4
 
 ---
 
@@ -130,8 +130,8 @@ Buyer --> [M14: Wallet Ledger] --> [M15: Stripe Service]
 | M17 | **On-Chain Escrow** | Planned (v1.1 Phase 3) | `contracts/RobotTaskEscrow.sol` (not yet created) | Base USDC escrow: hold on acceptance, release on delivery, refund on timeout. Commitment hash memos (FD-4). |
 | M18 | **x402 Middleware** | Deferred | — | Reserved for agent-to-robot control sessions (Tumbller). NOT used for marketplace settlement (critique found wrong abstraction). |
 | M37 | **Splits Distribution** | Deferred | — | Splits.org for production-scale multi-operator distribution. Not needed for demo (direct USDC transfer to robot wallet is simpler). |
-| M38 | **Browser Wallet Connect** | Built | `docs/mcp_demo_2/` | Commit-on-hire gasless USDC. Buyer signs permit on award (no money moves), payment executes on delivery acceptance. Rabby, MetaMask, Coinbase Wallet. Base + Ethereum mainnet. |
-| M39 | **Permit Relay** | Built | `chatbot/src/index.js` (`/api/commit-payment`, `/api/execute-payment`) | Two-phase: stores signed permit in KV on commit, submits on-chain on execute. Balance checks, expiry handling, double-execution prevention. Relay wallet `0x4b59...0d9`. |
+| M38 | **Browser Wallet Connect** | Built | `demo/marketplace/` | Commit-on-hire gasless USDC. Buyer signs permit on award (no money moves), payment executes on delivery acceptance. Rabby, MetaMask, Coinbase Wallet. Base + Ethereum mainnet. |
+| M39 | **Permit Relay** | Built | `worker/src/index.js` (`/api/commit-payment`, `/api/execute-payment`) | Two-phase: stores signed permit in KV on commit, submits on-chain on execute. Balance checks, expiry handling, double-execution prevention. Relay wallet `0x4b59...0d9`. |
 
 ---
 
@@ -146,7 +146,7 @@ Robot --> [M19: ERC-8004 Bridge] --> Agent Card (on-chain)
 
 | # | Module | Status | Key Files | Description |
 |---|--------|--------|-----------|-------------|
-| M19 | **ERC-8004 Discovery Bridge** | Built | `auction/discovery_bridge.py`, `docs/mcp_demo_2/` (browser subgraph+RPC) | Server-side: adapts RobotPlugin to engine. Browser-side: direct subgraph query (`fleet_provider: yakrover`) + `getAgentWallet()` RPC call. No server dependency for discovery. |
+| M19 | **ERC-8004 Discovery Bridge** | Built | `auction/discovery_bridge.py`, `demo/marketplace/` (browser subgraph+RPC) | Server-side: adapts RobotPlugin to engine. Browser-side: direct subgraph query (`fleet_provider: yakrover`) + `getAgentWallet()` RPC call. No server dependency for discovery. |
 | M20 | **Reputation Tracker** | Built | `auction/reputation.py` | Rolling 30-day window: completion rate, on-time rate, rejection rate. Records task outcomes. Used in bid scoring (15% weight). |
 | M21 | **BBS+ Credential Schema** | Designed | — | Privacy-compatible reputation: selective disclosure of task count, success rate, capability attestations. Earth real-time + Lunar DTN update protocols. |
 
@@ -194,9 +194,9 @@ yakrobot.bid/mcp-demo --> [M28: MCP Demo]
 
 | # | Module | Status | Key Files | Description |
 |---|--------|--------|-----------|-------------|
-| M27 | **Demo Site** | Built | `demo/index.html` | Interactive MDOT I-94 walkthrough. 6-step flow. Operator sign-up. Live feed. Mobile responsive. Hosted on here.now. |
-| M28 | **MCP Demo** | Built | `docs/mcp_demo/index.html` | Claude orchestrates real auction via tool_use loop. Step feed with markdown rendering. Tunnel URL input. |
-| M29 | **Chatbot Worker** | Built | `chatbot/src/index.js` | Cloudflare Worker: streaming chat proxy to Anthropic API. Rate-limited. Injection-protected. Demo tool_use loop endpoint. |
+| M27 | **Demo Site** | Built | `demo/landing/index.html` | Interactive MDOT I-94 walkthrough. 6-step flow. Operator sign-up. Live feed. Mobile responsive. Hosted on here.now. |
+| M28 | **MCP Demo** | Built | `demo/marketplace/index.html` | Claude orchestrates real auction via tool_use loop. Step feed with markdown rendering. Tunnel URL input. |
+| M29 | **Chatbot Worker** | Built | `worker/src/index.js` | Cloudflare Worker (yakrobot-api): payment endpoints, demo proxy, feedback. Rate-limited. Injection-protected. Demo tool_use loop endpoint. |
 
 ---
 
@@ -217,6 +217,55 @@ Engine events --> [M30: Event Log] --> [M31: Task Feed API]
 | M32 | **Buyer Dashboard** | Planned | — | "Where's my survey?" Task timeline, SLA countdown, project rollup, payment status. UberEats-style tracking. |
 | M33 | **Operator Dashboard** | Planned | — | "What's on my plate?" Task discovery, active jobs, progress reporting, earnings, compliance alerts. |
 | M34 | **Admin Console** | Planned | — | "How's the platform?" GMV, task volume, SLA rates, operator health, dispute queue, financials. |
+
+---
+
+## 10. FLEET MANAGEMENT (v1.4.1)
+
+```
+Fleet Manifest --> [M46: Batch Registration] --> Base Sepolia
+                          |
+                    [M47: Fleet Manifest]
+                          |
+                    [M40: Fleet Simulator] --> 9 Fly.io apps
+                          |
+                    [M41: MCP Robot Adapter] <--> Robot MCP servers
+                          |
+                    [M42: Delivery Schemas] --> [M35: Deliverable QA]
+```
+
+| # | Module | Status | Key Files | Description |
+|---|--------|--------|-----------|-------------|
+| M40 | **Fleet Simulator** | Built | `infra/fleet-sim/category_server.py` | 9 standalone FastMCP servers (Fly.io always-on). Each implements `robot_submit_bid`, `robot_execute_task`, `robot_get_pricing` per 8004 protocol + category-specific tools. Categories: aerial-lidar, aerial-photo, aerial-thermal, ground-gpr, skydio, fixedwing, ground-lidar, confined, fakerover. |
+| M41 | **MCP Robot Adapter** | Built | `auction/mcp_robot_adapter.py` | Bridges marketplace to robot MCP servers. Dynamic tool resolution via `_resolve_tools()`. Passes through category-specific delivery data. Accepts sensor + equipment metadata from discovery. |
+| M42 | **Delivery Schemas** | Built | `auction/delivery_schemas.py` | 8 category-specific QA schemas mapped to 17 task categories. Auto-injected by engine if not in task spec. Schemas: aerial_lidar (ASPRS/USGS), aerial_photo (GeoTIFF), ground_gpr (DZT/ASCE 38), thermal (ASTM C1153), bridge (NBI), ground_lidar (E57), confined (SLAM/PLY), env_sensing. |
+| M43 | **EAS Attestation** | Built | `scripts/eas_attest.py`, `auction/mcp_tools.py` | EAS on Base Sepolia + mainnet. Schema: agentId, chainId, fleetType, fleetName, attestorRole, notes. 100 demo_fleet + 1 live_production. Server + frontend filter by attestation. UI button signs from user wallet. Revocable. |
+| M44 | **Geographic Filter** | Built | `auction/core.py`, `auction/engine.py` | Haversine hard cutoff. Robot excluded if task > service_radius_km. Coordinates from on-chain metadata. |
+| M45 | **Busy State** | Built | `auction/engine.py` | `_busy_until` timestamp set on bid acceptance. Duration per task type (15s to 2hr). Robot excluded from bidding while busy. |
+| M46 | **Batch Registration** | Built | `scripts/register_fleet.py` | Reads `data/fleet_manifest.yaml` + `.fleet_wallets.json`. Registers from operator wallets. Discovers tools from category servers. Sets is_test via raw web3. Resume mode (skips already-registered). |
+| M47 | **Fleet Manifest** | Built | `data/fleet_manifest.yaml` | 100 robots, 18 Michigan operators, 14 real commercial models. Coordinates, service radius, bid aggressiveness, reputation seeds, home type. |
+
+---
+
+## 11. AGENTIC PAYMENTS (Planned v2.0)
+
+```
+Controller --> [M48: MPP/ACP] --> SPT (Shared Payment Token)
+                    |
+              Agent (Claude)
+                    |
+              awards task --> sends SPT to marketplace
+                    |
+              [M16: Settlement Router] --> Stripe Connect (hold → capture → transfer)
+```
+
+| # | Module | Status | Key Files | Description |
+|---|--------|--------|-----------|-------------|
+| M48 | **MPP/ACP Integration** | Planned (v2.0) | — | Stripe Machine Payments Protocol for agent-initiated payment. Controller pre-authorizes SPT with spending limit. Agent pays via SPT on task award — no human checkout. Backend still uses Stripe Connect for escrow (hold → QA → capture → operator transfer). See R-053. |
+
+**Key insight (R-053):** MPP solves payment INITIATION (agent pays autonomously). Stripe Connect solves payment SETTLEMENT (escrow + multi-party split). The two compose: MPP front-end + Connect back-end.
+
+**Not adopting now** because MPP lacks escrow, multi-party split, and dispute resolution — all required for construction-scale tasks.
 
 ---
 
@@ -299,9 +348,9 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposit
 | M24 MCP Tool Layer | `auction/mcp_tools.py` |
 | M25 REST API | `auction/api.py` |
 | M26 MCP Server | `mcp_server.py` |
-| M27 Demo Site | `demo/index.html` |
-| M28 MCP Demo | `docs/mcp_demo/index.html` |
-| M29 Chatbot Worker | `chatbot/src/index.js` |
+| M27 Demo Site | `demo/landing/index.html` |
+| M28 MCP Demo | `demo/marketplace/index.html` |
+| M29 Chatbot Worker | `worker/src/index.js` |
 | M30 Event Log | `auction/events.py` |
 | M31 Task Feed API | `auction/mcp_tools.py` |
 | M32 Buyer Dashboard | (planned) |
@@ -310,5 +359,14 @@ M21 (BBS+ Credentials), ERC-8004 agent card extensions, compound task decomposit
 | M35 Deliverable QA | `auction/deliverable_qa.py` |
 | M36 PLS Review & Stamp | (gap — PLS-as-a-service routing + electronic seal) |
 | M37 Splits Distribution | (deferred — direct transfer for demo, Splits for production scale) |
-| M38 Browser Wallet Connect | `docs/mcp_demo_2/` (gasless USDC, ERC-2612 permit) |
-| M39 Permit Relay | `chatbot/src/index.js` (`/api/relay-usdc`) |
+| M38 Browser Wallet Connect | `demo/marketplace/` (gasless USDC, EIP-3009) |
+| M39 Permit Relay | `worker/src/index.js` (`/api/commit-payment`, `/api/execute-payment`) |
+| M40 Fleet Simulator | `infra/fleet-sim/category_server.py` |
+| M41 MCP Robot Adapter | `auction/mcp_robot_adapter.py` |
+| M42 Delivery Schemas | `auction/delivery_schemas.py` |
+| M43 EAS Attestation | `scripts/eas_attest.py`, `auction/mcp_tools.py` (auction_eas_attest) |
+| M44 Geographic Filter | `auction/core.py` (haversine_km), `auction/engine.py` |
+| M45 Busy State | `auction/engine.py` (accept_bid → _busy_until) |
+| M46 Batch Registration | `scripts/register_fleet.py` |
+| M47 Fleet Manifest | `data/fleet_manifest.yaml` |
+| M48 MPP/ACP Integration | (planned v2.0 — see R-053) |
