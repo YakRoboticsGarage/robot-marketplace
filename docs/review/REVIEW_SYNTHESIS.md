@@ -1,7 +1,7 @@
 # Demo UI Code Review — Synthesis
 
 **Date:** 2026-04-09
-**File reviewed:** `docs/mcp_demo_5/index.html` (~3,460 lines), `mcp_server.py`, `auction/mcp_tools.py`, `auction/mock_fleet.py`
+**File reviewed:** `demo/marketplace/index.html` (~3,460 lines), `mcp_server.py`, `auction/mcp_tools.py`, `auction/mock_fleet.py`
 **Agents:** 7 (Buyer Journey, Operator Registration, Frontend Code Quality, Backend Code Quality, Deployment & CI/CD, Admin Journey, Visual Design)
 
 ---

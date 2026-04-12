@@ -154,7 +154,7 @@ Add to request router:
 
 ### Module 5: Frontend — Payment method selector in Dispatch phase
 
-**File:** `docs/mcp_demo_5/index.html`
+**File:** `demo/marketplace/index.html`
 
 Replace the current single payment button in `renderPaymentOptions()` with three method buttons:
 

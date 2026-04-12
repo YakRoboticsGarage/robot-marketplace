@@ -3059,7 +3059,7 @@ gtm:
       playbook: docs/_to_move/wave1/GC_ENGAGEMENT_PACKAGE.md
     - name: "Direct outreach to 14 target Michigan operators"
       stage: phase:v1.5
-      playbook: docs/wave1/OPERATOR_ENGAGEMENT_PACKAGE.md
+      playbook: docs/_to_move/wave1/OPERATOR_ENGAGEMENT_PACKAGE.md
     - name: "MDOT pilot program via SSI partnership"
       stage: phase:v2.0
       evidence: "SSI is confirmed MDOT survey partner. MDOT has 'UAS Systems Development Consulting Service' RFP."

@@ -135,7 +135,7 @@ Each robot category gets a FakeRover-style MCP server on Fly.io that simulates r
 
 ### Required changes
 
-**Registration form (`docs/mcp_demo_5/index.html`):**
+**Registration form (`demo/marketplace/index.html`):**
 - Add `is_test` checkbox (admin-only, hidden for regular operators)
 - Add lat/lng fields (auto-populated from location text via geocoding, or manual entry)
 - Add service radius field (km, default 100)

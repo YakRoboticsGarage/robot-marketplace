@@ -54,7 +54,7 @@ AFTER:  Buyer → single 3009 → Operator (100%)
 **Test:** Run auction → verify Claude doesn't mention platform fee.
 
 ### Module 4: Frontend — Single signature USDC
-**File:** `docs/mcp_demo_5/index.html` (copy from demo-4)
+**File:** `demo/marketplace/index.html` (copy from demo-4)
 **Changes:**
 - `payWithUSDC()` EIP-3009 path: Sign ONE `TransferWithAuthorization` for full `totalUnits` to `operatorWallet`. Remove second signature (platform). Remove `platform_nonce`, `platform_v/r/s` from commit body.
 - `payWithUSDC()` Permit fallback: Sign ONE permit for full `totalUnits`. Spender = relay. Remove platform split from commit body.
@@ -63,7 +63,7 @@ AFTER:  Buyer → single 3009 → Operator (100%)
 **Test:** USDC payment → one wallet popup → one signature → done.
 
 ### Module 5: Frontend — Remove fee from all UI
-**File:** `docs/mcp_demo_5/index.html`
+**File:** `demo/marketplace/index.html`
 **Changes:**
 - `renderCommitmentStatus()` (USDC path ~line 1321): Remove "Platform" row. Show only "Amount" and "Operator".
 - `showStripeHoldApproved()` (Stripe path ~line 1961): Remove "Platform" row.
@@ -77,7 +77,7 @@ AFTER:  Buyer → single 3009 → Operator (100%)
 **Test:** Full demo flow → no mention of "platform", "commission", "fee" anywhere in UI.
 
 ### Module 6: Deploy + verify
-- Copy `docs/mcp_demo_4/` to `docs/mcp_demo_5/`
+- Copy `docs/mcp_demo_4/` to `demo/marketplace/`
 - Apply Modules 4-5 to demo-5 only
 - Apply Modules 1-3 to worker (backward compatible — demo-4 still works because it sends `platform_wallet` but the worker just ignores the platform transfer)
 - Deploy worker

@@ -785,14 +785,14 @@ proposals:
   description: >
     After the single-chain registration refactor (commit 48527a7), the
     window._registration state object still initialises with a `chains: {}` field
-    (docs/mcp_demo_5/index.html line 1913) but the field is never written to or
+    (demo/marketplace/index.html line 1913) but the field is never written to or
     read back. Registration now tracks a single chain via _registration.chain
     (singular). The dead field creates misleading state shape and could confuse
     future contributors who assume multi-chain tracking is still active. Remove
     `chains: {}` from the initialiser and confirm no downstream code reads it.
   module: M28_mcp_demo
   research_source: code-audit-2026-04-10
-  evidence: 'docs/mcp_demo_5/index.html line 1913: chains: {} — grep _registration.chains returns no matches'
+  evidence: 'demo/marketplace/index.html line 1913: chains: {} — grep _registration.chains returns no matches'
   effort: trivial
   priority: low
   status: proposed
@@ -930,7 +930,7 @@ proposals:
   description: 'Frontend sidebar queries EAS GraphQL at page load (~500 attestations across 2 chains). At 100 robots takes 1-2s. At 1000+ could become slow or hit rate limits. Consider caching attestations server-side or in localStorage with 5-min TTL.'
   module: M41_demo_frontend
   research_source: v1.4.1-fleet-sprint
-  evidence: docs/mcp_demo_5/index.html loadEASAttestations function
+  evidence: demo/marketplace/index.html loadEASAttestations function
   effort: small
   priority: medium
   status: proposed
@@ -966,7 +966,7 @@ proposals:
   description: 'Frontend fetches each robot IPFS card in batches of 10. Works at 100 robots. At 1000+ need server-side cache (cache tool lists per MCP endpoint URL) or aggregated query.'
   module: M41_demo_frontend
   research_source: v1.4.1-fleet-sprint
-  evidence: docs/mcp_demo_5/index.html enrichRobotsFromIPFS function
+  evidence: demo/marketplace/index.html enrichRobotsFromIPFS function
   effort: small
   priority: low
   status: deferred
@@ -978,7 +978,7 @@ proposals:
   description: '100 DOM elements render fine. At 1000+ needs virtual scroll or pagination to prevent browser lag.'
   module: M41_demo_frontend
   research_source: v1.4.1-fleet-sprint
-  evidence: docs/mcp_demo_5/index.html renderRobotsSidebar
+  evidence: demo/marketplace/index.html renderRobotsSidebar
   effort: medium
   priority: low
   status: deferred
@@ -1002,7 +1002,7 @@ proposals:
   description: 'Subgraph query uses first:200. At 200+ robots per chain needs cursor-based pagination. Both server-side (mcp_server.py) and frontend (index.html) queries affected.'
   module: M41_demo_frontend
   research_source: v1.4.1-fleet-sprint
-  evidence: mcp_server.py, docs/mcp_demo_5/index.html
+  evidence: mcp_server.py, demo/marketplace/index.html
   effort: small
   priority: low
   status: deferred

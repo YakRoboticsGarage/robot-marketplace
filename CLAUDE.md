@@ -21,7 +21,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 - **Escrow:** `RobotTaskEscrow.sol` on Base with 4-mode settlement abstraction (FD-1, v1.5)
 - **Fleet:** Robot/operator discovery via ERC-8004, 37 MCP tools for agent interaction
 - **Persistence:** SQLite via `SyncTaskStore`
-- **Demo site:** `demo/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
+- **Demo site:** `demo/landing/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
 - **Live demo:** `demo/marketplace/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
 - **Chatbot worker:** `chatbot/src/index.js` — Cloudflare Worker proxying to Anthropic API
 - **Hosting:** here.now (yakrobot.bid) + Cloudflare Workers (/api/*)

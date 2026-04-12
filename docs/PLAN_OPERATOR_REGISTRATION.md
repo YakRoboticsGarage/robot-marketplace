@@ -247,7 +247,7 @@ The platform wallet pays gas (~$0.005 per registration on Base, $0.01 total for 
 
 The `agent0-sdk` package must be available in the marketplace server's Python environment. Check if it's already in `pyproject.toml` or needs adding.
 
-### Frontend Changes (docs/mcp_demo_5/index.html)
+### Frontend Changes (demo/marketplace/index.html)
 
 **1. Sidebar button** — "Register Robot" below "Hire Operator"
 

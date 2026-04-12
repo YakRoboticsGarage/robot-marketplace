@@ -1,7 +1,7 @@
 # Demo UI Code Review Plan
 
 **Date:** 2026-04-09
-**Scope:** `docs/mcp_demo_5/index.html` (single-file demo), `mcp_server.py` (backend), `auction/mcp_tools.py` (registration tool)
+**Scope:** `demo/marketplace/index.html` (single-file demo), `mcp_server.py` (backend), `auction/mcp_tools.py` (registration tool)
 **Goal:** End-to-end review of every user journey, error path, code quality, and deployment readiness
 
 ---
