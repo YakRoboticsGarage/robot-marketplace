@@ -63,11 +63,9 @@ def _get_attested_agents() -> dict[int, str]:
     """
     import httpx as _httpx
 
-    EAS_ENDPOINTS = [
-        "https://base-sepolia.easscan.org/graphql",
-        "https://base.easscan.org/graphql",
-    ]
-    SCHEMA_UID = "0x70a6cca5fbf857df1196dbbf7b0e460ff38f83788e3338a2c96cbb6feb3d711a"
+    from auction.contracts import EAS_ENDPOINTS as _eas_ep, EAS_SCHEMA_UID
+    EAS_ENDPOINTS = list(_eas_ep.values())
+    SCHEMA_UID = EAS_SCHEMA_UID
 
     query = """
     { attestations(
@@ -130,11 +128,7 @@ def _discover_onchain_robots():
     import httpx
     from auction.mcp_robot_adapter import MCPRobotAdapter
 
-    SUBGRAPH_URLS = {
-        8453: "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb",
-        84532: "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u",
-    }
-    YAKROVER_HEX = "0x79616b726f766572"
+    from auction.contracts import SUBGRAPH_URLS, YAKROVER_HEX
 
     query = (
         '{ agentMetadata_collection(where: {key: "fleet_provider", value: "'
@@ -421,8 +415,28 @@ Start by asking the user what survey they need, or process an RFP they provide."
     import asyncio
     import json
 
+    # Bearer token for incoming REST requests (optional — if unset, endpoints are open)
+    API_TOKEN = os.environ.get("MCP_API_TOKEN")
+    if API_TOKEN:
+        log("SERVER", "REST API auth: bearer token required")
+    else:
+        log("SERVER", "REST API auth: OPEN (set MCP_API_TOKEN to require auth)")
+
+    def _check_auth(request: Request):
+        """Returns a 401 JSONResponse if auth fails, or None if OK."""
+        if not API_TOKEN:
+            return None
+        auth = request.headers.get("authorization", "")
+        if auth == f"Bearer {API_TOKEN}":
+            return None
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+
     async def handle_tool_call(request: Request) -> JSONResponse:
         """REST endpoint: POST /api/tool/{name} — calls an MCP tool by name."""
+        auth_err = _check_auth(request)
+        if auth_err:
+            return auth_err
+
         tool_name = request.path_params["name"]
 
         # Re-discover fleet on every auction start (not just first call)
@@ -472,6 +486,9 @@ Start by asking the user what survey they need, or process an RFP they provide."
 
     async def handle_tool_list(request: Request) -> JSONResponse:
         """List all available tools with descriptions."""
+        auth_err = _check_auth(request)
+        if auth_err:
+            return auth_err
         tools_info = []
         for name, tool in sorted(mcp._tool_manager._tools.items()):
             desc = (tool.description or "")[:200]
@@ -480,6 +497,9 @@ Start by asking the user what survey they need, or process an RFP they provide."
 
     async def handle_feedback_onchain(request: Request) -> JSONResponse:
         """Submit feedback to ERC-8004 reputation registry on-chain via agent0-sdk."""
+        auth_err = _check_auth(request)
+        if auth_err:
+            return auth_err
         try:
             body = await request.json()
         except Exception:

@@ -1017,7 +1017,8 @@ var DELIVERY_SCHEMAS = {
 };
 var DELIVERY_SCHEMA = DELIVERY_SCHEMAS.env_sensing; // default, overridden per RFP
 
-// ERC-8004 contract addresses & RPC
+// Contract addresses — canonical source: auction/contracts.py
+// Keep in sync when addresses change.
 var IDENTITY_REGISTRY = '0x8004A818BFB912233c491871b3d84c89A494BD9e';
 var GET_AGENT_WALLET_SELECTOR = '0x00339509';
 var RELAY_WALLET = '0x4b5974229f96ac5987d6e31065d73d6fd8e130d9';
@@ -2132,7 +2133,7 @@ function showRobotProfile(robot, idx) {
   }
 
   var scanUrl = 'https://8004scan.io/agents/' + scanPath + '/' + escapeHtml(String(robot.agent_id));
-  var explorerUrl = explorerBase + '/nft/0x8004A818BFB912233c491871b3d84c89A494BD9e/' + escapeHtml(String(robot.agent_id));
+  var explorerUrl = explorerBase + '/nft/' + IDENTITY_REGISTRY + '/' + escapeHtml(String(robot.agent_id));
 
   modal.innerHTML =
     '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">' +

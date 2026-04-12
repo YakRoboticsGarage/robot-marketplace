@@ -162,15 +162,10 @@ executive_summary:
     - {path: docs/research/legal/RESEARCH_BOND_VERIFICATION_EXAMPLES.md, section: all, synthesis: "6 real bond examples, Treasury Circular 570, surety portals"}
     - {path: docs/research/legal/RESEARCH_LEGAL_TERMS_COMPARISON_EXAMPLES.md, section: all, synthesis: "7 contract examples, 12 comparison dimensions, anti-indemnity"}
     - {path: docs/research/RESEARCH_SKILL_CANDIDATES.md, section: all, synthesis: "55 ranked skill candidates across 4 categories"}
-    - {path: github.com/rafaeldavid/robotTAM/financial-model/financial-analysis-raise.md, section: all, synthesis: "$2.5M raise model, 18-month burn, revenue projection"}
+    # Commercial strategy sources moved to robotTAM repo (AD-26):
+    # financial-analysis-raise.md, gc/operator briefing packets, pitch critiques
     - {path: docs/research/RESEARCH_TOPO_BACKGROUND_SOURCE.md, section: all, synthesis: "USGS NED contour data for site watermark"}
-    - {path: github.com/rafaeldavid/robotTAM/outreach/gc-engagement-package.md, section: all, synthesis: "15 GC targets, 9-step interview process"}
-    - {path: github.com/rafaeldavid/robotTAM/outreach/gc-briefing-packets.md, section: all, synthesis: "15 individual GC profiles, 0/15 in-house survey finding"}
-    - {path: github.com/rafaeldavid/robotTAM/outreach/operator-briefing-packets.md, section: all, synthesis: "14 operator profiles, Drone Brothers competitive watch, SSI MDOT partner"}
     - {path: docs/architecture/TECHNICAL_MCP_DEPLOYMENT.md, section: all, synthesis: "Railway deployment plan, $5/mo MVP hosting"}
-    - {path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-construction.md, section: all, synthesis: "GC exec: pitch the deliverable not the platform"}
-    - {path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-vc.md, section: all, synthesis: "VC: LOI + operator + co-founder = fundable"}
-    - {path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-technical.md, section: all, synthesis: "CTO: deliverable QA pipeline is the hardest unsolved piece"}
     - {path: docs/REPORT-STYLE.md, section: all, synthesis: "Style guide with tropes.fyi anti-patterns"}
     # [v2.4] v1.1-v1.3 implementation plans and automated research
     - {path: docs/architecture/PLAN_REAL_ROBOT_INTEGRATION.md, section: all, synthesis: "MCPRobotAdapter bridges marketplace to real robots via ERC-8004 on Base mainnet"}
@@ -2249,7 +2244,7 @@ architecture:
       on_acceptance_pct: 0
       on_delivery_pct: 100
       mechanism: "Commit-on-hire: buyer signs gasless authorization (EIP-3009) at award time. Platform executes transferWithAuthorization on delivery acceptance. No money moves until delivery verified."
-      platform_fee_pct: 0  # Removed in v1.2/demo-5 for demo simplicity. 12% buyer-side fee planned for production (see financial.revenue_model).
+      platform_fee_pct: 0  # Removed in v1.2/demo-5 for demo simplicity. 12% buyer-side fee planned for production.
       decisions: [decision:PD-4]
       canonical: true  # [Entry 5] marks this as the canonical location (vs pol:payment_split)
     privacy_constraints:
@@ -3120,7 +3115,7 @@ gtm:
         interface: "registered / verified"
         context: "Operators are 'registered', not 'on-chain'. Discovery finds 'registered operators', not 'on-chain robots'."
       - technical: "gas / gas fee"
-        interface: "registration fee" or omit
+        interface: "'registration fee' or omit"
         context: "Say 'covered by the platform' or 'no fee to you'. Never mention gas."
       - technical: "block explorer / basescan.org"
         interface: "On-chain record"
@@ -3134,7 +3129,7 @@ gtm:
         interface: "Stablecoin (USDC)"
         context: "Lead with 'Stablecoin', add '(USDC)' in parentheses where needed for clarity."
       - technical: "wallet / crypto wallet"
-        interface: "payment address" or "payment account"
+        interface: "'payment address' or 'payment account'"
         context: "In payment flow: 'payment address'. In error messages: 'payment app' or 'crypto wallet' (since they need to install one)."
       - technical: "EIP-3009 / transferWithAuthorization"
         interface: omit
@@ -3148,13 +3143,13 @@ gtm:
 
       # Robot Control
       - technical: "MCP / Model Context Protocol"
-        interface: "robot control system" or omit
+        interface: "'robot control system' or omit"
         context: "In registration form: 'Robot Control URL'. In confirmation: 'sends commands to your robot'. In Claude Code mode: MCP is acceptable (developer audience)."
       - technical: "MCP endpoint"
-        interface: "Robot Control URL" or "Robot API"
+        interface: "'Robot Control URL' or 'Robot API'"
         context: "Registration form label. In verification details: 'Robot API'."
       - technical: "MCP tools / tool_use"
-        interface: "commands" or "capabilities"
+        interface: "'commands' or 'capabilities'"
         context: "Robot has 'X commands available', not 'X MCP tools'. In verification details: 'Available commands'."
       - technical: "tools/list"
         interface: omit
@@ -3435,167 +3430,10 @@ glossary:
     borrowed: true
 
 # ============================================================
-# FINANCIAL — raise model, revenue, burn, comparables
-# [v2.2] From FINANCIAL_ANALYSIS_RAISE.md
+# COMMERCIAL STRATEGY (moved to robotTAM repo — AD-26)
+# Financial model, pitch critiques, wave 1 outreach targets
+# See: github.com/rafaeldavid/robotTAM
 # ============================================================
-financial:
-  raise:
-    amount_usd: 2500000
-    round_type: seed
-    instrument: "SAFE (post-money, YC standard)"
-    valuation_cap_usd: "12M-15M"
-    dilution_pct: "17-21%"
-    runway_months: 18
-    model_period: "April 2026 - September 2027"
-  burn_by_phase:
-    phase_1:
-      label: "v1.5 (Months 1-4)"
-      monthly_personnel: 35500
-      monthly_total: 55500
-      phase_total: 142000
-      team_size: "1 FT founder + 0.5 blockchain contractor + 0.5 designer + 0.1 domain advisor"
-    phase_2:
-      label: "v2.0 (Months 5-10)"
-      monthly_personnel: 93500
-      monthly_total: 121500
-      phase_total: 561000
-      team_size: "1 founder + 4 FT engineers/designers + 1 BD + contractors"
-    phase_3:
-      label: "v2.5-v3.0 (Months 11-18)"
-      monthly_personnel: 128500
-      monthly_total: 156500
-      phase_total: 1028000
-      team_size: "Phase 2 + sr. backend + security contractor + customer success"
-  revenue_model:
-    take_rate_pct: 12
-    take_rate_side: buyer
-    operator_receives: "100% of bid price"
-    comparable_take_rates:
-      - {platform: Upwork, rate: "10%", model: escrow_marketplace}
-      - {platform: "Construction staffing agencies", rate: "15-30%", model: labor_marketplace}
-      - {platform: "Equipment rental marketplaces", rate: "10-20%", model: asset_rental}
-    sensitivity: "If market pressure forces 8%, revenue drops 33%. Break-even shifts from ~M28 to ~M34-38."
-  projections:
-    month_4_gmv: 5000
-    month_12_gmv: 89600
-    month_18_gmv: 288000
-    total_18mo_gmv: 1502800
-    total_18mo_revenue: 180336
-    break_even_month: "~M28 (outside 18-month model)"
-  cost_summary:
-    total_personnel_18mo: 1731000
-    total_non_personnel_18mo: 511900
-    total_gross_burn_18mo: 2242000
-    contingency_buffer_pct: 20
-    contingency_amount: 412333
-  comparable_raises:
-    - {company: "Built Robotics", year: 2016, amount: "2.5M", cap: "~$12M", note: "Autonomous construction equipment"}
-    - {company: "DroneDeploy", year: 2013, amount: "2M", cap: "~$10M", note: "Drone mapping SaaS"}
-    - {company: "OpenSpace", year: 2017, amount: "3.3M", cap: "~$13M", note: "Construction reality capture"}
-    - {company: "PlanHub", year: 2019, amount: "4M", cap: "~$16M", note: "Construction bidding marketplace"}
-    - {company: "Buildots", year: 2019, amount: "3.5M", cap: "~$14M", note: "Construction progress monitoring"}
-    - {company: "Fabric/OpenMind", year: 2025, amount: "20M", cap: N/A, note: "Robot economy protocol, Pantera led"}
-    - {company: "FrodoBots", year: 2025, amount: "8M", cap: N/A, note: "DePIN robotics on Solana"}
-  alternative_staged_raise:
-    tranche_1: {amount: 750000, milestone: "v1.5 shipped + MDOT pilot live", timing: M1}
-    tranche_2: {amount: 2000000, milestone: "10 paying GCs + $50K GMV/mo", timing: "M8-10"}
-  sources: [{path: github.com/rafaeldavid/robotTAM/financial-model/financial-analysis-raise.md}]
-
-# ============================================================
-# PITCH INSIGHTS — synthesized critique perspectives
-# [v2.2] From 3 pitch critique documents
-# ============================================================
-pitch_insights:
-  gc_perspective:
-    source: "VP of Preconstruction, $200M Michigan highway GC"
-    core_message: "Pitch the deliverable, not the platform"
-    key_feedback:
-      - "Lead with emergency re-survey use case, not routine survey cycle"
-      - "60-80% cost reduction claim is a red flag. Survey is 0.3-0.5% of project cost. Wrong thing to optimize."
-      - "I want speed on the deliverable, not speed on the bid"
-      - "PLS-affiliated is meaningless. Either the deliverable carries a PLS stamp or it doesn't."
-      - "Show me LandXML that imports into HeavyBid. One real project example beats the entire pitch."
-      - "Blockchain, MCP, ERC-8004, USDC are negative signals in construction"
-    pilot_requirement: "Free 10-acre topo survey, LandXML for HeavyBid, Michigan PLS stamp, 0.1 ft vertical match"
-    sources: [{path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-construction.md}]
-
-  vc_perspective:
-    source: "Simulated seed-stage partner, construction-tech fund"
-    core_message: "One LOI + one operator agreement + one co-founder = fundable"
-    verdict: "Interesting thesis, not yet fundable. Would take a second meeting."
-    strengths:
-      - "Problem slide is the best slide. 43-RFP decomposition shows real homework."
-      - "0/15 GCs with in-house drone survey is genuine greenfield signal"
-      - "12% buyer-side with operator-gets-100% is smart positioning"
-    weaknesses:
-      - "Zero customers, zero revenue, zero LOIs. Dev metrics are not traction."
-      - "0 direct competitors on cover slide is investor repellent"
-      - "Revenue in M4 with no team and no co-founders is not credible"
-      - "$12-15M cap with no revenue and no team: comparable seed rounds had founding teams of 2-3"
-      - "Lunar slide undermines construction credibility"
-    competitive_framing:
-      x_axis: "Procurement Automation (manual/phone ... AI-agent-mediated)"
-      y_axis: "Physical Execution (software-only ... owns task completion)"
-      white_space: "Nobody automates procurement AND delivers physical execution"
-    sources: [{path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-vc.md}]
-
-  cto_perspective:
-    source: "Senior engineer, marketplace platform background, evaluating co-founder role"
-    core_message: "Deliverable QA pipeline is the hardest unsolved piece"
-    verdict: "Not yet, but interested. Needs one completed transaction."
-    key_risks:
-      - "Four hard problems stitched together as one product: NLP extraction, task decomposition, operator matching, deliverable QA"
-      - "Cold start / chicken-and-egg not addressed in pitch"
-      - "Platform promises Civil 3D-ready deliverables but has no data processing pipeline"
-      - "12% take on $72K task ($8,640 fee) invites disintermediation after first match"
-      - "On-chain settlement is premature. No GC or operator is asking for USDC."
-    join_requirements:
-      - "One completed transaction (even manually brokered)"
-      - "Drop crypto and lunar from near-term plan"
-      - "Conversations with 3+ actual GCs"
-      - "Founder-market fit story, not just a bullet point"
-    sources: [{path: github.com/rafaeldavid/robotTAM/critiques/pitch-critique-technical.md}]
-
-  synthesis:
-    all_three_agree_on:
-      - "The domain research is genuine and impressive"
-      - "Zero customer validation is the single biggest gap"
-      - "Lunar/blockchain are distractions in customer-facing materials"
-      - "One real deliverable on one real project matters more than the platform"
-    recommended_next_action: "Complete one manually-brokered survey transaction with a Michigan GC. Produce a PLS-stamped LandXML deliverable that imports into HeavyBid or Civil 3D."
-
-# ============================================================
-# WAVE 1 — GC and operator engagement findings
-# [v2.2] From GC_BRIEFING_PACKETS.md, OPERATOR_BRIEFING_PACKETS.md
-# ============================================================
-wave1:
-  gc_targets:
-    count: 15
-    tiers: {tier_1: 5, tier_2: 5, tier_3: 5}
-    key_finding: "0/15 have in-house drone survey programs. All outsource to PLS-stamped firms."
-    top_targets:
-      - {name: "Angelo Iafrate Construction", hq: "Warren, MI", revenue: "~$270M", employees: "340+"}
-      - {name: "Ajax Paving Industries", hq: "Troy, MI", revenue: "~$274M", employees: "500+"}
-      - {name: "Dan's Excavating", hq: "Shelby Twp, MI", revenue: "~$150M+", employees: "150+"}
-      - {name: "Toebe Construction", hq: "Wixom, MI", revenue: "~$100M+", employees: "200+"}
-      - {name: "C.A. Hull", hq: "Walled Lake, MI", revenue: "~$74M", employees: "43 office + seasonal"}
-    sources: [{path: github.com/rafaeldavid/robotTAM/outreach/gc-engagement-package.md}, {path: github.com/rafaeldavid/robotTAM/outreach/gc-briefing-packets.md}]
-
-  operator_targets:
-    count: 14
-    key_findings:
-      - "Drone Brothers (Troy, MI) — 350+ Part 107 pilots, national dispatch network. Closest existing analog to yakrobot.bid. Competitive watch."
-      - "SSI (Standish, MI) — ~40-50 employees, MDOT Phase III UAS integration partner with Michigan Tech. Top MDOT partner prospect."
-      - "DroneView Technologies (Bloomfield Hills, MI) — ASPRS-certified photogrammetrists, enterprise fleet. Potential premium operator or channel partner."
-    competitive_watch: "Drone Brothers LLC — network/platform model dispatching pilots to construction jobs via DroneDeploy. Both competitor and potential partner."
-    mdot_partner: "Surveying Solutions Inc. (SSI) — verified MDOT contractor, PLS on staff (Jackie Davis), US-23 Connector LiDAR project"
-    sources: [{path: github.com/rafaeldavid/robotTAM/outreach/operator-briefing-packets.md}]
-
-  engagement_process:
-    steps: 9
-    interview_guide: true
-    pre_brief_template: true
-    sources: [{path: github.com/rafaeldavid/robotTAM/outreach/gc-engagement-package.md}]
 
 # ============================================================
 # STYLE GUIDE — report formatting reference

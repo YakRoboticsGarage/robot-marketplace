@@ -36,11 +36,16 @@ from web3 import Web3
 
 # ── Config ────────────────────────────────────────────────────────
 
+from auction.contracts import (
+    IDENTITY_REGISTRY as REGISTRY,
+    RPC_URLS,
+    SUBGRAPH_URLS,
+    YAKROVER_HEX,
+)
+
 CHAIN_ID = 84532
-RPC_URL = "https://sepolia.base.org"
-REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e"
-SUBGRAPH_URL = "https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u"
-YAKROVER_HEX = "0x79616b726f766572"
+RPC_URL = RPC_URLS[CHAIN_ID]
+SUBGRAPH_URL = SUBGRAPH_URLS[CHAIN_ID]
 
 MODEL_TO_MCP = {
     "M350+L2": "https://yakrover-aerial-lidar.fly.dev/mcp",

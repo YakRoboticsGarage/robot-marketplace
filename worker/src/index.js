@@ -294,6 +294,10 @@ export default {
 
     return new Response("Not found", { status: 404, headers: cors });
   },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(checkRelayBalance(env));
+  },
 };
 
 async function handleChat(request, env, cors) {
@@ -643,9 +647,13 @@ async function incrementDemoRateLimit(env, ip) {
 
 async function callMcpTool(env, toolName, toolInput, tunnelUrl) {
   const mcpUrl = tunnelUrl || env.MCP_SERVER_URL || "https://mcp.yakrobot.bid";
+  const headers = { "Content-Type": "application/json" };
+  if (env.MCP_API_TOKEN) {
+    headers["Authorization"] = `Bearer ${env.MCP_API_TOKEN}`;
+  }
   const response = await fetch(`${mcpUrl}/api/tool/${toolName}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(toolInput),
   });
   if (!response.ok) {
@@ -1508,6 +1516,48 @@ async function handlePaymentStatus(url, env, cors) {
 
 // --- Stripe webhook handler ---
 
+async function verifyStripeSignature(body, signatureHeader, secret) {
+  // Parse Stripe-Signature header: "t=timestamp,v1=hmac_hex"
+  const parts = Object.fromEntries(
+    signatureHeader.split(",").map((p) => {
+      const [k, ...v] = p.split("=");
+      return [k, v.join("=")];
+    })
+  );
+  const timestamp = parts["t"];
+  const expectedSig = parts["v1"];
+  if (!timestamp || !expectedSig) return false;
+
+  // Reject events older than 5 minutes (replay protection)
+  const age = Math.floor(Date.now() / 1000) - parseInt(timestamp, 10);
+  if (isNaN(age) || age > 300 || age < -60) return false;
+
+  // HMAC-SHA256(secret, "timestamp.body")
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signed = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${timestamp}.${body}`)
+  );
+  const computedSig = [...new Uint8Array(signed)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // Constant-time comparison (prevent timing attacks)
+  if (computedSig.length !== expectedSig.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < computedSig.length; i++) {
+    mismatch |= computedSig.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 async function handleStripeWebhook(request, env, cors) {
   if (!env.STRIPE_WEBHOOK_SECRET || !env.STRIPE_SECRET_KEY) {
     return new Response("Webhook not configured", { status: 500 });
@@ -1516,11 +1566,14 @@ async function handleStripeWebhook(request, env, cors) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
-  // Verify webhook signature (simplified HMAC check for Workers)
-  // In production, use a proper Stripe signature verification library
-  // For now, we trust Cloudflare's network + the webhook secret as shared secret
   if (!signature) {
     return new Response("Missing signature", { status: 400 });
+  }
+
+  // Verify HMAC-SHA256 signature using Stripe webhook secret
+  const valid = await verifyStripeSignature(body, signature, env.STRIPE_WEBHOOK_SECRET);
+  if (!valid) {
+    return new Response("Invalid signature", { status: 400 });
   }
 
   let event;
@@ -1832,7 +1885,8 @@ async function handleAuctionFeedback(request, env, cors) {
 
 // --- Gasless USDC relay via ERC-2612 permit ---
 
-// USDC contract addresses by chain ID
+// Contract addresses — canonical source: auction/contracts.py
+// Keep in sync when addresses change.
 const USDC_CONTRACTS = {
   8453:     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  // Base mainnet
   1:        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  // Ethereum mainnet
@@ -2462,4 +2516,66 @@ async function handleGetCommitment(url, env, cors) {
     }),
     { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
   );
+}
+
+// --- Relay wallet balance monitor (Cron Trigger) ---
+
+const RELAY_WALLET_ADDRESS = "0x4b5974229f96ac5987d6e31065d73d6fd8e130d9";
+const BALANCE_WARN_WEI = 5000000000000000n;  // 0.005 ETH (~100 txs on Base)
+const BALANCE_CRIT_WEI = 1000000000000000n;  // 0.001 ETH (~20 txs on Base)
+
+async function checkRelayBalance(env) {
+  const chatId = env.TELEGRAM_CHAT_ID;
+  const botToken = env.TELEGRAM_BOT_TOKEN;
+  if (!botToken || !chatId) {
+    console.log("Balance monitor: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set, skipping");
+    return;
+  }
+
+  // Check Base mainnet (where relay pays gas for USDC transfers)
+  const rpcUrl = "https://mainnet.base.org";
+  let balanceHex;
+  try {
+    const res = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 1, method: "eth_getBalance",
+        params: [RELAY_WALLET_ADDRESS, "latest"],
+      }),
+    });
+    const data = await res.json();
+    balanceHex = data.result;
+  } catch (e) {
+    console.error("Balance check RPC failed:", e);
+    return;
+  }
+
+  const balanceWei = BigInt(balanceHex);
+  const balanceEth = Number(balanceWei) / 1e18;
+  const balanceStr = balanceEth.toFixed(6);
+
+  let message = null;
+  if (balanceWei < BALANCE_CRIT_WEI) {
+    message = `🔴 CRITICAL: Relay wallet balance is ${balanceStr} ETH on Base.\n\nUSDC payments will fail soon.\nFund: ${RELAY_WALLET_ADDRESS}`;
+  } else if (balanceWei < BALANCE_WARN_WEI) {
+    message = `🟡 Warning: Relay wallet balance is ${balanceStr} ETH on Base.\n\nApprox ${Math.floor(Number(balanceWei) / 50000000000000)} txs remaining.\nFund: ${RELAY_WALLET_ADDRESS}`;
+  }
+
+  if (!message) {
+    console.log(`Balance OK: ${balanceStr} ETH`);
+    return;
+  }
+
+  // Send Telegram alert
+  try {
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: message }),
+    });
+    console.log(`Alert sent: ${balanceStr} ETH`);
+  } catch (e) {
+    console.error("Telegram alert failed:", e);
+  }
 }

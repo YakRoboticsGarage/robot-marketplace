@@ -2,7 +2,7 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-12 (rev 5.5, v1.4.1 complete — delivery schemas, repo restructure, backlog tracked)
+**Last updated:** 2026-04-12 (rev 5.6, protocol separation assessment + roadmap integration)
 **Status:** v1.0–v1.4 built. **v1.4.1 complete** (37 MCP tools, 100 test robots on Base Sepolia, 9 category MCP servers, EAS attestation, geographic filtering, busy state, 8 delivery schemas, 9 RFP presets). Repo restructured. Demo at yakrobot.bid/demo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
@@ -483,15 +483,20 @@ R-050 unifies these into a coherent end-to-end protocol where the marketplace is
 ### Current operational inventory
 | Category | Items | Management |
 |----------|-------|-----------|
-| Worker secrets | ANTHROPIC_API_KEY, GITHUB_TOKEN, RELAY_PRIVATE_KEY, PINATA_JWT, STRIPE_SECRET_KEY (pending), STRIPE_WEBHOOK_SECRET (pending) | Cloudflare dashboard / `wrangler secret put` |
-| On-chain wallets | Platform (`0xe333...8e5`), Relay (`0x4b59...0d9`) | Manual funding, no balance alerts |
-| External services | Stripe, Pinata, Cloudflare Workers, here.now, The Graph subgraph | Separate dashboards, no unified monitoring |
-| Scheduled agents | Daily research (9am), Daily docs-sync + code review (7pm) | claude.ai/code/scheduled |
-| Domains | yakrobot.bid (here.now + Cloudflare), mcp.yakrobot.bid (tunnel, DNS pending) | Porkbun + here.now |
+| Worker secrets | ANTHROPIC_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, PINATA_JWT, RELAY_PRIVATE_KEY, MCP_API_TOKEN, TELEGRAM_BOT_TOKEN | `wrangler secret put` / 1Password |
+| MCP server secrets | SIGNER_PVT_KEY, PINATA_JWT, MCP_API_TOKEN | Fly.io secrets (`fly secrets set`) / 1Password |
+| Fleet operator keys | 18 operator wallets (`.fleet_wallets.json`) | Local file (gitignored) / 1Password |
+| On-chain wallets | Platform (`0xe333...8e5`), Relay (`0x4b59...0d9`) | Manual funding. **Balance monitor active** (Cron Trigger, daily 09:00 UTC, Telegram alert). |
+| External services | Stripe, Pinata, Cloudflare Workers, Fly.io, here.now, The Graph subgraph | Separate dashboards, no unified monitoring |
+| Scheduled tasks | Daily research (9am), Daily docs-sync + code review (7pm) | claude.ai/code/scheduled |
+| Cron Triggers | Relay wallet balance monitor (daily 09:00 UTC → Telegram alert if < 0.005 ETH) | Cloudflare Worker (`yakrobot-api`) |
+| Domains | yakrobot.bid (here.now + Cloudflare), mcp.yakrobot.bid (Fly.io) | Porkbun + here.now |
 
 ### What's needed
-- [ ] Operational runbook: how to rotate each secret, fund wallets, deploy worker
-- [ ] Relay wallet balance monitoring (ETH runs out = payments stop)
+- [x] ~~Relay wallet balance monitoring~~ — Cron Trigger on `yakrobot-api`, daily 09:00 UTC, alerts via Telegram if < 0.005 ETH (warn) or < 0.001 ETH (critical)
+- [x] ~~Stripe webhook signature verification~~ — HMAC-SHA256 verification in Worker, replay protection (5 min window)
+- [x] ~~MCP server auth~~ — Bearer token required on all REST endpoints (tool calls, tool list, feedback)
+- [ ] Operational runbook: how to rotate each secret, fund wallets, deploy worker — see `docs/guides/OPERATIONS.md`
 - [ ] Service health endpoint aggregation (/api/health on worker, subgraph status, etc.)
 - [ ] Key rotation strategy per secret (frequency, procedure, who has access)
 - [ ] Production: KMS-backed signing for relay wallet (not env var)
@@ -577,6 +582,13 @@ Marco's assistant posts a construction survey task with structured specs -- accu
 - Next.js landing page with intent capture
 - Claude OAuth integration
 - SSE live feed, robot discovery cards
+
+**Protocol separation preparation (AD-27):**
+- Add LICENSE file: MIT for protocol modules, BSL 1.1 for commercial modules
+- Enforce dependency direction: protocol modules (`auction/core.py`, `engine.py`, `deliverable_qa.py`, `reputation.py`, `wallet.py`, `store.py`, `discovery_bridge.py`) never import commercial modules. Lint rule in ruff config.
+- Extract `SettlementInterface` to standalone module (separate from Stripe implementation)
+- Define MCP tool schemas as language-agnostic JSON Schema (37 tools)
+- See `docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md`
 
 **Development infrastructure:**
 - CI/CD: GitHub Actions (unit + ruff + mypy on every push)
@@ -701,6 +713,14 @@ Diane posts an inspection with `privacy: true`. Her task spec is encrypted, matc
 - Viewer keys for audit (PP-7)
 - BBS+ credential schema operational (FD-2)
 
+**Protocol separation — Phase 1 (AD-27):**
+- Extract `rtap-core` Python package from `auction/` — publish to PyPI. Third-party developers can `pip install rtap-core` and build on the protocol.
+- Publish Task, Bid, Delivery, and MCP tool schemas as versioned JSON Schema documents.
+- Apply license: MIT for protocol code (`auction/core.py`, `engine.py`, `deliverable_qa.py`, `reputation.py`, `wallet.py`, `store.py`, `discovery_bridge.py`), BSL 1.1 for commercial code.
+- Enforce dependency direction: protocol modules never import commercial modules (lint rule).
+- Publish scoring algorithm specification (weights, normalization, hard constraint filters) as a versioned spec.
+- See `docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md` for full analysis.
+
 **Frontend Phase 2-3:**
 - Payment flow (Stripe Checkout + WalletConnect)
 - Live auction view with SSE
@@ -787,6 +807,13 @@ Infrastructure scored third (3.65/5) with the strongest regulatory tailwind -- f
 - BBS+ anonymous reputation at operational scale
 - Privacy Pools on Base if 0xbow has deployed (PP-16)
 - Government contract compliance: encrypted specs, audit trails, viewer keys for oversight
+
+**Protocol separation — Phase 2 (AD-27):**
+- Evaluate foundation vs lighter governance structure (Uniswap-style forum) for protocol stewardship at current network size.
+- Deploy `RobotTaskEscrow.sol` as ownerless, immutable contract on Base. Any RTAP-compatible marketplace can use it.
+- Multi-marketplace operator portability: operator registers once (ERC-8004), bids across any RTAP marketplace. Protocol spec for cross-marketplace bid routing.
+- Scoring specification v1.0: published, versioned algorithm spec. Changes require governance proposal.
+- Reference frontend: minimal open-source UI that implements RTAP, separate from yakrobot.bid.
 
 **Convergence features:**
 - BBS+ credentials unified across all verticals

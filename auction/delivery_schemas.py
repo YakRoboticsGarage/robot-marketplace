@@ -1,5 +1,7 @@
 """Category-specific delivery schemas for QA validation.
 
+Vertical: construction (ASPRS, USGS, ASCE 38, ASTM, NBI standards)
+
 Each schema defines the expected structure of delivery data from a robot
 in that category. The schema is included in the task spec so the robot
 can self-validate before submitting, and the QA engine validates on receipt.

@@ -1439,8 +1439,7 @@ def register_auction_tools(
     # Platform attestation via EAS (Ethereum Attestation Service)
     # ------------------------------------------------------------------
 
-    EAS_ADDRESS = "0x4200000000000000000000000000000000000021"
-    EAS_SCHEMA_UID = "0x70a6cca5fbf857df1196dbbf7b0e460ff38f83788e3338a2c96cbb6feb3d711a"
+    from auction.contracts import EAS_ADDRESS, EAS_SCHEMA_UID
     EAS_ABI = [
         {
             "inputs": [{"components": [{"name": "schema", "type": "bytes32"},

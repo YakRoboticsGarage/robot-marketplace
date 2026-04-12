@@ -269,6 +269,24 @@ Controller --> [M48: MPP/ACP] --> SPT (Shared Payment Token)
 
 ---
 
+## Protocol vs. Commercial Boundary (AD-27)
+
+The codebase splits roughly 50/50 into protocol and commercial layers. See `docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md` for full analysis.
+
+**Protocol layer** (~10.8K lines) — the Robot Task Auction Protocol (RTAP):
+- M3 Task Validator, M5 Auction Engine, M7 Bid Scorer, M8 State Machine, M20 Reputation Tracker, M22 SQLite Store, M23 Commitment Hash, M35 Deliverable QA, M42 Delivery Schemas, M44 Geographic Filter, M45 Busy State, M19 ERC-8004 Bridge, M41 MCP Robot Adapter
+
+**Commercial layer** (~10.5K lines) — the YAK ROBOTICS product:
+- M15 Stripe Service, M24 MCP Tool Layer (wiring), M25 REST API, M26 MCP Server, M27 Demo Site, M28 MCP Demo, M29 Chatbot Worker, M38 Browser Wallet, M39 Permit Relay, M43 EAS Attestation, M48 MPP/ACP
+
+**Boundary modules** (protocol interface, commercial implementation):
+- M16 Settlement Router — `SettlementInterface` is protocol; `StripeSettlement` / `BaseX402Settlement` are commercial
+- M24 MCP Tool Layer — tool schemas are protocol; tool wiring (EAS, Stripe, demo overrides) is commercial
+
+**Dependency rule:** Commercial imports protocol. Protocol never imports commercial. Enforced from v1.5.
+
+---
+
 ## Module Dependency Graph
 
 ```
