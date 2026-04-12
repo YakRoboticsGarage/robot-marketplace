@@ -2,7 +2,7 @@
 
 A marketplace where AI agents post construction survey tasks, certified robot operators bid autonomously, and the best one delivers. Starting with construction site surveying, scaling to mining, infrastructure, and lunar operations.
 
-**Live demo:** [yakrobot.bid/demo](https://yakrobot.bid/demo/) — real robots bid and execute via MCP, pay with Card, Bank Transfer (ACH), or USDC
+**Live demo:** [yakrobot.bid/demo](https://yakrobot.bid/demo/) — 100 robots across 18 Michigan operators, 9 RFP presets, EAS attestation, geographic filtering
 
 ## The Problem
 
@@ -10,60 +10,51 @@ Construction survey scheduling is a 2-3 week bottleneck costing GCs missed bids.
 
 ## The Product
 
-Upload an RFP → the system extracts survey requirements → decomposes into independently biddable tasks → certified operators bid → you review winners with automated compliance checks → sign and activate → get Civil 3D-ready deliverables.
-
-**Demo flow:** [yakrobot.bid](https://yakrobot.bid) walks through a real MDOT I-94 Drainage Tunnel RFQ.
-
-**Architecture note:** Performance/Lien/Schedule (PLS) payment bond verification is automatable — the bond-verification skill handles compliance checks against contract requirements, removing a manual bottleneck from construction payment flows.
+Upload an RFP → the system extracts survey requirements → decomposes into independently biddable tasks → certified operators bid → you review winners with automated compliance checks → sign and activate → get survey deliverables.
 
 ## Project Structure
 
 ```
 yakrover-marketplace/
 │
-├── auction/                     ← Core auction engine (Python)
-│   ├── core.py                  # Task, Bid, scoring, signing, commitment hash
-│   ├── engine.py                # AuctionEngine — state machine, rate limits
-│   ├── api.py                   # HTTP API for web frontend
-│   ├── settlement.py            # 4-mode settlement abstraction (FD-1)
+├── auction/                     # Core auction engine (Python)
+│   ├── core.py                  # Task, Bid, scoring, signing, haversine geo filter
+│   ├── engine.py                # AuctionEngine — state machine, geo + busy filtering
 │   ├── mcp_tools.py             # 37 MCP tool handlers
-│   ├── wallet.py                # WalletLedger with thread-safe mutations
-│   ├── stripe_service.py        # Stripe SDK with idempotency keys
-│   ├── store.py                 # SQLite persistence
-│   ├── reputation.py            # ReputationTracker
-│   └── tests/                   # 284 tests + integration stubs
+│   ├── delivery_schemas.py      # 8 category-specific QA schemas
+│   ├── mcp_robot_adapter.py     # Bridges marketplace to robot MCP servers
+│   ├── deliverable_qa.py        # Schema-driven delivery validation
+│   └── tests/                   # Unit + integration tests
 │
-├── demo/                        ← Live website (yakrobot.bid)
-│   └── index.html               # Full interactive demo
+├── demo/                        # Live sites (published via here.now)
+│   ├── marketplace/             # yakrobot.bid/demo — auction demo
+│   ├── landing/                 # yakrobot.bid — landing page
+│   └── explorer/                # yakrobot.bid/yaml — ontology browser
 │
-├── docs/                        ← Documentation
-│   ├── ROADMAP_v4.md            # Construction → Mining → Infra → Lunar
-│   ├── USER_JOURNEY_CONSTRUCTION_v01.md  # Marco's journey
-│   ├── FEATURE_REQUIREMENTS_v15.md       # v1.5 build spec
-│   ├── DECISIONS.md             # All product/technical decisions
-│   ├── DEVELOPMENT_STRATEGY.md  # Testing & code safety (5-layer strategy)
-│   ├── mcp_demo_5/
-│   │   └── index.html           # Live auction demo (yakrobot.bid/demo)
-│   ├── sample_certs/            # Realistic sample credentials (FAA, ACORD 25, PLS, OSHA)
-│   ├── research/                # 62 research docs (see research/README.md)
-│   │   ├── PRODUCT_DSL_v2.yaml  # ← THE product ontology (3,600+ lines)
-│   │   ├── market/              # Wedge analysis, competitive landscape
-│   │   ├── legal/               # Contracts, bonds, payment flows
-│   │   ├── technical/           # Architecture, execution gaps
-│   │   └── operator/            # Onboarding, equipment, sensors
-│   └── feedback/                # Audits, critiques, founder feedback
+├── infra/                       # Deployment configs
+│   ├── fleet/                   # Fleet MCP server (Fly.io)
+│   ├── fleet-sim/               # 9 category simulator servers (Fly.io)
+│   └── deploy/                  # Tunnel + deployment scripts
 │
-├── .claude/
-│   ├── skills/
-│   │   ├── rfp-to-robot-spec/   # RFP → auction task specs
-│   │   ├── rfp-to-site-recon/   # RFP → execution context
-│   │   ├── bond-verification/   # Payment bond compliance checks
-│   │   └── legal-terms-compare/ # Survey contract term comparison
-│   └── hooks/block-secrets.sh   # Prevents committing API keys
+├── data/                        # Static data
+│   ├── fleet_manifest.yaml      # 100-robot fleet database
+│   └── sample_certs/            # FAA Part 107, ACORD 25, PLS, OSHA samples
 │
-├── .github/workflows/test.yml   # CI: tests + ruff + mypy
-├── CLAUDE.md                    # Payment safety rules for Claude
-├── serve_with_auction.py        # MCP gateway server
+├── scripts/                     # CLI tools
+│   ├── register_fleet.py        # Batch robot registration on-chain
+│   ├── eas_attest.py            # EAS attestation management
+│   └── deploy-demo.sh           # Demo site deployment
+│
+├── chatbot/                     # Cloudflare Worker (payment + demo proxy)
+├── docs/                        # Documentation
+│   ├── architecture/            # 22 technical design docs + implementation plans
+│   ├── research/                # 55 research docs + PRODUCT_DSL ontology + backlog
+│   ├── feedback/                # Product feedback synthesis
+│   ├── guides/                  # Getting started, operator onboarding
+│   └── archive/                 # Historical versions
+│
+├── mcp_server.py                # MCP API server entry point
+├── Dockerfile, fly.toml         # Marketplace deployment (Fly.io)
 └── pyproject.toml               # Dependencies, ruff, mypy config
 ```
 
@@ -80,7 +71,7 @@ uv run pytest auction/tests/ -q --tb=short
 # Run the demo auction
 PYTHONPATH=. uv run python auction/demo.py
 
-# Or connect as MCP server
+# Connect as MCP server
 claude mcp add-json yakrover '{"type":"http","url":"http://localhost:8001/fleet/mcp"}'
 ```
 
@@ -88,74 +79,41 @@ See [Getting Started](docs/guides/GETTING_STARTED.md) for full setup including S
 
 ## Key Documents
 
-Start here, in this order:
-
 | # | Document | What it tells you |
 |---|----------|-------------------|
 | 1 | **[PRODUCT_DSL_v2.yaml](docs/research/PRODUCT_DSL_v2.yaml)** | The entire product in one file — vision, bets, users, architecture, market, legal, roadmap |
-| 2 | **[Research README](docs/research/README.md)** | Index of all 62 research documents |
-| 3 | **[User Journey](docs/USER_JOURNEY_CONSTRUCTION_v01.md)** | Marco's story — pre-bid survey for a highway project |
-| 4 | **[Roadmap v4](docs/ROADMAP_v4.md)** | Construction → Mining → Infrastructure → Lunar |
-| 5 | **[Decisions](docs/DECISIONS.md)** | Every product and technical decision with rationale |
-| 6 | **[Feature Requirements v1.5](docs/FEATURE_REQUIREMENTS_v15.md)** | What's being built next (12 features with acceptance criteria) |
-| 7 | **[Architecture](docs/architecture/)** | System design, MCP deployment, tech assessments, diagrams |
-| 8 | **[Improvement Backlog](docs/research/IMPROVEMENT_BACKLOG.yaml)** | 63 tracked items with status and priority |
-| 9 | **[Style Guide](docs/REPORT-STYLE.md)** | Report formatting, tone, and tropes.fyi reference |
-| 10 | **[Fleet Plan](docs/PLAN_100_ROBOT_FLEET.md)** | 100-robot demo fleet: registration, attestation, testing |
+| 2 | **[Roadmap v4](docs/ROADMAP_v4.md)** | Construction → Mining → Infrastructure → Lunar |
+| 3 | **[Decisions](docs/DECISIONS.md)** | Every product and technical decision with rationale |
+| 4 | **[Fleet Plan](docs/PLAN_100_ROBOT_FLEET.md)** | 100-robot demo fleet: registration, attestation, testing |
+| 5 | **[Architecture](docs/architecture/)** | 22 system design docs, implementation plans, tech assessments |
+| 6 | **[Improvement Backlog](docs/research/IMPROVEMENT_BACKLOG.yaml)** | 63 tracked items with status and priority |
 
 ## Live Sites
 
 | URL | What it is |
 |-----|-----------|
-| **[yakrobot.bid](https://yakrobot.bid)** | Interactive demo — MDOT I-94 RFQ walkthrough |
-| **[yakrobot.bid/demo](https://yakrobot.bid/demo/)** | Live auction demo — operator registration, Card/ACH/USDC payment, real robot discovery |
-| **[yakrobot.bid/yaml](https://yakrobot.bid/yaml)** | YAML ontology explorer — browse PRODUCT_DSL_v2 live |
-| **[yakrobot.bid/pitch](https://yakrobot.bid/pitch)** | Pitch deck — investor/partner presentation |
+| **[yakrobot.bid/demo](https://yakrobot.bid/demo/)** | Live auction — 100 robots, 9 RFP presets, EAS attestation, 3-method payment |
+| **[yakrobot.bid](https://yakrobot.bid)** | Landing page — MDOT I-94 RFQ walkthrough |
+| **[yakrobot.bid/yaml](https://yakrobot.bid/yaml)** | YAML ontology explorer |
 
-## Skills
+## Key Numbers
 
-Four Claude Code skills for processing construction RFPs:
-
-| Skill | What it does |
-|-------|-------------|
-| **rfp-to-robot-spec** | Extracts survey requirements from RFPs → structured JSON task specs for the auction engine |
-| **rfp-to-site-recon** | Generates execution context from RFPs + public data → site boundary, airspace, weather, utilities |
-| **bond-verification** | Verifies payment bond compliance against construction contract requirements |
-| **legal-terms-compare** | Compares legal terms across survey contracts, flags deviations from standard |
-
-All four follow the [skill-creator-springett](https://github.com/bglek/skill-creator-springett) framework with validation scripts, reference docs, and eval test cases.
+- **37 MCP tools** — auction lifecycle, RFP parsing, operator registration, compliance, EAS attestation
+- **100 test robots** on Base Sepolia — 18 Michigan operators, 14 real commercial models (DJI M350, Skydio X10, Spot, WingtraOne, ELIOS 3, Autel EVO, Anzu Raptor, IF1200)
+- **9 category MCP servers** on Fly.io — aerial LiDAR, photo, thermal, GPR, bridge, corridor, tunnel, confined, env sensing
+- **101 EAS attestations** — 100 demo_fleet (Base Sepolia) + 1 live_production Tumbller (Base mainnet)
+- **Geographic filtering** — haversine hard cutoff, robots only bid within service radius
+- **Busy state** — winning robot excluded for task-type-specific duration (15s to 2hr)
+- **9 RFP presets** — real Michigan projects (MDOT I-94, MSU Farm Lane, US-31 bridge, Huntington Place)
+- **3-method payment** — Card, Bank Transfer (ACH), Stablecoin (USDC on Base)
+- **CI pipeline** — ruff (security linting), mypy, pytest on every push
 
 ## Related Repositories
 
 | Repository | What it contains |
 |-----------|-----------------|
+| **[robotTAM](https://github.com/rafaeldavid/robotTAM)** | Business strategy — pitch, outreach, financial model, founder notes |
 | **[yakrover-8004-mcp](https://github.com/YakRoboticsGarage/yakrover-8004-mcp)** | Robot framework — MCP servers, ERC-8004 discovery, robot plugins |
-| **[yakrover-protocols](https://github.com/YakRoboticsGarage/yakrover-protocols)** | Protocol specifications |
-| **[yakrover-skills](https://github.com/YakRoboticsGarage/yakrover-skills)** | Robot discovery skills |
-
-## Key Numbers
-
-- **37 MCP tools** — auction lifecycle, RFP parsing, bond verification, operator registration, compliance, agreement generation, event tracking, feedback, EAS attestation
-- **284 tests** passing (all CI checks green: lint, mypy, pytest)
-- **Live demo** at yakrobot.bid/demo — Card/ACH/USDC payment, schema-driven delivery QA, real robot discovery, on-chain operator registration, IPFS delivery
-- **3,600+ line YAML** product ontology covering the entire product (including interface language mapping)
-- **On-chain operator registration** — ERC-8004 identity on Base mainnet via agent0-sdk, 3-step UI, IPFS agent cards
-- **Buyer-friendly UI** — 30+ blockchain/crypto terms replaced with professional registry language
-- **43 real MDOT RFPs** analyzed for survey requirements
-- **6 real equipment platforms** with verified specs and pricing
-- **CI pipeline** with ruff (security linting), mypy, and pytest on every push
-
-## Construction Survey Focus
-
-The marketplace targets construction site surveying as its wedge market (scored 4.25/5 across 8 industries). Real equipment on the platform:
-
-| Operator | Equipment | Capability |
-|----------|-----------|-----------|
-| Apex Aerial Surveys | DJI Matrice 350 RTK + Zenmuse L2 | Aerial LiDAR, topo surveys |
-| SiteScan Robotics | Boston Dynamics Spot + Leica BLK ARC | Ground scanning, tunnel survey |
-| Trident Autonomous | Skydio X10 | Visual + thermal inspection |
-| ClearLine Survey | Autel EVO II Pro RTK | Aerial survey (budget entry) |
-| Meridian Geospatial | DJI Matrice 350 RTK + Zenmuse P1 | Photogrammetry |
 
 ## License
 
