@@ -1,7 +1,7 @@
 #!/bin/bash
-# Pull chatbot feedback from Cloudflare KV into docs/feedback/chatbot-log.json
+# Pull worker feedback from Cloudflare KV into docs/feedback/worker-feedback-log.json
 #
-# Usage: cd chatbot && ./pull-feedback.sh
+# Usage: cd worker && ./pull-feedback.sh
 #
 # Requires: wrangler authenticated (npx wrangler whoami)
 
@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WRANGLER="node ${SCRIPT_DIR}/node_modules/wrangler/bin/wrangler.js"
 KV_ID="13e99192baa4498b9879087c0fec8746"
-OUTPUT="${SCRIPT_DIR}/../docs/feedback/chatbot-log.json"
+OUTPUT="${SCRIPT_DIR}/../docs/feedback/worker-feedback-log.json"
 
 echo "Fetching feedback keys from KV..."
 KEYS=$($WRANGLER kv key list --namespace-id="$KV_ID" 2>/dev/null | grep -o '"name":"feedback:[^"]*"' | sed 's/"name":"//;s/"//')

@@ -45,7 +45,7 @@ yakrover-marketplace/
 │   ├── eas_attest.py            # EAS attestation management
 │   └── deploy-demo.sh           # Demo site deployment
 │
-├── chatbot/                     # Cloudflare Worker (payment + demo proxy)
+├── worker/                      # Cloudflare Worker — payment, demo proxy, feedback
 ├── docs/                        # Documentation
 │   ├── architecture/            # 22 technical design docs + implementation plans
 │   ├── research/                # 55 research docs + PRODUCT_DSL ontology + backlog

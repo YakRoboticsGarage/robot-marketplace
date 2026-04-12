@@ -5,12 +5,12 @@ __pycache__/
 .pytest_cache/
 .hypothesis/
 *.db
-chatbot/node_modules/
-chatbot/.dev.vars
+worker/node_modules/
+worker/.dev.vars
 .herenow/
 .DS_Store
 
-# wrangler files (only chatbot/wrangler.toml should exist — root-level configs break deploys)
+# wrangler files (only worker/wrangler.toml should exist — root-level configs break deploys)
 .wrangler
 /wrangler.json
 /wrangler.jsonc
@@ -22,6 +22,6 @@ chatbot/.dev.vars
 fleet_registration_log.json
 fleet_funding_log.json
 eas_attestation_log.json
-chatbot/.wrangler/
+worker/.wrangler/
 .wrangler/
 .notifications/

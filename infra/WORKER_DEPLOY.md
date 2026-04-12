@@ -15,7 +15,7 @@ yakrobot.bid (static, here.now)
 ## Setup
 
 ```bash
-cd chatbot
+cd worker
 npm install
 ```
 

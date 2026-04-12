@@ -23,7 +23,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 - **Persistence:** SQLite via `SyncTaskStore`
 - **Demo site:** `demo/landing/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
 - **Live demo:** `demo/marketplace/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
-- **Chatbot worker:** `chatbot/src/index.js` — Cloudflare Worker proxying to Anthropic API
+- **API worker:** `worker/src/index.js` — Cloudflare Worker (payment, demo proxy, feedback)
 - **Hosting:** here.now (yakrobot.bid) + Cloudflare Workers (/api/*)
 
 ## Key Commands
@@ -96,7 +96,7 @@ yakrover-marketplace/
 │   ├── landing/index.html       # Landing page (yakrobot.bid)
 │   └── explorer/                # YAML ontology explorer (yakrobot.bid/yaml)
 │
-├── chatbot/                     # Cloudflare Worker (yakrobot-chat)
+├── worker/                      # Cloudflare Worker — payment, demo proxy, feedback
 │   └── src/index.js             # Chat + demo API proxy
 │
 ├── infra/                       # Deployment configs (Fly.io)
