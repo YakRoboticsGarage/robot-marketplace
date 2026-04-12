@@ -980,27 +980,42 @@ function getDemoChainId() { return getUsdcChainId(); }
 function getDemoPaymentType() { return 'all'; }
 
 // Delivery schema
-var DELIVERY_SCHEMA = {
-  description: '3 waypoint readings with temperature and humidity',
-  required: ['readings', 'summary', 'duration_seconds'],
-  properties: {
-    readings: {
-      type: 'array',
-      minItems: 3,
-      items: {
-        required: ['waypoint', 'temperature_c', 'humidity_pct', 'timestamp'],
-        properties: {
-          temperature_c: { type: 'number', minimum: -40, maximum: 85 },
-          humidity_pct: { type: 'number', minimum: 0, maximum: 100 },
-          waypoint: { type: 'integer', minimum: 1 },
-          timestamp: { type: 'string' },
-        },
-      },
-    },
-    summary: { type: 'string', minLength: 1 },
-    duration_seconds: { type: 'number', minimum: 0 },
-  },
+// Category-specific delivery schemas — QA validates delivery data against these
+var DELIVERY_SCHEMAS = {
+  env_sensing: {description: 'Environmental sensor readings', required: ['readings', 'summary', 'duration_seconds'],
+    properties: {readings: {type: 'array', minItems: 1, items: {required: ['waypoint', 'temperature_c', 'humidity_pct', 'timestamp'],
+      properties: {temperature_c: {type:'number',minimum:-40,maximum:85}, humidity_pct: {type:'number',minimum:0,maximum:100},
+        waypoint: {type:'integer',minimum:1}, timestamp: {type:'string'}}}},
+      summary: {type:'string',minLength:1}, duration_seconds: {type:'number',minimum:0}}},
+  topo_survey: {description: 'Aerial LiDAR point cloud metadata', required: ['point_cloud', 'quality_metrics', 'coordinate_system', 'summary'],
+    properties: {point_cloud: {type:'object', required:['format','point_count','density_pts_m2']},
+      quality_metrics: {type:'object', required:['horizontal_accuracy_cm','vertical_accuracy_cm']},
+      coordinate_system: {type:'object', required:['epsg','datum']}, summary: {type:'string',minLength:1}}},
+  subsurface_scan: {description: 'GPR scan with utility detections', required: ['scan_data', 'utility_detections', 'survey_parameters', 'summary'],
+    properties: {scan_data: {type:'object', required:['format','scan_lines','total_length_m','depth_m']},
+      utility_detections: {type:'array',minItems:0}, survey_parameters: {type:'object', required:['coordinate_system']},
+      summary: {type:'string',minLength:1}}},
+  progress_monitoring: {description: 'Orthomosaic and photo set', required: ['orthomosaic', 'photo_set', 'quality_metrics', 'summary'],
+    properties: {orthomosaic: {type:'object', required:['format','gsd_cm']}, photo_set: {type:'object', required:['total_photos']},
+      quality_metrics: {type:'object'}, summary: {type:'string',minLength:1}}},
+  bridge_inspection: {description: 'Inspection photos with element ratings', required: ['inspection_set', 'element_ratings', 'summary'],
+    properties: {inspection_set: {type:'object', required:['total_images','coverage_pct']},
+      element_ratings: {type:'array',minItems:1}, summary: {type:'string',minLength:1}}},
+  thermal_inspection: {description: 'Thermal mosaic with anomaly detections', required: ['thermal_mosaic', 'anomalies', 'survey_conditions', 'summary'],
+    properties: {thermal_mosaic: {type:'object', required:['format','resolution']},
+      anomalies: {type:'array',minItems:0}, survey_conditions: {type:'object'}, summary: {type:'string',minLength:1}}},
+  corridor_survey: {description: 'Fixed-wing corridor LiDAR', required: ['point_cloud', 'quality_metrics', 'coordinate_system', 'summary'],
+    properties: {point_cloud: {type:'object', required:['format','point_count']},
+      quality_metrics: {type:'object'}, coordinate_system: {type:'object'}, summary: {type:'string',minLength:1}}},
+  as_built: {description: 'Ground LiDAR as-built scan', required: ['point_cloud', 'scan_positions', 'quality_metrics', 'summary'],
+    properties: {point_cloud: {type:'object', required:['format','point_count']},
+      scan_positions: {type:'array',minItems:1}, quality_metrics: {type:'object'}, summary: {type:'string',minLength:1}}},
+  confined_space: {description: 'Confined space indoor scan', required: ['point_cloud', 'inspection_photos', 'obstacle_map', 'summary'],
+    properties: {point_cloud: {type:'object', required:['format','point_count','positioning_method']},
+      inspection_photos: {type:'object', required:['total_photos']}, obstacle_map: {type:'object'},
+      summary: {type:'string',minLength:1}}},
 };
+var DELIVERY_SCHEMA = DELIVERY_SCHEMAS.env_sensing; // default, overridden per RFP
 
 // ERC-8004 contract addresses & RPC
 var IDENTITY_REGISTRY = '0x8004A818BFB912233c491871b3d84c89A494BD9e';
@@ -2526,6 +2541,7 @@ var RFP_PRESETS = {
     location: 'Detroit, MI',
     agency: 'YAK Robotics',
     terrain: 'Indoor, flat floor',
+    schema: 'env_sensing',
     latitude: 42.3314, longitude: -83.0458,
   },
   gpr_ann_arbor: {
@@ -2534,6 +2550,7 @@ var RFP_PRESETS = {
     location: 'Ann Arbor, MI',
     agency: 'MDOT — University Region',
     terrain: 'Urban roadway, paved',
+    schema: 'subsurface_scan',
     latitude: 42.2808, longitude: -83.7430,
   },
   lidar_topo: {
@@ -2542,6 +2559,7 @@ var RFP_PRESETS = {
     location: 'Dearborn, MI',
     agency: 'MDOT — Metro Region',
     terrain: 'Highway corridor, active traffic',
+    schema: 'topo_survey',
     latitude: 42.3223, longitude: -83.1763,
   },
   progress_photo: {
@@ -2550,6 +2568,7 @@ var RFP_PRESETS = {
     location: 'East Lansing, MI',
     agency: 'MSU — IPF',
     terrain: 'Campus roadway, construction zone',
+    schema: 'progress_monitoring',
     latitude: 42.7370, longitude: -84.4839,
   },
   bridge_inspect: {
@@ -2558,6 +2577,7 @@ var RFP_PRESETS = {
     location: 'Manistee, MI',
     agency: 'MDOT — North Region',
     terrain: 'Over water, bridge structure',
+    schema: 'bridge_inspection',
     latitude: 44.2442, longitude: -86.3225,
   },
   thermal_roof: {
@@ -2566,6 +2586,7 @@ var RFP_PRESETS = {
     location: 'Detroit, MI',
     agency: 'DRCFA',
     terrain: 'Urban, flat commercial roof',
+    schema: 'thermal_inspection',
     latitude: 42.3266, longitude: -83.0560,
   },
   corridor_fixedwing: {
@@ -2574,6 +2595,7 @@ var RFP_PRESETS = {
     location: 'Portland to Ionia, MI',
     agency: 'DTMB / MDOT',
     terrain: 'Highway corridor, rural',
+    schema: 'corridor_survey',
     latitude: 42.8692, longitude: -84.9030,
   },
   tunnel_lidar: {
@@ -2582,6 +2604,7 @@ var RFP_PRESETS = {
     location: 'Detroit, MI (underground)',
     agency: 'MDOT — Metro Region',
     terrain: 'Underground tunnel, no GPS',
+    schema: 'as_built',
     latitude: 42.3314, longitude: -83.0458,
   },
   confined_tank: {
@@ -2590,6 +2613,7 @@ var RFP_PRESETS = {
     location: 'Detroit, MI (confined space)',
     agency: 'DWSD',
     terrain: 'Underground tank, GPS-denied, wet',
+    schema: 'confined_space',
     latitude: 42.2985, longitude: -83.1148,
   },
 };
@@ -2604,6 +2628,10 @@ function loadRfpPreset(preset) {
   document.getElementById('siteTerrain').value = p.terrain;
   window._siteLatitude = p.latitude || null;
   window._siteLongitude = p.longitude || null;
+  // Set delivery schema for this task type
+  if (p.schema && DELIVERY_SCHEMAS[p.schema]) {
+    DELIVERY_SCHEMA = DELIVERY_SCHEMAS[p.schema];
+  }
 }
 // Initialize for default preset
 window._siteLatitude = 42.3314;

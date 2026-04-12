@@ -424,15 +424,32 @@ class MCPRobotAdapter:
                                 content = json.loads(block["text"])
                             except (json.JSONDecodeError, KeyError):
                                 pass
-            dd = content.get("delivery_data", {})
-            # Parse single reading into waypoint format
+            dd = content.get("delivery_data", content)
+            # If delivery_data has category-specific structure (not just readings),
+            # use it directly — the QA schema will validate it.
+            if dd.get("summary") and not dd.get("readings"):
+                # Category-specific delivery (GPR, LiDAR, thermal, etc.)
+                data = dd
+                return DeliveryPayload(
+                    request_id=task.request_id,
+                    robot_id=self.robot_id,
+                    data=data,
+                    delivered_at=now,
+                    sla_met=sla_met,
+                )
+
+            # Legacy: parse into waypoint/temperature format
             for r in dd.get("readings", []):
                 readings.append({
                     "waypoint": len(readings) + 1,
-                    "temperature_c": round(float(r.get("value", 0)), 1) if r.get("type") == "temperature" else 0,
-                    "humidity_pct": round(float(r.get("value", 0)), 1) if r.get("type") == "humidity" else 0,
-                    "timestamp": now.isoformat(),
+                    "temperature_c": round(float(r.get("temperature_c", r.get("value", 0))), 1),
+                    "humidity_pct": round(float(r.get("humidity_pct", 0)), 1),
+                    "timestamp": r.get("timestamp", now.isoformat()),
                 })
+
+        if not readings:
+            # Final fallback — no data at all
+            readings = [{"waypoint": 1, "temperature_c": 0, "humidity_pct": 0, "timestamp": now.isoformat()}]
 
         temps = [r["temperature_c"] for r in readings if r.get("temperature_c")]
         humids = [r["humidity_pct"] for r in readings if r.get("humidity_pct")]

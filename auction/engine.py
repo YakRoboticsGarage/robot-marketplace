@@ -581,6 +581,16 @@ class AuctionEngine:
             longitude=task_spec.get("longitude"),
         )
 
+        # Auto-inject delivery schema if not provided by caller
+        cap_req = task.capability_requirements
+        if isinstance(cap_req, dict) and "delivery_schema" not in cap_req:
+            try:
+                from auction.delivery_schemas import get_delivery_schema
+                schema = get_delivery_schema(task.task_category)
+                cap_req["delivery_schema"] = schema
+            except ImportError:
+                pass  # delivery_schemas module not available
+
         record = TaskRecord(
             request_id=task.request_id,
             task=task,
