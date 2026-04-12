@@ -42,12 +42,12 @@ Every feature on this roadmap exists to serve a named user. If a feature cannot 
 Three parallel workstreams to validate demand before building the next version:
 
 ### 1. GC Outreach
-- Engagement packages for general contractors (see `docs/wave1/`)
+- Engagement packages for general contractors (see `docs/_to_move/wave1/`, moving to robotTAM repo)
 - Target: 5-10 GC conversations to validate survey pain points, willingness to use a marketplace, and pricing expectations
 - Deliverable: Validated demand signal or pivot insight
 
 ### 2. Operator Outreach
-- Engagement packages for drone/robot operators (see `docs/wave1/`)
+- Engagement packages for drone/robot operators (see `docs/_to_move/wave1/`, moving to robotTAM repo)
 - Target: 5-10 operator conversations to validate supply-side economics, willingness to bid on tasks, and equipment readiness
 - Deliverable: Letter-of-intent pipeline or operator onboarding commitments
 
@@ -277,8 +277,8 @@ ACH does not support authorize/capture. Card uses Stripe manual capture (real ho
 | **Gate for v1.5** | At least 1 operator registered and activated |
 | **Robot verification** | Liveness probe on registration (MCP endpoint reachable). See PLAN_OPERATOR_REGISTRATION.md for v1.5+ verification roadmap (capability attestation, signed telemetry, delivery cross-verification). |
 | **Revert tag** | `v1.4-milestone-operator-registration` |
-| **Critique** | `docs/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md` |
-| **Assessment** | `docs/ASSESSMENT_TECHNICAL_STACK.md` |
+| **Critique** | `docs/architecture/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md` |
+| **Assessment** | `docs/architecture/ASSESSMENT_TECHNICAL_STACK.md` |
 
 ### What exists (backend — all implemented)
 
@@ -318,12 +318,12 @@ All 6 MCP tools for operator management are built and tested:
 - Two-step on-chain registration (mint → 3s delay → IPFS metadata write)
 - 100-finding code review completed + all resolved + re-review regressions fixed
 - Demo feedback button → GitHub issues
-- Technical stack assessment written (docs/ASSESSMENT_TECHNICAL_STACK.md)
+- Technical stack assessment written (docs/architecture/ASSESSMENT_TECHNICAL_STACK.md)
 - Error UX: unique IDs, pre-filled GitHub issues, sticky non-bumping bar
 - Non-root Dockerfile
 
 **Session 2 (2026-04-10):**
-- Critique of operator registration and demo engine (docs/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md)
+- Critique of operator registration and demo engine (docs/architecture/CRITIQUE_OPERATOR_REGISTRATION_AND_DEMO.md)
 - Full execution path traced: browser → Worker → Claude → MCP → engine → robot adapter → robot MCP
 - 5 priorities addressed: MCP endpoint URL in registration, What's Next guidance, tool discovery, re-discovery on every auction, execution source transparency
 - Dynamic MCP tool resolution: `_resolve_tools()` matches by name patterns instead of hardcoded if/else

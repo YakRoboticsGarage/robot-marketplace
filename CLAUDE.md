@@ -22,7 +22,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 - **Fleet:** Robot/operator discovery via ERC-8004, 37 MCP tools for agent interaction
 - **Persistence:** SQLite via `SyncTaskStore`
 - **Demo site:** `demo/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
-- **Live demo:** `docs/mcp_demo_5/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
+- **Live demo:** `demo/marketplace/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
 - **Chatbot worker:** `chatbot/src/index.js` — Cloudflare Worker proxying to Anthropic API
 - **Hosting:** here.now (yakrobot.bid) + Cloudflare Workers (/api/*)
 
@@ -91,36 +91,41 @@ yakrover-marketplace/
 │   ├── demo.py                  # Demo script
 │   └── tests/                   # 284 tests + integration stubs
 │
-├── demo/                        # Live website (yakrobot.bid)
-│   └── index.html               # Full interactive demo
+├── demo/                        # Live demo sites (published via here.now)
+│   ├── marketplace/index.html   # Live auction demo (yakrobot.bid/demo)
+│   ├── landing/index.html       # Landing page (yakrobot.bid)
+│   └── explorer/                # YAML ontology explorer (yakrobot.bid/yaml)
 │
 ├── chatbot/                     # Cloudflare Worker (yakrobot-chat)
 │   └── src/index.js             # Chat + demo API proxy
 │
-├── mcp_server.py                # Standalone REST API (37 MCP tools, Cloudflare Tunnel)
+├── fly-fleet-sim/               # Fleet simulator servers (9 categories, Fly.io)
+│   └── category_server.py       # Shared server with marketplace tools
 │
-├── docs/                        # Documentation
-│   ├── mcp_demo_5/index.html    # Live demo (yakrobot.bid/demo)
+├── data/                        # Static data files
+│   ├── sample_certs/            # Realistic sample credentials (FAA, ACORD 25, PLS, OSHA)
+│   └── (fleet_manifest.yaml at root)
+│
+├── scripts/                     # CLI tools
+│   ├── register_fleet.py        # Batch robot registration
+│   └── eas_attest.py            # EAS attestation management
+│
+├── mcp_server.py                # Standalone REST API (37 MCP tools)
+│
+├── docs/                        # Technical documentation
 │   ├── ROADMAP_v4.md            # Construction → Mining → Infra → Lunar
-│   ├── USER_JOURNEY_CONSTRUCTION_v01.md  # Marco's journey
-│   ├── FEATURE_REQUIREMENTS_v15.md       # v1.5 build spec
+│   ├── PLAN_100_ROBOT_FLEET.md  # 100-robot demo fleet plan
 │   ├── DECISIONS.md             # All product/technical decisions
-│   ├── DEVELOPMENT_STRATEGY.md  # Testing & code safety (5-layer strategy)
 │   ├── SCOPE.md                 # Version boundaries
-│   ├── DIAGRAM_SYSTEM.md        # System architecture diagrams
-│   ├── DIAGRAM_USER_JOURNEY.md  # User journey diagrams
-│   ├── research/                # 62 research docs (see research/README.md)
-│   │   ├── PRODUCT_DSL_v2.yaml  # THE product ontology (3,623 lines)
+│   ├── architecture/            # System design, tech assessments, diagrams
+│   ├── research/                # 75 research docs (see research/README.md)
+│   │   ├── PRODUCT_DSL_v2.yaml  # THE product ontology (3,600+ lines)
+│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 63 tracked improvement items
 │   │   ├── market/              # Wedge analysis, competitive landscape
 │   │   ├── legal/               # Contracts, bonds, payment flows
-│   │   ├── technical/           # Architecture, execution gaps
 │   │   └── operator/            # Onboarding, equipment, sensors
-│   ├── sample_certs/            # Realistic sample credentials (FAA, ACORD 25, PLS, OSHA)
-│   └── feedback/                # Audits, critiques, founder feedback
-│
-├── docs/wave1/                  # GC + operator engagement packages
-│   ├── docs/pitch/                  # Pitch deck source
-│   ├── docs/site/                   # YAML ontology explorer (yakrobot.bid/yaml)
+│   ├── feedback/                # Product feedback synthesis pipeline
+│   └── _to_move/               # Staging for robotTAM repo (pitch, outreach, financials)
 │
 ├── .claude/
 │   ├── skills/
@@ -132,14 +137,14 @@ yakrover-marketplace/
 │
 ├── .github/workflows/test.yml   # CI: tests + ruff + mypy
 ├── CLAUDE.md                    # Payment safety rules for Claude (this file)
-├── _REPORT-STYLE.md             # Report formatting and tone guide
+├── docs/REPORT-STYLE.md         # Report formatting and tone guide
 ├── serve_with_auction.py        # MCP gateway server
 └── pyproject.toml               # Dependencies, ruff, mypy config
 ```
 
 ## Style Guide
 
-All reports, engagement packages, and outreach documents follow the conventions in **`_REPORT-STYLE.md`**. See also [tropes.fyi](https://tropes.fyi) for anti-patterns to avoid in writing.
+All reports, engagement packages, and outreach documents follow the conventions in **`docs/REPORT-STYLE.md`**. See also [tropes.fyi](https://tropes.fyi) for anti-patterns to avoid in writing.
 
 ## Environment Variables
 

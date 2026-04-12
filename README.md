@@ -98,10 +98,10 @@ Start here, in this order:
 | 4 | **[Roadmap v4](docs/ROADMAP_v4.md)** | Construction → Mining → Infrastructure → Lunar |
 | 5 | **[Decisions](docs/DECISIONS.md)** | Every product and technical decision with rationale |
 | 6 | **[Feature Requirements v1.5](docs/FEATURE_REQUIREMENTS_v15.md)** | What's being built next (12 features with acceptance criteria) |
-| 7 | **[Wave 1 Engagement Packages](docs/wave1/)** | GC + operator outreach decks and one-pagers |
-| 8 | **[Financial Analysis](docs/research/financial/)** | Unit economics, pricing model, revenue projections |
-| 9 | **[Style Guide](_REPORT-STYLE.md)** | Report formatting, tone, and tropes.fyi reference |
-| 10 | **[Pitch Deck](https://yakrobot.bid/pitch)** | Investor/partner deck (live at yakrobot.bid/pitch) |
+| 7 | **[Architecture](docs/architecture/)** | System design, MCP deployment, tech assessments, diagrams |
+| 8 | **[Improvement Backlog](docs/research/IMPROVEMENT_BACKLOG.yaml)** | 63 tracked items with status and priority |
+| 9 | **[Style Guide](docs/REPORT-STYLE.md)** | Report formatting, tone, and tropes.fyi reference |
+| 10 | **[Fleet Plan](docs/PLAN_100_ROBOT_FLEET.md)** | 100-robot demo fleet: registration, attestation, testing |
 
 ## Live Sites
 
