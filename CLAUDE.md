@@ -138,7 +138,7 @@ yakrover-marketplace/
 ├── .github/workflows/test.yml   # CI: tests + ruff + mypy
 ├── CLAUDE.md                    # Payment safety rules for Claude (this file)
 ├── docs/REPORT-STYLE.md         # Report formatting and tone guide
-├── GETTING_STARTED.md           # Setup guide
+├── docs/guides/GETTING_STARTED.md  # Setup guide
 └── pyproject.toml               # Dependencies, ruff, mypy config
 ```
 

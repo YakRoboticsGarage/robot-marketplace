@@ -23,3 +23,5 @@ fleet_registration_log.json
 fleet_funding_log.json
 eas_attestation_log.json
 chatbot/.wrangler/
+.wrangler/
+.notifications/

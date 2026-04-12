@@ -84,7 +84,7 @@ PYTHONPATH=. uv run python auction/demo.py
 claude mcp add-json yakrover '{"type":"http","url":"http://localhost:8001/fleet/mcp"}'
 ```
 
-See [GETTING_STARTED.md](GETTING_STARTED.md) for full setup including Stripe and robot simulator.
+See [Getting Started](docs/guides/GETTING_STARTED.md) for full setup including Stripe and robot simulator.
 
 ## Key Documents
 
