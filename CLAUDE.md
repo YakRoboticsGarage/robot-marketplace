@@ -10,7 +10,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 **v1.2 status:** Demo-5 stable (2026-04-07). Single-signature USDC on Base mainnet. No platform fee. Professional buyer-facing UI. Always-on infrastructure (Fly.io + yakrover.online).
 **v1.3 status:** ACH bank transfer + 3-method payment selector (2026-04-08). Buyer chooses Card / Bank Transfer / Stablecoin at checkout. US Stripe account. Structured deploy scripts. Tags: `v1.3-milestone-ach-payment`.
 **v1.4 status:** Complete (2026-04-10). On-chain ERC-8004 registration on Base mainnet via agent0-sdk. 3-step UI (Profile > Equipment > Payment & Bidding). 3 registration modes (platform signs, operator wallet, Claude Code/MCP). Mock fleet archived — auction uses only on-chain discovered robots. 100-finding code review + re-review regressions fixed. Critique of operator registration and demo engine addressed. Dynamic MCP tool resolution (`_resolve_tools()` pattern matching). Registration writes robot's actual MCP endpoint + discovered tools to IPFS agent card. Privacy cleanup: bid_pct and email removed from IPFS. Buyer-friendly language audit (30+ UI strings). IPFS enrichment for ERC-8004 tool discovery. Discovery race condition fix. Operator profile popup redesign. Interface language mapping in ontology. Tags: `v1.4-milestone-operator-registration`.
-**v1.4.1 status:** 100-robot demo fleet (2026-04-11). 100 test robots registered on Base Sepolia across 18 operators, 14 real robot models, 9 MCP category servers on Fly.io. EAS attestation (100 demo_fleet + 1 live_production on Base mainnet). Geographic filtering (haversine hard cutoff). Busy state tracking. 9 MDOT RFP presets with lat/lng. EAS-based sidebar + server filtering. 37 MCP tools.
+**v1.4.1 status:** 100-robot demo fleet (2026-04-11). 100 test robots registered on Base Sepolia across 18 operators, 14 real robot models, 9 MCP category servers on Fly.io. EAS attestation (100 demo_fleet + 1 live_production on Base mainnet). Geographic filtering (haversine hard cutoff). Busy state tracking. 9 MDOT RFP presets with lat/lng. EAS-based sidebar + server filtering. 39 MCP tools.
 **Next:** v1.5 (settlement abstraction + construction task specs + SvelteKit frontend migration). Gated on v1.4. Immediate next: delivery schema per task type (QA currently fails for non-temperature tasks), realistic delivery payloads, multi-task RFP decomposition. See `docs/FEATURE_REQUIREMENTS_v15.md` and `docs/PLAN_100_ROBOT_FLEET.md`.
 **Live sites:** [yakrobot.bid/demo](https://yakrobot.bid/demo/) (current demo), [yakrobot.bid](https://yakrobot.bid), [yakrobot.bid/yaml](https://yakrobot.bid/yaml), [yakrobot.bid/pitch](https://yakrobot.bid/pitch). Older demos archived in `docs/archive/`.
 
@@ -19,7 +19,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 - **Auction engine:** `auction/` — Task, Bid, AuctionResult, score_bids(), state machine, settlement abstraction
 - **Payment:** Stripe Connect (fiat) + USDC on Base via x402 (crypto, v1.5). Construction scale: $10K-$200K per project, not micro-payments.
 - **Escrow:** `RobotTaskEscrow.sol` on Base with 4-mode settlement abstraction (FD-1, v1.5)
-- **Fleet:** Robot/operator discovery via ERC-8004, 37 MCP tools for agent interaction
+- **Fleet:** Robot/operator discovery via ERC-8004, 39 MCP tools for agent interaction
 - **Persistence:** SQLite via `SyncTaskStore`
 - **Demo site:** `demo/landing/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
 - **Live demo:** `demo/marketplace/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
@@ -80,7 +80,7 @@ yakrover-marketplace/
 │   ├── engine.py                # AuctionEngine — state machine, rate limits
 │   ├── api.py                   # HTTP API for web frontend
 │   ├── settlement.py            # 4-mode settlement abstraction (FD-1)
-│   ├── mcp_tools.py             # 37 MCP tool handlers
+│   ├── mcp_tools.py             # 39 MCP tool handlers
 │   ├── wallet.py                # WalletLedger with thread-safe mutations
 │   ├── stripe_service.py        # Stripe SDK with idempotency keys
 │   ├── store.py                 # SQLite persistence
@@ -111,7 +111,7 @@ yakrover-marketplace/
 │   ├── register_fleet.py        # Batch robot registration
 │   └── eas_attest.py            # EAS attestation management
 │
-├── mcp_server.py                # Standalone REST API (37 MCP tools)
+├── mcp_server.py                # Standalone REST API (39 MCP tools)
 │
 ├── docs/                        # Technical documentation
 │   ├── ROADMAP_v4.md            # Construction → Mining → Infra → Lunar
@@ -119,9 +119,9 @@ yakrover-marketplace/
 │   ├── DECISIONS.md             # All product/technical decisions
 │   ├── SCOPE.md                 # Version boundaries
 │   ├── architecture/            # System design, tech assessments, diagrams
-│   ├── research/                # 75 research docs (see research/README.md)
+│   ├── research/                # 51 research docs (see research/README.md)
 │   │   ├── PRODUCT_DSL_v2.yaml  # THE product ontology (3,600+ lines)
-│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 63 tracked improvement items
+│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 70 tracked improvement items
 │   │   ├── market/              # Wedge analysis, competitive landscape
 │   │   ├── legal/               # Contracts, bonds, payment flows
 │   │   └── operator/            # Onboarding, equipment, sensors

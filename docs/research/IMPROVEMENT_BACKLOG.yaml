@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-13'
-  total_items: 66
-  implemented: 15
-  deferred: 4
+  total_items: 74
+  implemented: 11
+  deferred: 8
   rejected: 1
-  proposed: 46
+  proposed: 54
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
-  last_sync: "R-007 (2026-04-13) — added IMP-068/069/070 (electronic seal/PLS compliance)"
+  last_sync: "daily-review-2026-04-13 — added IMP-071/072/073/074 (code quality: mcp_tools split, stat drift CI, engine prep, meta auto-sync)"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -1134,6 +1134,78 @@ proposals:
   evidence: docs/research/automated/R-007_electronic_survey_seal_stamp_regulations.md
   effort: small
   priority: medium
+  status: proposed
+  proposed_date: '2026-04-13'
+  decision_date: null
+  decision_notes: null
+- id: IMP-071
+  title: Split mcp_tools.py into domain modules
+  description: >
+    mcp_tools.py is 2,032 lines containing 39 tools across 6 functional domains:
+    auction lifecycle (15 tools), compliance (6 tools), operator registration (7 tools),
+    RFP processing (3 tools), EAS attestation (1 tool), tracking/feedback (5 tools), agreement (1 tool).
+    Propose splitting into domain modules under auction/tools/:
+    auction_tools.py, compliance_tools.py, registration_tools.py, rfp_tools.py, tracking_tools.py.
+    register_auction_tools() in mcp_tools.py becomes a thin dispatcher that imports from each module.
+    No behavior changes — pure file reorganization to improve navigability before v1.5 adds more tools.
+  module: M20_mcp_server
+  research_source: daily-review-2026-04-13
+  evidence: auction/mcp_tools.py
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-13'
+  decision_date: null
+  decision_notes: null
+- id: IMP-072
+  title: Add CI check for stat drift in admin docs
+  description: >
+    CLAUDE.md, README.md, ROADMAP_v4.md, and PRODUCT_DSL_v2.yaml all hand-maintain MCP tool counts,
+    test counts, LOC, and backlog totals. These drift between releases (e.g. 37 vs 39 tools found today).
+    Add a scripts/check_stats.sh that greps the actual counts from the codebase and compares against
+    claimed values in each doc, printing a PASS/FAIL diff. Wire into GitHub Actions CI as a non-blocking
+    warning (exit 0 but annotate). Eliminates the manual audit step of the daily docs-sync job.
+  module: M99_infra
+  research_source: daily-review-2026-04-13
+  evidence: .github/workflows/test.yml
+  effort: small
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-13'
+  decision_date: null
+  decision_notes: null
+- id: IMP-073
+  title: Extract AuctionEngine state handlers into strategy objects (pre-v1.5)
+  description: >
+    engine.py is 1,447 lines. The v1.5 settlement abstraction (FD-1) will add 4 payment routes
+    (Stripe capture, USDC transfer, escrow release, bond draw). Before that work begins,
+    consider extracting per-state handlers (handle_delivery, handle_settlement, handle_rejection)
+    into a SettlementStrategy interface. This isolates chain-specific logic to a single injection
+    point, which is the intent of FD-1. No behavior changes in v1.4.1 — reduces risk of v1.5 regressions.
+    Defer if v1.5 timeline is under 2 weeks.
+  module: M30_settlement
+  research_source: daily-review-2026-04-13
+  evidence: auction/engine.py
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-13'
+  decision_date: null
+  decision_notes: null
+- id: IMP-074
+  title: IMPROVEMENT_BACKLOG.yaml meta header auto-sync via pre-commit
+  description: >
+    The meta section (total_items, implemented, deferred, rejected, proposed) drifts from
+    actual counts. Found today: claimed 66/46/15/4, actual 70/50/11/8.
+    Add a pre-commit hook (scripts/sync_backlog_meta.py) that reads IMPROVEMENT_BACKLOG.yaml,
+    computes counts by status, and rewrites the meta block in place. Run with:
+    uv run python scripts/sync_backlog_meta.py docs/research/IMPROVEMENT_BACKLOG.yaml
+    This is ~20 lines of Python and eliminates the manual re-count step during daily review.
+  module: M99_infra
+  research_source: daily-review-2026-04-13
+  evidence: docs/research/IMPROVEMENT_BACKLOG.yaml
+  effort: small
+  priority: low
   status: proposed
   proposed_date: '2026-04-13'
   decision_date: null

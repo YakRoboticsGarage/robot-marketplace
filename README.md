@@ -47,7 +47,7 @@ Task Registry ──→ Executor Registry ──→ Verification Engine ──�
 | **Executor Registry** | Credentials, equipment, coverage, performance history, insurance | `auction/operator_registry.py`, ERC-8004 on-chain identity |
 | **Verification Engine** | Spec + measurement → compliance judgment, confidence metric, audit trail | `auction/deliverable_qa.py`, `auction/delivery_schemas.py` |
 | **Settlement Layer** | Escrow on task initiation, release on verified completion, hold on dispute | `auction/settlement.py`, Stripe Connect, USDC on Base |
-| **Coordination Protocol** | Post → discover → match → execute → verify → settle → record | `auction/engine.py` (state machine), `auction/mcp_tools.py` (37 MCP tools) |
+| **Coordination Protocol** | Post → discover → match → execute → verify → settle → record | `auction/engine.py` (state machine), `auction/mcp_tools.py` (39 MCP tools) |
 
 ## Protocol vs. Product
 
@@ -70,7 +70,7 @@ yakrover-marketplace/
 │   ├── core.py                  # Task, Bid, scoring, signing, haversine geo filter
 │   ├── engine.py                # AuctionEngine — state machine, geo + busy filtering
 │   ├── contracts.py             # On-chain addresses (single source of truth)
-│   ├── mcp_tools.py             # 37 MCP tool handlers
+│   ├── mcp_tools.py             # 39 MCP tool handlers
 │   ├── delivery_schemas.py      # 8 category-specific QA schemas [vertical: construction]
 │   ├── compliance.py            # Part 107, PLS, COI verification [vertical: construction]
 │   ├── rfp_processor.py         # Construction RFP parsing [vertical: construction]
@@ -101,7 +101,7 @@ yakrover-marketplace/
 ├── worker/                      # Cloudflare Worker — payment, demo proxy, balance monitor
 ├── docs/                        # Documentation
 │   ├── architecture/            # System design docs, protocol separation assessment
-│   ├── research/                # 55 research docs + PRODUCT_DSL ontology + backlog
+│   ├── research/                # 51 research docs + PRODUCT_DSL ontology + backlog
 │   ├── guides/                  # Getting started, operations runbook
 │   ├── onboarding/              # Operator onboarding guides
 │   ├── site/                    # Product brief site (yakrobot.bid/yaml)
@@ -146,7 +146,7 @@ See [Getting Started](docs/guides/GETTING_STARTED.md) for full setup including S
 
 The first domain implementation. 100 test robots, 18 Michigan operators, 14 real commercial models.
 
-- **37 MCP tools** — auction lifecycle, RFP parsing, operator registration, compliance, EAS attestation
+- **39 MCP tools** — auction lifecycle, RFP parsing, operator registration, compliance, EAS attestation
 - **9 category MCP servers** on Fly.io — aerial LiDAR, photo, thermal, GPR, bridge, corridor, tunnel, confined, env sensing
 - **101 EAS attestations** — 100 demo_fleet (Base Sepolia) + 1 live_production (Base mainnet)
 - **Geographic filtering** — haversine hard cutoff, robots only bid within service radius
