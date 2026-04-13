@@ -377,9 +377,6 @@ body.panel-open { margin-right: 320px; }
 <!-- Collaboration layer — pinned floating button -->
 <div class="fab">
   <button class="fab-btn" onclick="togglePanel()">
-    <span class="fab-icon">&#128065;</span>
-    <span id="eyeCount">0</span>
-    <span style="color:#e2e8f0">|</span>
     <span>Notes</span>
     <span class="fb-badge" id="commentBadge">0</span>
   </button>
@@ -431,30 +428,7 @@ body.panel-open { margin-right: 320px; }
 
 <script>
 var API = 'https://yakrobot-api.rafaeldf2.workers.dev';
-var readerId = null;
 var panelOpen = false;
-
-// --- Presence heartbeat ---
-function heartbeat() {
-  fetch(API + '/api/memo/heartbeat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reader_id: readerId }),
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (!readerId) readerId = d.reader_id;
-  }).catch(function() {});
-}
-
-function refreshPresence() {
-  fetch(API + '/api/memo/presence').then(function(r) { return r.json(); }).then(function(d) {
-    document.getElementById('eyeCount').textContent = d.count || 0;
-  }).catch(function() {});
-}
-
-heartbeat();
-refreshPresence();
-setInterval(heartbeat, 30000);
-setInterval(refreshPresence, 15000);
 
 // --- Side panel ---
 function togglePanel() {

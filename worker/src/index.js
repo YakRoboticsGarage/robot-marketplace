@@ -293,12 +293,7 @@ export default {
     }
 
     // Memo collaboration endpoints
-    if (url.pathname === "/api/memo/heartbeat" && request.method === "POST") {
-      return handleMemoHeartbeat(request, env, cors);
-    }
-    if (url.pathname === "/api/memo/presence" && request.method === "GET") {
-      return handleMemoPresence(env, cors);
-    }
+    // memo/heartbeat and memo/presence removed — KV operations too high
     if (url.pathname === "/api/memo/comment" && request.method === "POST") {
       return handleMemoComment(request, env, cors);
     }
@@ -2598,37 +2593,6 @@ async function checkRelayBalance(env) {
 }
 
 // --- Memo collaboration (presence + inline comments → GitHub Issues) ---
-
-const MEMO_PRESENCE_PREFIX = "memo:reader:";
-const MEMO_HEARTBEAT_TTL = 90; // seconds — reader considered gone after this
-
-async function handleMemoHeartbeat(request, env, cors) {
-  if (!env.RATE_LIMIT_KV) {
-    return new Response(JSON.stringify({ error: "KV not configured" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
-  }
-  let body = {};
-  try { body = await request.json(); } catch {}
-  const readerId = body.reader_id || crypto.randomUUID();
-  await env.RATE_LIMIT_KV.put(
-    MEMO_PRESENCE_PREFIX + readerId,
-    JSON.stringify({ ts: Date.now(), name: body.name || "Anonymous" }),
-    { expirationTtl: MEMO_HEARTBEAT_TTL }
-  );
-  return new Response(JSON.stringify({ reader_id: readerId }), {
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}
-
-async function handleMemoPresence(env, cors) {
-  if (!env.RATE_LIMIT_KV) {
-    return new Response(JSON.stringify({ count: 0 }), { headers: { ...cors, "Content-Type": "application/json" } });
-  }
-  // List all active reader keys (KV auto-expires stale ones via TTL)
-  const list = await env.RATE_LIMIT_KV.list({ prefix: MEMO_PRESENCE_PREFIX, limit: 200 });
-  return new Response(JSON.stringify({ count: list.keys.length }), {
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}
 
 async function handleMemoComment(request, env, cors) {
   let body;
