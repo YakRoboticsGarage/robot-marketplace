@@ -232,8 +232,10 @@ body.panel-open { margin-right: 320px; }
   <div class="meta">Partner Brief &mdash; April 2026 &mdash; yakrobot.bid</div>
 </div>
 
-<p style="font-size:18px;color:#1A1F26;font-weight:500;margin-bottom:12px">A Protocol for Verified Physical-World Task Execution</p>
-<p style="margin-bottom:24px"><button class="cta-touch cta-touch-sm" onclick="showContact()">Get in Touch</button></p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <p style="font-size:18px;color:#1A1F26;font-weight:500;margin:0">A Protocol for Verified Physical-World Task Execution</p>
+  <button class="cta-touch cta-touch-sm" onclick="showContact()">Get in Touch</button>
+</div>
 
 <h2>Problem</h2>
 <p>Digital service procurement is structured: API calls carry machine-readable specifications, delivery is verified algorithmically, and settlement occurs in milliseconds. Physical service procurement is unstructured: phone calls carry verbal scope, executor selection is relationship-based, delivery is verified by human inspection, and settlement follows a 30-60 day invoice cycle. No protocol exists that integrates machine-readable task specification, algorithmic executor matching, automated completion verification, and programmatic settlement for physical-world work.</p>
@@ -242,17 +244,17 @@ body.panel-open { margin-right: 320px; }
 <div class="cols">
   <div>
     <p><strong>Autonomous collection:</strong> DroneDeploy operates docked drones on 100+ projects (Oct 2025). Komatsu SMARTCONSTRUCTION: 35,000 sites in Japan (Nov 2025).</p>
-    <p><strong>Digital design deliverables:</strong> Japan i-Construction: 86% ICT adoption in 6 years via mandate. Norway V770: 50%+ change order reduction with model-based delivery.</p>
-    <p><strong>Numerical regulatory specs:</strong> MDOT Section 205.03.N: subgrade &plusmn;1 inch. Section 302.03.A: aggregate base &plusmn;&frac12; inch. Published, deterministic, machine-parseable.</p>
+    <p><strong>Digital design deliverables:</strong> Japan i-Construction: 86% information and communications technology (ICT) adoption in 6 years via mandate. Norway V770: 50%+ change order reduction with model-based delivery.</p>
+    <p><strong>Numerical regulatory specs:</strong> Michigan Department of Transportation (MDOT) Section 205.03.N: subgrade &plusmn;1 inch. Section 302.03.A: aggregate base &plusmn;&frac12; inch. Published, deterministic, machine-parseable.</p>
   </div>
   <div>
-    <p><strong>Workforce decline:</strong> Average US PLS age: 57-60 (ASCE/NSPS). 51% of engineering firms turning down work (ACEC Q4 2024). 8-year licensing pipeline. Equivalent shortages documented in Japan, Korea, Australia, Europe.</p>
-    <p><strong>Agent tool-use:</strong> Model Context Protocol (Anthropic, 2024): thousands of tool servers. Agent-mediated procurement of physical services does not exist today. The infrastructure is being built.</p>
+    <p><strong>Workforce decline:</strong> Average US Professional Land Surveyor (PLS) age: 57-60 (American Society of Civil Engineers / National Society of Professional Surveyors). 51% of engineering firms turning down work (American Council of Engineering Companies, Q4 2024). 8-year licensing pipeline. Equivalent shortages documented in Japan, Korea, Australia, Europe.</p>
+    <p><strong>Agent tool-use:</strong> Model Context Protocol (MCP, Anthropic 2024): thousands of tool servers. Agent-mediated procurement of physical services does not exist today. The infrastructure is being built.</p>
   </div>
 </div>
 
 <h2>Four Preconditions for Task Liquidity</h2>
-<p>A physical-world task becomes algorithmically procurable when four conditions are simultaneously met: structured specification (task describable in machine-readable terms), qualified executor discovery (credentials verifiable programmatically), machine-verifiable completion (algorithm determines success), and programmatic settlement (payment triggers on verified delivery). Construction survey on DOT highway projects satisfies all four with currently available technology.</p>
+<p>A physical-world task becomes algorithmically procurable when four conditions are simultaneously met: structured specification (task describable in machine-readable terms), qualified executor discovery (credentials verifiable programmatically), machine-verifiable completion (algorithm determines success), and programmatic settlement (payment triggers on verified delivery). Construction survey on Department of Transportation (DOT) highway projects satisfies all four with currently available technology.</p>
 
 <h2>Sample Protocol Stack</h2>
 <div class="stack-row"><span class="stack-label">Protocol</span><span class="stack-value">Runtime procurement and verified execution of physical-world tasks</span></div>
@@ -260,21 +262,21 @@ body.panel-open { margin-right: 320px; }
 <div class="stack-row"><span class="stack-label">Industry</span><span class="stack-value">Construction survey, inspection, material delivery, environmental compliance</span></div>
 <div class="stack-row"><span class="stack-label">Product job</span><span class="stack-value">Continuous verification that digital designs are based on accurate world models and as-built reporting matches physical developments</span></div>
 <div class="stack-row"><span class="stack-label">Offering</span><span class="stack-value">Certified data provision with integrated deviation analysis</span></div>
-<div class="stack-row"><span class="stack-label">Service Domain</span><span class="stack-value">MDOT highway construction &mdash; tightest specification-to-verification loop</span></div>
+<div class="stack-row"><span class="stack-label">Service Domain</span><span class="stack-value">MDOT highway construction &mdash; tightest specification-to-verification loop in US infrastructure</span></div>
 
 <h2>Protocol Components and Development Status (v1.4.1 &mdash; Alpha, Functional)</h2>
 <p>The protocol is implemented as seven modules. The verification engine is the domain-specific component; all others are domain-agnostic and shared across verticals.</p>
 <div class="cols" style="margin-top:4px">
   <div>
-    <p><strong>Coordination Layer:</strong> MCP-native interface (FastMCP), reverse auction engine (11-state lifecycle, 4-factor scoring, geographic filtering). Deployed on Fly.io. <em>Alpha, functional.</em></p>
-    <p><strong>Task Registry:</strong> 18 task categories with structured capability requirements (ASPRS accuracy, CRS EPSG, sensors, deliverables). RFP-to-spec conversion. <em>Alpha, functional.</em></p>
-    <p><strong>Executor Registry:</strong> ERC-8004 robot identity on Base mainnet + Sepolia. Discovery via The Graph. EAS attestation. 1 production + 100 demo registrations. <em>Alpha, deployed on mainnet.</em></p>
-    <p><strong>Credential Verification:</strong> SAM.gov Exclusions API (live). Bond verification against Treasury Circular 570 (live, 500+ sureties). PLS and insurance: schema-complete, stubs. <em>SAM.gov and bond live.</em></p>
+    <p><strong>Coordination Layer:</strong> MCP-native interface, reverse auction engine (11-state lifecycle, 4-factor scoring, geographic filtering). Deployed on Fly.io. <em>Alpha, functional.</em></p>
+    <p><strong>Task Registry:</strong> 18 task categories with structured capability requirements (American Society for Photogrammetry and Remote Sensing accuracy classes, coordinate reference system codes, sensors, deliverables). Request for Proposal (RFP) to spec conversion. <em>Alpha, functional.</em></p>
+    <p><strong>Executor Registry:</strong> On-chain robot identity (ERC-8004 standard on Base). Discovery via The Graph indexing protocol. Ethereum Attestation Service (EAS) for platform attestation. 1 production + 100 demo registrations. <em>Alpha, deployed on mainnet.</em></p>
+    <p><strong>Credential Verification:</strong> SAM.gov Exclusions API (live). Bond verification against Treasury Circular 570 (live, 500+ sureties). PLS and insurance verification: schema-complete, stubs. <em>SAM.gov and bond live.</em></p>
   </div>
   <div>
-    <p><strong>Verification Engine:</strong> QA framework (4 levels, 8 category schemas). Geospatial surface comparison, specification database, and compliance reporting are next phase. <em>QA framework functional; geospatial not implemented.</em></p>
-    <p><strong>Settlement Layer:</strong> Stripe (authorize/capture), Connect Express, ACH, USDC on Base (EIP-3009, gasless). 4-mode abstraction designed. <em>Mode 1 operational; modes 2-4 designed.</em></p>
-    <p><strong>Robot Federation:</strong> MCPRobotAdapter, 9 category simulators on Fly.io. Dynamic tool resolution. 1 physical robot connected. <em>Simulators operational; no production survey robots.</em></p>
+    <p><strong>Verification Engine:</strong> Quality assurance framework (4 levels, 8 category schemas). Geospatial surface comparison, specification database, and compliance reporting are next phase. <em>QA framework functional; geospatial not implemented.</em></p>
+    <p><strong>Settlement Layer:</strong> Stripe (authorize/capture), Connect Express, Automated Clearing House (ACH) bank transfer, USDC stablecoin on Base (gasless). 4-mode abstraction designed. <em>Mode 1 operational; modes 2-4 designed.</em></p>
+    <p><strong>Robot Federation:</strong> MCP-to-MCP robot adapter, 9 category simulators on Fly.io. Dynamic tool resolution. 1 physical robot connected. <em>Simulators operational; no production survey robots.</em></p>
   </div>
 </div>
 
@@ -283,16 +285,16 @@ body.panel-open { margin-right: 320px; }
 <h2>Vertical Feasibility</h2>
 <table>
   <tr><th>Domain</th><th>Specification</th><th>Verification</th><th>Assessment</th></tr>
-  <tr><td>Highway survey</td><td>State DOT tolerances</td><td>Surface subtraction, RMSE</td><td>All preconditions met</td></tr>
-  <tr><td>Environmental</td><td>EPA/EGLE permits</td><td>Sensor threshold</td><td>Met (quantifiable params)</td></tr>
-  <tr><td>Solar/wind</td><td>IEC standards</td><td>Thermal anomaly</td><td>Production (Zeitview)</td></tr>
-  <tr><td>Mining</td><td>MSHA + ops specs</td><td>Volumetric analysis</td><td>Same sensor stack</td></tr>
-  <tr><td>Bridge inspection</td><td>NBI/AASHTO</td><td>Point-to-model + CV</td><td>Partial (human judgment needed)</td></tr>
+  <tr><td>Highway survey</td><td>State DOT tolerances</td><td>Surface subtraction, root mean square error</td><td>All preconditions met</td></tr>
+  <tr><td>Environmental</td><td>EPA / Michigan EGLE permits</td><td>Sensor threshold comparison</td><td>Met (quantifiable parameters)</td></tr>
+  <tr><td>Solar/wind</td><td>International Electrotechnical Commission (IEC) standards</td><td>Thermal anomaly detection</td><td>Production (Zeitview)</td></tr>
+  <tr><td>Mining</td><td>Mine Safety and Health Administration (MSHA) + operational specs</td><td>Volumetric analysis</td><td>Same sensor stack</td></tr>
+  <tr><td>Bridge inspection</td><td>National Bridge Inventory (NBI) / AASHTO</td><td>Point-to-model + computer vision</td><td>Partial (human judgment needed)</td></tr>
 </table>
 <p class="footnote">Each vertical adds a specification database and verification function. Protocol layer is unchanged.</p>
 
 <h2>Ecosystem Integration</h2>
-<p>The protocol accepts measurement data from any source: DroneDeploy (docked drones, ground robots), Propeller Aero (AeroPoints, DirtMate), Trimble/SITECH (TBC exports, machine control), Komatsu/EARTHBRAIN (SMARTCONSTRUCTION), and Procore/Autodesk (workflow integration). Robot operators (FAA Part 107 drone operators, ground robot operators, survey firms) serve as the qualified executor pool. Vertical commercial products built on the protocol verify against regulatory requirements such as DOT specifications.</p>
+<p>The protocol accepts measurement data from any source: DroneDeploy (docked drones, ground robots), Propeller Aero (AeroPoints, DirtMate), Trimble/SITECH (TBC exports, machine control), Komatsu/EARTHBRAIN (SMARTCONSTRUCTION), and Procore/Autodesk (workflow integration). Robot operators (Federal Aviation Administration Part 107 drone operators, ground robot operators, survey firms) serve as the qualified executor pool. Vertical commercial products built on the protocol verify against regulatory requirements such as DOT specifications.</p>
 
 <h2>Roadmap</h2>
 <div class="cols">
@@ -301,15 +303,15 @@ body.panel-open { margin-right: 320px; }
     <p><strong>v1.5 (next):</strong> Construction verification engine (geospatial ingestion, surface comparison, MDOT spec database, compliance reports). Settlement modes 2-4. Task encryption. First real operator.</p>
   </div>
   <div>
-    <p><strong>v2.0:</strong> Multi-robot workflows (aerial + ground + GPR). Operator dashboard. Live credential APIs (PLS boards, insurance). Weather-aware scheduling. Agent-initiated payment.</p>
-    <p><strong>v2.5-3.0:</strong> Mining/quarry specs. Infrastructure inspection (NBI). Privacy: ZK proofs (SP1), Horizen L3, BBS+ anonymous reputation.</p>
+    <p><strong>v2.0:</strong> Multi-robot workflows (aerial + ground-penetrating radar + ground LiDAR). Operator dashboard. Live credential APIs (PLS boards, insurance). Weather-aware scheduling. Agent-initiated payment.</p>
+    <p><strong>v2.5-3.0:</strong> Mining/quarry specs. Infrastructure inspection (NBI). Privacy: zero-knowledge proofs, anonymous reputation credentials.</p>
   </div>
 </div>
 
 <h2>Technical Challenges</h2>
 <div class="cols">
   <div>
-    <p><strong>Privacy:</strong> Task encryption via ECDH + AES-256-GCM. On-chain memos: H(request_id || salt) only. Settlement privacy: 4-mode abstraction, Horizen L3 under evaluation (EU AMLR Article 79 constraints). BBS+ reputation credentials planned.</p>
+    <p><strong>Privacy:</strong> Task encryption via standard elliptic-curve key exchange + AES-256 encryption. On-chain memos use commitment hashes only (no plaintext task data). Settlement privacy: 4-mode abstraction, Horizen L3 under evaluation (EU Anti-Money Laundering Regulation Article 79 constraints). Anonymous reputation credentials planned.</p>
   </div>
   <div>
     <p><strong>Scale:</strong> Operator supply density uncertain in rural corridors. Credential APIs fragmented (50 state PLS boards). Trust bootstrapping requires managed curation (Brooks Act QBS culture). MDOT drone data acceptance not yet standard.</p>
