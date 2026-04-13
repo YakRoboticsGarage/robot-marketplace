@@ -2644,19 +2644,7 @@ async function handleMemoComment(request, env, cors) {
   const timestamp = new Date().toISOString();
   const commenterName = name || "Anonymous";
 
-  // Store in KV for side panel display
-  if (env.FEEDBACK_KV) {
-    const commentId = `memo:comment:${Date.now()}:${crypto.randomUUID().slice(0, 8)}`;
-    await env.FEEDBACK_KV.put(commentId, JSON.stringify({
-      highlight: (highlight || "").slice(0, 500),
-      comment: comment.slice(0, 2000),
-      section: (section || "").slice(0, 200),
-      name: commenterName.slice(0, 100),
-      timestamp,
-    }), { expirationTtl: 365 * 86400 });
-  }
-
-  // Create GitHub Issue
+  // Create GitHub Issue first (so we can store the URL in KV)
   let issueUrl = null;
   if (env.GITHUB_TOKEN) {
     try {
@@ -2697,6 +2685,19 @@ async function handleMemoComment(request, env, cors) {
     } catch (e) {
       console.error("GitHub issue creation failed:", e);
     }
+  }
+
+  // Store in KV for side panel display (after issue creation so we have the URL)
+  if (env.FEEDBACK_KV) {
+    const commentId = `memo:comment:${Date.now()}:${crypto.randomUUID().slice(0, 8)}`;
+    await env.FEEDBACK_KV.put(commentId, JSON.stringify({
+      highlight: (highlight || "").slice(0, 500),
+      comment: comment.slice(0, 2000),
+      section: (section || "").slice(0, 200),
+      name: commenterName.slice(0, 100),
+      issue_url: issueUrl,
+      timestamp,
+    }), { expirationTtl: 365 * 86400 });
   }
 
   return new Response(JSON.stringify({

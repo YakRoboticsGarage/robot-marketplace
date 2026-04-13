@@ -348,11 +348,8 @@ body.panel-open { margin-right: 320px; }
 
 <div class="feedback-panel" id="feedbackPanel">
   <div class="fp-header">
-    <span class="fp-title">Feedback</span>
-    <span>
-      <button class="fp-refresh" id="refreshBtn" onclick="refreshComments()" title="Refresh">&#8635;</button>
-      <button class="fp-close" onclick="togglePanel()">&times;</button>
-    </span>
+    <span class="fp-title">Feedback <button class="fp-refresh" id="refreshBtn" onclick="refreshComments()" title="Refresh">&#8635;</button></span>
+    <button class="fp-close" onclick="togglePanel()">&times;</button>
   </div>
   <div id="commentList"><div class="fp-empty">Highlight any text to leave a comment.</div></div>
 </div>
@@ -430,7 +427,7 @@ function loadComments() {
       if (c.highlight) h += '<div class="fp-comment-highlight">"' + esc(c.highlight.slice(0, 120)) + (c.highlight.length > 120 ? '...' : '') + '"</div>';
       h += '<div class="fp-comment-text">' + esc(c.comment) + '</div>';
       var when = c.timestamp ? new Date(c.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-      h += '<div class="fp-comment-meta">' + esc(c.name || 'Anonymous') + (when ? ' · ' + when : '') + (c.section ? ' · ' + esc(c.section) : '') + '</div>';
+      h += '<div class="fp-comment-meta">' + esc(c.name || 'Anonymous') + (when ? ' · ' + when : '') + (c.section ? ' · ' + esc(c.section) : '') + (c.issue_url ? ' · <a href="' + esc(c.issue_url) + '" target="_blank" style="color:#2D5F8A">thread</a>' : '') + '</div>';
       h += '</div>';
     });
     document.getElementById('commentList').innerHTML = h;
