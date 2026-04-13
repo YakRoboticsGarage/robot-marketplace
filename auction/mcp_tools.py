@@ -1073,6 +1073,221 @@ def register_auction_tools(
             return _error_response(exc)
 
     # ------------------------------------------------------------------
+    # Guided operator onboarding (conversational wrapper)
+    # ------------------------------------------------------------------
+
+    COMMON_MODELS = {
+        "aerial_lidar": "DJI Matrice 350 RTK + Zenmuse L2",
+        "photogrammetry": "DJI Matrice 350 RTK + Zenmuse P1",
+        "thermal_camera": "DJI Matrice 350 RTK + Zenmuse H30T",
+        "terrestrial_lidar": "Boston Dynamics Spot + Leica BLK ARC",
+        "gpr": "Boston Dynamics Spot + GSSI StructureScan Mini XT",
+        "rtk_gps": "Trimble R12i",
+        "robotic_total_station": "Leica TS16",
+    }
+
+    @mcp.tool()
+    async def auction_onboard_operator_guided(
+        company_name: str,
+        equipment_type: str,
+        location: str,
+        robot_name: str = "",
+        model: str = "",
+        description: str = "",
+        min_bid_dollars: float = 0.50,
+        bid_aggressiveness: int = 80,
+        mcp_endpoint_url: str = "",
+        operator_wallet: str = "",
+        usdc_wallet: str = "",
+        stripe_connect_id: str = "",
+        service_radius_km: int = 100,
+        chain: str = "base-mainnet",
+    ) -> dict:
+        """Register a new operator and their robot on the marketplace. This is
+        the recommended entry point for new operators.
+
+        IMPORTANT — How to use this tool conversationally:
+
+        When an operator says something like "I want to register my drone" or
+        "How do I get my robot on the marketplace?", gather the following
+        information through natural conversation. Ask one or two questions at
+        a time, not all at once.
+
+        REQUIRED (ask for these):
+        1. company_name — "What's your company or business name?"
+        2. equipment_type — "What kind of equipment do you have?" Map their
+           answer to one of: aerial_lidar, photogrammetry, thermal_camera,
+           terrestrial_lidar, gpr, rtk_gps, robotic_total_station.
+           If they say "drone with LiDAR" → aerial_lidar.
+           If they say "Spot robot" → terrestrial_lidar.
+           If they say "ground-penetrating radar" → gpr.
+        3. location — "Where are you based?" (city, state)
+
+        HAS SMART DEFAULTS (only ask if the operator wants to customize):
+        - robot_name: auto-generated from company + equipment if not provided
+        - model: auto-selected based on equipment_type (common commercial model)
+        - description: auto-generated from name + equipment + location
+        - min_bid_dollars: $0.50 default (operator's minimum acceptable price)
+        - bid_aggressiveness: 80% default (bids at 80% of the buyer's budget)
+        - service_radius_km: 100km default
+        - chain: base-mainnet (production blockchain, no cost to operator)
+
+        OPTIONAL (mention these exist, don't require):
+        - mcp_endpoint_url: their robot's MCP server URL (for live execution)
+        - operator_wallet: crypto wallet to receive robot ownership
+        - usdc_wallet: wallet for stablecoin payments
+        - stripe_connect_id: Stripe account for card/bank payments
+
+        After calling this tool, explain what happened in plain English:
+        - Their robot is now registered and can receive task bids
+        - Show them where to view it (yakrobot.bid/demo)
+        - Mention they can add credentials later (FAA Part 107, insurance)
+        - If they didn't provide an MCP endpoint, explain that their robot
+          will use simulated execution until they connect real hardware
+
+        TO UPDATE AN EXISTING PROFILE: Use auction_update_operator_profile
+        instead. That tool lets operators change location, pricing, equipment,
+        payment details, or MCP endpoint after initial registration.
+
+        Example conversation:
+          Operator: "I want to register my drone for survey work"
+          You: "Great! Let me get you set up. What's your company name?"
+          Operator: "Acme Aerial"
+          You: "And what kind of sensor does your drone carry?"
+          Operator: "LiDAR — I have a Matrice 350"
+          You: "Where are you based?"
+          Operator: "Detroit, Michigan"
+          You: [call this tool with company_name="Acme Aerial",
+                equipment_type="aerial_lidar", location="Detroit, MI"]
+        """
+        # Auto-generate defaults
+        sensor_label = equipment_type.replace("_", " ").title()
+        if not robot_name:
+            robot_name = f"{company_name} — {sensor_label}"
+        if not model:
+            model = COMMON_MODELS.get(equipment_type, equipment_type)
+        if not description:
+            description = f"{robot_name}. {model} for {sensor_label.lower()} surveys. Based in {location}."
+
+        min_bid_cents = max(1, int(min_bid_dollars * 100))
+        bid_pct = max(0.01, min(1.0, bid_aggressiveness / 100.0))
+
+        # Auto-flag as test if no real hardware connected
+        is_test = not mcp_endpoint_url
+
+        # Delegate to the full registration tool
+        return await auction_register_robot_onchain(
+            name=robot_name,
+            description=description,
+            company_name=company_name,
+            location=location,
+            equipment_type=equipment_type,
+            model=model,
+            min_bid_cents=min_bid_cents,
+            bid_pct=bid_pct,
+            mcp_endpoint_url=mcp_endpoint_url,
+            operator_wallet=operator_wallet,
+            usdc_wallet=usdc_wallet,
+            stripe_connect_id=stripe_connect_id,
+            service_radius_km=service_radius_km,
+            chain=chain,
+            is_test=is_test,
+        )
+
+    # ------------------------------------------------------------------
+    # On-chain robot registration (v1.4)
+    # ------------------------------------------------------------------
+
+    @mcp.tool()
+    async def auction_update_operator_profile(
+        robot_id: str,
+        company_name: str = "",
+        location: str = "",
+        model: str = "",
+        min_bid_cents: int = 0,
+        bid_pct: float = 0.0,
+        mcp_endpoint_url: str = "",
+        usdc_wallet: str = "",
+        stripe_connect_id: str = "",
+        service_radius_km: int = 0,
+    ) -> dict:
+        """Update an existing operator's profile or robot configuration.
+
+        Use this when an operator wants to change their location, pricing,
+        equipment, payment details, or MCP endpoint after initial registration.
+
+        Provide the robot_id (e.g. "8453:42") and only the fields to update.
+        Fields left empty/zero are not changed.
+
+        Changes are applied to the in-memory fleet robot immediately.
+        On-chain metadata updates (location, pricing, wallet) require a
+        separate IPFS re-upload which is not yet automated — note this to
+        the operator and log the change for manual sync.
+        """
+        # Find the robot in the fleet
+        robot = engine._robots_by_id.get(robot_id)
+        if not robot:
+            return _error_response_structured(
+                "ROBOT_NOT_FOUND",
+                f"No robot with ID '{robot_id}' in the current fleet.",
+                "Use auction_get_fleet_status to list available robots.",
+            )
+
+        changes = []
+
+        if company_name:
+            robot.operator_company = company_name
+            changes.append(f"company_name → {company_name}")
+        if location:
+            robot.name = robot.name  # preserve name
+            if hasattr(robot, "_location"):
+                robot._location = location
+            changes.append(f"location → {location}")
+        if model and hasattr(robot, "equipment_model"):
+            robot.equipment_model = model
+            changes.append(f"model → {model}")
+        if min_bid_cents > 0 and hasattr(robot, "_min_bid_cents"):
+            robot._min_bid_cents = min_bid_cents
+            changes.append(f"min_bid_cents → {min_bid_cents}")
+        if 0 < bid_pct <= 1.0 and hasattr(robot, "_bid_pct"):
+            robot._bid_pct = bid_pct
+            changes.append(f"bid_pct → {bid_pct}")
+        if mcp_endpoint_url and hasattr(robot, "mcp_endpoint"):
+            robot.mcp_endpoint = mcp_endpoint_url
+            changes.append(f"mcp_endpoint → {mcp_endpoint_url}")
+        if service_radius_km > 0 and hasattr(robot, "_service_radius_km"):
+            robot._service_radius_km = service_radius_km
+            changes.append(f"service_radius_km → {service_radius_km}")
+
+        # Update operator registry if it exists
+        if hasattr(engine, "_operator_registry") and engine._operator_registry:
+            try:
+                # Find operator by company name match
+                for op in engine._operator_registry._operators.values():
+                    if op.company_name == (company_name or getattr(robot, "operator_company", "")):
+                        update_fields = {}
+                        if company_name:
+                            update_fields["company_name"] = company_name
+                        if location:
+                            update_fields["location"] = location
+                        if update_fields:
+                            engine._operator_registry.update_profile(op.operator_id, **update_fields)
+                        break
+            except Exception:
+                pass  # Registry update is best-effort
+
+        if not changes:
+            return {"robot_id": robot_id, "status": "no_changes", "message": "No fields to update. Provide at least one field with a new value."}
+
+        return {
+            "robot_id": robot_id,
+            "status": "updated",
+            "changes": changes,
+            "note": "Changes applied to in-memory fleet. On-chain metadata sync requires IPFS re-upload (not yet automated).",
+            "message": f"Updated {len(changes)} field(s) for {robot.name}.",
+        }
+
+    # ------------------------------------------------------------------
     # On-chain robot registration (v1.4)
     # ------------------------------------------------------------------
 

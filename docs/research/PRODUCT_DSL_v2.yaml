@@ -51,12 +51,12 @@
 # ============================================================
 
 meta:
-  name: "Robot Task Auction Marketplace"
+  name: "Robot Task Auction Protocol"
   project: yakrover-auction-explorer
-  schema_version: "2.6"
+  schema_version: "2.7"
   updated: "2026-04-12"
-  provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-12 with v1.1-v1.4.1 implementation state (real robot, USDC mainnet, ACH, 3-method payment). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
-  license: "Proprietary — YAK Robotics Garage"
+  provenance: "Generated from 19 research documents via 3-agent debate (architect, strategist, engineer). Revised by 5-agent competition (strategy, technical, UX, legal, ontology). Updated 2026-04-12 with v1.4.1 state + protocol separation assessment (AD-27). Authoritative for entity definitions, relationships, strategic bets, and architectural decisions."
+  license: "Protocol: MIT. Vertical modules: MIT. Commercial application: source-available. See AD-27."
 
 # [Entry 5] Closed enum declarations for machine-readability
 types:
@@ -109,7 +109,8 @@ talisman_metadata:
     glossary: reference
   gravity_effect: "Treat this file as the authoritative source of entities, relationships, strategic bets, and architectural decisions. Defer to this over individual research docs when they conflict."
   likely_effects:
-    - "Anchors agent reasoning to construction-survey wedge strategy"
+    - "Anchors reasoning to protocol-first architecture — auction engine is the protocol, verticals are domain modules"
+    - "Construction surveying is the first vertical, not the product itself"
     - "Prevents scope creep into verticals not yet on roadmap"
     - "Biases toward auction-based thinking for all problems"
   anti_patterns:
@@ -119,18 +120,18 @@ talisman_metadata:
   staleness_policy:
     max_age_days: 30
     refresh_trigger: "Any bet confidence changes by > 0.15 or a phase gate is crossed"
-    last_refresh: "2026-04-12 (v2.6 — v1.4.1 100-robot fleet, EAS attestation, delivery schemas, repo restructure)"
+    last_refresh: "2026-04-12 (v2.7 — protocol separation framing, security hardening, operations runbook, financial/pitch sections moved to robotTAM)"
 
 executive_summary:
   core_problem:
-    - "No marketplace exists for construction survey services where qualified operators bid competitively on structured task specifications"
-    - "Survey scheduling is a 2-3 week bottleneck. GCs report missing bids because survey crews are unavailable during peak letting season."
-    - "368K+ FAA Part 107 certificate holders own survey-capable equipment but lack a reliable demand pipeline. Client acquisition is the #1 reported failure mode."
+    - "Physical-world tasks requiring qualified executors, specific equipment, and verifiable completion are procured through phone calls, personal networks, and repeat engagements"
+    - "No protocol exists for AI agents to algorithmically discover qualified executors, post structured task specifications, verify completion, and settle payment for physical-world services"
+    - "A task becomes liquid when four preconditions are met: structured specification, qualified executor discovery, machine-verifiable completion, and programmatic settlement"
   central_answer:
-    - "Reverse auction marketplace for construction site surveying, with agent-assisted task specification and automated compliance verification"
-    - "Sensor stacks used in construction surveying (LiDAR, GPR, photogrammetry) are the same stacks required for mining, infrastructure, and lunar surface operations"
-    - "Aggregates demand for drone survey operators (client acquisition is the primary failure mode for independent operators) while reducing survey turnaround for GCs from weeks to days"
-  one_line: "Marketplace for construction survey services. Operators bid on tasks, platform handles compliance, QA, and payment."
+    - "An open protocol (RTAP) for agent-mediated procurement of physical-world tasks — five components: task registry, executor registry, verification engine, settlement layer, coordination protocol"
+    - "First vertical: construction site surveying ($8B/yr US market). Sensor stacks (LiDAR, GPR, photogrammetry) transfer to mining, infrastructure, and lunar operations"
+    - "Robots change the qualifier dynamics: execution standardization (instrument trust vs personal trust), quality as a computed property, availability as queryable state"
+  one_line: "Open protocol for agent-mediated procurement of physical-world tasks. First vertical: construction site surveying."
   sources:
     - {path: docs/DECISIONS.md, section: all}
     - {path: docs/ROADMAP_v4.md, section: all}
@@ -195,14 +196,22 @@ executive_summary:
 # VISION — stable identity + testable thesis + positioning
 # ============================================================
 vision:
-  north_star: "Reverse auction marketplace connecting construction buyers with certified drone/robot survey operators."
-  mechanism: reverse_auction_marketplace
-  category: robot_task_marketplace
-  tagline: "Buyers post survey requirements. Qualified operators bid. Platform verifies deliverables and settles payment."
-  sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
+  north_star: "Open protocol enabling AI agents to procure physical-world services — structured task specification, qualified executor discovery, machine-verifiable completion, and programmatic settlement."
+  mechanism: reverse_auction_protocol
+  category: physical_task_procurement_protocol
+  tagline: "Structured tasks. Qualified executors. Verified completion. Programmatic settlement."
+  first_vertical: "Construction site surveying — the domain where all four liquidity preconditions are closest to being met."
+  sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}, {path: docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md}]
+
+  protocol_components:
+    - {name: "Task Registry", function: "Structured schemas per domain — spec reference, tolerances, qualifications, deliverable format, verification method", file: "auction/core.py"}
+    - {name: "Executor Registry", function: "Credentials, equipment, coverage, performance history, insurance", file: "auction/operator_registry.py + ERC-8004"}
+    - {name: "Verification Engine", function: "Spec + measurement → compliance judgment, confidence metric, audit trail", file: "auction/deliverable_qa.py + delivery_schemas.py"}
+    - {name: "Settlement Layer", function: "Escrow on initiation, release on verified completion, hold on dispute", file: "auction/settlement.py"}
+    - {name: "Coordination Protocol", function: "Post → discover → match → execute → verify → settle → record", file: "auction/engine.py + mcp_tools.py"}
 
   thesis:
-    claim: "Construction site surveying is the right wedge market for a robot task auction marketplace"
+    claim: "Construction site surveying is the right wedge vertical for the Robot Task Auction Protocol"
     confidence: 0.8
     evidence:
       - "US construction surveying = $8B/yr; pre-bid surveys = $1.2B/yr"
@@ -212,12 +221,16 @@ vision:
     sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}]
 
   positioning:
-    vs_botshare: "Botshare is fixed-price robot rental (China, 600+ providers). This platform uses competitive bidding with qualification-based scoring."
-    vs_rentahuman: "RentAHuman dispatches human workers for AI agent tasks (600K+ workers). Same dispatch architecture, but supply side is certified robot operators rather than human labor."
-    vs_fabric_openmind: "Fabric/OpenMind builds robot economy protocol infrastructure on Base ($20M Pantera round). This platform operates at the marketplace application layer, not the protocol layer."
-    vs_akash: "Akash Network proves reverse auction works for compute resources on Cosmos. This platform applies the same mechanism to physical survey tasks."
+    protocol_level:
+      vs_akash: "Akash proves reverse auction protocol works for compute (Cosmos SDK). RTAP applies the same mechanism to physical-world tasks with the addition of credential verification and delivery QA."
+      vs_uniswap: "Uniswap's AMM is the protocol; the frontend is the product. RTAP's auction engine is the protocol; the construction marketplace is the product."
+      vs_the_graph: "The Graph indexes blockchain data. RTAP indexes physical-world executor capabilities and task specifications."
+      vs_fabric_openmind: "Fabric/OpenMind builds robot economy protocol infrastructure on Base ($20M Pantera round). RTAP operates at the task procurement layer — complementary, not competing."
+    application_level:
+      vs_botshare: "Botshare is fixed-price robot rental (China, 600+ providers). RTAP uses competitive bidding with qualification-based scoring."
+      vs_rentahuman: "RentAHuman dispatches human workers for AI agent tasks (600K+ workers). Same dispatch architecture, but supply side is certified robot operators rather than human labor."
     direct_competitors: none
-    sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}]
+    sources: [{path: docs/research/RESEARCH_COMPETITIVE_LANDSCAPE.md}, {path: docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md}]
 
 # ============================================================
 # BET CHAIN — dependent strategic bets with evidence
@@ -1651,6 +1664,25 @@ legal:
 # [Entry 2] Added repos section for cross-repo coherence
 # ============================================================
 architecture:
+  # Protocol vs. commercial boundary (AD-27)
+  # Protocol layer: domain-agnostic auction engine, scoring, state machine, QA, reputation, settlement interface
+  # Vertical layer: domain-specific schemas, compliance rules, RFP parsing, agreement templates
+  # Commercial layer: branded frontend, specific payment rails, curation, hosting
+  # See docs/architecture/ASSESSMENT_PROTOCOL_SEPARATION.md
+  layers:
+    protocol:
+      description: "Domain-agnostic task auction runtime — any vertical can build on this"
+      modules: ["core.py", "engine.py", "deliverable_qa.py", "reputation.py", "wallet.py", "store.py", "discovery_bridge.py", "mcp_robot_adapter.py", "contracts.py", "settlement.py (interface)"]
+      license: MIT
+    vertical_construction:
+      description: "Construction-specific schemas, compliance, and domain logic"
+      modules: ["delivery_schemas.py", "rfp_processor.py", "compliance.py", "bond_verifier.py", "terms_comparator.py", "agreement.py"]
+      license: MIT
+    commercial:
+      description: "YAK ROBOTICS marketplace — branded frontend, Stripe integration, EAS curation"
+      modules: ["mcp_server.py", "worker/", "demo/", "mcp_tools.py (wiring)", "settlement.py (Stripe/USDC implementations)"]
+      license: source-available
+
   capabilities:
     - id: cap:task_posting
       description: "Agent translates natural language into structured task spec with sensor, accuracy, deliverable requirements"
@@ -2697,12 +2729,13 @@ transfer_map:
       transfer_quality: direct
 
   software_that_transfers:
-    - "Auction engine and scoring function"
+    - "RTAP protocol layer — auction engine, scoring, state machine, QA validator, reputation"
     - "Agent orchestration and task decomposition"
-    - "ERC-8004 identity and reputation system"
-    - "Point cloud classification and terrain modeling"
-    - "Volumetric computation and deviation analysis"
-    - "Deliverable pipeline and format conversion"
+    - "ERC-8004 executor registry and identity system"
+    - "Settlement interface (chain-agnostic — works on Base, DTN-batched for lunar)"
+    - "Point cloud classification and terrain modeling (vertical-specific)"
+    - "Volumetric computation and deviation analysis (vertical-specific)"
+    - "Deliverable pipeline and format conversion (vertical-specific)"
 
   gaps_lunar_requires:
     sources: [{path: docs/ROADMAP_v4.md}]
@@ -3036,14 +3069,14 @@ gtm:
     pain: "Survey scheduling bottleneck costs 2-3 missed bids/quarter (~$500K-$1M per missed bid)"
     discretionary_budget: "$15K per bid for pre-construction services"
     target_count: 15
-    named_targets: "Dan's Excavating (Jim Doescher), Ajax Paving, Angelo Iafrate, C.A. Hull, Fisher Contracting (Andy LeBeau)"
+    named_targets: "See robotTAM repo — gc-briefing-packets.md"
     validation_status: "0/15 have in-house survey. 0/15 use drones. 6/15 on Procore."
     sources: [{path: docs/research/SYNTHESIS_JTBD_WEDGE_PROPOSAL.md}, {path: github.com/rafaeldavid/robotTAM/outreach/gc-briefing-packets.md}]
 
   first_operators:
     who: "Part 107 drone survey operators in Michigan with construction experience"
     target_count: 14
-    named_targets: "SSI (MDOT partner, 40-50 employees), DroneView Technologies, Drone Brothers (350+ pilots)"
+    named_targets: "See robotTAM repo — operator-briefing-packets.md"
     competitive_watch: "Drone Brothers operates a pilot network on Procore — closest competitive model"
     lowest_friction: "Emmet Drones (already on Droners.io)"
     sources: [{path: github.com/rafaeldavid/robotTAM/outreach/operator-briefing-packets.md}]
@@ -3457,5 +3490,5 @@ style_guide:
 # ============================================================
 # MANTRA + ESSENCE — anchoring statements
 # ============================================================
-mantra: "Reverse auction marketplace for physical survey tasks. Buyers post requirements, operators bid, platform verifies and settles."
-essence: "This file is the authoritative reference for product entities, strategic assumptions, architectural decisions, and build sequence. Consult this before individual research documents when they conflict."
+mantra: "Open protocol for agent-mediated procurement of physical-world tasks. Structured specs, qualified executors, verified completion, programmatic settlement."
+essence: "This file is the authoritative reference for protocol entities, vertical domain logic, strategic assumptions, architectural decisions, and build sequence. The auction engine is the protocol. Construction surveying is the first vertical. Consult this before individual research documents when they conflict."

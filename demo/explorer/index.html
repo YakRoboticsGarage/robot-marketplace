@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YAK ROBOTICS — Product Brief</title>
+<title>Robot Task Auction Protocol — Product Brief</title>
 <link rel="icon" href="yak-icon.png">
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -204,7 +204,7 @@ details .detail-body { margin-top: 6px; padding-left: 12px; border-left: 1px sol
 <body>
 
 <nav class="topnav">
-  <div class="topnav-brand"><img src="yak-icon.png" alt=""><span>YAK ROBOTICS</span></div>
+  <div class="topnav-brand"><img src="yak-icon.png" alt=""><span>RTAP</span></div>
   <div class="topnav-links" id="nav"></div>
   <div class="topnav-search"><input type="text" id="search" placeholder="Search..." oninput="doSearch(this.value)"></div>
 </nav>
@@ -218,6 +218,7 @@ var D = null;
 
 var SECTIONS = [
   { id:'overview', label:'Overview' },
+  { id:'protocol', label:'Protocol' },
   { id:'bets', label:'Bets' },
   { id:'users', label:'Users' },
   { id:'market', label:'Market' },
@@ -264,6 +265,7 @@ function render(){
   h+=renderHero();
   h+='<div class="wrap">';
   h+=renderOverview();
+  h+=renderProtocol();
   h+=renderBets();
   h+=renderUsers();
   h+=renderMarket();
@@ -317,13 +319,77 @@ function renderOverview(){
   // Positioning
   if(v.positioning){
     h+='<div class="mt-16 mb-8" style="font-size:0.82rem;font-weight:600">Positioning vs. Adjacents</div>';
-    h+='<table class="tbl"><thead><tr><th>Competitor</th><th>Distinction</th></tr></thead><tbody>';
+    h+='<table class="tbl"><thead><tr><th>Level</th><th>Competitor</th><th>Distinction</th></tr></thead><tbody>';
     var pos=v.positioning;
-    Object.keys(pos).forEach(function(k){
-      if(k==='sources'||k==='direct_competitors') return;
-      h+='<tr><td>'+esc(k.replace(/^vs_/,'').replace(/_/g,' '))+'</td><td>'+esc(pos[k])+'</td></tr>';
+    function renderPosGroup(group, label){
+      if(!group||typeof group!=='object') return;
+      Object.keys(group).forEach(function(k){
+        if(k==='sources'||k==='direct_competitors') return;
+        h+='<tr><td>'+esc(label)+'</td><td>'+esc(k.replace(/^vs_/,'').replace(/_/g,' '))+'</td><td>'+esc(group[k])+'</td></tr>';
+      });
+    }
+    if(pos.protocol_level) renderPosGroup(pos.protocol_level, 'Protocol');
+    if(pos.application_level) renderPosGroup(pos.application_level, 'Application');
+    // Fallback for flat positioning (pre-v2.7)
+    if(!pos.protocol_level&&!pos.application_level){
+      Object.keys(pos).forEach(function(k){
+        if(k==='sources'||k==='direct_competitors') return;
+        h+='<tr><td></td><td>'+esc(k.replace(/^vs_/,'').replace(/_/g,' '))+'</td><td>'+esc(pos[k])+'</td></tr>';
+      });
+    }
+    h+='</tbody></table>';
+  }
+
+  h+='</section>';
+  return h;
+}
+
+// ---- PROTOCOL ----
+function renderProtocol(){
+  var v=D.vision||{};
+  var arch=D.architecture||{};
+  var h='<section id="protocol">';
+  h+='<div class="sec-label">Architecture</div>';
+  h+='<div class="sec-title">Protocol Components</div>';
+  h+='<div class="sec-sub">Five components that make physical-world tasks liquid. Domain-agnostic runtime, vertical-specific schemas.</div>';
+
+  // Protocol components
+  var comps=v.protocol_components||[];
+  if(comps.length){
+    h+='<div class="g3" style="grid-template-columns:1fr 1fr;margin-bottom:16px">';
+    comps.forEach(function(c){
+      h+='<div class="card card-sm">';
+      h+='<h3>'+esc(c.name||'')+'</h3>';
+      h+='<p>'+esc(c.function||'')+'</p>';
+      if(c.file) h+='<div class="meta mono">'+esc(c.file)+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+
+  // Architecture layers
+  var layers=arch.layers;
+  if(layers){
+    h+='<div class="mt-16 mb-8" style="font-size:0.82rem;font-weight:600">Protocol vs. Product Layers</div>';
+    h+='<table class="tbl"><thead><tr><th>Layer</th><th>Description</th><th>License</th></tr></thead><tbody>';
+    Object.keys(layers).forEach(function(k){
+      var l=layers[k];
+      var name=k.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+      var sb=k==='protocol'?'b-built':(k==='vertical_construction'?'b-next':'b-future');
+      h+='<tr><td><span class="badge '+sb+'">'+esc(name)+'</span></td><td>'+esc(l.description||'')+'</td><td class="mono">'+esc(l.license||'')+'</td></tr>';
     });
     h+='</tbody></table>';
+
+    // Module lists
+    h+='<details class="mt-8"><summary>Module breakdown</summary><div class="detail-body">';
+    Object.keys(layers).forEach(function(k){
+      var l=layers[k];
+      if(l.modules&&l.modules.length){
+        var name=k.replace(/_/g,' ');
+        h+='<div class="mb-8"><strong class="text-xs">'+esc(name)+':</strong> <span class="mono text-xs">'+l.modules.map(esc).join(', ')+'</span></div>';
+      }
+    });
+    h+='</div></details>';
   }
 
   h+='</section>';
@@ -469,7 +535,7 @@ function renderMarket(){
   var g=D.gtm||{};
   var h='<section id="market">';
   h+='<div class="sec-label">Market</div>';
-  h+='<div class="sec-title">Construction Site Surveying</div>';
+  h+='<div class="sec-title">Construction Site Surveying <span class="badge b-built" style="vertical-align:middle;font-size:0.55rem">First Vertical</span></div>';
   h+='<div class="sec-sub">'+esc(g.messaging&&g.messaging.to_buyers||'')+'</div>';
 
   // TAM

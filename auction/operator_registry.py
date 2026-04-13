@@ -186,6 +186,27 @@ class OperatorRegistry:
             "message": f"{profile.company_name} is now active and eligible for bidding",
         }
 
+    def update_profile(self, operator_id: str, **fields: Any) -> dict:
+        """Update an existing operator profile. Only provided fields are changed."""
+        profile = self._get(operator_id)
+        allowed = {
+            "company_name", "contact_name", "contact_email", "location",
+            "coverage_states", "max_range_miles",
+        }
+        updated = []
+        for k, v in fields.items():
+            if v is None:
+                continue
+            if k not in allowed:
+                continue
+            setattr(profile, k, v)
+            updated.append(k)
+        return {
+            "operator_id": operator_id,
+            "updated_fields": updated,
+            "profile": self.get_profile(operator_id),
+        }
+
     def get_profile(self, operator_id: str) -> dict:
         """Get full operator profile."""
         profile = self._get(operator_id)
