@@ -46,6 +46,7 @@ class OperatorProfile:
     compliance_status: dict = field(default_factory=dict)  # From ComplianceChecker
     pls_info: dict | None = None  # {name, license, state, expires}
     insurance: dict = field(default_factory=dict)  # {cgl, eo, aviation, carrier}
+    stripe_account_id: str | None = None  # Stripe Connect Express account ID
 
 
 class OperatorRegistry:
@@ -166,6 +167,8 @@ class OperatorRegistry:
             issues.append("FAA Part 107 certification not on file")
         if not profile.insurance.get("cgl"):
             issues.append("Insurance COI not on file — set via set_insurance")
+        if not profile.stripe_account_id:
+            issues.append("Stripe Connect account not linked — complete payment onboarding")
 
         if issues:
             return {
@@ -184,6 +187,27 @@ class OperatorRegistry:
             "coverage_states": profile.coverage_states,
             "equipment_count": len(profile.equipment),
             "message": f"{profile.company_name} is now active and eligible for bidding",
+        }
+
+    def update_profile(self, operator_id: str, **fields: Any) -> dict:
+        """Update an existing operator profile. Only provided fields are changed."""
+        profile = self._get(operator_id)
+        allowed = {
+            "company_name", "contact_name", "contact_email", "location",
+            "coverage_states", "max_range_miles", "stripe_account_id",
+        }
+        updated = []
+        for k, v in fields.items():
+            if v is None:
+                continue
+            if k not in allowed:
+                continue
+            setattr(profile, k, v)
+            updated.append(k)
+        return {
+            "operator_id": operator_id,
+            "updated_fields": updated,
+            "profile": self.get_profile(operator_id),
         }
 
     def get_profile(self, operator_id: str) -> dict:
