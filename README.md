@@ -26,7 +26,7 @@ yakrover-marketplace/
 │   ├── engine.py                # AuctionEngine — state machine, rate limits
 │   ├── api.py                   # HTTP API for web frontend
 │   ├── settlement.py            # 4-mode settlement abstraction (FD-1)
-│   ├── mcp_tools.py             # 35 MCP tool handlers
+│   ├── mcp_tools.py             # 36 MCP tool handlers
 │   ├── wallet.py                # WalletLedger with thread-safe mutations
 │   ├── stripe_service.py        # Stripe SDK with idempotency keys
 │   ├── store.py                 # SQLite persistence
@@ -44,8 +44,8 @@ yakrover-marketplace/
 │   ├── DEVELOPMENT_STRATEGY.md  # Testing & code safety (5-layer strategy)
 │   ├── mcp_demo/
 │   │   └── index.html           # Live MCP demo (yakrobot.bid/mcp-demo)
-│   ├── research/                # 52 research docs (see research/README.md)
-│   │   ├── PRODUCT_DSL_v2.yaml  # ← THE product ontology (3,200+ lines)
+│   ├── research/                # 68 research docs (see research/README.md)
+│   │   ├── PRODUCT_DSL_v2.yaml  # ← THE product ontology (3,535 lines)
 │   │   ├── market/              # Wedge analysis, competitive landscape
 │   │   ├── legal/               # Contracts, bonds, payment flows
 │   │   ├── technical/           # Architecture, execution gaps
@@ -134,12 +134,12 @@ All four follow the [skill-creator-springett](https://github.com/bglek/skill-cre
 
 ## Key Numbers
 
-- **35 MCP tools** — auction lifecycle, RFP parsing, bond verification, operator compliance, agreement generation, event tracking, feedback
+- **36 MCP tools** — auction lifecycle, RFP parsing, bond verification, operator compliance, agreement generation, event tracking, feedback
 - **284 tests** passing (all CI checks green: lint, mypy, pytest)
-- **99 commits** across the project
-- **47 research topics** in automated research roadmap (8 completed, 33 improvement proposals)
+- **76 commits** across the project
+- **51 research topics** in automated research roadmap (9 completed, 32 improvement proposals)
 - **Live demo** at yakrobot.bid/demo — Card/ACH/USDC payment, schema-driven delivery QA, real robot discovery, IPFS delivery
-- **3,243 line YAML** product ontology covering the entire product
+- **3,535 line YAML** product ontology covering the entire product
 - **43 real MDOT RFPs** analyzed for survey requirements
 - **6 real equipment platforms** with verified specs and pricing
 - **CI pipeline** with ruff (security linting), mypy, and pytest on every push

@@ -1816,7 +1816,7 @@ architecture:
       sources: [{path: docs/research/PLAN_STABLE_INFRASTRUCTURE.md}]
     mcp_server:
       path: mcp_server.py
-      description: "Standalone REST API exposing 35 MCP tools for web demo"
+      description: "Standalone REST API exposing 36 MCP tools for web demo"
       endpoints:
         - "GET /health — status, tool count, fleet size, wallet balance"
         - "GET /api/tools — list all available tools"
@@ -1837,9 +1837,9 @@ architecture:
       Fly.io (always-on, v1.1+)
         fakerover .................... Robot simulator (yakrover.online)
         robot-mcp .................... Robot MCP server (ERC-8004)
-        marketplace-mcp .............. Marketplace MCP server (35 tools)
+        marketplace-mcp .............. Marketplace MCP server (36 tools)
       mcp_server.py (local + Cloudflare Tunnel)
-        /api/tool/{name} ............. REST proxy to 35 MCP tools
+        /api/tool/{name} ............. REST proxy to 36 MCP tools
         /health ...................... Status endpoint
       SQLite (local, :memory: for demo)
     database:
@@ -1893,7 +1893,7 @@ architecture:
       consumes: [repo:yakrover-8004-mcp]
     - id: component:mcp_server
       path: mcp_server.py
-      description: "Standalone REST API exposing 35 MCP tools for web demo and tunnel access"
+      description: "Standalone REST API exposing 36 MCP tools for web demo and tunnel access"
       status: implemented
       phase: phase:v1.0
     - id: component:mock_fleet
@@ -2751,7 +2751,7 @@ roadmap:
       label: "Auction Engine (Warehouse + Fiat)"
       status: built
       personas: [persona:sarah, persona:claude_agent]
-      stats: {tests: 284, mcp_tools: 35, loc: 17042}  # [v2.4] Updated from CLAUDE.md
+      stats: {tests: 284, mcp_tools: 36, loc: 17336}  # [v2.5] Updated from CLAUDE.md
       resolves: []
       capabilities_unlocked:
         - "Auction core: Task, Bid, AuctionResult, score_bids()"
@@ -2761,7 +2761,7 @@ roadmap:
         - "Internal wallet ledger with debit/credit log"
         - "Stripe Connect Express payouts (EUR/USD, working in test mode)"
         - "SQLite persistence via SyncTaskStore"
-        - "35 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation"
+        - "36 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation"
         - "Real Treasury Circular 570 bond verification (501 surety companies)"
         - "Operator compliance verification (PLS, FAA Part 107, insurance COI, SAM.gov)"
         - "LLM-powered RFP parsing and task decomposition"

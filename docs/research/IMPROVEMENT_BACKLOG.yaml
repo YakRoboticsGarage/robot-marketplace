@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-09'
-  total_items: 47
+  last_updated: '2026-04-14'
+  total_items: 49
   implemented: 10
   deferred: 4
   rejected: 1
-  proposed: 32
+  proposed: 34
   source: Automated daily research agent + weekly synthesis
-  last_sync: "R-META-001 (2026-04-09) — corrected IMP-021/023/027 from proposed to implemented based on commits b76a4f1 and a58560f"
+  last_sync: "code-audit-2026-04-14 — added IMP-048 (api.py dead imports), IMP-049 (decompose register_robot_onchain)"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -778,5 +778,47 @@ proposals:
   priority: medium
   status: proposed
   proposed_date: '2026-04-08'
+  decision_date: null
+  decision_notes: null
+- id: IMP-048
+  title: Remove two dead imports in api.py flagged by ruff F401
+  description: >
+    auction/api.py imports `typing.Any` (line 18) and
+    `fastapi.middleware.cors.CORSMiddleware` (line 28) but neither is referenced
+    anywhere in the file. Ruff F401 flags both on every `ruff check` run. `Any`
+    is in a `TYPE_CHECKING` block so it's harmless, but `CORSMiddleware` inside
+    the try/except FastAPI import block is misleading — it implies CORS is
+    configured when it is not. Remove both imports. No behaviour change; silences
+    two ruff warnings that add noise to CI lint output.
+  module: api
+  research_source: code-audit-2026-04-14
+  evidence: 'ruff check auction/ --select=F401: api.py:18 typing.Any, api.py:28 CORSMiddleware — both unused'
+  effort: trivial
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-14'
+  decision_date: null
+  decision_notes: null
+- id: IMP-049
+  title: Decompose auction_register_robot_onchain into mode-specific helpers
+  description: >
+    `auction_register_robot_onchain` in mcp_tools.py (lines 1098–1337) is 240
+    lines handling three distinct registration modes (platform-signed relay,
+    operator wallet direct, Claude Code SDK), chain selection, dry-run path,
+    and on-chain retry logic — all inline. Each mode has different auth flows
+    and failure paths. Extract into three private helpers:
+    `_register_platform_signed()`, `_register_operator_wallet()`, and
+    `_register_via_sdk()`. The MCP-facing function becomes a thin dispatcher
+    (~30 lines). Benefits: each mode can be unit-tested in isolation without
+    the full MCP stack, error messages become mode-specific rather than
+    generic, and the 240-line function drops below the 80-line cognitive
+    complexity threshold. No behaviour change.
+  module: M24_mcp_tool_layer
+  research_source: code-audit-2026-04-14
+  evidence: 'mcp_tools.py:1098–1337 — 240-line function with 3 registration modes, chain selection, and retry logic inline'
+  effort: medium
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-14'
   decision_date: null
   decision_notes: null
