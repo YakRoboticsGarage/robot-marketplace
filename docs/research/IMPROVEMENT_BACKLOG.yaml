@@ -2,10 +2,10 @@ meta:
   created: '2026-04-01'
   last_updated: '2026-04-13'
   total_items: 67
-  implemented: 20
+  implemented: 23
   deferred: 4
   rejected: 1
-  proposed: 42
+  proposed: 39
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
   last_sync: "R-007 (2026-04-13) — added IMP-068/069/070 (electronic seal/PLS compliance)"
 proposals:
@@ -432,7 +432,7 @@ proposals:
   evidence: CLAUDE.md env vars section vs .env.example — BASE_SEPOLIA_RPC_URL missing from example
   effort: small
   priority: low
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-05'
   decision_date: null
   decision_notes: null
@@ -451,7 +451,7 @@ proposals:
   evidence: chatbot/src/index.js:607 — plain string equality on secret comparison
   effort: small
   priority: low
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-05'
   decision_date: null
   decision_notes: null
@@ -815,7 +815,7 @@ proposals:
   evidence: 'auction/mcp_tools.py lines 1079-1095 — three constants inside register_auction_tools() with no closure dependency on function args'
   effort: small
   priority: low
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-10'
   decision_date: null
   decision_notes: null
