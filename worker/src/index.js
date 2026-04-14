@@ -2020,6 +2020,31 @@ async function handleRelayUsdc(request, env, cors) {
       );
     }
 
+    // Pre-verify permit signature server-side (saves gas on invalid signatures)
+    try {
+      const domain = { name: "USD Coin", version: "2", chainId: chain_id, verifyingContract: usdcAddr };
+      const types = {
+        Permit: [
+          { name: "owner", type: "address" },
+          { name: "spender", type: "address" },
+          { name: "value", type: "uint256" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      };
+      const nonce = await usdc.nonces(owner);
+      const value = { owner, spender: relayWallet.address, value: totalBig, nonce, deadline };
+      const recovered = ethers.verifyTypedData(domain, types, value, { v, r, s });
+      if (recovered.toLowerCase() !== owner.toLowerCase()) {
+        return new Response(
+          JSON.stringify({ error: "Invalid permit signature — recovered address does not match owner", recovered, owner }),
+          { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+        );
+      }
+    } catch (sigErr) {
+      console.warn("Permit pre-verification failed (continuing anyway):", sigErr.message);
+    }
+
     // Step 1: Submit permit (buyer authorizes relay to spend their USDC)
     const permitTx = await usdc.permit(owner, relayWallet.address, totalBig, deadline, v, r, s);
     const permitReceipt = await permitTx.wait();

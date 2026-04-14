@@ -2,10 +2,10 @@ meta:
   created: '2026-04-01'
   last_updated: '2026-04-14'
   total_items: 71
-  implemented: 33
-  deferred: 4
+  implemented: 34
+  deferred: 13
   rejected: 1
-  proposed: 33
+  proposed: 23
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
   last_sync: "R-007b (2026-04-14) — added IMP-072/073/074/075 (NC drone ruling, PLS bid gating, T&C clause)"
 proposals:
@@ -487,10 +487,10 @@ proposals:
   evidence: docs/research/automated/R-034_erc2612_permit_relay_security.md
   effort: small
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-06'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Added ethers.verifyTypedData() pre-verification to handleRelayUsdc (direct permit path). handleExecutePayment already had it for the ERC-2612 fallback path. Rejects with 400 before spending gas if recovered signer doesn't match owner.
 - id: IMP-029
   title: Add relay wallet gas balance monitoring via Cloudflare Cron Trigger
   description: 'Add a Cron Trigger to wrangler.toml (e.g., "*/15 * * * *") that runs every 15
@@ -1042,10 +1042,10 @@ proposals:
   evidence: docs/research/automated/R-027_operator_identity_verification.md
   effort: small
   priority: medium
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS and compliance gating deferred until production robots are stable. verify_operator() compliant flag is informational only, not enforced in bid/activation paths.
 - id: IMP-066
   title: Middesk entity-level KYB trigger at first large task win (>=$25K)
   description: >
@@ -1060,10 +1060,10 @@ proposals:
   evidence: docs/research/automated/R-027_operator_identity_verification.md
   effort: medium
   priority: medium
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — depends on IMP-065 (also deferred). KYB gating premature without production operators.
 - id: IMP-067
   title: SAM.gov Entity registration check for federal-funded tasks
   description: >
@@ -1077,10 +1077,10 @@ proposals:
   evidence: docs/research/automated/R-027_operator_identity_verification.md
   effort: small
   priority: low
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — compliance gating deferred until production robots are stable.
 - id: IMP-068
   title: Add pls_seal_format and pls_license_state to Level 3 delivery schemas
   description: >
@@ -1097,10 +1097,10 @@ proposals:
   evidence: docs/research/automated/R-007_electronic_survey_seal_stamp_regulations.md
   effort: small
   priority: high
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-13'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable.
 - id: IMP-069
   title: State seal requirement table in compliance module
   description: >
@@ -1116,10 +1116,10 @@ proposals:
   evidence: docs/research/automated/R-007_electronic_survey_seal_stamp_regulations.md
   effort: medium
   priority: medium
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-13'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable.
 - id: IMP-071
   title: Evaluate x402 + Cloudflare Workers for agent-to-robot payment
   description: >
@@ -1181,10 +1181,10 @@ proposals:
   evidence: docs/research/automated/R-007b_nc_drone_mapping_ruling_operator_liability.md
   effort: small
   priority: high
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-14'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable. Optional at onboarding, should not gate bids.
 - id: IMP-073
   title: Pre-bid PLS role declaration gate for survey task categories
   description: >
@@ -1204,10 +1204,10 @@ proposals:
   evidence: docs/research/automated/R-007b_nc_drone_mapping_ruling_operator_liability.md
   effort: medium
   priority: high
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-14'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable.
 - id: IMP-074
   title: Platform T&C operator certification clause for licensing compliance
   description: >
@@ -1225,10 +1225,10 @@ proposals:
   evidence: docs/research/automated/R-007b_nc_drone_mapping_ruling_operator_liability.md
   effort: small
   priority: high
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-14'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable.
 - id: IMP-075
   title: Operator profile — "Survey Role" field and data_collector_subcontractor declaration
   description: >
@@ -1247,7 +1247,7 @@ proposals:
   evidence: docs/research/automated/R-007b_nc_drone_mapping_ruling_operator_liability.md
   effort: small
   priority: medium
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-14'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Deferred — PLS gating deferred until production robots are stable. Optional at onboarding.
