@@ -320,6 +320,7 @@ body.panel-open { margin-right: 320px; }
 }
 .breadcrumb-list a:hover { color: #1A1F26; }
 .breadcrumb-list a.active { color: #E8792B; border-bottom-color: #E8792B; }
+.breadcrumb-notes { display: none; }
 
 /* responsive */
 @media (max-width: 768px) {
@@ -335,7 +336,8 @@ body.panel-open { margin-right: 320px; }
   .sel-popover { display: none !important; }
   .breadcrumb-nav { margin: 0 -20px; padding: 0 20px; }
   .breadcrumb-list a { padding: 8px 10px; font-size: 10px; }
-  .fab { top: 42px; }
+  .fab { display: none; }
+  .breadcrumb-notes { display: block; }
   .header-actions { gap: 8px !important; }
 }
 </style>
@@ -352,6 +354,7 @@ body.panel-open { margin-right: 320px; }
     <li><a href="#protocol">Protocol</a></li>
     <li><a href="#verticals">Verticals</a></li>
     <li><a href="#join">Join Us</a></li>
+    <li class="breadcrumb-notes"><a href="javascript:void(0)" onclick="togglePanel()">Notes</a></li>
   </ul>
 </nav>
 
