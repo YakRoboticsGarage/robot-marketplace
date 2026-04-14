@@ -921,7 +921,20 @@ function getFilteredRobots() {
   });
 }
 
+var EAS_CACHE_KEY = 'yakrover_eas_attestations';
+var EAS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 async function loadEASAttestations() {
+  // Try localStorage cache first
+  try {
+    var cached = JSON.parse(localStorage.getItem(EAS_CACHE_KEY) || '{}');
+    if (cached.ts && (Date.now() - cached.ts) < EAS_CACHE_TTL_MS && cached.data) {
+      Object.assign(_easAttestations, cached.data);
+      console.log('EAS attestations loaded from cache: ' + Object.keys(_easAttestations).length + ' agents');
+      return;
+    }
+  } catch (e) {}
+
   // Query both Base Sepolia and Base mainnet EAS for attestations under our schema
   var endpoints = ['https://base-sepolia.easscan.org/graphql', 'https://base.easscan.org/graphql'];
   var query = '{ attestations(where: { schemaId: { equals: "' + EAS_SCHEMA_UID + '" }, revoked: { equals: false } }, take: 500) { decodedDataJson } }';
@@ -956,6 +969,12 @@ async function loadEASAttestations() {
       console.warn('EAS query failed for ' + endpoints[i] + ':', e.message);
     }
   }
+
+  // Cache to localStorage
+  try {
+    localStorage.setItem(EAS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: _easAttestations }));
+  } catch (e) {}
+
   console.log('EAS attestations loaded: ' + Object.keys(_easAttestations).length + ' agents');
 }
 

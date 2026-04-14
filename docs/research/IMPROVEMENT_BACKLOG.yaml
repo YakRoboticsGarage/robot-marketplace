@@ -2,10 +2,10 @@ meta:
   created: '2026-04-01'
   last_updated: '2026-04-14'
   total_items: 71
-  implemented: 29
+  implemented: 33
   deferred: 4
   rejected: 1
-  proposed: 37
+  proposed: 33
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
   last_sync: "R-007b (2026-04-14) — added IMP-072/073/074/075 (NC drone ruling, PLS bid gating, T&C clause)"
 proposals:
@@ -567,10 +567,10 @@ proposals:
   evidence: auction/engine.py:1107-1165 — no tests, no call sites outside engine
   effort: small
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-06'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Tests added in test_engine.py (TestAbandonTask class). 3 tests covering happy path, wrong-state guard, and provider_cancelled. Also wired to auction_cancel_task MCP tool.
 - id: IMP-034
   title: Deduplicate _load_reference() double-definition in rfp_processor.py
   description: '_load_reference() is defined twice in rfp_processor.py (lines 26 and 348) with a # type:ignore[no-redef]
@@ -683,10 +683,10 @@ proposals:
   evidence: Manual flyctl deploy required
   effort: small
   priority: low
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-07'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Added .github/workflows/deploy-fly.yml with separate marketplace and fleet jobs. Deploys on push to main, skips docs-only changes. Requires FLY_API_TOKEN secret.
 - id: IMP-042
   title: Robot-side IPFS delivery upload (robot uploads CID, marketplace verifies)
   description: 'Robot uploads own delivery data to IPFS, returns CID. Marketplace verifies against schema.'
@@ -933,10 +933,10 @@ proposals:
   evidence: demo/marketplace/index.html loadEASAttestations function
   effort: small
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Added localStorage cache with 5-min TTL for EAS attestations. Cache key yakrover_eas_attestations. Falls through to GraphQL on miss or expiry.
 - id: IMP-058
   title: EAS attestation as registration gate (not just discovery filter)
   description: 'Currently EAS attestation filters at discovery time (post-registration). For production: attestation should gate marketplace participation — unattested robots can register on-chain but do not appear in discovery until platform attests. Separates "registered on ERC-8004" from "verified by marketplace". The auction_eas_attest MCP tool exists for platform admin use. Design: auto-attest on registration vs manual review queue vs verification checklist.'
@@ -1023,10 +1023,10 @@ proposals:
   evidence: docs/research/automated/R-027_operator_identity_verification.md
   effort: small
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-14'
+  decision_notes: Added stripe_account_id field to OperatorProfile. activate() now checks it is set. update_profile() allows setting it. Test added for missing Stripe check. Existing tests updated.
 - id: IMP-065
   title: Tiered compliance gate — NOT_REQUIRED for task-type-irrelevant docs
   description: >
