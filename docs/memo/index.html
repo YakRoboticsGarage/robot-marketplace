@@ -269,7 +269,21 @@ body.panel-open { margin-right: 320px; }
   <li style="margin-bottom:0"><strong>Seeking funding</strong> to refine the product with veteran software engineers, solve legal and insurance complexities, find the right vertical to double-down in, and then scale onboarding of robots and buyers.</li>
 </ul>
 
-<p style="margin-top:16px;text-align:center"><a href="https://yakrobot.bid/demo/" target="_blank" style="display:inline-block;background:#1B3A5C;color:#fff;border-radius:5px;padding:10px 22px;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.02em">Try Simulator &rarr;</a></p>
+<div style="display:flex;gap:12px;justify-content:center;align-items:center;margin-top:16px;flex-wrap:wrap">
+  <a href="https://yakrobot.bid/demo/" target="_blank" style="display:inline-block;background:#1B3A5C;color:#fff;border-radius:5px;padding:10px 22px;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.02em">Try Simulator &rarr;</a>
+  <span style="color:#6B7280;font-size:13px">or</span>
+  <button class="cta-touch cta-touch-sm" style="background:#E8792B" onclick="document.getElementById('claudeBlock').style.display=document.getElementById('claudeBlock').style.display==='none'?'block':'none'">Use Claude &darr;</button>
+</div>
+
+<div id="claudeBlock" style="display:none;margin-top:14px;padding:16px 18px;background:#fff;border:1px solid #e2e8f0;border-radius:6px">
+  <p style="font-size:13px;color:#4A5568;margin-bottom:10px"><strong>Step 1.</strong> Run this in your terminal to connect and open Claude Code:</p>
+  <div style="background:#f0f2f5;border-radius:4px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#1A1F26;overflow-x:auto;white-space:nowrap" id="memoClaudeCmd">claude mcp add-json yakrover '{"type":"http","url":"https://yakrover-marketplace.fly.dev/mcp"}' && claude</div>
+  <button class="cta-touch cta-touch-sm" style="font-size:11px;padding:5px 12px;margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudeCmd').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Command'},1500)">Copy Command</button>
+  <p style="font-size:13px;color:#4A5568;margin-top:12px;margin-bottom:8px"><strong>Step 2.</strong> Say this to Claude:</p>
+  <div style="background:#f0f2f5;border-radius:4px;padding:10px 12px;font-size:13px;color:#4A5568;font-style:italic" id="memoClaudePrompt">Use yakrover to help me with an aerial LiDAR topo survey for a 12-acre highway corridor near Kalamazoo, MI</div>
+  <button class="cta-touch cta-touch-sm" style="font-size:11px;padding:5px 12px;margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudePrompt').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Prompt'},1500)">Copy Prompt</button>
+  <p style="font-size:12px;color:#9CA3AF;margin-top:10px;margin-bottom:0">Claude will discover 100 robots, run the auction, and return delivery data. <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/blob/main/docs/onboarding/ROBOT_OPERATOR_ONBOARDING.md" target="_blank" style="color:#2D5F8A">Full guide &rarr;</a></p>
+</div>
 
 <h2>Project Leads</h2>
 <p>This project emerged from the <a href="https://www.yakcollective.org/" target="_blank">Yak Collective</a>, a network of 300+ independent researchers, engineers, and consultants. The <a href="https://www.yakcollective.org/study-groups/yak-robotics-garage" target="_blank">Yak Robotics Garage</a> study group has built open-source rovers since 2021 &mdash; from living-room prototypes to blockchain-controlled robots with on-chain identity. The task auction protocol grew out of a practical question the group kept hitting: once you have a fleet of robots that can be discovered and commanded programmatically, how do you let software agents actually hire them?</p>

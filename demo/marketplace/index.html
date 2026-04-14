@@ -380,6 +380,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer}
     <div class="sidebar-action">
       <button class="btn-primary" id="runBtn" onclick="runAuction()">Hire Operator</button>
       <button class="admin-btn cta" id="registerBtn" onclick="showRegistration()" style="margin-top:8px;width:100%">Register Robot</button>
+      <button class="admin-btn" id="askClaudeBtn" onclick="showClaudeModal()" style="margin-top:8px;width:100%;background:#E8792B;color:#fff;border-color:#E8792B">Ask Claude</button>
     </div>
 
     <div class="sidebar-top">
@@ -4250,6 +4251,50 @@ function openFeedbackIssue() {
   var body = encodeURIComponent('**Source:** ' + location.href + '\n**Date:** ' + new Date().toISOString().split('T')[0] + '\n\n## Feedback\n\n<!-- What worked? What didn\'t? What would make this useful for your work? -->\n\n');
   var labels = encodeURIComponent('feedback');
   window.open('https://github.com/YakRoboticsGarage/yakrover-marketplace/issues/new?title=' + title + '&body=' + body + '&labels=' + labels, '_blank');
+}
+
+// --- Ask Claude modal ---
+function showClaudeModal() {
+  var existing = document.getElementById('claudeModalOverlay');
+  if (existing) { existing.style.display = 'flex'; return; }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'claudeModalOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.style.display = 'none'; };
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:10px;padding:24px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15);font-family:system-ui,sans-serif';
+  box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<h3 style="margin:0;font-size:16px;color:#1A1F26">Ask Claude</h3>'
+    + '<button onclick="document.getElementById(\'claudeModalOverlay\').style.display=\'none\'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6B7280;padding:2px 6px">&times;</button>'
+    + '</div>'
+    + '<p style="font-size:13px;color:#4A5568;margin-bottom:14px">Run this in your terminal to connect Claude Code to the robot marketplace:</p>'
+    + '<div id="claudeCmd" style="background:#f0f2f5;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#1A1F26;overflow-x:auto;white-space:nowrap;margin-bottom:8px">'
+    + 'claude mcp add-json yakrover \'{"type":"http","url":"https://yakrover-marketplace.fly.dev/mcp"}\' && claude'
+    + '</div>'
+    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'claudeCmd\').textContent);this.textContent=\'Copied!\';var b=this;setTimeout(function(){b.textContent=\'Copy Command\'},1500)" style="background:#1B3A5C;color:#fff;border:none;border-radius:4px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">Copy Command</button>'
+    + '<p style="font-size:13px;color:#4A5568;margin-top:16px;margin-bottom:10px"><strong>Then say one of these:</strong></p>'
+    + '<div style="display:flex;flex-direction:column;gap:6px">'
+    + claudeExample('Hire a robot', 'Use yakrover to help me with an aerial LiDAR topo survey for a 12-acre highway corridor near Kalamazoo, MI')
+    + claudeExample('Bridge inspection', 'Use yakrover to survey a bridge deck on US-31 near Grand Haven for NBI inspection')
+    + claudeExample('GPR scan', 'Use yakrover to run a GPR subsurface scan for utility detection on a 2-mile corridor in Detroit')
+    + claudeExample('Register a robot', 'Use yakrover to register my drone. I\'m Acme Aerial, based in Detroit, MI. I have a Matrice 350 with LiDAR.')
+    + '</div>'
+    + '<p style="font-size:12px;color:#9CA3AF;margin-top:14px;margin-bottom:0"><a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/blob/main/docs/onboarding/ROBOT_OPERATOR_ONBOARDING.md" target="_blank" style="color:#2D5F8A">Operator onboarding guide</a> &middot; <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/blob/main/docs/guides/GETTING_STARTED.md" target="_blank" style="color:#2D5F8A">Getting started</a> &middot; <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace" target="_blank" style="color:#2D5F8A">GitHub</a></p>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function claudeExample(label, prompt) {
+  return '<div style="background:#f9fafb;border:1px solid #e2e8f0;border-radius:5px;padding:8px 10px;cursor:pointer" onclick="navigator.clipboard.writeText(\'' + prompt.replace(/'/g, "\\'") + '\');this.querySelector(\'.ce-copy\').textContent=\'Copied!\';var b=this.querySelector(\'.ce-copy\');setTimeout(function(){b.textContent=\'Copy\'},1500)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center">'
+    + '<span style="font-size:12px;font-weight:600;color:#1A1F26">' + label + '</span>'
+    + '<span class="ce-copy" style="font-size:11px;color:#E8792B;font-weight:500">Copy</span>'
+    + '</div>'
+    + '<div style="font-size:12px;color:#6B7280;margin-top:2px;font-style:italic">' + prompt + '</div>'
+    + '</div>';
 }
 </script>
 
