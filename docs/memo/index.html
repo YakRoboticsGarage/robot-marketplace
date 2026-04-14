@@ -334,8 +334,10 @@ body.panel-open { margin-right: 320px; }
   body.panel-open { margin-right: 0; }
   .cta-touch-desktop { display: none; }
   .sel-popover { display: none !important; }
-  .breadcrumb-nav { margin: 0 -20px; padding: 0 20px; }
+  .breadcrumb-nav { margin: 0 -20px; padding: 0 20px; overflow-x: hidden; }
   .breadcrumb-list a { padding: 8px 10px; font-size: 10px; }
+  .breadcrumb-hide-mobile { display: none; }
+  .breadcrumb-notes a { color: #E8792B; }
   .fab { display: none; }
   .breadcrumb-notes { display: block; }
   .header-actions { gap: 8px !important; }
@@ -350,11 +352,11 @@ body.panel-open { margin-right: 320px; }
   <ul class="breadcrumb-list">
     <li><a href="#summary">Summary</a></li>
     <li><a href="#team">Team</a></li>
-    <li><a href="#why-now">Why Now</a></li>
+    <li class="breadcrumb-hide-mobile"><a href="#why-now">Why Now</a></li>
     <li><a href="#protocol">Protocol</a></li>
-    <li><a href="#verticals">Verticals</a></li>
+    <li class="breadcrumb-hide-mobile"><a href="#verticals">Verticals</a></li>
     <li><a href="#join">Join Us</a></li>
-    <li class="breadcrumb-notes"><a href="javascript:void(0)" onclick="togglePanel()">Notes</a></li>
+    <li class="breadcrumb-notes"><a href="javascript:void(0)" onclick="togglePanel()">Feedback</a></li>
   </ul>
 </nav>
 
