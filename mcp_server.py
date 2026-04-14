@@ -645,6 +645,14 @@ If the user isn't sure what to ask for, suggest one of these:
     @asynccontextmanager
     async def app_lifespan(starlette_app):
         async with mcp.session_manager.run():
+            # Discover fleet on startup so MCP protocol clients have robots immediately
+            if hasattr(engine, "_discover"):
+                import asyncio
+                try:
+                    await asyncio.to_thread(engine._discover)
+                    log("LIFESPAN", f"Fleet discovered on startup: {len(engine.robots)} robots")
+                except Exception as e:
+                    log("LIFESPAN", f"Fleet discovery on startup failed: {e}")
             yield
 
     app = Starlette(
