@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-09'
-  total_items: 47
+  last_updated: '2026-04-15'
+  total_items: 50
   implemented: 10
   deferred: 4
   rejected: 1
-  proposed: 32
+  proposed: 35
   source: Automated daily research agent + weekly synthesis
-  last_sync: "R-META-001 (2026-04-09) — corrected IMP-021/023/027 from proposed to implemented based on commits b76a4f1 and a58560f"
+  last_sync: "docs-sync 2026-04-15 — added IMP-048/049/050 from daily code audit"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -778,5 +778,69 @@ proposals:
   priority: medium
   status: proposed
   proposed_date: '2026-04-08'
+  decision_date: null
+  decision_notes: null
+- id: IMP-048
+  title: check_hard_constraints() ignores certifications_required — operators without PLS can win PLS-required tasks
+  description: >
+    auction/core.py check_hard_constraints() (line 473) filters on sensors, indoor_capable, battery,
+    and distance_meters only. The certifications_required field in task specs (e.g.
+    certifications_required: ["licensed_surveyor"]) is never checked. An operator without
+    a PLS license can therefore win — and be paid for — a task that legally requires a
+    licensed surveyor stamp. This is a production-blocking safety gap independently
+    documented in PRODUCT_MODULE_MAP.md (M36 gap table) but not yet tracked as a code fix.
+    Fix: read certifications_required from task.capability_requirements["hard"], compare
+    against robot_capabilities.get("certifications", []), append rejection reason if any
+    required cert is absent. Four lines of code; no behaviour change for tasks that do
+    not set certifications_required.
+  module: M10_compliance_checker
+  research_source: code-audit-2026-04-15
+  evidence: 'auction/core.py:473 check_hard_constraints() — certifications_required key is never read; PRODUCT_MODULE_MAP.md M36 gap table confirms'
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-15'
+  decision_date: null
+  decision_notes: null
+- id: IMP-049
+  title: Split mcp_tools.py (1,619 LOC) into domain modules
+  description: >
+    auction/mcp_tools.py has grown to 1,619 lines across six unrelated domains: auction
+    lifecycle (post/bid/accept/execute/confirm/reject), RFP processing + site recon,
+    compliance (bond verifier, SAM, operator, terms comparator), agreement generation,
+    tracking/event feed, and operator registration + on-chain. Each domain is already a
+    distinct module in the product map (M24). Proposed split into four files co-located in
+    auction/: mcp_tools_auction.py (lifecycle + quick_hire), mcp_tools_compliance.py
+    (bond/SAM/terms/operator), mcp_tools_rfp.py (RFP parsing + site recon + agreement),
+    mcp_tools_tracking.py (event feed + progress + feedback). The register_auction_tools()
+    factory calls each sub-registrar. Zero API change for callers; reduces cognitive load
+    for payment-sensitive code changes and isolates compliance logic from lifecycle logic.
+  module: M24_mcp_tool_layer
+  research_source: code-audit-2026-04-15
+  evidence: 'auction/mcp_tools.py: 1619 lines — largest file in codebase, six unrelated domains'
+  effort: medium
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-15'
+  decision_date: null
+  decision_notes: null
+- id: IMP-050
+  title: Pin GitHub Action versions to SHA digests in CI workflow
+  description: >
+    .github/workflows/test.yml uses floating major-version tags for all actions:
+    actions/checkout@v4 and astral-sh/setup-uv@v4. Floating tags can be moved to a
+    different commit by the action author at any time. For a codebase that handles real
+    Stripe payments and on-chain USDC transfers, a compromised action could exfiltrate
+    STRIPE_TEST_KEY or inject malicious code into build artifacts. Pin each action to its
+    current SHA (e.g. actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 for v4.2.2)
+    and add a comment with the human-readable version tag. Use Dependabot or Renovate to
+    keep SHAs current. One-time 30-minute change; eliminates supply-chain injection risk.
+  module: system
+  research_source: code-audit-2026-04-15
+  evidence: '.github/workflows/test.yml — actions/checkout@v4, astral-sh/setup-uv@v4: floating tags on a money-handling CI pipeline'
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-15'
   decision_date: null
   decision_notes: null
