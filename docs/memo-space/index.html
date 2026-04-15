@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Yak Robotics — Space Economy Brief</title>
-<meta name="description" content="Runtime procurement for satellites, space stations, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
+<meta name="description" content="Runtime procurement for satellites, space stations, rovers, ISRU units, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
 
 <!-- Open Graph -->
 <meta property="og:title" content="Yak Robotics — Space Economy Brief">
-<meta property="og:description" content="Runtime procurement for satellites, space stations, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
+<meta property="og:description" content="Runtime procurement for satellites, space stations, rovers, ISRU units, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yakrobot.bid/memo-space/">
 <meta property="og:image" content="https://yakrobot.bid/memo/og-image.png">
@@ -16,7 +16,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Yak Robotics — Space Economy Brief">
-<meta name="twitter:description" content="Runtime procurement for satellites, space stations, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
+<meta name="twitter:description" content="Runtime procurement for satellites, space stations, rovers, ISRU units, and the Moon Base. Auction engine, on-chain robot identity, and settlement for space operations.">
 <meta name="twitter:image" content="https://yakrobot.bid/memo/og-image.png">
 
 <link rel="icon" href="yak-icon.png" type="image/png">
@@ -388,6 +388,7 @@ body > *:not(script) { position: relative; z-index: 1; }
   .container { padding: 0 20px; }
   .cols { flex-direction: column; gap: 12px; }
   .g3 { flex-direction: column; gap: 12px; }
+  .team-grid { grid-template-columns: 1fr !important; }
   .header { flex-direction: column; gap: 4px; }
   .footer-bar { flex-direction: column; gap: 4px; padding-bottom: 24px; }
   .stack-row { flex-direction: column; gap: 2px; }
@@ -467,7 +468,7 @@ body > *:not(script) { position: relative; z-index: 1; }
   </div>
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-    <p style="font-size:18px;color:#F9FAFB;font-weight:500;margin:0">Runtime procurement for satellites, space stations, and the Moon Base</p>
+    <p style="font-size:18px;color:#F9FAFB;font-weight:500;margin:0">Runtime procurement for satellites, space stations, rovers, ISRU units, and the Moon Base</p>
     <div class="cta-touch-desktop" style="display:flex;gap:16px;align-items:center">
       <a href="javascript:void(0)" onclick="copyAsMarkdown()" id="copyMdBtn" class="header-link">Copy as Markdown</a>
       <a href="javascript:void(0)" onclick="showContact()" class="header-link">Get in Touch</a>
@@ -785,7 +786,7 @@ body > *:not(script) { position: relative; z-index: 1; }
       </div>
     </div>
 
-    <div class="g3" style="margin-top:20px">
+    <div class="team-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:20px">
       <div class="callout" style="background:#111827;border-left-color:#E8792B;padding:14px 16px">
         <p style="margin-bottom:2px"><strong><a href="https://rafael.fyi/" target="_blank">Rafa</a></strong></p>
         <p style="margin-bottom:8px;font-size:12px;color:#9CA3AF">Protocol design, governance &mdash; Berlin</p>
@@ -800,6 +801,11 @@ body > *:not(script) { position: relative; z-index: 1; }
         <p style="margin-bottom:2px"><strong><a href="https://venkateshrao.com/" target="_blank">Venkat</a></strong></p>
         <p style="margin-bottom:8px;font-size:12px;color:#9CA3AF">Aerospace, strategy, command systems &mdash; Seattle</p>
         <p style="margin-bottom:0">PhD Aerospace Engineering, University of Michigan. Postdoctoral research in command and control systems at Cornell. Former senior researcher at Xerox. US Patent 8,086,501. Director of <a href="https://summerofprotocols.com/" target="_blank">Summer of Protocols</a>. Founder of Ribbonfarm. Author of <em>Tempo</em>.</p>
+      </div>
+      <div class="callout" style="background:#111827;border-left-color:#E8792B;padding:14px 16px">
+        <p style="margin-bottom:2px"><strong>Jenna</strong></p>
+        <p style="margin-bottom:8px;font-size:12px;color:#9CA3AF">Digital operations, book production &mdash; New England</p>
+        <p style="margin-bottom:0">MPA, MIIS; BA, Dartmouth. Studied in Mainz, taught in Kunming. Past exec. director, Vermont Book Professionals Association. Indie digital operations three decades and counting. Web strategy, editing, book design and composition. Yak Collective stalwart.</p>
       </div>
     </div>
 
@@ -923,7 +929,7 @@ body > *:not(script) { position: relative; z-index: 1; }
 // --- Copy as Markdown ---
 window.getPageAsMarkdown = function() {
   var md = '# Yak Robotics — Space Economy Brief\n\n';
-  md += '*Runtime procurement for satellites, space stations, and the Moon Base*\n\n';
+  md += '*Runtime procurement for satellites, space stations, rovers, ISRU units, and the Moon Base*\n\n';
   var sections = document.querySelectorAll('h2[id], h3');
   sections.forEach(function(heading) {
     var level = heading.tagName === 'H2' ? '## ' : '### ';
