@@ -160,6 +160,7 @@ class TestActivate:
         registry.add_equipment(op.operator_id, "aerial_lidar", "L2")
         op.certifications.append("faa_part_107")
         registry.set_insurance(op.operator_id, cgl="$2M")
+        op.stripe_account_id = "acct_test_123"
 
     def test_activate_success(self, registry: OperatorRegistry, registered_op: OperatorProfile) -> None:
         self._prepare_for_activation(registry, registered_op)
@@ -190,10 +191,18 @@ class TestActivate:
         assert result["status"] == "pending"
         assert any("Insurance" in i for i in result["issues"])
 
+    def test_activate_no_stripe(self, registry: OperatorRegistry, registered_op: OperatorProfile) -> None:
+        registry.add_equipment(registered_op.operator_id, "aerial_lidar", "L2")
+        registered_op.certifications.append("faa_part_107")
+        registry.set_insurance(registered_op.operator_id, cgl="$2M")
+        result = registry.activate(registered_op.operator_id)
+        assert result["status"] == "pending"
+        assert any("Stripe" in i for i in result["issues"])
+
     def test_activate_multiple_issues(self, registry: OperatorRegistry, registered_op: OperatorProfile) -> None:
         result = registry.activate(registered_op.operator_id)
         assert result["status"] == "pending"
-        assert len(result["issues"]) == 3
+        assert len(result["issues"]) == 4
 
 
 class TestListOperators:
@@ -215,6 +224,7 @@ class TestListOperators:
         registry.add_equipment(op.operator_id, "lidar", "L2")
         op.certifications.append("faa_part_107")
         registry.set_insurance(op.operator_id, cgl="$2M")
+        op.stripe_account_id = "acct_test_456"
         registry.activate(op.operator_id)
 
         active = registry.list_operators(status="active")
