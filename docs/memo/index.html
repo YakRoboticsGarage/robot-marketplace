@@ -8,318 +8,391 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ---- DESIGN TOKENS ---- */
+:root {
+  /* Colors */
+  --color-brand: #E8792B;
+  --color-brand-dark: #d06a22;
+  --color-brand-ring: rgba(232,121,43,0.1);
+  --color-heading: #1A1F26;
+  --color-body: #4A5568;
+  --color-muted: #6B7280;
+  --color-hint: #9CA3AF;
+  --color-blue: #1B3A5C;
+  --color-link: #2D5F8A;
+  --color-complete: #1a7a6d;
+  --color-border: #e2e8f0;
+  --color-border-light: #CBD5E0;
+  --color-bg: #fff;
+  --color-bg-light: #f0f2f5;
+  --color-bg-panel: #fafaf8;
+  --color-bg-callout: #FEF0E3;
+  --color-handle: #d0d0d0;
+  --color-popover: #1A1F26;
+  --color-popover-text: #f0f2f5;
+  --color-overlay: rgba(0,0,0,0.4);
+
+  /* Spacing (4px base) */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px;
+  --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
+  --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+
+  /* Type scale */
+  --text-xs: 10px;  --text-sm: 12px;  --text-base: 13px;
+  --text-md: 14px;  --text-lg: 15px;  --text-xl: 16px;
+  --text-2xl: 18px; --text-3xl: 26px;
+
+  /* Radii */
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
+  --radius-drawer: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-drawer: 0 -4px 24px rgba(0,0,0,0.15);
+
+  /* Transitions */
+  --ease-fast: 0.15s ease;
+  --ease-drawer: 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+/* ---- RESET ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button, input, textarea, select { font: inherit; }
 
 @page { size: letter; margin: 0.6in 0.7in; }
 
+/* ---- BASE ---- */
 body {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
+  font-size: var(--text-lg);
   line-height: 1.7;
-  color: #1A1F26;
-  background: #fff;
+  color: var(--color-heading);
+  background: var(--color-bg);
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 60px 48px;
+  padding: 0 60px var(--sp-12);
   -webkit-font-smoothing: antialiased;
 }
 
-/* header bar */
+/* ---- FOCUS ---- */
+a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ---- HEADER ---- */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 2px solid #E8792B;
-  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-brand);
+  padding-bottom: var(--sp-3);
   margin-top: 28px;
   margin-bottom: 28px;
 }
-.header h1 { font-size: 26px; font-weight: 700; color: #1A1F26; }
-.header .meta { font-size: 13px; color: #6B7280; }
+.header h1 { font-size: var(--text-3xl); font-weight: 700; color: var(--color-heading); }
+.header .meta { font-size: var(--text-base); color: var(--color-muted); }
 
-/* section titles */
+/* ---- SUBTITLE ROW ---- */
+.subtitle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--sp-6);
+}
+.subtitle { font-size: var(--text-2xl); color: var(--color-heading); font-weight: 500; margin: 0; }
+.header-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+/* ---- TYPOGRAPHY ---- */
 h2 {
-  font-size: 15px;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: #E8792B;
+  color: var(--color-brand);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 28px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 5px;
 }
+h3 { font-size: var(--text-xl); font-weight: 600; color: var(--color-heading); margin-top: var(--sp-6); margin-bottom: var(--sp-2); }
+p { margin-bottom: var(--sp-3); color: var(--color-body); }
 
-h3 { font-size: 16px; font-weight: 600; color: #1A1F26; margin-top: 24px; margin-bottom: 6px; }
+/* ---- LINKS ---- */
+a { color: var(--color-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-p { margin-bottom: 10px; color: #4A5568; }
+.header-link {
+  font-size: var(--text-sm); color: var(--color-muted); text-decoration: none;
+  cursor: pointer; transition: all var(--ease-fast);
+}
+.header-link:hover { color: var(--color-brand); font-weight: 700; text-decoration: underline; }
 
-/* two columns */
-.cols { display: flex; gap: 32px; }
+/* ---- LAYOUT ---- */
+.cols { display: flex; gap: var(--sp-8); }
 .cols > div { flex: 1; }
 
-/* table */
-table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; }
-th { text-align: left; font-size: 13px; font-weight: 600; color: #1B3A5C; padding: 8px 10px; border-bottom: 1px solid #1B3A5C; }
-td { font-size: 14px; padding: 7px 10px; border-bottom: 1px solid #f0f2f5; color: #4A5568; }
+/* ---- SUMMARY LIST ---- */
+.summary-list { padding-left: var(--sp-5); color: var(--color-body); }
+.summary-list li { margin-bottom: var(--sp-3); }
+.summary-list li:last-child { margin-bottom: 0; }
 
-/* stack */
+/* ---- CTA BUTTONS ---- */
+.cta-row { display: flex; gap: var(--sp-3); justify-content: center; align-items: center; margin-top: var(--sp-4); flex-wrap: wrap; }
+.cta-sep { color: var(--color-muted); font-size: var(--text-base); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 5px; padding: 10px 22px;
+  font-size: var(--text-base); font-weight: 600; text-decoration: none;
+  letter-spacing: 0.02em; line-height: 1.4; height: var(--sp-10);
+  box-sizing: border-box; cursor: pointer;
+}
+.btn-primary { background: var(--color-brand); color: var(--color-bg); border: 2px solid var(--color-brand); }
+.btn-primary:hover { background: var(--color-brand-dark); border-color: var(--color-brand-dark); text-decoration: none; }
+.btn-ghost { background: var(--color-bg); color: var(--color-blue); border: 2px solid var(--color-border-light); }
+.btn-ghost:hover { border-color: var(--color-blue); text-decoration: none; }
+
+.cta-touch {
+  display: inline-block; background: var(--color-brand); color: var(--color-bg); border: none;
+  border-radius: 5px; padding: 10px 22px; font: inherit; font-size: var(--text-base);
+  font-weight: 600; cursor: pointer; text-decoration: none; letter-spacing: 0.02em;
+  transition: background var(--ease-fast);
+}
+.cta-touch:hover { background: var(--color-brand-dark); }
+.cta-touch-sm { padding: 7px var(--sp-4); font-size: var(--text-sm); }
+.cta-center { text-align: center; margin: var(--sp-5) 0 var(--sp-4); }
+
+/* ---- CLAUDE BLOCK ---- */
+.claude-block {
+  display: none; margin-top: var(--sp-3); padding: var(--sp-4) var(--sp-5);
+  background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+}
+.claude-step { font-size: var(--text-base); color: var(--color-body); margin-bottom: var(--sp-3); }
+.claude-step:last-child { margin-bottom: 0; }
+.claude-cmd {
+  background: var(--color-bg-light); border-radius: var(--radius-sm); padding: 10px var(--sp-3);
+  font-family: 'JetBrains Mono', monospace; font-size: var(--text-sm); color: var(--color-heading);
+  overflow-x: auto; white-space: nowrap;
+}
+.claude-prompt {
+  background: var(--color-bg-light); border-radius: var(--radius-sm); padding: 10px var(--sp-3);
+  font-size: var(--text-base); color: var(--color-body); font-style: italic;
+}
+.claude-hint { font-size: var(--text-sm); color: var(--color-hint); margin-top: var(--sp-2); margin-bottom: 0; }
+.claude-copy { font-size: 11px; padding: 5px var(--sp-3); margin-top: var(--sp-2); }
+
+/* ---- TEAM ---- */
+.team-card {
+  background: var(--color-bg); border-left: 3px solid var(--color-blue);
+  padding: var(--sp-3) var(--sp-4); margin: var(--sp-3) 0; font-size: var(--text-lg);
+}
+.team-name { margin-bottom: 2px; }
+.team-role { margin-bottom: var(--sp-2); font-size: var(--text-sm); color: var(--color-muted); }
+.team-bio { margin-bottom: 0; }
+
+/* ---- TABLE ---- */
+table { width: 100%; border-collapse: collapse; margin: var(--sp-3) 0 var(--sp-4); }
+th { text-align: left; font-size: var(--text-base); font-weight: 600; color: var(--color-blue); padding: var(--sp-2) 10px; border-bottom: 1px solid var(--color-blue); }
+td { font-size: var(--text-md); padding: 7px 10px; border-bottom: 1px solid var(--color-bg-light); color: var(--color-body); }
+td.phase { font-weight: 600; }
+td.phase-complete { color: var(--color-complete); font-weight: 600; }
+
+/* ---- STACK ---- */
 .stack-row {
-  display: flex; gap: 12px; align-items: baseline;
-  padding: 5px 0; border-left: 2px solid #E8792B; padding-left: 12px;
+  display: flex; gap: var(--sp-3); align-items: baseline;
+  padding: 5px 0; border-left: 2px solid var(--color-brand); padding-left: var(--sp-3);
   margin-bottom: 3px;
 }
-.stack-label { font-size: 12px; font-weight: 600; color: #E8792B; text-transform: uppercase; width: 100px; flex-shrink: 0; }
-.stack-value { font-size: 14px; color: #1A1F26; }
+.stack-label { font-size: var(--text-sm); font-weight: 600; color: var(--color-brand); text-transform: uppercase; width: 100px; flex-shrink: 0; }
+.stack-value { font-size: var(--text-md); color: var(--color-heading); }
 
-/* flow */
-.flow { display: flex; align-items: center; gap: 0; margin: 8px 0; }
-.flow-box { flex: 1; border: 1px solid #CBD5E0; padding: 8px 6px; text-align: center; background: #F0F2F5; }
-.flow-box strong { font-size: 13px; display: block; color: #1A1F26; }
-.flow-box span { font-size: 12px; color: #6B7280; }
-.flow-sep { color: #E8792B; padding: 0 4px; font-size: 18px; }
+/* ---- FLOW ---- */
+.flow { display: flex; align-items: center; gap: 0; margin: var(--sp-2) 0; }
+.flow-box { flex: 1; border: 1px solid var(--color-border-light); padding: var(--sp-2) var(--sp-2); text-align: center; background: var(--color-bg-light); }
+.flow-box strong { font-size: var(--text-base); display: block; color: var(--color-heading); }
+.flow-box span { font-size: var(--text-sm); color: var(--color-muted); }
+.flow-sep { color: var(--color-brand); padding: 0 var(--sp-1); font-size: var(--text-2xl); }
 
-/* footnote */
-.footnote { font-size: 12px; color: #6B7280; margin-top: 8px; }
+/* ---- CALLOUT ---- */
+.callout {
+  background: var(--color-bg-callout);
+  border-left: 3px solid var(--color-brand);
+  padding: 10px var(--sp-3);
+  margin: var(--sp-3) 0;
+  font-size: var(--text-lg);
+}
 
-/* evidence popover */
-.ev { position: relative; cursor: pointer; border-bottom: 1px dashed #E8792B; color: inherit; }
+/* ---- FOOTNOTE ---- */
+.footnote { font-size: var(--text-sm); color: var(--color-muted); margin-top: var(--sp-2); }
+
+/* ---- EVIDENCE POPOVER ---- */
+.ev { position: relative; cursor: pointer; border-bottom: 1px dashed var(--color-brand); color: inherit; }
 .ev-pop {
-  display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
-  transform: translateX(-50%); background: #1A1F26; color: #f0f2f5;
-  border-radius: 6px; padding: 10px 14px; font-size: 12px; line-height: 1.6;
+  display: none; position: absolute; bottom: calc(100% + var(--sp-2)); left: 50%;
+  transform: translateX(-50%); background: var(--color-popover); color: var(--color-popover-text);
+  border-radius: var(--radius-md); padding: 10px var(--sp-3); font-size: var(--text-sm); line-height: 1.6;
   width: max-content; max-width: 320px; z-index: 500;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2); white-space: normal;
+  box-shadow: var(--shadow-md); white-space: normal;
 }
 .ev-pop::after {
   content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-  border: 6px solid transparent; border-top-color: #1A1F26;
+  border: 6px solid transparent; border-top-color: var(--color-popover);
 }
 .ev.active .ev-pop { display: block; }
-@media (max-width: 768px) {
-  .ev-pop { position: fixed; bottom: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 85vw; }
-  .ev-pop::after { display: none; }
-}
 
-/* page break */
+/* ---- PAGE BREAK ---- */
 .page-break { page-break-before: always; margin-top: 0; }
 
-/* highlight box */
-.callout {
-  background: #FEF0E3;
-  border-left: 3px solid #E8792B;
-  padding: 10px 14px;
-  margin: 12px 0;
-  font-size: 15px;
-}
-
-/* link */
-a { color: #2D5F8A; text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* footer bar */
+/* ---- FOOTER ---- */
 .footer-bar {
-  margin-top: 24px;
-  padding-top: 10px;
-  border-top: 1px solid #e2e8f0;
-  font-size: 12px;
-  color: #6B7280;
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
   display: flex;
   justify-content: space-between;
 }
 
 /* ---- COLLABORATION LAYER ---- */
 
-/* Side panel */
-.feedback-panel {
-  position: fixed; top: 0; right: 0; width: 320px; height: 100vh;
-  background: #fafaf8; border-left: 1px solid #e2e8f0;
-  overflow-y: auto; padding: 16px; z-index: 200;
-  transform: translateX(100%); transition: transform 0.25s ease;
-  font-size: 13px;
-}
-.feedback-panel.open { transform: translateX(0); }
-.fp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.fp-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #1A1F26; }
-.fp-close { cursor: pointer; color: #6B7280; font-size: 18px; border: none; background: none; padding: 2px 6px; }
-.fp-close:hover { color: #1A1F26; }
-.fp-comment { border-bottom: 1px solid #e2e8f0; padding: 10px 0; }
-.fp-comment:last-child { border-bottom: none; }
-.fp-comment-highlight { font-size: 12px; color: #E8792B; font-style: italic; margin-bottom: 4px; border-left: 2px solid #E8792B; padding-left: 8px; }
-.fp-comment-text { font-size: 13px; color: #4A5568; }
-.fp-comment-meta { font-size: 11px; color: #9CA3AF; margin-top: 3px; }
-.fp-empty { color: #9CA3AF; text-align: center; padding: 32px 0; font-size: 13px; }
-
-/* Floating action bar — pinned top-right */
+/* Floating action bar */
 .fab {
-  position: fixed; top: 12px; right: 16px; z-index: 201;
-  display: flex; align-items: center; gap: 4px;
+  position: fixed; top: var(--sp-3); right: var(--sp-4); z-index: 201;
+  display: flex; align-items: center; gap: var(--sp-1);
 }
 .fab-btn {
   display: flex; align-items: center; gap: 5px;
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
-  padding: 6px 10px; cursor: pointer; font-family: inherit;
-  font-size: 12px; color: #4A5568; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  transition: all 0.15s;
+  background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  padding: var(--sp-2) 10px; cursor: pointer; font-family: inherit;
+  font-size: var(--text-sm); color: var(--color-body); box-shadow: var(--shadow-sm);
+  transition: all var(--ease-fast);
 }
-.fab-btn:hover { border-color: #E8792B; color: #1A1F26; }
-.fb-badge { background: #E8792B; color: #fff; font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 8px; min-width: 18px; text-align: center; }
-.fab-icon { font-size: 14px; line-height: 1; }
+.fab-btn:hover { border-color: var(--color-brand); color: var(--color-heading); }
+.fb-badge { background: var(--color-brand); color: var(--color-bg); font-size: var(--text-xs); font-weight: 600; padding: 1px 5px; border-radius: var(--sp-2); min-width: var(--sp-5); text-align: center; }
+
+/* Side panel */
+.feedback-panel {
+  position: fixed; top: 0; right: 0; width: 320px; height: 100vh;
+  background: var(--color-bg-panel); border-left: 1px solid var(--color-border);
+  overflow-y: auto; padding: var(--sp-4); z-index: 200;
+  transform: translateX(100%); transition: transform 0.25s ease;
+  font-size: var(--text-base);
+}
+.feedback-panel.open { transform: translateX(0); }
+.fp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-3); }
+.fp-title { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--text-md); font-weight: 600; color: var(--color-heading); }
+.fp-close { cursor: pointer; color: var(--color-muted); font-size: var(--text-2xl); border: none; background: none; padding: 2px var(--sp-2); }
+.fp-close:hover { color: var(--color-heading); }
+.fp-comment { border-bottom: 1px solid var(--color-border); padding: 10px 0; }
+.fp-comment:last-child { border-bottom: none; }
+.fp-comment-highlight { font-size: var(--text-sm); color: var(--color-brand); font-style: italic; margin-bottom: var(--sp-1); border-left: 2px solid var(--color-brand); padding-left: var(--sp-2); }
+.fp-comment-text { font-size: var(--text-base); color: var(--color-body); }
+.fp-comment-meta { font-size: 11px; color: var(--color-hint); margin-top: 3px; }
+.fp-empty { color: var(--color-hint); text-align: center; padding: var(--sp-8) 0; font-size: var(--text-base); }
+
+/* Panel form */
+.fp-form { border-bottom: 1px solid var(--color-border); padding-bottom: var(--sp-3); margin-bottom: var(--sp-3); }
+.fp-form textarea { width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--sp-2); font: inherit; font-size: var(--text-base); resize: none; min-height: 60px; outline: none; }
+.fp-form textarea:focus { border-color: var(--color-brand); }
+.fp-form-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); align-items: center; }
+.fp-form-name { flex: 1; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 5px var(--sp-2); font: inherit; font-size: var(--text-sm); outline: none; }
+.fp-form-name:focus { border-color: var(--color-brand); }
+.fp-form-submit { background: var(--color-brand); color: var(--color-bg); border: none; border-radius: var(--radius-sm); padding: 5px var(--sp-3); font: inherit; font-size: var(--text-sm); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.fp-form-submit:hover { background: var(--color-brand-dark); }
+.fp-form-submit:disabled { opacity: 0.5; cursor: default; }
+.fp-form-status { font-size: 11px; color: var(--color-muted); margin-top: var(--sp-1); }
+
+/* Panel refresh */
+.fp-refresh { cursor: pointer; color: var(--color-muted); font-size: 18px; border: none; background: none; padding: 0 var(--sp-1); transition: transform 0.3s; line-height: 1; display: inline-flex; align-items: center; height: 16px; }
+.fp-refresh:hover { color: var(--color-brand); }
+.fp-refresh.spinning { animation: spin 0.6s linear; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* Selection popover */
 .sel-popover {
   position: absolute; z-index: 300;
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 12px; width: 280px;
+  background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md); padding: var(--sp-3); width: 280px;
   display: none; font-family: 'JetBrains Mono', monospace;
 }
 .sel-popover.visible { display: block; }
-.sel-highlight { font-size: 11px; color: #E8792B; font-style: italic; margin-bottom: 8px; max-height: 40px; overflow: hidden; }
-.sel-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font: inherit; font-size: 13px; resize: none; min-height: 60px; outline: none; }
-.sel-input:focus { border-color: #E8792B; }
-.sel-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
-.sel-name { flex: 1; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: 12px; outline: none; }
-.sel-name:focus { border-color: #E8792B; }
+.sel-highlight { font-size: 11px; color: var(--color-brand); font-style: italic; margin-bottom: var(--sp-2); max-height: var(--sp-10); overflow: hidden; }
+.sel-input { width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--sp-2); font: inherit; font-size: var(--text-base); resize: none; min-height: 60px; outline: none; }
+.sel-input:focus { border-color: var(--color-brand); }
+.sel-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); align-items: center; }
+.sel-name { flex: 1; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--sp-2) var(--sp-2); font: inherit; font-size: var(--text-sm); outline: none; }
+.sel-name:focus { border-color: var(--color-brand); }
 .sel-submit {
-  background: #E8792B; color: #fff; border: none; border-radius: 4px;
-  padding: 6px 14px; font: inherit; font-size: 12px; font-weight: 600;
+  background: var(--color-brand); color: var(--color-bg); border: none; border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3); font: inherit; font-size: var(--text-sm); font-weight: 600;
   cursor: pointer; white-space: nowrap;
 }
-.sel-submit:hover { background: #d06a22; }
+.sel-submit:hover { background: var(--color-brand-dark); }
 .sel-submit:disabled { opacity: 0.5; cursor: default; }
-.sel-status { font-size: 11px; color: #6B7280; margin-top: 6px; }
+.sel-status { font-size: 11px; color: var(--color-muted); margin-top: var(--sp-2); }
 
-/* Get in Touch button */
-.cta-touch {
-  display: inline-block; background: #E8792B; color: #fff; border: none;
-  border-radius: 5px; padding: 10px 22px; font: inherit; font-size: 13px;
-  font-weight: 600; cursor: pointer; text-decoration: none; letter-spacing: 0.02em;
-  transition: background 0.15s;
-}
-.cta-touch:hover { background: #d06a22; }
-.cta-touch-sm { padding: 7px 16px; font-size: 12px; }
+/* ---- OVERLAYS & DRAWERS ---- */
 
-/* Contact modal */
 /* Contact — desktop: centered modal */
 .contact-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 400;
+  position: fixed; inset: 0; background: var(--color-overlay); z-index: 400;
   display: none; align-items: center; justify-content: center;
   transition: opacity 0.2s ease-out;
 }
 .contact-overlay.visible { display: flex; }
 .contact-box {
-  background: #fff; border-radius: 8px; padding: 24px; width: 380px;
-  max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  background: var(--color-bg); border-radius: var(--radius-lg); padding: var(--sp-6); width: 380px;
+  max-width: 90vw; box-shadow: var(--shadow-lg);
   font-family: 'JetBrains Mono', monospace;
 }
-.contact-box h3 { font-size: 16px; margin-bottom: 14px; }
-.contact-field { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font: inherit; font-size: 16px; margin-bottom: 10px; outline: none; }
-.contact-field:focus { border-color: #E8792B; box-shadow: 0 0 0 3px rgba(232,121,43,0.1); }
+.contact-box h3 { font-size: var(--text-xl); margin-bottom: var(--sp-3); }
+.contact-field { width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--sp-3); font: inherit; font-size: var(--text-xl); margin-bottom: var(--sp-3); outline: none; }
+.contact-field:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-ring); }
 .contact-field-msg { min-height: 80px; resize: vertical; }
-/* Drag handle — hidden on desktop */
 .sheet-handle { display: none; }
+.sheet-handle-bar { width: 36px; height: var(--sp-1); background: var(--color-handle); border-radius: 2px; }
+.contact-actions { display: flex; gap: var(--sp-2); justify-content: flex-end; margin-top: var(--sp-1); }
+.contact-cancel { background: none; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 7px var(--sp-4); font: inherit; font-size: var(--text-sm); cursor: pointer; color: var(--color-muted); }
+.contact-cancel:hover { border-color: var(--color-border-light); }
+.contact-status { font-size: var(--text-sm); color: var(--color-muted); margin-top: var(--sp-2); }
 
 /* Feedback drawer — mobile only */
 .feedback-drawer-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 400;
+  position: fixed; inset: 0; background: var(--color-overlay); z-index: 400;
   display: none; align-items: flex-end; justify-content: center;
 }
 .feedback-drawer-overlay.visible { display: flex; }
 .feedback-drawer {
   position: fixed; bottom: 0; left: 0; right: 0;
-  width: 100%; background: #fff;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
-  padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  width: 100%; background: var(--color-bg);
+  border-radius: var(--radius-drawer) var(--radius-drawer) 0 0;
+  box-shadow: var(--shadow-drawer);
+  padding: 0 var(--sp-5) calc(env(safe-area-inset-bottom, 0px) + var(--sp-5));
   transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  transition: transform var(--ease-drawer);
   will-change: transform; z-index: 401;
   font-family: 'JetBrains Mono', monospace;
 }
 .feedback-drawer-overlay.visible .feedback-drawer { transform: translateY(0); }
-.fd-handle { display: flex; align-items: center; justify-content: center; padding: 12px 0 4px; cursor: grab; user-select: none; }
-.fd-handle-bar { width: 36px; height: 4px; background: #d0d0d0; border-radius: 2px; }
-.fd-title { font-size: 16px; font-weight: 600; color: #1A1F26; margin-bottom: 14px; }
-.fd-field { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font: inherit; font-size: 16px; margin-bottom: 10px; outline: none; resize: none; }
-.fd-field:focus { border-color: #E8792B; box-shadow: 0 0 0 3px rgba(232,121,43,0.1); }
-.fd-row { display: flex; gap: 8px; align-items: center; }
-.fd-name { flex: 1; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font: inherit; font-size: 16px; outline: none; }
-.fd-name:focus { border-color: #E8792B; box-shadow: 0 0 0 3px rgba(232,121,43,0.1); }
-.fd-submit { background: #E8792B; color: #fff; border: none; border-radius: 6px; padding: 12px 20px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.fd-submit:hover { background: #d06a22; }
+.fd-handle { display: flex; align-items: center; justify-content: center; padding: var(--sp-3) 0 var(--sp-1); cursor: grab; user-select: none; }
+.fd-handle-bar { width: 36px; height: var(--sp-1); background: var(--color-handle); border-radius: 2px; }
+.fd-title { font-size: var(--text-xl); font-weight: 600; color: var(--color-heading); margin-bottom: var(--sp-3); }
+.fd-field { width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--sp-3); font: inherit; font-size: var(--text-xl); margin-bottom: var(--sp-3); outline: none; resize: none; }
+.fd-field:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-ring); }
+.fd-row { display: flex; gap: var(--sp-2); align-items: center; }
+.fd-name { flex: 1; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--sp-3); font: inherit; font-size: var(--text-xl); outline: none; }
+.fd-name:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-ring); }
+.fd-submit { background: var(--color-brand); color: var(--color-bg); border: none; border-radius: var(--radius-md); padding: var(--sp-3) var(--sp-5); font: inherit; font-size: var(--text-md); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.fd-submit:hover { background: var(--color-brand-dark); }
 .fd-submit:disabled { opacity: 0.5; cursor: default; }
-.fd-status { font-size: 12px; color: #6B7280; margin-top: 8px; }
+.fd-status { font-size: var(--text-sm); color: var(--color-muted); margin-top: var(--sp-2); }
 
-/* Contact — mobile: bottom drawer */
-@media (max-width: 768px) {
-  .contact-overlay.visible { align-items: flex-end; }
-  .contact-box {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    width: 100%; max-width: 100%;
-    border-radius: 16px 16px 0 0;
-    padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    max-height: 85vh; overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .contact-overlay.visible .contact-box { transform: translateY(0); }
-  .sheet-handle {
-    display: flex; align-items: center; justify-content: center;
-    padding: 12px 0 4px; cursor: grab; user-select: none;
-  }
-  .sheet-handle-bar {
-    width: 36px; height: 4px; background: #d0d0d0; border-radius: 2px;
-  }
-}
-.contact-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
-.contact-cancel { background: none; border: 1px solid #e2e8f0; border-radius: 4px; padding: 7px 16px; font: inherit; font-size: 12px; cursor: pointer; color: #6B7280; }
-.contact-cancel:hover { border-color: #cbd5e0; }
-.contact-status { font-size: 12px; color: #6B7280; margin-top: 8px; }
-
-/* Refresh icon in panel */
-.fp-refresh { cursor: pointer; color: #6B7280; font-size: 16px; border: none; background: none; padding: 2px 6px; transition: transform 0.3s; }
-.fp-refresh:hover { color: #E8792B; }
-.fp-refresh.spinning { animation: spin 0.6s linear; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* Inline feedback form in panel */
-.fp-form { border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
-.fp-form textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font: inherit; font-size: 13px; resize: none; min-height: 60px; outline: none; }
-.fp-form textarea:focus { border-color: #E8792B; }
-.fp-form-row { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
-.fp-form-name { flex: 1; border: 1px solid #e2e8f0; border-radius: 4px; padding: 5px 8px; font: inherit; font-size: 12px; outline: none; }
-.fp-form-name:focus { border-color: #E8792B; }
-.fp-form-submit { background: #E8792B; color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.fp-form-submit:hover { background: #d06a22; }
-.fp-form-submit:disabled { opacity: 0.5; cursor: default; }
-.fp-form-status { font-size: 11px; color: #6B7280; margin-top: 4px; }
-
-/* Header text links */
-.header-link {
-  font-size: 12px; color: #6B7280; text-decoration: none;
-  cursor: pointer; transition: all 0.15s;
-}
-.header-link:hover { color: #E8792B; font-weight: 700; text-decoration: underline; }
-
-/* Desktop-only CTA next to subtitle */
-.cta-touch-desktop { /* visible by default */ }
-
-/* Shift body when panel open */
-body.panel-open { margin-right: 320px; }
-
-@media print {
-  .feedback-panel, .fab, .sel-popover, .contact-overlay, .breadcrumb-nav { display: none !important; }
-  body.panel-open { margin-right: 0; }
-  .cta-touch-inline { display: none !important; }
-}
-
-/* breadcrumb nav */
+/* ---- BREADCRUMB NAV ---- */
 .breadcrumb-nav {
   position: sticky; top: 0; z-index: 100;
-  background: #fff; border-bottom: 1px solid #e2e8f0;
+  background: var(--color-bg); border-bottom: 1px solid var(--color-border);
   margin: 0 -60px; padding: 0 60px;
   overflow-x: auto; -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -331,35 +404,72 @@ body.panel-open { margin-right: 320px; }
 }
 .breadcrumb-list li { flex-shrink: 0; }
 .breadcrumb-list a {
-  display: block; padding: 10px 14px;
+  display: block; padding: 10px var(--sp-3);
   font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-  text-transform: uppercase; color: #6B7280;
+  text-transform: uppercase; color: var(--color-muted);
   text-decoration: none; border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--ease-fast), border-color var(--ease-fast);
 }
-.breadcrumb-list a:hover { color: #1A1F26; }
-.breadcrumb-list a.active { color: #E8792B; border-bottom-color: #E8792B; }
+.breadcrumb-list a:hover { color: var(--color-heading); }
+.breadcrumb-list a.active { color: var(--color-brand); border-bottom-color: var(--color-brand); }
 .breadcrumb-notes { display: none; }
 
-/* responsive */
+/* Shift body when panel open */
+body.panel-open { margin-right: 320px; }
+
+/* ---- PRINT ---- */
+@media print {
+  .feedback-panel, .fab, .sel-popover, .contact-overlay, .breadcrumb-nav,
+  .feedback-drawer-overlay, .cta-row, .cta-center, .claude-block, .header-actions { display: none !important; }
+  body { padding: 0; color: #000; }
+  body.panel-open { margin-right: 0; }
+  h2 { color: #000; border-bottom-color: #000; }
+  a { color: #000; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: var(--text-sm); color: var(--color-muted); }
+  section { page-break-inside: avoid; }
+  .ev-pop { display: none !important; }
+}
+
+/* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
-  body { padding: 0 20px 24px; font-size: 14px; }
-  .cols { flex-direction: column; gap: 12px; }
-  .header { flex-direction: column; gap: 4px; }
-  .footer-bar { flex-direction: column; gap: 4px; }
+  body { padding: 0 var(--sp-5) var(--sp-6); font-size: var(--text-md); }
+  .cols { flex-direction: column; gap: var(--sp-3); }
+  .header { flex-direction: column; gap: var(--sp-1); }
+  .footer-bar { flex-direction: column; gap: var(--sp-1); }
   .stack-row { flex-direction: column; gap: 2px; }
   .stack-label { width: auto; }
   .feedback-panel { width: 280px; }
   body.panel-open { margin-right: 0; }
   .cta-touch-desktop { display: none; }
   .sel-popover { display: none !important; }
-  .breadcrumb-nav { margin: 0 -20px; padding: 0 20px; overflow-x: hidden; }
-  .breadcrumb-list a { padding: 8px 10px; font-size: 10px; }
+  .breadcrumb-nav { margin: 0 calc(-1 * var(--sp-5)); padding: 0 var(--sp-5); overflow-x: hidden; }
+  .breadcrumb-list a { padding: var(--sp-2) 10px; font-size: var(--text-xs); }
   .breadcrumb-hide-mobile { display: none; }
-  .breadcrumb-notes a { color: #E8792B; }
+  .breadcrumb-notes a { color: var(--color-brand); }
   .fab { display: none; }
   .breadcrumb-notes { display: block; }
-  .header-actions { gap: 8px !important; }
+  .header-actions { gap: var(--sp-2) !important; }
+  .ev-pop { position: fixed; bottom: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 85vw; }
+  .ev-pop::after { display: none; }
+  /* Contact drawer */
+  .contact-overlay.visible { align-items: flex-end; }
+  .contact-box {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    width: 100%; max-width: 100%;
+    border-radius: var(--radius-drawer) var(--radius-drawer) 0 0;
+    padding: 0 var(--sp-5) calc(env(safe-area-inset-bottom, 0px) + var(--sp-5));
+    box-shadow: var(--shadow-drawer);
+    transform: translateY(100%);
+    transition: transform var(--ease-drawer);
+    will-change: transform;
+    max-height: 85vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .contact-overlay.visible .contact-box { transform: translateY(0); }
+  .sheet-handle {
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--sp-3) 0 var(--sp-1); cursor: grab; user-select: none;
+  }
 }
 </style>
 </head>
@@ -379,70 +489,77 @@ body.panel-open { margin-right: 320px; }
   </ul>
 </nav>
 
-<div class="header">
+<main>
+
+<header class="header">
   <h1>Yak Robotics</h1>
   <div class="meta">Partner Brief &mdash; April 2026</div>
-</div>
+</header>
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-  <p style="font-size:18px;color:#1A1F26;font-weight:500;margin:0">Runtime procurement for physical-world tasks</p>
-  <div class="header-actions" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+<div class="subtitle-row">
+  <p class="subtitle">Runtime procurement for physical-world tasks</p>
+  <div class="header-actions">
     <a href="javascript:void(0)" onclick="showContact()" class="header-link">Get in Touch</a>
     <a href="javascript:void(0)" onclick="copyAsMarkdown()" id="copyMdBtn" class="header-link">Copy as Markdown</a>
   </div>
 </div>
 
+<section>
 <h2 id="summary">Executive Summary</h2>
-<ul style="padding-left:20px;color:#4A5568">
-  <li style="margin-bottom:10px"><strong>Construction spending keeps increasing.</strong> Construction surveying alone is an $8B/yr US market. The industry loses $31B/yr to rework, a significant portion traceable to inaccurate or outdated site data. To address the demand, drones are deployed on thousands of job sites and engineering companies are adopting AI tooling to increase speed of execution.</li>
-  <li style="margin-bottom:10px"><strong>But no one has built an agent-runtime procurement layer for physical work.</strong> And it&rsquo;s not just construction that has this limitation. Physical-world tasks can&rsquo;t be purchased like software, yet.</li>
-  <li style="margin-bottom:10px"><strong>The enabling infrastructure exists today.</strong> Dock-deployed drones, fixed-wing platforms with hundred-mile ranges, machine-readable DOT specifications, AI agents with tool-use capabilities, alongside a declining workforce in licensed technical professions like surveying.</li>
-  <li style="margin-bottom:10px"><strong>Robots don&rsquo;t just replace scarce labor, they widen the feasible action space of agents.</strong> Quality becomes computable, availability becomes queryable, and execution data accumulates for quality benchmarking. Each task becomes structurally compatible with algorithmic procurement in a way that human execution alone does not easily support.</li>
-  <li style="margin-bottom:10px"><strong>Yak Robotics already has a proof of concept protocol.</strong> Auction engine, robot identity, settlement via Stripe and stablecoin, credential verification, and a 100-robot test fleet (simulated execution).</li>
-  <li style="margin-bottom:0"><strong>Seeking partners</strong> in AI-agent procurement infrastructure, autonomous robotics, vertical domain expertise such as construction, and research in robot navigation and regulation.</li>
+<ul class="summary-list">
+  <li><strong>Construction spending keeps increasing.</strong> Construction surveying alone is an $8B/yr US market. The industry loses $31B/yr to rework, a significant portion traceable to inaccurate or outdated site data. To address the demand, drones are deployed on thousands of job sites and engineering companies are adopting AI tooling to increase speed of execution.</li>
+  <li><strong>But no one has built an agent-runtime procurement layer for physical work.</strong> And it&rsquo;s not just construction that has this limitation. Physical-world tasks can&rsquo;t be purchased like software, yet.</li>
+  <li><strong>The enabling infrastructure exists today.</strong> Dock-deployed drones, fixed-wing platforms with hundred-mile ranges, machine-readable DOT specifications, AI agents with tool-use capabilities, alongside a declining workforce in licensed technical professions like surveying.</li>
+  <li><strong>Robots don&rsquo;t just replace scarce labor, they widen the feasible action space of agents.</strong> Quality becomes computable, availability becomes queryable, and execution data accumulates for quality benchmarking. Each task becomes structurally compatible with algorithmic procurement in a way that human execution alone does not easily support.</li>
+  <li><strong>Yak Robotics already has a proof of concept protocol.</strong> Auction engine, robot identity, settlement via Stripe and stablecoin, credential verification, and a 100-robot test fleet (simulated execution).</li>
+  <li><strong>Seeking partners</strong> in AI-agent procurement infrastructure, autonomous robotics, vertical domain expertise such as construction, and research in robot navigation and regulation.</li>
 </ul>
 
-<div style="display:flex;gap:12px;justify-content:center;align-items:center;margin-top:16px;flex-wrap:wrap">
-  <a href="javascript:void(0)" onclick="document.getElementById('claudeBlock').style.display=document.getElementById('claudeBlock').style.display==='none'?'block':'none'" style="display:inline-flex;align-items:center;justify-content:center;background:#E8792B;color:#fff;border:2px solid #E8792B;border-radius:5px;padding:10px 22px;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.02em;line-height:1.4;height:40px;box-sizing:border-box;cursor:pointer">Try with Claude &darr;</a>
-  <span style="color:#6B7280;font-size:13px">or</span>
-  <a href="https://yakrobot.bid/demo/" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#1B3A5C;border:2px solid #CBD5E0;border-radius:5px;padding:10px 22px;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.02em;line-height:1.4;height:40px;box-sizing:border-box">Visual Simulator &#8599;</a>
+<div class="cta-row">
+  <a href="javascript:void(0)" onclick="document.getElementById('claudeBlock').style.display=document.getElementById('claudeBlock').style.display==='none'?'block':'none'" class="btn btn-primary">Try with Claude &darr;</a>
+  <span class="cta-sep">or</span>
+  <a href="https://yakrobot.bid/demo/" target="_blank" class="btn btn-ghost">Visual Simulator &#8599;</a>
 </div>
 
-<div id="claudeBlock" style="display:none;margin-top:14px;padding:16px 18px;background:#fff;border:1px solid #e2e8f0;border-radius:6px">
-  <p style="font-size:13px;color:#4A5568;margin-bottom:10px"><strong>Step 1.</strong> Open <a href="https://claude.ai/claude-code" target="_blank" style="color:#2D5F8A">Claude Code</a> in your terminal and connect to the marketplace:</p>
-  <div style="background:#f0f2f5;border-radius:4px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#1A1F26;overflow-x:auto;white-space:nowrap" id="memoClaudeCmd">/mcp add-json yakrover '{"type":"http","url":"https://yakrover-marketplace.fly.dev/mcp"}'</div>
-  <button class="cta-touch cta-touch-sm" style="font-size:11px;padding:5px 12px;margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudeCmd').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Command'},1500)">Copy Command</button>
-  <p style="font-size:12px;color:#9CA3AF;margin-top:6px;margin-bottom:0">One-time setup. The marketplace tools persist across sessions.</p>
-  <p style="font-size:13px;color:#4A5568;margin-top:12px;margin-bottom:8px"><strong>Step 2.</strong> Say this to Claude:</p>
-  <div style="background:#f0f2f5;border-radius:4px;padding:10px 12px;font-size:13px;color:#4A5568;font-style:italic" id="memoClaudePrompt">Use yakrover to help me with an aerial LiDAR topo survey for a 12-acre highway corridor near Kalamazoo, MI</div>
-  <button class="cta-touch cta-touch-sm" style="font-size:11px;padding:5px 12px;margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudePrompt').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Prompt'},1500)">Copy Prompt</button>
-  <p style="font-size:12px;color:#9CA3AF;margin-top:10px;margin-bottom:0">Claude will discover 100 test robots, run the auction, and return delivery data (simulated). <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/blob/main/docs/guides/GETTING_STARTED.md" target="_blank" style="color:#2D5F8A">Full guide &rarr;</a></p>
+<div class="claude-block" id="claudeBlock">
+  <p class="claude-step"><strong>Step 1.</strong> Open <a href="https://claude.ai/claude-code" target="_blank">Claude Code</a> in your terminal and connect to the marketplace:</p>
+  <div class="claude-cmd" id="memoClaudeCmd">/mcp add-json yakrover '{"type":"http","url":"https://yakrover-marketplace.fly.dev/mcp"}'</div>
+  <button class="cta-touch cta-touch-sm claude-copy" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudeCmd').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Command'},1500)">Copy Command</button>
+  <p class="claude-hint">One-time setup. The marketplace tools persist across sessions.</p>
+  <p class="claude-step"><strong>Step 2.</strong> Say this to Claude:</p>
+  <div class="claude-prompt" id="memoClaudePrompt">Use yakrover to help me with an aerial LiDAR topo survey for a 12-acre highway corridor near Kalamazoo, MI</div>
+  <button class="cta-touch cta-touch-sm claude-copy" onclick="navigator.clipboard.writeText(document.getElementById('memoClaudePrompt').textContent);this.textContent='Copied!';var b=this;setTimeout(function(){b.textContent='Copy Prompt'},1500)">Copy Prompt</button>
+  <p class="claude-hint">Claude will discover 100 test robots, run the auction, and return delivery data (simulated). <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/blob/main/docs/guides/GETTING_STARTED.md" target="_blank">Full guide &rarr;</a></p>
 </div>
+</section>
 
+<section>
 <h2 id="team">Team</h2>
 <p>This project emerged from the <a href="https://www.yakcollective.org/" target="_blank">Yak Collective</a>, a community of over 30 independent researchers, engineers, and consultants. The <a href="https://www.yakcollective.org/study-groups/yak-robotics-garage" target="_blank">Yak Robotics Garage</a> study group has built open-source rovers since 2021 &mdash; from living-room prototypes to blockchain-controlled robots with on-chain identity. The task auction protocol grew out of a practical question the group kept hitting: once you have a fleet of robots that can be discovered and commanded programmatically, how do you let software agents actually hire them?</p>
-<div class="g3">
-  <div class="callout" style="background:#fff;border-left-color:#1B3A5C;padding:14px 16px">
-    <p style="margin-bottom:2px"><strong><a href="https://rafael.fyi/" target="_blank">Rafa</a></strong></p>
-    <p style="margin-bottom:8px;font-size:12px;color:#6B7280">Protocol design, governance &mdash; Berlin</p>
-    <p style="margin-bottom:0">Director of the <a href="https://zknation.io" target="_blank">ZKsync Association</a> &mdash; architected and deployed ZKsync&rsquo;s governance smart-contract system, live since 2024. Core researcher in the <a href="https://summerofprotocols.com/wp-content/uploads/2024/06/17-e43-FERNANDEZ.pdf" target="_blank">Summer of Protocols</a>. Publishes on protocol design through <a href="https://protocolized.summerofprotocols.com/p/finding-fault-lines-within-the-firm" target="_blank">Protocolized</a> and <a href="https://npcmemo.substack.com/p/liquid-services-and-runtime-procurement" target="_blank">NPC Memo</a>.</p>
-  </div>
-  <div class="callout" style="background:#fff;border-left-color:#1B3A5C;padding:14px 16px">
-    <p style="margin-bottom:2px"><strong><a href="https://anurajrp.io/" target="_blank">Anuraj</a></strong></p>
-    <p style="margin-bottom:8px;font-size:12px;color:#6B7280">Robotics, embedded systems &mdash; Finland</p>
-    <p style="margin-bottom:0">15 years across embedded systems, PCB design, and robotics. MSc Space Technology and Robotics (Erasmus Mundus SpaceMaster). Built the <a href="https://anurajrp.io/robotics/tumbller-cryptobot-architecture/" target="_blank">Tumbller Cryptobot</a> and <a href="https://anurajrp.io/robotics/desi-jarvis-yakrover-mcp-voice-robot-control/" target="_blank">Desi Jarvis</a> voice-controlled robot fleet via MCP. Demonstrated at Devcon 7 Bangkok.</p>
-  </div>
-  <div class="callout" style="background:#fff;border-left-color:#1B3A5C;padding:14px 16px">
-    <p style="margin-bottom:2px"><strong><a href="https://venkateshrao.com/" target="_blank">Venkat</a></strong></p>
-    <p style="margin-bottom:8px;font-size:12px;color:#6B7280">Aerospace, strategy, command systems &mdash; Seattle</p>
-    <p style="margin-bottom:0">PhD Aerospace Engineering, University of Michigan. Postdoctoral research in command and control systems at Cornell. Former senior researcher at Xerox. US Patent 8,086,501 (Method and System for Creative Collaborative Marketplaces). Director of <a href="https://summerofprotocols.com/" target="_blank">Summer of Protocols</a>. Founder of Ribbonfarm. Strategic advisor to Tesla and a16z. Author of <em>Tempo</em> (decision-making under uncertainty).</p>
-  </div>
+<div>
+  <article class="team-card">
+    <p class="team-name"><strong><a href="https://rafael.fyi/" target="_blank">Rafa</a></strong></p>
+    <p class="team-role">Protocol design, governance &mdash; Berlin</p>
+    <p class="team-bio">Director of the <a href="https://zknation.io" target="_blank">ZKsync Association</a> &mdash; architected and deployed ZKsync&rsquo;s governance smart-contract system, live since 2024. Core researcher in the <a href="https://summerofprotocols.com/wp-content/uploads/2024/06/17-e43-FERNANDEZ.pdf" target="_blank">Summer of Protocols</a>. Publishes on protocol design through <a href="https://protocolized.summerofprotocols.com/p/finding-fault-lines-within-the-firm" target="_blank">Protocolized</a> and <a href="https://npcmemo.substack.com/p/liquid-services-and-runtime-procurement" target="_blank">NPC Memo</a>.</p>
+  </article>
+  <article class="team-card">
+    <p class="team-name"><strong><a href="https://anurajrp.io/" target="_blank">Anuraj</a></strong></p>
+    <p class="team-role">Robotics, embedded systems &mdash; Finland</p>
+    <p class="team-bio">15 years across embedded systems, PCB design, and robotics. MSc Space Technology and Robotics (Erasmus Mundus SpaceMaster). Built the <a href="https://anurajrp.io/robotics/tumbller-cryptobot-architecture/" target="_blank">Tumbller Cryptobot</a> and <a href="https://anurajrp.io/robotics/desi-jarvis-yakrover-mcp-voice-robot-control/" target="_blank">Desi Jarvis</a> voice-controlled robot fleet via MCP. Demonstrated at Devcon 7 Bangkok.</p>
+  </article>
+  <article class="team-card">
+    <p class="team-name"><strong><a href="https://venkateshrao.com/" target="_blank">Venkat</a></strong></p>
+    <p class="team-role">Aerospace, strategy, command systems &mdash; Seattle</p>
+    <p class="team-bio">PhD Aerospace Engineering, University of Michigan. Postdoctoral research in command and control systems at Cornell. Former senior researcher at Xerox. US Patent 8,086,501 (Method and System for Creative Collaborative Marketplaces). Director of <a href="https://summerofprotocols.com/" target="_blank">Summer of Protocols</a>. Founder of Ribbonfarm. Strategic advisor to Tesla and a16z. Author of <em>Tempo</em> (decision-making under uncertainty).</p>
+  </article>
 </div>
 
-<div style="text-align:center;margin:20px 0 16px">
+<div class="cta-center">
   <button class="cta-touch" onclick="showContact()">Get in Touch</button>
 </div>
+</section>
 
+<section>
 <h2 id="why-now">Why Now</h2>
 <p>Physical service procurement is unstructured and unavailable for agents. The technologies necessary to enable API-like purchase of physical actions are emerging. Yak Robotics is building a protocol and application layer for physical-world task procurement &mdash; structured task specification, executor matching, delivery verification, and payment settlement.</p>
 <p>Five independent trends are converging to make this programmable in ways it hasn&rsquo;t been before. None is sufficient alone, but together they create the conditions for a protocol layer that did not previously have the infrastructure to exist. As an example, construction survey on Department of Transportation (DOT) highway projects satisfies all necessary conditions with currently available technology.</p>
@@ -457,12 +574,14 @@ body.panel-open { margin-right: 320px; }
     <p><strong>Agent tool-use:</strong> Model Context Protocol (MCP, Anthropic 2024): growing ecosystem of tool servers. Agent-mediated procurement of physical services does not exist today. The infrastructure is being built.</p>
   </div>
 </div>
+</section>
 
+<section>
 <h2 id="protocol">Protocol</h2>
 
 <h3>Components and Status (v1.4.1 &mdash; Alpha, Functional)</h3>
 <p>The protocol is implemented as seven modules. The verification engine is the domain-specific component; all others are domain-agnostic and shared across verticals.</p>
-<div class="cols" style="margin-top:4px">
+<div class="cols">
   <div>
     <p><strong>Coordination Layer:</strong> MCP-native interface, reverse auction engine (<span class="ev" onclick="toggleEv(this)">11-state lifecycle<span class="ev-pop">Bidding &rarr; Bid Accepted &rarr; In Progress &rarr; Delivered &rarr; Verified &rarr; Settled. Plus: Withdrawn, Rejected, Expired, Provider Cancelled, and re-pool back to Bidding.</span></span>, <span class="ev" onclick="toggleEv(this)">4-factor scoring<span class="ev-pop">Price (40%) + SLA commitment (25%) + AI confidence (20%) + Reputation (15%). Bids above budget ceiling excluded. See AD-6.</span></span>, geographic filtering). Deployed on Fly.io. <em>Alpha, functional.</em></p>
     <p><strong>Task Registry:</strong> <span class="ev" onclick="toggleEv(this)">18 task categories<span class="ev-pop">topo_survey, aerial_survey, site_survey, bridge_inspection, progress_monitoring, as_built, subsurface_scan, env_sensing, visual_inspection, thermal_inspection, corridor_survey, volumetric, confined_space, utility_detection, mapping, delivery_ground, environmental_survey, control_survey.</span></span> defined with structured capability requirements (ASPRS accuracy classes, CRS codes, sensors, deliverables). RFP to spec conversion. <em>Alpha, functional.</em></p>
@@ -479,11 +598,11 @@ body.panel-open { margin-right: 320px; }
 <h3>Roadmap</h3>
 <table>
   <tr><th>Phase</th><th>Technical Capability</th><th>Commercial Milestone</th></tr>
-  <tr><td style="color:#1a7a6d;font-weight:600">Complete</td><td>Auction engine, on-chain robot identity, 3-method settlement, 100-robot test fleet, MCP interface</td><td>First dollar internally transferred. First task autonomously completed end to end.</td></tr>
-  <tr><td style="font-weight:600">Next</td><td>First external robot autonomous dispatch. Buyer payment settles end-to-end. Delivery verification.</td><td>First dollar from a real buyer. First payout to a real operator.</td></tr>
-  <tr><td style="font-weight:600">Growth</td><td>Multi-robot coordination. Operator self-service onboarding. Geospatial QA engine.</td><td>10 active operators. 100 completed tasks. Repeat buyer.</td></tr>
-  <tr><td style="font-weight:600">Scale</td><td>Cross-vertical expansion (mining, infrastructure). Privacy layer for government contracts.</td><td>1,000 active robots. Revenue covers operational costs.</td></tr>
-  <tr><td style="font-weight:600">Vision</td><td>Federated robot discovery across platforms. Agent-to-agent procurement without human initiation.</td><td>1,000,000 addressable robots. Marketplace network effects.</td></tr>
+  <tr><td class="phase-complete">Complete</td><td>Auction engine, on-chain robot identity, 3-method settlement, 100-robot test fleet, MCP interface</td><td>First dollar internally transferred. First task autonomously completed end to end.</td></tr>
+  <tr><td class="phase">Next</td><td>First external robot autonomous dispatch. Buyer payment settles end-to-end. Delivery verification.</td><td>First dollar from a real buyer. First payout to a real operator.</td></tr>
+  <tr><td class="phase">Growth</td><td>Multi-robot coordination. Operator self-service onboarding. Geospatial QA engine.</td><td>10 active operators. 100 completed tasks. Repeat buyer.</td></tr>
+  <tr><td class="phase">Scale</td><td>Cross-vertical expansion (mining, infrastructure). Privacy layer for government contracts.</td><td>1,000 active robots. Revenue covers operational costs.</td></tr>
+  <tr><td class="phase">Vision</td><td>Federated robot discovery across platforms. Agent-to-agent procurement without human initiation.</td><td>1,000,000 addressable robots. Marketplace network effects.</td></tr>
 </table>
 
 <h3>Open Challenges</h3>
@@ -497,7 +616,9 @@ body.panel-open { margin-right: 320px; }
     <p><strong>Liability:</strong> When an autonomously dispatched robot causes damage, liability allocation between manufacturer, operator, platform, and software provider is unsettled law. Robotics-specific insurance is emerging (AXIS, Munich Re), but adoption stalls when liability is unclear. Proportional frameworks &mdash; where responsibility scales with autonomy level &mdash; are proposed but not yet codified.</p>
   </div>
 </div>
+</section>
 
+<section>
 <h2 id="verticals">Vertical Feasibility</h2>
 <table>
   <tr><th>Domain</th><th>Specification</th><th>Verification</th><th>Assessment</th></tr>
@@ -516,7 +637,9 @@ body.panel-open { margin-right: 320px; }
 <div class="stack-row"><span class="stack-label">Product job</span><span class="stack-value">Verify that as-built conditions match design specifications</span></div>
 <div class="stack-row"><span class="stack-label">Offering</span><span class="stack-value">Survey data delivery with schema-driven quality checks</span></div>
 <div class="stack-row"><span class="stack-label">Service Domain</span><span class="stack-value">MDOT highway construction &mdash; numerically specified tolerances with established verification methods</span></div>
+</section>
 
+<section>
 <h2 id="join">Join Us</h2>
 <div class="cols">
   <div>
@@ -529,18 +652,21 @@ body.panel-open { margin-right: 320px; }
   </div>
 </div>
 
-<div style="text-align:center;margin:24px 0 16px">
+<div class="cta-center">
   <button class="cta-touch" onclick="showContact()">Get in Touch</button>
 </div>
+</section>
 
-<div class="footer-bar">
+</main>
+
+<footer class="footer-bar">
   <span>Yak Robotics</span>
   <span>Demo: <a href="https://yakrobot.bid/demo">yakrobot.bid/demo</a> &mdash; Code: <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace" target="_blank">github.com/YakRoboticsGarage/yakrover-marketplace</a></span>
-</div>
+</footer>
 
 <!-- Collaboration layer — pinned floating button -->
 <div class="fab">
-  <button class="fab-btn" onclick="togglePanel()">
+  <button class="fab-btn" onclick="togglePanel()" aria-label="Open feedback panel">
     <span>Notes</span>
     <span class="fb-badge" id="commentBadge">0</span>
   </button>
@@ -549,11 +675,11 @@ body.panel-open { margin-right: 320px; }
 <div class="feedback-panel" id="feedbackPanel">
   <div class="fp-header">
     <span class="fp-title">
-      <button class="fp-refresh" id="refreshBtn" onclick="refreshComments()" title="Refresh">&#8635;</button>
-      <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/issues?q=label%3Amemo-feedback" target="_blank" title="View all on GitHub" style="display:flex"><svg width="16" height="16" viewBox="0 0 16 16" fill="#6B7280"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
-      <button class="fp-refresh" onclick="showContact()" title="Get in Touch" style="font-size:15px">&#9993;</button>
+      <button class="fp-refresh" id="refreshBtn" onclick="refreshComments()" title="Refresh" aria-label="Refresh comments">&#8635;</button>
+      <a href="https://github.com/YakRoboticsGarage/yakrover-marketplace/issues?q=label%3Amemo-feedback" target="_blank" title="View all on GitHub" aria-label="View feedback on GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <button class="fp-refresh" onclick="showContact()" title="Get in Touch" aria-label="Get in touch">&#9993;</button>
     </span>
-    <button class="fp-close" onclick="togglePanel()">&times;</button>
+    <button class="fp-close" onclick="togglePanel()" aria-label="Close panel">&times;</button>
   </div>
   <div class="fp-form">
     <textarea id="panelComment" placeholder="Leave feedback on this memo..."></textarea>
@@ -612,7 +738,6 @@ body.panel-open { margin-right: 320px; }
   var nav = document.getElementById('breadcrumbNav');
   var navH = nav ? nav.offsetHeight : 40;
 
-  // Smooth scroll with offset for sticky nav
   links.forEach(function(link) {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -625,7 +750,6 @@ body.panel-open { margin-right: 320px; }
     });
   });
 
-  // Highlight active section on scroll
   function onScroll() {
     var scrollY = window.pageYOffset + navH + 20;
     var current = '';
@@ -635,7 +759,6 @@ body.panel-open { margin-right: 320px; }
     links.forEach(function(a) {
       a.classList.toggle('active', a.getAttribute('href') === '#' + current);
     });
-    // Auto-scroll nav to keep active link visible
     var active = nav.querySelector('a.active');
     if (active) {
       var nl = nav.scrollLeft, nw = nav.offsetWidth;
@@ -651,11 +774,9 @@ body.panel-open { margin-right: 320px; }
 // --- Evidence popovers ---
 function toggleEv(el) {
   var wasActive = el.classList.contains('active');
-  // Close all others
   document.querySelectorAll('.ev.active').forEach(function(e) { e.classList.remove('active'); });
   if (!wasActive) el.classList.add('active');
 }
-// Close on outside click
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.ev')) {
     document.querySelectorAll('.ev.active').forEach(function(el) { el.classList.remove('active'); });
@@ -663,9 +784,6 @@ document.addEventListener('click', function(e) {
 });
 
 // --- Copy as Markdown ---
-// Generates a Markdown representation of the memo content for AI consumption.
-// Callable programmatically: window.getPageAsMarkdown() returns the string,
-// window.copyAsMarkdown() copies it to clipboard.
 window.getPageAsMarkdown = function() {
   var md = '# Yak Robotics — Partner Brief\n\n';
   md += '*Runtime procurement for physical-world tasks*\n\n';
@@ -842,7 +960,7 @@ function loadComments() {
       if (c.highlight) h += '<div class="fp-comment-highlight">"' + esc(c.highlight.slice(0, 120)) + (c.highlight.length > 120 ? '...' : '') + '"</div>';
       h += '<div class="fp-comment-text">' + esc(c.comment) + '</div>';
       var when = c.timestamp ? new Date(c.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-      h += '<div class="fp-comment-meta">' + esc(c.name || 'Anonymous') + (when ? ' · ' + when : '') + (c.section ? ' · ' + esc(c.section) : '') + (c.issue_url ? ' · <a href="' + esc(c.issue_url) + '" target="_blank" style="color:#2D5F8A">thread</a>' : '') + '</div>';
+      h += '<div class="fp-comment-meta">' + esc(c.name || 'Anonymous') + (when ? ' · ' + when : '') + (c.section ? ' · ' + esc(c.section) : '') + (c.issue_url ? ' · <a href="' + esc(c.issue_url) + '" target="_blank">thread</a>' : '') + '</div>';
       h += '</div>';
     });
     document.getElementById('commentList').innerHTML = h;
@@ -860,7 +978,6 @@ var currentSection = '';
 
 document.addEventListener('mouseup', function(e) {
   var pop = document.getElementById('selPopover');
-  // Ignore clicks inside the popover or panel
   if (pop.contains(e.target) || document.getElementById('feedbackPanel').contains(e.target)) return;
 
   var sel = window.getSelection();
@@ -872,7 +989,6 @@ document.addEventListener('mouseup', function(e) {
 
   currentHighlight = text.slice(0, 500);
 
-  // Find nearest section heading
   var node = sel.anchorNode;
   currentSection = '';
   while (node && node !== document.body) {
@@ -883,7 +999,6 @@ document.addEventListener('mouseup', function(e) {
     node = node.parentElement;
   }
   if (!currentSection) {
-    // Walk up to find containing section by checking previous h2
     var all = document.querySelectorAll('h2');
     var range = sel.getRangeAt(0);
     for (var i = all.length - 1; i >= 0; i--) {
@@ -899,14 +1014,13 @@ document.addEventListener('mouseup', function(e) {
   document.getElementById('selStatus').textContent = '';
   document.getElementById('selSubmit').disabled = false;
 
-  // Position near selection
   var rect = sel.getRangeAt(0).getBoundingClientRect();
   pop.style.top = (window.scrollY + rect.bottom + 8) + 'px';
   pop.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
   pop.classList.add('visible');
+  setTimeout(function() { document.getElementById('selComment').focus(); }, 50);
 });
 
-// Close popover on Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') document.getElementById('selPopover').classList.remove('visible');
 });
@@ -934,7 +1048,6 @@ function submitComment() {
     setTimeout(function() {
       document.getElementById('selPopover').classList.remove('visible');
     }, 1500);
-    // Refresh badge + panel
     loadComments();
   }).catch(function(e) {
     status.textContent = 'Error — please try again.';
@@ -942,8 +1055,6 @@ function submitComment() {
   });
 }
 
-// --- Refresh button ---
-// --- Panel inline feedback form ---
 function submitPanelComment() {
   var comment = document.getElementById('panelComment').value.trim();
   if (!comment) return;
@@ -991,7 +1102,6 @@ function showContact() {
   document.getElementById('contactStatus').textContent = '';
   document.getElementById('contactSubmit').disabled = false;
   document.body.style.overflow = 'hidden';
-  // Reset any drag transform
   var box = document.getElementById('contactBox');
   box.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
   box.style.transform = '';
