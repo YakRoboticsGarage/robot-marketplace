@@ -660,13 +660,34 @@ body.panel-open { margin-right: 320px; }
 </table>
 
 <h3>Open Challenges</h3>
-<ul class="summary-list">
-  <li><strong>Privacy:</strong> Construction RFPs contain sensitive site data, bid pricing, and project timelines. Government contracts add ITAR/CUI restrictions. The protocol must handle task matching without the platform seeing task content, and settle payments without revealing amounts to third parties. EU Anti-Money Laundering Regulation Article 79 constrains which privacy approaches are legally viable.</li>
-  <li><strong>Regulation:</strong> FAA Part 108 (Beyond Visual Line of Sight) final rule expected mid-2026, following Executive Order 14307 directing routine commercial BVLOS operations. This unlocks autonomous drone dispatch without per-flight waivers &mdash; a prerequisite for algorithmic procurement at scale. Ground robots currently lack standardized navigation and right-of-way rules on construction sites.</li>
-  <li><strong>Scale:</strong> Operator supply density uncertain in rural corridors. Credential APIs fragmented (50 state PLS boards). Trust bootstrapping requires managed curation (Brooks Act QBS culture). MDOT drone data acceptance not yet standard.</li>
-  <li><strong>Liability:</strong> A 2024 federal ruling (<em>360 Virtual Drone Services v. Ritter</em>, 4th Circuit) held that drone-collected survey data constitutes licensed surveying &mdash; connecting buyers to unlicensed operators may expose the platform in some states. The platform is positioned as a data-acquisition procurement layer, not a surveying firm, with operators certifying their own credentials. For autonomous dispatch, liability allocation between operator, platform, and manufacturer is unsettled. Robotics-specific insurance exists but does not yet cover AI-mediated missions.</li>
-  <li><strong>Software fragmentation:</strong> Construction is the <a href="https://www.mckinsey.com/capabilities/operations/our-insights/reinventing-construction-through-a-productivity-revolution" target="_blank">second-least digitized industry</a>, spending ~1% of revenue on IT versus 3.3% average. Poor interoperability costs the US capital facilities industry <a href="https://nvlpubs.nist.gov/nistpubs/gcr/2004/NIST.GCR.04-867.pdf" target="_blank">$15.8 billion per year</a> (NIST). The average firm runs 4&ndash;6 non-integrated applications with manual re-entry between them. Any protocol layer must integrate with this fragmented toolchain, not assume it away.</li>
-</ul>
+<table>
+  <tr><th>Area</th><th>Challenge</th><th>Opportunity</th></tr>
+  <tr>
+    <td class="phase">Privacy</td>
+    <td>Construction RFPs contain sensitive site data, bid pricing, and timelines. Government contracts add ITAR/CUI restrictions. <a href="https://eur-lex.europa.eu/eli/reg/2024/1624/oj/eng" target="_blank">EU AML Regulation Article 79</a> constrains which privacy approaches are legally viable.</td>
+    <td>Private task matching for government and defense procurement is an unsolved problem in physical-world services. <a href="https://investors.palantir.com/financials/sec-filings" target="_blank">Palantir generated $1.6 billion in government revenue</a> (2024) solving analogous data privacy problems in software. No equivalent exists for physical-task procurement.</td>
+  </tr>
+  <tr>
+    <td class="phase">Regulation</td>
+    <td><a href="https://www.faa.gov/newsroom/BVLOS_NPRM_website_version.pdf" target="_blank">FAA Part 108</a> (BVLOS) final rule expected mid-2026, per <a href="https://www.federalregister.gov/documents/2025/08/07/2025-14992/normalizing-unmanned-aircraft-systems-beyond-visual-line-of-sight-operations" target="_blank">Executive Order 14307</a>. Ground robots lack standardized navigation rules on construction sites.</td>
+    <td>BVLOS enables autonomous drone dispatch without per-flight waivers. This is the regulatory prerequisite for algorithmic procurement at scale. The first compliant marketplace captures the market before incumbents adapt to the new rules.</td>
+  </tr>
+  <tr>
+    <td class="phase">Scale</td>
+    <td>Operator supply density uncertain in rural corridors. Credential APIs fragmented across 50 state PLS boards. Trust requires managed curation. MDOT drone data acceptance not yet standard.</td>
+    <td>The <a href="https://hbswk.hbs.edu/item/how-uber-airbnb-and-etsy-attracted-their-first-1-000-customers" target="_blank">same cold-start problem Airbnb solved</a> with photography and Craigslist integration. The demand signal system converts failed searches into operator recruitment data: each unmet request shows operators exactly where to invest.</td>
+  </tr>
+  <tr>
+    <td class="phase">Liability</td>
+    <td>A <a href="https://law.justia.com/cases/federal/appellate-courts/ca4/23-1506/23-1506-2024-05-07.html" target="_blank">2024 federal ruling</a> (<em>360 Virtual Drone Services v. Ritter</em>, 4th Circuit) held that drone survey data constitutes licensed surveying. Autonomous dispatch liability allocation is unsettled. Robotics insurance does not yet cover AI-mediated missions.</td>
+    <td><a href="https://www.geekwire.com/2021/amazon-will-take-greater-responsibility-defective-products-sold-third-party-merchants/" target="_blank">Amazon accepted liability for third-party seller defects in 2021</a> and converted it into a trust advantage. The platform that defines the liability framework for autonomous dispatch (data-acquisition subcontractor model, proportional responsibility by autonomy level) writes the standard others adopt.</td>
+  </tr>
+  <tr>
+    <td class="phase">Software fragmentation</td>
+    <td>Construction is the <a href="https://www.mckinsey.com/capabilities/operations/our-insights/reinventing-construction-through-a-productivity-revolution" target="_blank">second-least digitized industry</a> (McKinsey). Poor interoperability costs <a href="https://nvlpubs.nist.gov/nistpubs/gcr/2004/NIST.GCR.04-867.pdf" target="_blank">$15.8 billion per year</a> (NIST). The average firm runs 4-6 non-integrated applications.</td>
+    <td>No incumbent integration layer exists to displace. A marketplace that connects to the fragmented toolchain via standardized tool-use becomes the connective tissue the industry lacks. <a href="https://stripe.dev/blog/payment-api-design" target="_blank">Stripe became the payment layer</a> by integrating with everything rather than replacing anything.</td>
+  </tr>
+</table>
 </section>
 
 <section>
