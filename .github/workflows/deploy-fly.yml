@@ -16,8 +16,8 @@ jobs:
       marketplace: ${{ steps.filter.outputs.marketplace }}
       fleet: ${{ steps.filter.outputs.fleet }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@6852f92c20ea7fd3b0c25de3b5112db3a98da050 # v3
         id: filter
         with:
           filters: |
@@ -39,8 +39,8 @@ jobs:
       group: deploy-marketplace
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # master
       - name: Deploy marketplace
         run: flyctl deploy --config fly.toml --remote-only
         env:
@@ -54,8 +54,8 @@ jobs:
       group: deploy-fleet
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # master
       - name: Deploy fleet
         run: flyctl deploy --config infra/fleet/fly.toml --remote-only
         env:
