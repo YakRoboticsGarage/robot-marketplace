@@ -1,11 +1,11 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-16'
-  total_items: 87
+  total_items: 88
   implemented: 34
   deferred: 17
   rejected: 1
-  proposed: 35
+  proposed: 36
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
   last_sync: "R-028 complete 2026-04-16 — added IMP-085/086/087 (Stripe payouts_enabled gate, check_stripe_account_status helper, account.updated webhook)"
 proposals:
@@ -1354,6 +1354,27 @@ proposals:
   priority: critical
   status: proposed
   proposed_date: '2026-04-15'
+  decision_date: null
+  decision_notes: null
+- id: IMP-088
+  title: Demand signal system — log unmet requests as operator market intelligence
+  description: >
+    When a buyer posts a task or searches for robots and no operator can fulfill the request,
+    log the unmet demand as structured data (task category, location, capability requirements,
+    budget range, timestamp). Expose via two new MCP tools: auction_log_unmet_demand (called
+    on no-match) and auction_get_demand_signals (queried by operators). Operators see real
+    demand data: "3 GPR requests in Montana in last 30 days, avg budget $3,500, no operators
+    within 200km." Turns failed auctions into market intelligence. Storage: SQLite table
+    unmet_demands in SyncTaskStore. Surface in tool responses on no-match and in operator
+    dashboard queries. Per multi-agent architecture critique (SKILL_ARCHITECTURE_PLAN_v2.md):
+    demand signal is a data layer and MCP tools, not a standalone skill or workflow.
+  module: M2_auction_engine
+  research_source: SKILL_ARCHITECTURE_PLAN_v2
+  evidence: 'docs/architecture/SKILL_ARCHITECTURE_PLAN_v2.md — multi-agent critique consensus'
+  effort: medium
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-16'
   decision_date: null
   decision_notes: null
 
