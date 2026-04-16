@@ -5,7 +5,7 @@
 
 meta:
   created: "2026-04-01"
-  last_updated: "2026-04-15"  # R-045 complete; IMP-078/079/080/081 added; R-048/R-049 spawned
+  last_updated: "2026-04-16"  # R-028 complete; IMP-085/086/087 added; R-050 spawned
   schedule: "Daily at 09:00 Berlin (07:00 UTC)"
   synthesis_cadence: "Every 7 completed topics, R-META-001 re-queues for pipeline self-critique"
   output_dir: "docs/research/automated/"
@@ -347,10 +347,15 @@ topics:
     title: "Stripe Identity and Connect KYC as operator verification"
     module: M10_compliance
     hypothesis: "Stripe Connect Express already performs KYC/KYB during onboarding — identity verification, business registration check, sanctions screening. If an operator has a verified Connect account, that may be sufficient platform trust for most task values."
-    status: queued
+    status: complete
     priority: high
     estimated_sessions: 1
+    completed_date: "2026-04-16"
     depends_on: [R-027]
+    output_file: "docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md"
+    improvement_proposals: [IMP-085, IMP-086, IMP-087]
+    spawned: [R-050]
+    notes: "Hypothesis confirmed with caveats. payouts_enabled=True on Connect Express account is sufficient baseline trust for <$10K tasks (ID, SSN/EIN, OFAC, PEP screening included). Critical gap: activate() checks stripe_account_id != None but does NOT call get_account() to verify payouts_enabled=True — operator with incomplete onboarding can be activated. Stripe Identity ($1.50/check) is the right escalation for auto-verification failures. Stripe does NOT verify SoS registration (Middesk IMP-066 remains correct for $25K+ tasks). account.updated webhook needed to auto-suspend OFAC-flagged operators post-activation."
 
   # ===== PLATFORM ADMINISTRATION =====
 
@@ -733,3 +738,17 @@ topics:
     spawned_from: R-045
     spawned_date: "2026-04-15"
     notes: "Key questions: (1) Model subcontract language for responsible charge delegation? (2) Aerotas resources page has drone survey legal overview — does it address responsible charge subcontracts? (3) NSPS (National Society of Professional Surveyors) model documents? (4) If the winning operator is a licensed PLS themselves, does the platform still need a responsible charge declaration? (5) Implementation: at task award, YAK sends a 'PLS Responsible Charge Addendum' as part of the operator acceptance flow."
+
+  # ===== SPAWNED BY R-028 =====
+
+  - id: R-050
+    title: "Stripe Connect account.updated webhook — implementation guide for operator status sync"
+    module: M15_stripe_service
+    hypothesis: "The platform needs to receive account.updated webhook events from Stripe for all connected accounts (Express) to detect post-activation status changes: OFAC flags, KYC failures, payout holds. When payouts_enabled changes to False on an active operator's account, the marketplace must auto-suspend the operator. Research: (1) Does Stripe require a separate Connect webhook endpoint and webhook secret for account-level events vs payment events? (2) What is the event signature validation pattern for Connect account webhooks? (3) How does the platform subscribe to events for all connected accounts (not just one)? (4) What changes are needed in worker/src/index.js to handle account.updated and route to the auction API? (5) Are there other Connect account events relevant to operator status (e.g., account.application.deauthorized, person.updated)?"
+    status: queued
+    priority: medium
+    estimated_sessions: 1
+    depends_on: [R-028]
+    spawned_from: R-028
+    spawned_date: "2026-04-16"
+    notes: "Blocks IMP-087. Key questions: (1) Separate webhook secret for Connect events? (2) worker/src/index.js event routing pattern? (3) account.updated payload structure — does it include payouts_enabled directly? (4) Rate limiting / deduplication — same operator may get multiple status updates. (5) Can the auction API receive a PATCH /operators/:id/status from the worker, or does it need a dedicated endpoint?"

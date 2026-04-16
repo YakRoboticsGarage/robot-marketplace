@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-15'
-  total_items: 84
+  last_updated: '2026-04-16'
+  total_items: 87
   implemented: 34
   deferred: 17
   rejected: 1
-  proposed: 32
+  proposed: 35
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
-  last_sync: "docs-sync 2026-04-15 — corrected meta 77→84 (IMP-078-081 from R-045 sprint + IMP-082-084 from daily code audit)"
+  last_sync: "R-028 complete 2026-04-16 — added IMP-085/086/087 (Stripe payouts_enabled gate, check_stripe_account_status helper, account.updated webhook)"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -1442,5 +1442,73 @@ proposals:
   priority: medium
   status: proposed
   proposed_date: '2026-04-15'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-085
+  title: Check payouts_enabled in activate() before allowing operator activation
+  description: >
+    OperatorRegistry.activate() checks that stripe_account_id is non-None (IMP-064),
+    but does NOT call get_account() to verify that payouts_enabled is True. An operator
+    who started Stripe onboarding but didn't finish ID verification has a valid
+    stripe_account_id but cannot receive payouts — yet the current code lets them
+    activate and win tasks. Fix: after the stripe_account_id check in activate(), call
+    StripeService.get_account(stripe_account_id) and verify payouts_enabled is True.
+    If False, return an issue with the disabled_reason from the requirements hash.
+    In stub mode (no Stripe key), skip the check and log a warning.
+    Implementation is ~5 lines using the existing get_account() method.
+  module: M15_stripe_service
+  research_source: R-028
+  evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (codebase gap: activate() checks account exists, not payouts_enabled)'
+  effort: small
+  priority: high
+  status: proposed
+  proposed_date: '2026-04-16'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-086
+  title: Add check_stripe_account_status() helper to stripe_service.py
+  description: >
+    Add a check_stripe_account_status(account_id) method to StripeService that
+    returns a clean struct rather than the raw Account dict:
+    {"payouts_enabled": bool, "charges_enabled": bool, "currently_due": list[str],
+    "disabled_reason": str | None, "status": "verified" | "pending" | "blocked" | "error"}.
+    "verified" = payouts_enabled AND charges_enabled AND currently_due == [].
+    This helper is called by activate() (IMP-085), by pre-bid validation in engine.py,
+    and by the account.updated webhook handler (IMP-087). Stub mode returns
+    {"status": "verified", "payouts_enabled": True, "charges_enabled": True,
+    "currently_due": [], "disabled_reason": null} so tests pass without real Stripe keys.
+    Eliminates repetitive dict-parsing at every call site.
+  module: M15_stripe_service
+  research_source: R-028
+  evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (get_account() returns raw dict; callers must parse payouts_enabled, requirements, disabled_reason)'
+  effort: small
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-16'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-087
+  title: Handle account.updated webhook to auto-suspend OFAC-flagged operators
+  description: >
+    worker/src/index.js handles Stripe payment webhooks but does not process
+    account.updated events for connected accounts. When Stripe OFAC-flags an operator
+    post-activation (e.g. sanctions list hit, KYC failure, payout hold), the platform
+    has no mechanism to auto-suspend them — they remain active and eligible to bid.
+    Add a webhook handler for account.updated that checks payouts_enabled on the
+    updated account. When it transitions to False on an account linked to an active
+    operator, call the auction API to set operator status to suspended and log the
+    disabled_reason. Requires a separate Connect webhook endpoint (or a shared endpoint
+    that routes by event type). Stripe requires a separate webhook secret for account-level
+    Connect events vs payment events.
+  module: M15_stripe_service
+  research_source: R-028
+  evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (no webhook handling for Connect account status changes) and Finding 1 (Stripe OFAC screening is ongoing, not one-time)'
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-16'
   decision_date: null
   decision_notes: null
