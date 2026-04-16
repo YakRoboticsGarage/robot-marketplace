@@ -90,10 +90,10 @@ Everything built through v1.0 is the shared foundation. Marco, Kenji, and Diane 
 - Internal wallet ledger with debit/credit log (per TC-2)
 - Stripe wallet onboarding + Connect Express payouts (per TC-2, TC-3)
 - Persistent state via SQLite `SyncTaskStore`
-- 35 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation
+- 36 MCP tools: auction lifecycle, RFP processing, bond verification, operator compliance, agreement generation
 - Structured error responses, `available_actions`, `next_action` patterns (per AD-13, AD-14, AD-15)
 - Standards-aligned task specs: ASPRS accuracy classes, USGS quality levels, EPSG CRS codes, structured deliverables
-- 284 passing tests, ~17,042 LOC
+- 284 passing tests, ~17,336 LOC
 - Live demo at yakrobot.bid, yakrobot.bid/demo (Claude tool_use), yakrobot.bid/yaml (ontology explorer)
 - Chatbot worker on Cloudflare, MCP server with Cloudflare Tunnel
 

@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-09'
-  total_items: 47
+  last_updated: '2026-04-16'
+  total_items: 49
   implemented: 10
   deferred: 4
   rejected: 1
-  proposed: 32
+  proposed: 34
   source: Automated daily research agent + weekly synthesis
-  last_sync: "R-META-001 (2026-04-09) — corrected IMP-021/023/027 from proposed to implemented based on commits b76a4f1 and a58560f"
+  last_sync: "docs-sync (2026-04-16) — IMP-048/049 added; MCP tool count fixed 35→36 across CLAUDE.md, README.md, ROADMAP_v4.md, PRODUCT_MODULE_MAP.md; LOC updated ~17,042→~17,336; commit/research stats corrected in README.md"
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -778,5 +778,45 @@ proposals:
   priority: medium
   status: proposed
   proposed_date: '2026-04-08'
+  decision_date: null
+  decision_notes: null
+- id: IMP-048
+  title: Bump pyproject.toml version to 1.4.0 (supersedes IMP-046)
+  description: >
+    pyproject.toml declares version = "1.0.0". IMP-046 proposed bumping to "1.3.0" but
+    was proposed before v1.4 completed (2026-04-09). The correct target is now "1.4.0"
+    to match the v1.4-milestone-operator-registration tag. Any tooling reading the package
+    version (pip show, importlib.metadata) will report 1.0.0 otherwise. No behaviour change.
+    Mark IMP-046 deferred (superseded by this item).
+  module: system
+  research_source: code-audit-2026-04-16
+  evidence: 'pyproject.toml line 3: version = "1.0.0" — git tag is v1.4-milestone-operator-registration'
+  effort: trivial
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-16'
+  decision_date: null
+  decision_notes: null
+- id: IMP-049
+  title: Split mcp_tools.py (1,619 lines) into domain-grouped sub-modules
+  description: >
+    auction/mcp_tools.py has grown to 1,619 lines housing 36 tools across 5 distinct domains:
+    (1) auction lifecycle (post_task, accept_bid, confirm_delivery, ~10 tools), (2) RFP
+    processing (parse_rfp, extract_requirements, ~4 tools), (3) compliance and bond
+    verification (~6 tools), (4) operator/fleet management (~8 tools), (5) feedback and
+    events (~8 tools). Proposed split: mcp_tools_auction.py, mcp_tools_rfp.py,
+    mcp_tools_compliance.py, mcp_tools_fleet.py, mcp_tools_feedback.py, with mcp_tools.py
+    retained as a thin re-export shim so all 35 existing import paths continue to work.
+    Evaluate whether the navigation improvement justifies the added file count — the existing
+    single file is navigable with a text search. Risk: accidental circular imports if
+    domain modules call each other. Lower priority than IMP-010 (engine.py split, rejected)
+    because mcp_tools.py has no internal state coupling.
+  module: M24_mcp_tool_layer
+  research_source: code-audit-2026-04-16
+  evidence: 'auction/mcp_tools.py: 1,619 lines, 36 tools across 5 functional domains'
+  effort: medium
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-16'
   decision_date: null
   decision_notes: null
