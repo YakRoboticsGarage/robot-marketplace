@@ -38,21 +38,23 @@ def sim_gps(lat=42.5, lng=-83.5):
 
 
 def make_aerial_lidar_delivery():
+    area = random.randint(20000, 80000)
+    density = round(random.uniform(2.0, 12.0), 1)
     return {
         "point_cloud": {
             "format": "LAS 1.4",
             "version": "1.4",
-            "point_count": random.randint(800000, 4200000),
-            "density_pts_m2": round(random.uniform(5, 25), 1),
-            "area_m2": random.randint(5000, 50000),
-            "classifications": ["ground", "vegetation", "building", "noise"],
+            "point_count": int(area * density),
+            "density_pts_m2": density,
+            "area_m2": area,
+            "classifications": ["ground", "low_vegetation", "medium_vegetation", "high_vegetation", "building", "noise"],
             "bounding_box": {"min": sim_gps(), "max": sim_gps()},
         },
         "quality_metrics": {
-            "horizontal_accuracy_cm": round(random.uniform(1.5, 5), 1),
-            "vertical_accuracy_cm": round(random.uniform(2, 8), 1),
-            "control_points_used": random.randint(4, 12),
-            "overlap_pct": random.randint(60, 85),
+            "horizontal_accuracy_cm": round(random.uniform(2.0, 3.5), 1),
+            "vertical_accuracy_cm": round(random.uniform(3.0, 5.0), 1),
+            "control_points_used": random.randint(6, 15),
+            "overlap_pct": random.randint(60, 75),
         },
         "coordinate_system": {
             "epsg": 2253,
