@@ -154,10 +154,28 @@ class OperatorRegistry:
         }
         return {"operator_id": operator_id, "insurance": profile.insurance}
 
-    def activate(self, operator_id: str) -> dict:
+    # Default test account for demo/fallback when Stripe account is invalid
+    TEST_STRIPE_ACCOUNT = "acct_test_demo_fallback"
+
+    def activate(
+        self,
+        operator_id: str,
+        stripe_service: Any | None = None,
+        use_test_account_fallback: bool = True,
+    ) -> dict:
         """Activate an operator for bidding.
 
-        Checks: at least 1 equipment item, Part 107 cert, and insurance on file.
+        Checks: at least 1 equipment item, Part 107 cert, insurance on file,
+        and Stripe Connect account linked with payouts enabled.
+
+        Args:
+            operator_id: The operator to activate.
+            stripe_service: Optional StripeService instance. If provided,
+                verifies payouts_enabled on the Stripe account. If None
+                (demo/stub mode), skips the Stripe API check.
+            use_test_account_fallback: If True and the Stripe account is
+                invalid or payouts not enabled, fall back to a test account
+                so the operator can still activate in demo mode.
         """
         profile = self._get(operator_id)
         issues = []
@@ -178,8 +196,37 @@ class OperatorRegistry:
                 "message": "Fix the issues above before activation",
             }
 
+        # Verify Stripe payouts_enabled if a StripeService is available
+        stripe_warning = None
+        if stripe_service and not stripe_service.stub_mode:
+            account_data = stripe_service.get_account(profile.stripe_account_id)
+            if account_data.get("error"):
+                if use_test_account_fallback:
+                    stripe_warning = f"Stripe account lookup failed ({account_data['error']}). Using test account for demo."
+                    profile.stripe_account_id = self.TEST_STRIPE_ACCOUNT
+                else:
+                    issues.append(f"Stripe account error: {account_data['error']}")
+            elif not account_data.get("payouts_enabled", False):
+                disabled_reason = account_data.get("requirements", {}).get("disabled_reason", "unknown")
+                if use_test_account_fallback:
+                    stripe_warning = f"Stripe payouts not enabled (reason: {disabled_reason}). Using test account for demo."
+                    profile.stripe_account_id = self.TEST_STRIPE_ACCOUNT
+                else:
+                    issues.append(
+                        f"Stripe payouts not enabled — reason: {disabled_reason}. "
+                        "Complete identity verification in the Stripe Express Dashboard."
+                    )
+
+        if issues:
+            return {
+                "operator_id": operator_id,
+                "status": "pending",
+                "issues": issues,
+                "message": "Fix the issues above before activation",
+            }
+
         profile.status = "active"
-        return {
+        result = {
             "operator_id": operator_id,
             "status": "active",
             "company_name": profile.company_name,
@@ -188,6 +235,10 @@ class OperatorRegistry:
             "equipment_count": len(profile.equipment),
             "message": f"{profile.company_name} is now active and eligible for bidding",
         }
+        if stripe_warning:
+            result["stripe_warning"] = stripe_warning
+            result["stripe_account_id"] = self.TEST_STRIPE_ACCOUNT
+        return result
 
     def update_profile(self, operator_id: str, **fields: Any) -> dict:
         """Update an existing operator profile. Only provided fields are changed."""
