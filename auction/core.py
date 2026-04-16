@@ -205,7 +205,9 @@ def infer_task_category(capability_requirements: dict) -> str:
     sensors = hard.get("sensors_required", [])
     if not isinstance(sensors, list):
         return "env_sensing"
-    sensors_lower = [s.lower() for s in sensors if isinstance(s, str)]
+    from auction.sensor_registry import normalize_sensor
+
+    sensors_lower = [normalize_sensor(s) for s in sensors if isinstance(s, str)]
     if any(s in sensors_lower for s in ("rgb_camera", "thermal_camera")):
         # thermal_camera + aerial_lidar → bridge_inspection
         if "thermal_camera" in sensors_lower and "aerial_lidar" in sensors_lower:
@@ -292,6 +294,11 @@ def validate_task_spec(task_spec: dict) -> list[str]:
                 errors.append(
                     f"capability_requirements.hard.sensors_required must be a list, got {type(sensors).__name__}"
                 )
+            elif sensors is not None:
+                # Normalize sensor names to canonical forms
+                from auction.sensor_registry import normalize_sensors
+
+                hard["sensors_required"] = normalize_sensors(sensors)
 
         # If payload is provided, validate its structure
         payload = cap_req.get("payload")
@@ -510,9 +517,12 @@ def check_hard_constraints(
     else:
         robot_sensors = set(raw_sensors)
 
-    # 1. Required sensors — robot must have ALL
+    # 1. Required sensors — robot must have ALL (normalize both sides)
+    from auction.sensor_registry import normalize_sensor
+
+    normalized_robot_sensors = {normalize_sensor(s) for s in robot_sensors}
     for required_sensor in hard.get("sensors_required", []):
-        if required_sensor not in robot_sensors:
+        if normalize_sensor(required_sensor) not in normalized_robot_sensors:
             rejections.append(f"missing_sensor:{required_sensor}")
 
     # 2. Indoor capability

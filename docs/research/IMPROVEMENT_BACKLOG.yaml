@@ -1,11 +1,11 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-16'
-  total_items: 88
+  total_items: 89
   implemented: 34
   deferred: 17
   rejected: 1
-  proposed: 36
+  proposed: 37
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
   last_sync: "R-028 complete 2026-04-16 — added IMP-085/086/087 (Stripe payouts_enabled gate, check_stripe_account_status helper, account.updated webhook)"
 proposals:
@@ -1529,6 +1529,34 @@ proposals:
   evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (no webhook handling for Connect account status changes) and Finding 1 (Stripe OFAC screening is ongoing, not one-time)'
   effort: medium
   priority: medium
+  status: proposed
+  proposed_date: '2026-04-16'
+  decision_date: null
+  decision_notes: null
+- id: IMP-089
+  title: Operator session identity — persistent state tied to authenticated operator
+  description: >
+    Operators currently interact with the marketplace statelessly — no concept of "my bids",
+    "my earnings", or "my fleet" across sessions. With SQLite persistence (IMP-038), the
+    marketplace stores auction data but cannot attribute it to a returning operator. Needed:
+    (1) Operator identity binding — use one of: API key (simplest), wallet address (already
+    on-chain via ERC-8004), or Stripe Connect account ID (already required for payouts via
+    IMP-064). Stripe Connect ID is the pragmatic choice — operators already have one after
+    onboarding. (2) Session-aware MCP tools — auction_my_bids(operator_id), auction_my_earnings
+    (operator_id), auction_my_fleet(operator_id). These query SQLite filtered by operator.
+    (3) Authentication at MCP layer — bearer token or OAuth flow so the MCP server knows
+    which operator is calling. Current MCP server has MCP_BEARER_TOKEN but it is a single
+    shared token, not per-operator. Considerations: per-operator tokens add complexity
+    (token issuance, storage, rotation). Alternative: operator passes their robot_id or
+    operator_id as a parameter and the system trusts it (acceptable for demo, not for
+    production). For production: OAuth via Stripe Connect or wallet-based auth (EIP-4361
+    Sign-In with Ethereum). Depends on IMP-064 (stripe_account_id on OperatorProfile)
+    and IMP-038 (SQLite persistence).
+  module: M10_compliance
+  research_source: SKILL_ARCHITECTURE_PLAN_v2
+  evidence: 'User question during IMP-038 implementation — operator needs persistent session to see their history'
+  effort: medium
+  priority: high
   status: proposed
   proposed_date: '2026-04-16'
   decision_date: null
