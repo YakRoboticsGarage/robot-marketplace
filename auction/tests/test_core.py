@@ -221,6 +221,29 @@ class TestHardConstraints:
         assert eligible_ok is True
         assert reasons_ok == []
 
+    def test_check_hard_constraints_certifications(self):
+        """certifications_required gates operators without required certs."""
+        task = make_task(capability_requirements={
+            "hard": {"certifications_required": ["licensed_surveyor"]}
+        })
+        # Robot without certification
+        robot_no_cert = {"sensors": [], "certifications": []}
+        eligible, reasons = check_hard_constraints(task, robot_no_cert)
+        assert eligible is False
+        assert any("missing_certification:licensed_surveyor" in r for r in reasons)
+
+        # Robot with certification
+        robot_certified = {"sensors": [], "certifications": ["licensed_surveyor"]}
+        eligible_ok, reasons_ok = check_hard_constraints(task, robot_certified)
+        assert eligible_ok is True
+        assert reasons_ok == []
+
+        # Robot with no certifications key at all
+        robot_no_key = {"sensors": []}
+        eligible_nk, reasons_nk = check_hard_constraints(task, robot_no_key)
+        assert eligible_nk is False
+        assert any("missing_certification" in r for r in reasons_nk)
+
 
 # ===================================================================
 # Scoring (tests 14–18)

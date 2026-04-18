@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-17'
+  last_updated: '2026-04-18'
   total_items: 91
-  implemented: 34
-  deferred: 17
+  implemented: 46
+  deferred: 18
   rejected: 1
-  proposed: 39
+  proposed: 26
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
-  last_sync: "docs-sync 2026-04-17 — research count corrected 75→45 in CLAUDE.md, 43→45 in README; DSL lines corrected 3600+→~3500; backlog total corrected 63→89. Added IMP-090 (mcp_tools.py split), IMP-091 (.env.example mainnet RPC). Prior: docs-sync 2026-04-16 — MCP tool count corrected to 41."
+  last_sync: "2026-04-18 — resolved IMP-082/020/018/070, status audit (8 items marked implemented), deferred IMP-056. Added IMP-090/091 from docs-sync. 46 implemented, 26 proposed, 18 deferred, 1 rejected."
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -307,10 +307,10 @@ proposals:
   evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
   effort: small
   priority: null
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-05'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-18'
+  decision_notes: Created txdot-standards.md with accuracy requirements, LiDAR specs, cross-section intervals, coordinate systems (5 TX zones), CAD format, regulatory notes, and task spec defaults template.
 - id: IMP-019
   title: Add ODOT-specific operator capability constraints to compliance module
   description: 'ODOT January 2024 specs require 40 pts/m² minimum point density (5× USGS QL1) and deliverables in Bentley
@@ -342,10 +342,10 @@ proposals:
   evidence: docs/research/automated/R-001_multi_state_dot_survey_standards.md
   effort: small
   priority: null
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-05'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-18'
+  decision_notes: Added Caltrans Type A/B accuracy table to standards-reference.md with ASPRS equivalents and conversion rules for RFP language.
 - id: IMP-021
   title: Fix incorrect EPSG codes in standards-reference.md (MI and OH zones)
   description: 'The EPSG table in .claude/skills/rfp-to-robot-spec/references/standards-reference.md
@@ -873,10 +873,10 @@ proposals:
   evidence: auction/delivery_schemas.py, infra/fleet-sim/category_server.py
   effort: medium
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: 19 e2e tests in test_delivery_schemas_e2e.py verify all 9 delivery schemas across all task categories. All passing.
 - id: IMP-053
   title: Realistic delivery payload data quality per survey standard
   description: 'Current simulated data has correct structure but randomly generated values. Should align with industry standards: ASPRS accuracy classes for LiDAR (RMSEz 0.02-0.08m), ASCE 38 quality levels for GPR, ASTM C1153 for thermal, NBI condition states for bridges, USIBD LOA for terrestrial. Research output from R-052 agent has detailed specs per category. Add sensor model names, standards compliance fields, realistic file size estimates.'
@@ -885,10 +885,10 @@ proposals:
   evidence: Research agent output (survey deliverable formats)
   effort: medium
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: All 9 category simulators updated with realistic values per survey standards. ASPRS accuracy, USGS QL1/QL2 density, correct file formats (LAS 1.4, GeoTIFF, DZT, RJPEG, E57, PLY), real equipment models, APWA color codes, NBI defect taxonomies, ASCE 38 quality levels.
 - id: IMP-054
   title: Sensor vocabulary management — canonical registry + term mapping
   description: 'Claude generates sensors_required from RFP text. Sometimes produces names not in fleet vocabulary (e.g., robotic_total_station). Fleet has finite set: aerial_lidar, gpr, photogrammetry, thermal_camera, rtk_gps, terrestrial_lidar, temperature, humidity. Need: (a) canonical sensor registry in auction/core.py, (b) mapping layer for equivalent terms (total_station → rtk_gps, lidar → aerial_lidar), (c) graceful fallback for unknown sensors (suggest closest match, not silent fail). New sensor types should be addable without code changes.'
@@ -897,10 +897,10 @@ proposals:
   evidence: 'RFP preset "Aerial LiDAR Topo" generated robotic_total_station sensor, excluding GLAS-LIDAR-01 which has aerial_lidar+rtk_gps'
   effort: medium
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: New auction/sensor_registry.py with 10 canonical sensors and 40+ aliases. normalize_sensor() and normalize_sensors() integrated into core.py validate_task_spec(), check_hard_constraints(), and infer_task_category().
 - id: IMP-055
   title: Multi-task RFP decomposition with parallel auctions
   description: 'One RFP can require multiple survey types (e.g., I-94 = aerial topo + GPR subsurface + bridge inspection). Currently posts one task per Hire Operator click. Need: Claude decomposes into N tasks, user sees preview and confirms, N auctions run in parallel with shared rfp_id, N winner cards displayed. Each task settles independently. Reference: docs/research/automated/R-051_imr_llm_multi_robot_task_planning.md (disjunctive graphs for scheduling).'
@@ -921,10 +921,10 @@ proposals:
   evidence: docs/research/market/RESEARCH_MICHIGAN_RFP_EXAMPLES.md
   effort: small
   priority: medium
-  status: proposed
+  status: deferred
   proposed_date: '2026-04-12'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-18'
+  decision_notes: Deferred — 43 RFPs sufficient for demo. Revisit when expanding beyond Michigan.
 - id: IMP-057
   title: EAS attestation frontend performance optimization
   description: 'Frontend sidebar queries EAS GraphQL at page load (~500 attestations across 2 chains). At 100 robots takes 1-2s. At 1000+ could become slow or hit rate limits. Consider caching attestations server-side or in localStorage with 5-min TTL.'
@@ -1160,10 +1160,10 @@ proposals:
   evidence: docs/research/automated/R-007_electronic_survey_seal_stamp_regulations.md
   effort: small
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-13'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-18'
+  decision_notes: Added pls_seal_capability field to OperatorProfile (image_only | docusign_esign | pki_cert). upload_compliance_doc returns PKI guidance when doc_type is pls_license, listing OH/VA/NJ/FL as PKI-required states with AATL provider options. Onboarding docstring updated. Created pls-digital-seal-requirements.md reference doc.
 - id: IMP-072
   title: Add `pls_required` flag to task spec and RFP processor
   description: >
@@ -1266,10 +1266,10 @@ proposals:
   evidence: 'ruff check auction/ --select=F401: api.py:18 typing.Any, api.py:28 CORSMiddleware — both unused'
   effort: trivial
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-14'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: Both dead imports removed from api.py. ruff F401 clean.
 - id: IMP-077
   title: Decompose auction_register_robot_onchain into mode-specific helpers
   description: >
@@ -1373,10 +1373,10 @@ proposals:
   evidence: 'docs/architecture/SKILL_ARCHITECTURE_PLAN_v2.md — multi-agent critique consensus'
   effort: medium
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-16'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: Added unmet_demands table to SQLite schema, save_unmet_demand() and get_demand_signals() with haversine filtering to SyncTaskStore. Two new MCP tools (auction_log_unmet_demand, auction_get_demand_signals). Total tools now 41.
 
 - id: IMP-081
   title: Legal memo — evaluate Certificate of Authorization as surveying firm in MI, OH, NC
@@ -1418,10 +1418,10 @@ proposals:
   evidence: 'auction/core.py:473 check_hard_constraints() — certifications_required key never read; PRODUCT_MODULE_MAP.md M36 gap table confirms'
   effort: small
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-15'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-18'
+  decision_notes: Added certifications_required check as constraint #5 in check_hard_constraints(). Compares task hard.certifications_required against robot_capabilities.certifications. 3 new test cases in test_core.py. No behavior change for tasks without certifications_required.
 - id: IMP-083
   title: Split mcp_tools.py (1,619 LOC) into domain modules
   description: >
@@ -1461,10 +1461,10 @@ proposals:
   evidence: '.github/workflows/test.yml — actions/checkout@v4, astral-sh/setup-uv@v4: floating tags on money-handling CI'
   effort: small
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-15'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: SHA-pinned all actions in deploy-fly.yml and test.yml. Both workflows use full commit SHA instead of floating version tags.
 
 - id: IMP-085
   title: Check payouts_enabled in activate() before allowing operator activation
@@ -1483,10 +1483,10 @@ proposals:
   evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (codebase gap: activate() checks account exists, not payouts_enabled)'
   effort: small
   priority: high
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-16'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: activate() now accepts stripe_service param and checks payouts_enabled via Stripe API. Falls back to TEST_STRIPE_ACCOUNT for demo mode. 4 new tests in test_operator_registry.py.
 
 - id: IMP-086
   title: Add check_stripe_account_status() helper to stripe_service.py
@@ -1506,10 +1506,10 @@ proposals:
   evidence: 'docs/research/automated/R-028_stripe_connect_kyc_operator_verification.md — Section 6 (get_account() returns raw dict; callers must parse payouts_enabled, requirements, disabled_reason)'
   effort: small
   priority: medium
-  status: proposed
+  status: implemented
   proposed_date: '2026-04-16'
-  decision_date: null
-  decision_notes: null
+  decision_date: '2026-04-16'
+  decision_notes: Added check_stripe_account_status() returning structured dict with status, payouts_enabled, charges_enabled, currently_due, disabled_reason.
 
 - id: IMP-087
   title: Handle account.updated webhook to auto-suspend OFAC-flagged operators

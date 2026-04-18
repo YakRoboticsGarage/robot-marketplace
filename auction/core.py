@@ -544,6 +544,14 @@ def check_hard_constraints(
         if robot_distance is not None and robot_distance > max_distance:
             rejections.append(f"too_far:{robot_distance}m>{max_distance}m")
 
+    # 5. Required certifications (e.g., licensed_surveyor for PLS-stamped tasks)
+    required_certs = hard.get("certifications_required", [])
+    if required_certs:
+        robot_certs = set(robot_capabilities.get("certifications", []))
+        for cert in required_certs:
+            if cert not in robot_certs:
+                rejections.append(f"missing_certification:{cert}")
+
     return (len(rejections) == 0, rejections)
 
 

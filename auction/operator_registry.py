@@ -45,6 +45,7 @@ class OperatorProfile:
     status: str = "pending"  # pending, active, suspended
     compliance_status: dict = field(default_factory=dict)  # From ComplianceChecker
     pls_info: dict | None = None  # {name, license, state, expires}
+    pls_seal_capability: str | None = None  # image_only | docusign_esign | pki_cert
     insurance: dict = field(default_factory=dict)  # {cgl, eo, aviation, carrier}
     stripe_account_id: str | None = None  # Stripe Connect Express account ID
 

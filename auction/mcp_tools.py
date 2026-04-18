@@ -972,12 +972,24 @@ def register_auction_tools(
                         op.certifications.append(doc_type)
                 except KeyError:
                     pass  # Operator not registered via registry (e.g., mock fleet)
-            return {
+            result = {
                 "robot_id": record.robot_id,
                 "doc_type": record.doc_type,
                 "status": record.status,
                 "verified_at": record.verified_at.isoformat(),
             }
+            # Surface PKI digital certificate guidance for PLS-stamped deliverables
+            if doc_type == "pls_license":
+                result["pls_seal_guidance"] = {
+                    "summary": "Some states require PKI digital certificates (not e-signatures) for sealed survey deliverables.",
+                    "pki_required_states": ["OH", "VA", "NJ", "FL"],
+                    "pki_providers": ["IdenTrust (AATL-listed)", "GlobalSign", "DigiCert"],
+                    "estimated_cost": "$100-200/year per certificate",
+                    "note": "Standard DocuSign or Adobe Sign e-signatures do NOT satisfy PKI requirements in these states. "
+                            "Operators delivering PLS-stamped work in OH, VA, NJ, or FL must obtain a PKI certificate from an "
+                            "AATL-listed Certificate Authority.",
+                }
+            return result
         except (ValueError, Exception) as exc:
             return _error_response(exc)
 
@@ -1159,6 +1171,8 @@ def register_auction_tools(
         - Their robot is now registered and can receive task bids
         - Show them where to view it (yakrobot.bid/demo)
         - Mention they can add credentials later (FAA Part 107, insurance)
+        - If they plan to deliver PLS-stamped work in OH, VA, NJ, or FL,
+          note they will need a PKI digital certificate (not DocuSign)
         - If they didn't provide an MCP endpoint, explain that their robot
           will use simulated execution until they connect real hardware
 

@@ -24,6 +24,20 @@ Map RFP accuracy requirements to the nearest ASPRS class. Use for both `asprs_ho
 - "design grade" with no number → default `"5cm"`
 - "preliminary" with no number → default `"15cm"`
 
+## Caltrans Accuracy Types
+
+Map California DOT RFP accuracy requirements. Caltrans uses "Type A" / "Type B" instead of USGS QLs.
+
+| Caltrans Type | Hz Accuracy | Z Accuracy | ASPRS Equivalent | Use Case |
+|--------------|-------------|------------|------------------|----------|
+| Type A | ≤0.03 ft (0.9 cm) | ≤0.02 ft (0.6 cm) | 1cm–2.5cm class | Design-grade MTLS, highway design |
+| Type B | ≤0.10 ft (3.0 cm) | ≤0.05 ft (1.5 cm) | 5cm–10cm class | Preliminary surveys, planning |
+
+**Converting from Caltrans RFP language:**
+- "Type A survey" / "Type A MTLS" → `asprs_horizontal_class: "1cm"`, `asprs_vertical_class: "1cm"`
+- "Type B survey" → `asprs_horizontal_class: "5cm"`, `asprs_vertical_class: "5cm"`
+- Caltrans also requires State Plane California zones (EPSG 2225–2230) in US survey feet
+
 ## USGS Quality Levels (LiDAR Base Spec 2025 rev. A)
 
 Use for `usgs_quality_level`. Also sets minimum point density for LAS deliverables.
