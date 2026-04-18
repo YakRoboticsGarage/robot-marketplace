@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
   last_updated: '2026-04-18'
-  total_items: 91
+  total_items: 93
   implemented: 46
   deferred: 18
   rejected: 1
-  proposed: 26
+  proposed: 28
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint
-  last_sync: "2026-04-18 — resolved IMP-082/020/018/070, status audit (8 items marked implemented), deferred IMP-056. Added IMP-090/091 from docs-sync. 46 implemented, 26 proposed, 18 deferred, 1 rejected."
+  last_sync: "2026-04-18 — resolved IMP-082/020/018/070, status audit (8 items marked implemented), deferred IMP-056. Added IMP-090/091 from docs-sync. 46 implemented, 26 proposed, 18 deferred, 1 rejected. Added IMP-092/093 from daily audit 2026-04-18."
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -1602,5 +1602,45 @@ proposals:
   priority: low
   status: proposed
   proposed_date: '2026-04-17'
+  decision_date: null
+  decision_notes: null
+- id: IMP-092
+  title: Remove stale `src/` from ruff check command in CLAUDE.md
+  description: >
+    CLAUDE.md "Key Commands" documents `uv run ruff check auction/ src/` but the `src/`
+    directory does not exist in the repo. CI (test.yml) correctly runs `ruff check auction/`
+    only. The stale path silently passes (ruff ignores missing paths) but misleads contributors
+    into thinking there is a separate `src/` module tree being linted. Fix: remove `src/` from
+    the documented command, and confirm CI covers the full production surface (mcp_server.py at
+    repo root is currently not linted).
+  module: M00_infra
+  research_source: daily-audit-2026-04-18
+  evidence: '`ls src/` → not found; test.yml lint step: `ruff check auction/`; CLAUDE.md Key Commands: `ruff check auction/ src/`'
+  effort: small
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-18'
+  decision_date: null
+  decision_notes: null
+- id: IMP-093
+  title: Replace silent-None optional-import fallback in engine.py with explicit ImportError
+  description: >
+    engine.py lines 54-76 use a pattern where optional dependencies (WalletLedger,
+    ReputationTracker, SyncTaskStore, StripeService, qa_check) are assigned `None` with
+    `# type: ignore` comments inside bare `except ImportError` blocks. If a required
+    dependency is absent at startup, every call to a method that relies on it raises an
+    AttributeError on None at runtime instead of failing fast at import time with a clear
+    message. The pattern also defeats static analysis: mypy cannot verify call sites against
+    None. Fix: make all required dependencies explicit imports (let ImportError propagate);
+    move genuinely optional dependencies to a clearly documented optional extras group and
+    guard their use with `if dep is None: raise RuntimeError("install extras[x]")` at the
+    call site, not the module level.
+  module: M02_engine
+  research_source: daily-audit-2026-04-18
+  evidence: 'auction/engine.py:54-76 — 6 variables assigned None with type:ignore; AttributeError risk on missing optional extras'
+  effort: medium
+  priority: medium
+  status: proposed
+  proposed_date: '2026-04-18'
   decision_date: null
   decision_notes: null

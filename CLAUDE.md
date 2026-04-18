@@ -89,7 +89,7 @@ yakrover-marketplace/
 │   ├── discovery_bridge.py      # ERC-8004 robot discovery
 │   ├── mock_fleet.py            # Simulated robots for testing + RuntimeRegisteredRobot
 │   ├── demo.py                  # Demo script
-│   └── tests/                   # 308 tests + integration stubs
+│   └── tests/                   # 309 tests + integration stubs
 │
 ├── demo/                        # Live demo sites (published via here.now)
 │   ├── marketplace/index.html   # Live auction demo (yakrobot.bid/demo)
@@ -121,7 +121,7 @@ yakrover-marketplace/
 │   ├── architecture/            # System design, tech assessments, diagrams
 │   ├── research/                # 45 research docs (see research/README.md)
 │   │   ├── PRODUCT_DSL_v2.yaml  # THE product ontology (~3,500 lines)
-│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 89 tracked improvement items
+│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 91 tracked improvement items
 │   │   ├── market/              # Wedge analysis, competitive landscape
 │   │   ├── legal/               # Contracts, bonds, payment flows
 │   │   └── operator/            # Onboarding, equipment, sensors

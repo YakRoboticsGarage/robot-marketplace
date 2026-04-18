@@ -1,1 +1,1 @@
-{"name": "YAK Docs Sync", "message": "2026-04-17: No commits in 24h. Fixed 4 stat discrepancies (research 75→45, DSL 3600+→~3500, backlog 63→89 in CLAUDE.md; research 43→45 in README). Added IMP-090 (mcp_tools.py split) + IMP-091 (.env.example mainnet RPC). 308 tests, 41 tools, 19297 LOC."}
+{"name": "YAK Docs Sync", "message": "2026-04-18: 2 commits since yesterday. Fixed: 309 tests (was 308), 91 backlog items (was 89), DSL updated date. New: IMP-092 stale src/ in ruff cmd, IMP-093 silent-None optional imports in engine.py."}
