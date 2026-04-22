@@ -133,6 +133,12 @@ SENSOR_TO_CATEGORY = {
     "ground_robot": "delivery_ground",
 }
 
+# Equipment types that describe the robot's platform/form factor rather than a
+# measurement capability. They drive task_category routing (via SENSOR_TO_CATEGORY)
+# but must NOT be written into the "sensors" list — a ground_robot is not a sensor,
+# and including it would never match a buyer's sensors_required query.
+PLATFORM_EQUIPMENT = {"ground_robot"}
+
 # Blockchain chain configs (used by register_robot_onchain and eas_attest)
 CHAIN_CONFIG = {
     "base-mainnet": {"chain_id": 8453, "rpc": "https://mainnet.base.org"},
@@ -1400,8 +1406,11 @@ def register_auction_tools(
         marketplace_endpoint = marketplace_base + "/mcp"
         # The robot's MCP endpoint — where it actually lives (not the marketplace)
         robot_mcp_url = mcp_endpoint_url or "https://fleet.yakrover.online/fakerover/mcp"
-        all_sensor_list = equipment_types if equipment_types else [equipment_type]
-        task_categories = sorted({SENSOR_TO_CATEGORY.get(s, "env_sensing") for s in all_sensor_list})
+        # Equipment (sensors AND platforms) drives task_category routing,
+        # but only actual measurement sensors belong in the sensors list.
+        all_equipment_list = equipment_types if equipment_types else [equipment_type]
+        all_sensor_list = [e for e in all_equipment_list if e not in PLATFORM_EQUIPMENT]
+        task_categories = sorted({SENSOR_TO_CATEGORY.get(s, "env_sensing") for s in all_equipment_list})
         task_category = ",".join(task_categories)
 
         def _blocking_register():
@@ -1417,10 +1426,12 @@ def register_auction_tools(
                 location=location,
             )
             op_id = profile.operator_id if hasattr(profile, "operator_id") else profile.get("operator_id", "")
-            # Register all equipment types (multi-select)
-            all_sensors = equipment_types if equipment_types else [equipment_type]
-            for sensor in all_sensors:
-                engine._operator_registry.add_equipment(op_id, sensor, model)
+            # Register all equipment types (multi-select) — includes platform + sensor items
+            all_equipment = equipment_types if equipment_types else [equipment_type]
+            for item in all_equipment:
+                engine._operator_registry.add_equipment(op_id, item, model)
+            # Sensor list excludes platform-only equipment (e.g. "ground_robot")
+            all_sensors = [e for e in all_equipment if e not in PLATFORM_EQUIPMENT]
 
             # 2. On-chain registration (single chain)
             target_chain = chain if chain else DEFAULT_CHAIN
