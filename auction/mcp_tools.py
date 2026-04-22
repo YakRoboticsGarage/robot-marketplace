@@ -1374,13 +1374,28 @@ def register_auction_tools(
             return _error_response_structured("INVALID_COMPANY", "company_name is required.", "Provide a company or operator name.")
         if not location or not location.strip():
             return _error_response_structured("INVALID_LOCATION", "location is required.", "e.g. Detroit, MI")
-        # Validate equipment_type — allow known types and custom types (from "Other" input)
-        # Custom types are accepted but mapped to "env_sensing" for on-chain task_categories
+        # Validate equipment_type — must be registered in SENSOR_TO_CATEGORY.
+        # We refuse unknown types instead of silently mapping them to env_sensing,
+        # because a silent fallback mis-routes tasks (operator thinks they're registered
+        # for delivery_ground but actually only env_sensing tasks reach them).
         if not equipment_type or not equipment_type.strip():
             return _error_response_structured(
                 "INVALID_EQUIPMENT_TYPE",
                 "equipment_type is required.",
-                f"Standard types: {sorted(SENSOR_TO_CATEGORY)}. Custom types also accepted.",
+                f"Known types: {sorted(SENSOR_TO_CATEGORY)}. Ask the platform admin to add a new type to SENSOR_TO_CATEGORY + COMMON_MODELS before registering.",
+            )
+        _requested_types = [e for e in (equipment_types or [equipment_type]) if e and str(e).strip()]
+        _unknown_types = [e for e in _requested_types if e not in SENSOR_TO_CATEGORY]
+        if _unknown_types:
+            return _error_response_structured(
+                "UNKNOWN_EQUIPMENT_TYPE",
+                f"Equipment type(s) not recognized: {_unknown_types}.",
+                (
+                    f"Known types: {sorted(SENSOR_TO_CATEGORY)}. "
+                    "Ask the platform admin to add your type to SENSOR_TO_CATEGORY + COMMON_MODELS "
+                    "(and VALID_TASK_CATEGORIES + a delivery schema if the category is new). "
+                    "See PR #25 for an example adding 'ground_robot' + 'delivery_ground'."
+                ),
             )
         if not (0.0 < bid_pct <= 1.0):
             return _error_response_structured("INVALID_BID_PCT", "bid_pct must be between 0 (exclusive) and 1 (inclusive).", "Typical values: 0.70–0.95")
@@ -1408,9 +1423,10 @@ def register_auction_tools(
         robot_mcp_url = mcp_endpoint_url or "https://fleet.yakrover.online/fakerover/mcp"
         # Equipment (sensors AND platforms) drives task_category routing,
         # but only actual measurement sensors belong in the sensors list.
+        # All types here are known (validated above); no silent fallback.
         all_equipment_list = equipment_types if equipment_types else [equipment_type]
         all_sensor_list = [e for e in all_equipment_list if e not in PLATFORM_EQUIPMENT]
-        task_categories = sorted({SENSOR_TO_CATEGORY.get(s, "env_sensing") for s in all_equipment_list})
+        task_categories = sorted({SENSOR_TO_CATEGORY[s] for s in all_equipment_list})
         task_category = ",".join(task_categories)
 
         def _blocking_register():
