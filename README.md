@@ -70,7 +70,7 @@ yakrover-marketplace/
 │   ├── core.py                  # Task, Bid, scoring, signing, haversine geo filter
 │   ├── engine.py                # AuctionEngine — state machine, geo + busy filtering
 │   ├── contracts.py             # On-chain addresses (single source of truth)
-│   ├── mcp_tools.py             # 41 MCP tool handlers
+│   ├── mcp_tools.py             # 42 MCP tool handlers
 │   ├── delivery_schemas.py      # 8 category-specific QA schemas [vertical: construction]
 │   ├── compliance.py            # Part 107, PLS, COI verification [vertical: construction]
 │   ├── rfp_processor.py         # Construction RFP parsing [vertical: construction]
@@ -101,7 +101,7 @@ yakrover-marketplace/
 ├── worker/                      # Cloudflare Worker — payment, demo proxy, balance monitor
 ├── docs/                        # Documentation
 │   ├── architecture/            # System design docs, protocol separation assessment
-│   ├── research/                # 60 research docs + PRODUCT_DSL ontology + backlog
+│   ├── research/                # 57 research docs + PRODUCT_DSL ontology + backlog
 │   ├── guides/                  # Getting started, operations runbook
 │   ├── onboarding/              # Operator onboarding guides
 │   ├── site/                    # Product brief site (yakrobot.bid/yaml)

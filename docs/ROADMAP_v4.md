@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-23 (rev 5.7, v1.4.2 quality hardening complete)
-**Status:** v1.0–v1.4.2 built. **v1.4.2 complete** (41 MCP tools, 100 test robots on Base Sepolia, 9 category MCP servers on Fly.io, EAS attestation, geographic filtering, busy state, 9 delivery schemas, 10 RFP presets, 294 tests in 3-tier architecture, 46/91 backlog items implemented). Demo at yakrobot.bid/demo. Partner memo at yakrobot.bid/memo.
+**Last updated:** 2026-04-23 (rev 5.8, v1.4.3 NPC ROBOT live-production rollout complete)
+**Status:** v1.0–v1.4.3 built. **v1.4.3 complete** (42 MCP tools, 100 test robots on Base Sepolia, 9 category MCP servers on Fly.io, EAS attestation, geographic filtering, busy state, 10 delivery schemas, 10 RFP presets, 294 tests in 3-tier architecture, 44/121 backlog items implemented). Demo at yakrobot.bid/demo. Partner memo at yakrobot.bid/memo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -358,7 +358,7 @@ All 6 MCP tools for operator management are built and tested:
 ### Remaining cleanup (deferred to v1.5)
 
 - **Remove `RuntimeRegisteredRobot` dependency on `mock_fleet.py`.** Currently inherits `bid_engine()` and `execute()` from `ConstructionMockRobot`. Should implement its own ~30 lines each, or be replaced entirely by `MCPRobotAdapter` once operators run their own MCP servers. This decouples registration from the mock fleet — `mock_fleet.py` becomes a test-only utility.
-- **Refactor tests to use `RuntimeRegisteredRobot`.** ~30 test files currently import `create_demo_fleet()` / `create_construction_fleet()` directly (309 tests total). Not blocking but adds unnecessary coupling to archived mock fleet.
+- **Refactor tests to use `RuntimeRegisteredRobot`.** ~30 test files currently import `create_demo_fleet()` / `create_construction_fleet()` directly (294 tests total). Not blocking but adds unnecessary coupling to archived mock fleet.
 - **Fix Berlin-04/05/06 agent cards.** Wrong MCP endpoint in IPFS metadata (marketplace instead of fleet). Need to rewrite agent cards with correct fleet MCP endpoint.
 - **Berlin-01/02/03 empty mcpTools in agent card.** IPFS cards have tools in `services[0].mcpTools` (correct per ERC-8004 spec) but subgraph doesn't index nested fields. Frontend now works around this via IPFS enrichment. Agent cards don't need re-uploading — the enrichment handles it.
 
