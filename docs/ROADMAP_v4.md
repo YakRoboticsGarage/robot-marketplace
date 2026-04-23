@@ -2,8 +2,8 @@
 
 **Project:** yakrover-auction-explorer
 **Owner:** Product
-**Last updated:** 2026-04-12 (rev 5.6, protocol separation assessment + roadmap integration)
-**Status:** v1.0–v1.4 built. **v1.4.1 complete** (42 MCP tools, 100 test robots on Base Sepolia, 9 category MCP servers, EAS attestation, geographic filtering, busy state, 8 delivery schemas, 9 RFP presets). Repo restructured. Demo at yakrobot.bid/demo.
+**Last updated:** 2026-04-23 (rev 5.7, v1.4.2 quality hardening complete)
+**Status:** v1.0–v1.4.2 built. **v1.4.2 complete** (41 MCP tools, 100 test robots on Base Sepolia, 9 category MCP servers on Fly.io, EAS attestation, geographic filtering, busy state, 9 delivery schemas, 10 RFP presets, 294 tests in 3-tier architecture, 46/91 backlog items implemented). Demo at yakrobot.bid/demo. Partner memo at yakrobot.bid/memo.
 
 > All product decisions and technical constraints referenced by ID live in `docs/DECISIONS.md`.
 > Feature requirements for the next build: `docs/FEATURE_REQUIREMENTS_v15.md`.
@@ -375,7 +375,7 @@ The demo currently has ~10 registered robots. Before the marketplace can handle 
 
 | Target | What to verify | When |
 |--------|----------------|------|
-| **100 robots** | Sidebar rendering, subgraph query performance, bid scoring with large fleet, IPFS enrichment latency, discovery time | v1.5 |
+| **100 robots** | Sidebar rendering, subgraph query performance, bid scoring with large fleet, IPFS enrichment latency, discovery time | **v1.4.1 (done)** |
 | **1,000 robots** | Pagination/virtualization needed in sidebar, subgraph `first: 50` limit must increase, auction scoring performance under load, MCP server memory with 1K fleet objects | v2.0 |
 
 **4. Known scaling concerns:**
