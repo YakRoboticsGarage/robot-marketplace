@@ -32,47 +32,11 @@ from auction.wallet import WalletLedger
 # Shared fixtures
 # ---------------------------------------------------------------------------
 
-VALID_TASK_SPEC = {
-    "description": "Measure temperature and humidity in warehouse bay 3",
-    "task_category": "env_sensing",
-    "capability_requirements": {
-        "hard": {
-            "sensors_required": ["temperature", "humidity"],
-            "indoor_capable": True,
-        },
-        "payload": {
-            "format": "json",
-            "fields": ["temperature_celsius", "humidity_percent"],
-        },
-    },
-    "budget_ceiling": 1.00,
-    "sla_seconds": 600,
-}
-
-WELDING_TASK_SPEC = {
-    "description": "Inspect welding seam quality on assembly line",
-    "task_category": "visual_inspection",
-    "capability_requirements": {
-        "hard": {
-            "sensors_required": ["welding_sensor"],
-        },
-        "payload": {
-            "format": "json",
-            "fields": [],
-        },
-    },
-    "budget_ceiling": 2.00,
-    "sla_seconds": 300,
-}
+from auction.tests._fixtures import VALID_TASK_SPEC, WELDING_TASK_SPEC
 
 
 def _mock_httpx_patch():
-    """Return a context manager that patches httpx.AsyncClient with a canned response.
-
-    The mock intercepts ``async with httpx.AsyncClient() as client`` and
-    makes ``client.get(...)`` return a response whose ``.json()`` yields
-    ``{"temperature": 22.5, "humidity": 45.0}``.
-    """
+    """Return a context manager that patches httpx.AsyncClient with a canned response."""
     mock_response = MagicMock()
     mock_response.json.return_value = {"temperature": 22.5, "humidity": 45.0}
     mock_response.status_code = 200
@@ -80,7 +44,6 @@ def _mock_httpx_patch():
     mock_client = AsyncMock()
     mock_client.get.return_value = mock_response
 
-    # httpx.AsyncClient() is used as an async context manager
     mock_client_cls = MagicMock()
     mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=mock_client)
     mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=False)

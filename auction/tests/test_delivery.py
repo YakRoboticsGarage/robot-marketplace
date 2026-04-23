@@ -1,6 +1,31 @@
-"""Tests for deliverable QA system (IMP-004, IMP-006)."""
+"""Merged delivery tests: QA levels, schema validation, and per-category schemas.
+
+Combines test_deliverable_qa.py and test_delivery_schemas_e2e.py into three sections.
+"""
+
+import random
+import time
+
+import pytest
 
 from auction.deliverable_qa import QAResult, check_delivery, get_qa_level, validate_delivery_schema
+from auction.delivery_schemas import (
+    AERIAL_LIDAR_SCHEMA,
+    AERIAL_PHOTO_SCHEMA,
+    AERIAL_THERMAL_SCHEMA,
+    BRIDGE_INSPECTION_SCHEMA,
+    CONFINED_SCHEMA,
+    CORRIDOR_SCHEMA,
+    ENV_SENSING_SCHEMA,
+    GROUND_DELIVERY_SCHEMA,
+    GROUND_GPR_SCHEMA,
+    GROUND_LIDAR_SCHEMA,
+    get_delivery_schema,
+)
+
+# ════════════════════════════════════════════════════════════════════
+# Section 1: QA Level Tests
+# ════════════════════════════════════════════════════════════════════
 
 
 class TestQALevelSelection:
@@ -208,7 +233,7 @@ class TestServerRoomDemo:
         }
         result = check_delivery(data, spec)
         assert result.passed
-        assert result.level == 1  # env_sensing defaults to basic QA
+        assert result.level == 1
 
 
 class TestQAResult:
@@ -226,6 +251,11 @@ class TestQAResult:
     def test_warn_is_passed(self):
         r = QAResult(status="WARN", level=1, issues=["minor concern"])
         assert r.passed
+
+
+# ════════════════════════════════════════════════════════════════════
+# Section 2: Schema Validation Tests
+# ════════════════════════════════════════════════════════════════════
 
 
 class TestSchemaValidator:
@@ -276,7 +306,7 @@ class TestSchemaValidator:
     def test_too_few_readings(self):
         data = {
             **self.TUMBLLER_GOOD_DATA,
-            "readings": self.TUMBLLER_GOOD_DATA["readings"][:2],  # only 2 of 3
+            "readings": self.TUMBLLER_GOOD_DATA["readings"][:2],
         }
         issues = validate_delivery_schema(data, self.TUMBLLER_SCHEMA)
         assert any("minimum 3" in i for i in issues)
@@ -303,7 +333,7 @@ class TestSchemaValidator:
 
     def test_missing_field_in_reading(self):
         bad_readings = [
-            {"waypoint": 1, "temperature_c": 22, "timestamp": "t1"},  # missing humidity_pct
+            {"waypoint": 1, "temperature_c": 22, "timestamp": "t1"},
             {"waypoint": 2, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t2"},
             {"waypoint": 3, "temperature_c": 22, "humidity_pct": 45, "timestamp": "t3"},
         ]
@@ -323,30 +353,25 @@ class TestSchemaValidator:
 
     def test_robot_self_check_matches_qa(self):
         """Robot running self-check gets same result as marketplace QA."""
-        # Self-check (what the robot does before submitting)
         self_issues = validate_delivery_schema(self.TUMBLLER_GOOD_DATA, self.TUMBLLER_SCHEMA)
-
-        # Marketplace QA (what runs after submission)
         spec = {
             "task_category": "env_sensing",
             "capability_requirements": {"delivery_schema": self.TUMBLLER_SCHEMA},
         }
         qa_result = check_delivery(self.TUMBLLER_GOOD_DATA, spec, qa_level=1)
-
-        # Both should pass with no issues
         assert self_issues == []
         assert qa_result.status == "PASS"
 
     def test_schema_driven_qa_catches_bad_delivery(self):
         """Full QA flow with schema catches incomplete delivery."""
-        bad_data = {"readings": [], "summary": ""}  # missing duration_seconds, empty readings + summary
+        bad_data = {"readings": [], "summary": ""}
         spec = {
             "task_category": "env_sensing",
             "capability_requirements": {"delivery_schema": self.TUMBLLER_SCHEMA},
         }
         result = check_delivery(bad_data, spec, qa_level=1)
         assert result.status == "FAIL"
-        assert len(result.issues) >= 2  # missing field + empty array + empty string
+        assert len(result.issues) >= 2
 
     def test_no_schema_falls_back_to_legacy(self):
         """Without delivery_schema, Level 1 uses legacy field checks."""
@@ -359,7 +384,7 @@ class TestSchemaValidator:
         }
         result = check_delivery(data, spec, qa_level=1)
         assert result.status == "PASS"
-        assert "required_fields" in result.checks_run  # legacy path
+        assert "required_fields" in result.checks_run
 
 
 class TestSurveySchema:
@@ -402,7 +427,278 @@ class TestSurveySchema:
     def test_file_missing_format(self):
         data = {
             "coordinate_system": "EPSG:2113",
-            "files": [{"name": "scan.las"}],  # missing format
+            "files": [{"name": "scan.las"}],
         }
         issues = validate_delivery_schema(data, self.SURVEY_SCHEMA)
         assert any("format" in i for i in issues)
+
+
+# ════════════════════════════════════════════════════════════════════
+# Section 3: Category Schema Tests (parametrized)
+# ════════════════════════════════════════════════════════════════════
+
+# -- Data generators (mirrors category_server.py) --
+
+
+def _sim_gps(lat=42.5, lng=-83.5):
+    return {
+        "latitude": round(lat + random.uniform(-0.01, 0.01), 6),
+        "longitude": round(lng + random.uniform(-0.01, 0.01), 6),
+        "altitude_m": round(random.uniform(50, 120), 1),
+        "fix": "RTK_FIXED",
+        "satellites": random.randint(12, 24),
+    }
+
+
+def _make_aerial_lidar():
+    area = random.randint(20000, 80000)
+    density = round(random.uniform(2.0, 12.0), 1)
+    return {
+        "point_cloud": {
+            "format": "LAS 1.4", "version": "1.4", "point_count": int(area * density),
+            "density_pts_m2": density, "area_m2": area,
+            "classifications": ["ground", "low_vegetation", "medium_vegetation",
+                                "high_vegetation", "building", "noise"],
+            "bounding_box": {"min": _sim_gps(), "max": _sim_gps()},
+        },
+        "quality_metrics": {
+            "horizontal_accuracy_cm": round(random.uniform(2.0, 3.5), 1),
+            "vertical_accuracy_cm": round(random.uniform(3.0, 5.0), 1),
+            "control_points_used": random.randint(6, 15),
+            "overlap_pct": random.randint(60, 75),
+        },
+        "coordinate_system": {"epsg": 2253, "datum": "NAD83(2011)",
+                              "projection": "Michigan State Plane South"},
+        "summary": f"Aerial LiDAR survey complete. {random.randint(3, 8)} flight lines captured.",
+    }
+
+
+def _make_aerial_photo():
+    return {
+        "orthomosaic": {
+            "format": "GeoTIFF", "gsd_cm": round(random.uniform(0.8, 3.5), 2),
+            "width_px": random.randint(10000, 50000), "height_px": random.randint(8000, 40000),
+            "bands": 4, "bounding_box": {"min": _sim_gps(), "max": _sim_gps()},
+        },
+        "photo_set": {
+            "total_photos": random.randint(80, 400), "overlap_frontal_pct": random.randint(75, 85),
+            "overlap_side_pct": random.randint(65, 75), "camera_model": "DJI Zenmuse P1 / FC6360",
+        },
+        "quality_metrics": {
+            "horizontal_accuracy_cm": round(random.uniform(1, 4), 1),
+            "vertical_accuracy_cm": round(random.uniform(2, 6), 1),
+            "reprojection_error_px": round(random.uniform(0.3, 0.8), 2),
+            "ground_control_points": random.randint(4, 10),
+        },
+        "summary": f"Photogrammetry complete. {random.randint(80, 400)} photos processed.",
+    }
+
+
+def _make_ground_gpr():
+    utilities = [
+        {"type": random.choice(["water", "sewer", "electric", "gas", "telecom"]),
+         "depth_m": round(random.uniform(0.3, 2.5), 2),
+         "confidence": round(random.uniform(0.6, 0.98), 2),
+         "apwa_color": random.choice(["blue", "green", "red", "yellow", "orange"]),
+         "position": _sim_gps()}
+        for _ in range(random.randint(2, 8))
+    ]
+    return {
+        "scan_data": {"format": "DZT", "scan_lines": random.randint(10, 60),
+                      "total_length_m": round(random.uniform(50, 500), 1),
+                      "depth_m": round(random.uniform(1, 3), 1), "antenna_frequency_mhz": 1600},
+        "utility_detections": utilities,
+        "survey_parameters": {"coordinate_system": "EPSG:2253 Michigan State Plane South",
+                              "accuracy_horizontal_cm": 15, "accuracy_depth_pct": 10,
+                              "asce_38_quality_level": "B"},
+        "summary": f"GPR survey complete. {len(utilities)} utilities detected.",
+    }
+
+
+def _make_aerial_thermal():
+    anomalies = [
+        {"severity": random.choice(["low", "medium", "high", "critical"]),
+         "delta_t_c": round(random.uniform(2, 15), 1),
+         "area_m2": round(random.uniform(0.5, 20), 1),
+         "classification": random.choice(["moisture", "insulation_gap", "membrane_failure"]),
+         "position": _sim_gps()}
+        for _ in range(random.randint(1, 5))
+    ]
+    return {
+        "thermal_mosaic": {"format": "RJPEG", "resolution": "640x512",
+                           "temp_range_c": {"min": round(random.uniform(-5, 10), 1),
+                                            "max": round(random.uniform(30, 65), 1)},
+                           "emissivity": 0.95, "images_captured": random.randint(50, 200)},
+        "anomalies": anomalies,
+        "survey_conditions": {"ambient_temp_c": round(random.uniform(5, 25), 1),
+                              "wind_speed_mph": round(random.uniform(2, 12), 1),
+                              "sky_condition": random.choice(["clear", "partly_cloudy", "overcast"]),
+                              "time_of_day": "pre-dawn"},
+        "summary": f"Thermal survey complete. {len(anomalies)} anomalies detected.",
+    }
+
+
+def _make_bridge_inspection():
+    elements = [
+        {"element": elem, "condition_state": random.randint(1, 4),
+         "quantity_pct": round(random.uniform(60, 100), 1),
+         "defects": random.sample(["spalling", "cracking", "corrosion", "delamination",
+                                    "efflorescence"], random.randint(0, 3))}
+        for elem in ["deck", "superstructure", "substructure", "bearings", "joints"]
+    ]
+    return {
+        "inspection_set": {"total_images": random.randint(100, 400),
+                           "coverage_pct": round(random.uniform(85, 99), 1),
+                           "resolution_mp": 48, "gsd_mm": round(random.uniform(0.5, 2), 1)},
+        "element_ratings": elements,
+        "summary": f"Bridge inspection complete. {len(elements)} elements rated per NBI coding.",
+    }
+
+
+def _make_ground_lidar():
+    positions = [
+        {"position_id": i + 1, "point_count": random.randint(500000, 2000000),
+         "overlap_pct": round(random.uniform(30, 60), 1)}
+        for i in range(random.randint(5, 15))
+    ]
+    return {
+        "point_cloud": {"format": "E57", "point_count": sum(p["point_count"] for p in positions),
+                        "scan_positions": len(positions),
+                        "registration_error_mm": round(random.uniform(1, 5), 1)},
+        "scan_positions": positions,
+        "quality_metrics": {"registration_error_mm": round(random.uniform(1, 5), 1),
+                            "coverage_pct": round(random.uniform(90, 99), 1)},
+        "summary": f"Ground LiDAR scan complete. {len(positions)} positions registered.",
+    }
+
+
+def _make_confined():
+    return {
+        "point_cloud": {"format": "PLY", "point_count": random.randint(100000, 1000000),
+                        "positioning_method": "SLAM",
+                        "slam_confidence": round(random.uniform(0.75, 0.98), 2)},
+        "inspection_photos": {"total_photos": random.randint(30, 150),
+                              "lighting": "onboard_led", "resolution_mp": 12},
+        "obstacle_map": {"obstacles_detected": random.randint(0, 8),
+                         "clearance_min_m": round(random.uniform(0.5, 3), 1)},
+        "summary": "Confined space inspection complete. SLAM-based positioning.",
+    }
+
+
+def _make_env_sensing():
+    readings = [
+        {"waypoint": i + 1, "temperature_c": round(random.uniform(18, 32), 1),
+         "humidity_pct": round(random.uniform(30, 70), 1), "timestamp": str(time.time() + i * 60)}
+        for i in range(3)
+    ]
+    return {"readings": readings, "summary": "Environmental readings captured at 3 waypoints.",
+            "duration_seconds": round(random.uniform(10, 120), 1)}
+
+
+def _make_ground_delivery():
+    start_ts = int(time.time() * 1000)
+    commands = ["forward", "left", "forward", "right", "stop"]
+    command_log = [
+        {"command": cmd, "timestamp_ms": start_ts + i * 1000,
+         "duration_ms": random.randint(200, 1500)}
+        for i, cmd in enumerate(commands)
+    ]
+    return {
+        "task_id": f"task_{random.randint(1000, 9999)}", "commands_executed": command_log,
+        "duration_s": round(sum(c["duration_ms"] for c in command_log) / 1000.0, 2),
+        "completion_status": "completed", "robot_id": "8453:42",
+        "summary": f"Executed {len(commands)} motor commands.",
+    }
+
+
+def _make_corridor():
+    base = _make_aerial_lidar()
+    base["corridor_metrics"] = {
+        "length_m": round(random.uniform(500, 5000), 1),
+        "width_m": round(random.uniform(20, 60), 1),
+        "cross_sections": random.randint(10, 100),
+        "cross_section_interval_m": round(random.uniform(10, 50), 1),
+    }
+    return base
+
+
+# Schema name, generator, and expected category mappings
+CATEGORY_CASES = [
+    ("aerial_lidar", AERIAL_LIDAR_SCHEMA, _make_aerial_lidar,
+     ["topo_survey", "aerial_survey", "volumetric", "site_survey", "control_survey", "mapping"]),
+    ("aerial_photo", AERIAL_PHOTO_SCHEMA, _make_aerial_photo,
+     ["progress_monitoring", "visual_inspection", "environmental_survey"]),
+    ("ground_gpr", GROUND_GPR_SCHEMA, _make_ground_gpr,
+     ["subsurface_scan", "utility_detection"]),
+    ("aerial_thermal", AERIAL_THERMAL_SCHEMA, _make_aerial_thermal,
+     ["thermal_inspection"]),
+    ("bridge_inspection", BRIDGE_INSPECTION_SCHEMA, _make_bridge_inspection,
+     ["bridge_inspection"]),
+    ("ground_lidar", GROUND_LIDAR_SCHEMA, _make_ground_lidar,
+     ["as_built"]),
+    ("confined", CONFINED_SCHEMA, _make_confined,
+     ["confined_space"]),
+    ("env_sensing", ENV_SENSING_SCHEMA, _make_env_sensing,
+     ["env_sensing", "sensor_reading"]),
+    ("corridor", CORRIDOR_SCHEMA, _make_corridor,
+     ["corridor_survey"]),
+    ("ground_delivery", GROUND_DELIVERY_SCHEMA, _make_ground_delivery,
+     ["delivery_ground"]),
+]
+
+
+class TestCategorySchemas:
+    """Parametrized schema validation across all delivery categories."""
+
+    @pytest.fixture(autouse=True)
+    def seed_random(self):
+        random.seed(42)
+
+    @pytest.mark.parametrize("name,schema,generator,categories", CATEGORY_CASES,
+                             ids=[c[0] for c in CATEGORY_CASES])
+    def test_schema_passes(self, name, schema, generator, categories):
+        data = generator()
+        issues = validate_delivery_schema(data, schema)
+        assert issues == [], f"{name} schema failed: {issues}"
+
+    @pytest.mark.parametrize("name,schema,generator,categories", CATEGORY_CASES,
+                             ids=[c[0] for c in CATEGORY_CASES])
+    def test_category_mapping(self, name, schema, generator, categories):
+        for cat in categories:
+            assert get_delivery_schema(cat) == schema, f"{cat} should map to {name} schema"
+
+
+class TestGroundDeliveryEdgeCases:
+    """Extra edge-case tests for ground delivery schema."""
+
+    @pytest.fixture(autouse=True)
+    def seed_random(self):
+        random.seed(42)
+
+    def test_missing_required_field_fails(self):
+        data = _make_ground_delivery()
+        del data["commands_executed"]
+        issues = validate_delivery_schema(data, GROUND_DELIVERY_SCHEMA)
+        assert any("commands_executed" in i for i in issues), (
+            f"Expected missing-field issue for commands_executed, got: {issues}"
+        )
+
+    def test_empty_command_log_fails(self):
+        data = _make_ground_delivery()
+        data["commands_executed"] = []
+        issues = validate_delivery_schema(data, GROUND_DELIVERY_SCHEMA)
+        assert any("minimum 1" in i for i in issues), (
+            f"Expected minItems violation for empty commands_executed, got: {issues}"
+        )
+
+
+class TestAllCategoriesCovered:
+    """Verify every task category in the mapping has a test."""
+
+    def test_all_categories_mapped(self):
+        from auction.delivery_schemas import DELIVERY_SCHEMAS
+
+        assert len(DELIVERY_SCHEMAS) == 19
+        for cat in DELIVERY_SCHEMAS:
+            schema = get_delivery_schema(cat)
+            assert schema is not None, f"No schema for {cat}"

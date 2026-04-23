@@ -31,22 +31,7 @@ from auction.wallet import StripeWalletService, WalletLedger
 # Shared fixtures and helpers
 # ---------------------------------------------------------------------------
 
-VALID_TASK_SPEC = {
-    "description": "Measure temperature and humidity in warehouse bay 3",
-    "task_category": "env_sensing",
-    "capability_requirements": {
-        "hard": {
-            "sensors_required": ["temperature", "humidity"],
-            "indoor_capable": True,
-        },
-        "payload": {
-            "format": "json",
-            "fields": ["temperature_celsius", "humidity_percent"],
-        },
-    },
-    "budget_ceiling": 1.00,
-    "sla_seconds": 600,
-}
+from auction.tests._fixtures import VALID_TASK_SPEC
 
 
 def _mock_httpx_patch():

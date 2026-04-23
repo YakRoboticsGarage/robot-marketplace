@@ -10,6 +10,7 @@ dependencies = [
     "httpx>=0.27",
     "openpyxl>=3.1.5",
     "pymupdf>=1.27.2.2",
+    "pytest-benchmark[dev]>=5.2.3",
     "python-dotenv>=1.0",
 ]
 
@@ -29,6 +30,7 @@ all = [
 dev = [
     "pytest>=9.0",
     "pytest-asyncio>=1.0",
+    "pytest-benchmark>=5.0",
     "pytest-cov>=6.0",
     "hypothesis>=6.0",
     "ruff>=0.9",
@@ -47,7 +49,7 @@ markers = [
     "blockchain: requires BASE_SEPOLIA_RPC_URL for on-chain tests",
     "fleet: requires running fleet server for robot integration tests",
 ]
-addopts = "--strict-markers"
+addopts = "--strict-markers --benchmark-disable"
 
 [tool.ruff]
 target-version = "py313"
