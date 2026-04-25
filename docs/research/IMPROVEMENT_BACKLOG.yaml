@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-24'
-  total_items: 126
+  last_updated: '2026-04-25'
+  total_items: 128
   implemented: 44
   deferred: 18
   rejected: 1
-  proposed: 63
+  proposed: 65
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint + NPC ROBOT live-production rollout
-  last_sync: "2026-04-24 — Daily code audit. Added IMP-124 (ruff format violations break CI lint), IMP-125 (ruff I001 import-sort violations break CI lint), IMP-126 (pyproject.toml version drift). 44 implemented, 63 proposed, 18 deferred, 1 rejected."
+  last_sync: "2026-04-25 — Daily code audit. Added IMP-127 (stale src/core/server.py docstring in mcp_tools.py), IMP-128 (dead create_failure_fleet/create_full_fleet in mock_fleet.py). Docs sync: CLAUDE.md fixed 41→42 MCP tools in 3 places, 308→323 tests, 45→51 research docs, 89→126 backlog items, removed nonexistent src/ from ruff command; README.md research doc count 57→51. 44 implemented, 65 proposed, 18 deferred, 1 rejected."
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -2360,5 +2360,45 @@ proposals:
   priority: low
   status: proposed
   proposed_date: '2026-04-24'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-127
+  title: "Remove stale src/core/server.py reference from mcp_tools.py module docstring"
+  description: >
+    The module docstring in auction/mcp_tools.py (line 15) reads:
+    "This module is imported by the upstream `src/core/server.py` when auction mode is enabled."
+    No `src/` directory exists in the repository. The actual entry point is `mcp_server.py`
+    at the project root, which calls `register_auction_tools()`. The stale reference misleads
+    onboarding developers searching for server wiring and will never be caught by ruff or mypy.
+    Fix: replace the stale sentence with: "Registered via `register_auction_tools(mcp, engine)`
+    called from `mcp_server.py`."
+  module: auction/mcp_tools.py
+  research_source: Daily code audit (2026-04-25)
+  evidence: "auction/mcp_tools.py line 15 references src/core/server.py; ls src/ → directory does not exist; actual entry point is mcp_server.py"
+  effort: trivial
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-25'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-128
+  title: "Remove dead create_failure_fleet() and create_full_fleet() from mock_fleet.py"
+  description: >
+    `create_failure_fleet()` (mock_fleet.py:412) and `create_full_fleet()` (mock_fleet.py:914)
+    are referenced only inside `auction/tests/_archive/test_construction_tasks.py`, which is
+    excluded from CI (--ignore=auction/tests/_archive in test.yml). Neither function is called
+    from any active test, demo, engine, or MCP tool. They add ~80 LOC of maintenance surface to
+    an already-large file (951 LOC) and create misleading import surface for future contributors.
+    Fix: delete both functions and the `TimeoutRobot`/`BadPayloadRobot` classes if they are
+    similarly archive-only. Verify no active callers with grep before deletion.
+  module: auction/mock_fleet.py
+  research_source: Daily code audit (2026-04-25)
+  evidence: "grep create_failure_fleet auction/ -r | grep -v _archive → 0 results; grep create_full_fleet auction/ -r | grep -v _archive → 0 results"
+  effort: small
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-25'
   decision_date: null
   decision_notes: null

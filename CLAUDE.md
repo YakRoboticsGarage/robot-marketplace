@@ -20,7 +20,7 @@ A marketplace where AI agents post construction survey tasks, certified robot op
 - **Auction engine:** `auction/` — Task, Bid, AuctionResult, score_bids(), state machine, settlement abstraction
 - **Payment:** Stripe Connect (fiat) + USDC on Base via x402 (crypto, v1.5). Construction scale: $10K-$200K per project, not micro-payments.
 - **Escrow:** `RobotTaskEscrow.sol` on Base with 4-mode settlement abstraction (FD-1, v1.5)
-- **Fleet:** Robot/operator discovery via ERC-8004, 41 MCP tools for agent interaction
+- **Fleet:** Robot/operator discovery via ERC-8004, 42 MCP tools for agent interaction
 - **Persistence:** SQLite via `SyncTaskStore`
 - **Demo site:** `demo/landing/index.html` — interactive demo at [yakrobot.bid](https://yakrobot.bid)
 - **Live demo:** `demo/marketplace/index.html` — Claude orchestrates real auction at [yakrobot.bid/demo](https://yakrobot.bid/demo/)
@@ -35,7 +35,7 @@ uv run pytest auction/tests/ -q --tb=short              # Unit tests (fast, no k
 uv run pytest auction/tests/integration/ -m stripe      # Stripe integration (needs STRIPE_SECRET_KEY)
 uv run pytest auction/tests/integration/ -m blockchain  # On-chain tests (needs BASE_SEPOLIA_RPC_URL)
 uv run pytest auction/tests/integration/ -m fleet       # Fleet e2e (needs running fleet server)
-uv run ruff check auction/ src/                         # Lint (includes security rules)
+uv run ruff check auction/                              # Lint (includes security rules)
 uv run mypy auction/                                    # Type check
 uv run pytest --cov=auction auction/tests/              # Coverage report
 ```
@@ -81,7 +81,7 @@ yakrover-marketplace/
 │   ├── engine.py                # AuctionEngine — state machine, rate limits
 │   ├── api.py                   # HTTP API for web frontend
 │   ├── settlement.py            # 4-mode settlement abstraction (FD-1)
-│   ├── mcp_tools.py             # 41 MCP tool handlers
+│   ├── mcp_tools.py             # 42 MCP tool handlers
 │   ├── wallet.py                # WalletLedger with thread-safe mutations
 │   ├── stripe_service.py        # Stripe SDK with idempotency keys
 │   ├── store.py                 # SQLite persistence
@@ -90,7 +90,7 @@ yakrover-marketplace/
 │   ├── discovery_bridge.py      # ERC-8004 robot discovery
 │   ├── mock_fleet.py            # Simulated robots for testing + RuntimeRegisteredRobot
 │   ├── demo.py                  # Demo script
-│   └── tests/                   # 308 tests + integration stubs
+│   └── tests/                   # 323 tests + integration stubs
 │
 ├── demo/                        # Live demo sites (published via here.now)
 │   ├── marketplace/index.html   # Live auction demo (yakrobot.bid/demo)
@@ -112,7 +112,7 @@ yakrover-marketplace/
 │   ├── register_fleet.py        # Batch robot registration
 │   └── eas_attest.py            # EAS attestation management
 │
-├── mcp_server.py                # Standalone REST API (41 MCP tools)
+├── mcp_server.py                # Standalone REST API (42 MCP tools)
 │
 ├── docs/                        # Technical documentation
 │   ├── ROADMAP_v4.md            # Construction → Mining → Infra → Lunar
@@ -120,9 +120,9 @@ yakrover-marketplace/
 │   ├── DECISIONS.md             # All product/technical decisions
 │   ├── SCOPE.md                 # Version boundaries
 │   ├── architecture/            # System design, tech assessments, diagrams
-│   ├── research/                # 45 research docs (see research/README.md)
+│   ├── research/                # 51 research docs (see research/README.md)
 │   │   ├── PRODUCT_DSL_v2.yaml  # THE product ontology (~3,500 lines)
-│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 89 tracked improvement items
+│   │   ├── IMPROVEMENT_BACKLOG.yaml  # 126 tracked improvement items
 │   │   ├── market/              # Wedge analysis, competitive landscape
 │   │   ├── legal/               # Contracts, bonds, payment flows
 │   │   └── operator/            # Onboarding, equipment, sensors
