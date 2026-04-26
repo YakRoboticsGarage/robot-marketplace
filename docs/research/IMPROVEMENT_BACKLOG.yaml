@@ -1,13 +1,13 @@
 meta:
   created: '2026-04-01'
-  last_updated: '2026-04-25'
-  total_items: 128
+  last_updated: '2026-04-26'
+  total_items: 130
   implemented: 44
   deferred: 18
   rejected: 1
-  proposed: 65
+  proposed: 67
   source: Automated daily research agent + weekly synthesis + 100-robot fleet sprint + NPC ROBOT live-production rollout
-  last_sync: "2026-04-25 — Daily code audit. Added IMP-127 (stale src/core/server.py docstring in mcp_tools.py), IMP-128 (dead create_failure_fleet/create_full_fleet in mock_fleet.py). Docs sync: CLAUDE.md fixed 41→42 MCP tools in 3 places, 308→323 tests, 45→51 research docs, 89→126 backlog items, removed nonexistent src/ from ruff command; README.md research doc count 57→51. 44 implemented, 65 proposed, 18 deferred, 1 rejected."
+  last_sync: "2026-04-26 — Daily code audit. Added IMP-129 (R-053 duplicate ID collision in docs/research/automated/), IMP-130 (pyproject.toml version 1.4.1 stale vs v1.4.2 release). Docs sync: CLAUDE.md + ROADMAP_v4.md fixed 44/126→44/128 backlog count. 44 implemented, 67 proposed, 18 deferred, 1 rejected."
 proposals:
 - id: IMP-001
   title: Integrate external PLS license verification API (Checkr or MeshVerify)
@@ -2400,5 +2400,46 @@ proposals:
   priority: low
   status: proposed
   proposed_date: '2026-04-25'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-129
+  title: "Renumber R-053_mcp_skills_plugins_agent_integration.md — duplicate ID collision"
+  description: >
+    `docs/research/automated/` contains two files sharing the R-053 prefix:
+    `R-053_stripe_machine_payments_protocol.md` (183 lines, Stripe MPP/x402 analysis) and
+    `R-053_mcp_skills_plugins_agent_integration.md` (335 lines, MCP skills/plugins agent
+    integration). The RESEARCH_ROADMAP.yaml at id R-053 explicitly maps to the Stripe MPP
+    document; all cross-references in ROADMAP_v4.md, PRODUCT_MODULE_MAP.md, and
+    IMPROVEMENT_BACKLOG.yaml point to R-053 as the Stripe MPP research. The MCP/skills file
+    was created under the same ID by mistake. Fix: rename
+    `R-053_mcp_skills_plugins_agent_integration.md` to the next available ID (check
+    RESEARCH_ROADMAP.yaml for the highest R-NNN used, then assign R-NNN+1). Add a new entry
+    in RESEARCH_ROADMAP.yaml for the reassigned ID. Update any cross-references.
+  module: docs/research/automated/
+  research_source: Daily code audit (2026-04-26)
+  evidence: "find docs/research/automated/ -name 'R-053*' → 2 files; RESEARCH_ROADMAP.yaml line 803 assigns R-053 to stripe_machine_payments_protocol"
+  effort: trivial
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-26'
+  decision_date: null
+  decision_notes: null
+
+- id: IMP-130
+  title: "Bump pyproject.toml version from 1.4.1 to 1.4.2"
+  description: >
+    `pyproject.toml` declares `version = "1.4.1"` but the codebase shipped v1.4.2
+    (tagged 2026-04-18, milestone: quality + compliance hardening). The package version
+    is stale by one minor release. This affects `pip show yakrover-marketplace`,
+    programmatic version checks, and any downstream tooling that reads pyproject.toml.
+    Fix: change `version = "1.4.1"` to `version = "1.4.2"` in pyproject.toml.
+  module: pyproject.toml
+  research_source: Daily code audit (2026-04-26)
+  evidence: "pyproject.toml line 3: version = \"1.4.1\"; CLAUDE.md: v1.4.2 status complete 2026-04-18; git tags: v1.4-milestone-operator-registration"
+  effort: trivial
+  priority: low
+  status: proposed
+  proposed_date: '2026-04-26'
   decision_date: null
   decision_notes: null
